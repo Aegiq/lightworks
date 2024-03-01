@@ -10,7 +10,7 @@ To create a new State, a list of integers should be provided, with the integers 
 
 .. code-block:: Python
 
-    new_state = sdk.State([1,0,2,0])
+    new_state = lw.State([1,0,2,0])
 
 The list used to represent the state is stored with the ``s`` attribute and can be retrieved using this, however the value of this attribute cannot be modified and an error will be raised if this is attempted.
 
@@ -21,14 +21,14 @@ State objects have a range of functionality designed to make them easier to view
 
 .. code-block:: Python
 
-    print(sdk.State([1,0,2,0]))
+    print(lw.State([1,0,2,0]))
     # Output: |1,0,2,0>
 
 It is also possible to index the State to retrieve partial information on its value. If the index is an integer then indexing will return the integer value for that mode, alternatively if the index is a slice this will create a new State object.
 
 .. code-block:: Python
 
-    state = sdk.State([1,0,2,0])
+    state = lw.State([1,0,2,0])
 
     print(state[0])
     # Output: 1
@@ -43,7 +43,7 @@ A number of properties can also be viewed about a state, including the number of
 
 .. code-block:: Python
 
-    state = sdk.State([1,0,2,0])
+    state = lw.State([1,0,2,0])
 
     print(len(state))
     # Output: 4
@@ -58,13 +58,13 @@ As mentioned earlier, the State object is also hashable so can be used as a key 
 
 .. code-block:: Python
 
-    print(sdk.State([1,0,2,0]) == sdk.State([1,0,2,0]))
+    print(lw.State([1,0,2,0]) == lw.State([1,0,2,0]))
     # Output: True
 
-    dict = {sdk.State([1,0,1,0]) : 0.5,
-            sdk.State([0,1,0,1]) : 0.5}
+    dict = {lw.State([1,0,1,0]) : 0.5,
+            lw.State([0,1,0,1]) : 0.5}
 
-    print(sdk.State([1,0,1,0]) in dict)
+    print(lw.State([1,0,1,0]) in dict)
     # Output: True
 
 Combining States
@@ -74,11 +74,11 @@ It is also possible to combine states together, either through the use of the ``
 
 .. code-block:: Python
 
-    print(sdk.State([1,0]) + sdk.State([2,0]))
+    print(lw.State([1,0]) + lw.State([2,0]))
     # Output: |1,0,2,0>
 
-    state = sdk.State([1,0,2,0])
-    state2 = sdk.State([2,1,0,1]
+    state = lw.State([1,0,2,0])
+    state2 = lw.State([2,1,0,1]
     
     print(state.merge(state2))
     # Output: |3,1,2,1>

@@ -1,7 +1,7 @@
 Circuit
 =======
 
-The Circuit is one of the key components of the Aegiq SDK. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
+The Circuit is one of the key components of the Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
 
 .. note that somewhere here there will need to be a note on what loss is and how it is included.
 
@@ -12,7 +12,7 @@ A circuit is initialized by calling the circuit object, and only requires the nu
 
 .. code-block:: Python
 
-    circuit = sdk.Circuit(4)
+    circuit = lw.Circuit(4)
 
 Once a circuit has been created, it is then possible to view the number of modes with the ``n_modes`` attribute.
 
@@ -96,11 +96,11 @@ When using the emulator to simulate a circuit, it is also possible to include lo
     circuit.add_bs(1, reflectivity = 0.4, convention = "H", loss = 0.3)
 
 .. warning:: 
-    All losses in the SDK should be provided as a positive dB loss value. To provide loss as a decimal transmission value instead, the ``transmission_to_db_loss`` function can be used. For a transmission of 80%, the function call above would therefore look like:
+    All losses in Lightworks should be provided as a positive dB loss value. To provide loss as a decimal transmission value instead, the ``transmission_to_db_loss`` function can be used. For a transmission of 80%, the function call above would therefore look like:
 
   .. code-block:: Python
 
-    circuit.add_bs(1, reflectivity = 0.4, convention = "H", loss = sdk.transmission_to_db_loss(0.8))
+    circuit.add_bs(1, reflectivity = 0.4, convention = "H", loss = lw.transmission_to_db_loss(0.8))
 
 .. _phaseshifter:
 
@@ -172,7 +172,7 @@ Once a circuit has been created, the created configuration can be viewed with th
 
 .. code-block:: Python
 
-    circuit = sdk.Circuit(4)
+    circuit = lw.Circuit(4)
   
     circuit.add_bs(0, reflectivity = 0.4)
     circuit.add_loss(0, 1)
@@ -206,17 +206,17 @@ For advanced users, rather than calling the ``display`` method of the Circuit, i
 Parameterization
 ----------------
 
-Circuits in the SDK support parameterization through a dedicated :doc:`../sdk_reference/parameter` object included within the SDK. This allows for different values in the circuit to be modified after circuit creation, which can simplify the process of adjusting circuits. This Parameter object has a range of functionalities, which are detailed in the :doc:`parameters` section. To parametrize a circuit, we will start by defining a parameter, which we assign an initial value to and can optionally include a label which will be used when displaying.
+Circuits in Lightworks support parameterization through a dedicated :doc:`../sdk_reference/parameter` object included within the module. This allows for different values in the circuit to be modified after circuit creation, which can simplify the process of adjusting circuits. This Parameter object has a range of functionalities, which are detailed in the :doc:`parameters` section. To parametrize a circuit, we will start by defining a parameter, which we assign an initial value to and can optionally include a label which will be used when displaying.
 
 .. code-block:: Python
     
-    parameter = sdk.Parameter(0.5, label = "reflectivity")
+    parameter = lw.Parameter(0.5, label = "reflectivity")
 
 We can then use this in a circuit, providing the parameter object in place of the normal value.
 
 .. code-block:: Python
 
-    circuit = sdk.Circuit(4)
+    circuit = lw.Circuit(4)
 
     circuit.add_bs(0, reflectivity = parameter)
     circuit.add_bs(2, reflectivity = parameter)
@@ -267,12 +267,12 @@ The first is through the use of the ``+`` operator. This is simpler, but only su
 
 .. code-block:: Python
 
-    circuit_bs = sdk.Circuit(4)
+    circuit_bs = lw.Circuit(4)
     circuit_bs.add_bs(0)
     circuit_bs.add_bs(2)
     circuit_bs.add_bs(1)
 
-    circuit_ps = sdk.Circuit(4)
+    circuit_ps = lw.Circuit(4)
     circuit_ps.add_ps(0, 1)
     circuit_ps.add_ps(2, 2)
     circuit_ps.add_ps(1, 3)
@@ -288,13 +288,13 @@ The other way to combine circuits is through the ``add`` method, which allows fo
 
 .. code-block:: Python
 
-    circuit_bs = sdk.Circuit(5)
+    circuit_bs = lw.Circuit(5)
     circuit_bs.add_bs(0)
     circuit_bs.add_bs(2)
     circuit_bs.add_bs(1)
     circuit_bs.add_bs(3)
 
-    circuit_ps = sdk.Circuit(3)
+    circuit_ps = lw.Circuit(3)
     circuit_ps.add_ps(0, 1)
     circuit_ps.add_ps(1, 2)
     circuit_ps.add_ps(2, 3)
@@ -315,13 +315,13 @@ When using ``add``, it is also possible to choose to group all of the elements b
 
 .. code-block:: Python
 
-    circuit_bs = sdk.Circuit(5)
+    circuit_bs = lw.Circuit(5)
     circuit_bs.add_bs(0)
     circuit_bs.add_bs(2)
     circuit_bs.add_bs(1)
     circuit_bs.add_bs(3)
 
-    circuit_ps = sdk.Circuit(3)
+    circuit_ps = lw.Circuit(3)
     circuit_ps.add_ps(0, 1)
     circuit_ps.add_ps(1, 2)
     circuit_ps.add_ps(2, 3)

@@ -3,7 +3,7 @@ Getting Started
 
 Introduction
 ------------
-To get start we will build a circuit to simulate the Hong-Ou-Mandel (HOM) effect with a single 50:50 beam splitter, and demonstrate the typical process flow of the Aegiq SDK.
+To get start we will build a circuit to simulate the Hong-Ou-Mandel (HOM) effect with a single 50:50 beam splitter, and demonstrate the typical process flow of the Lightworks.
 
 HOM interference can be seen when two indistinguishable photons are incident on a 50:50 beam splitter. Classically, when this occurs, we would expect that 50% of the time the photons go to the same output and 50% of the time they go to a different output. Instead, we see that both photons always travel to the same output, as is shown below.
 
@@ -16,18 +16,18 @@ HOM interference can be seen when two indistinguishable photons are incident on 
 First Circuit
 -------------
 
-First we need to import the SDK and emulator with the following:
+First we need to import the Lightworks and the emulator with the following:
 
 .. code-block:: Python
 
-    import aegiq_sdk as sdk
-    from aegiq_sdk import emulator
+    import lightworks as lw
+    from lightworks import emulator
 
-We will configure a circuit to simulate by creating a new Circuit object. This Circuit object is one of the key components of the SDK and is used in almost interactions with it.
+We will configure a circuit to simulate by creating a new Circuit object. This Circuit object is one of the key components of Lightworks and is used in almost all interactions with it.
 
 .. code-block:: Python
 
-    circuit = sdk.Circuit(2)
+    circuit = lw.Circuit(2)
 
 Next, we add the beam splitter to the circuit, this is achieved with the ``add_bs`` method. The default reflectivity of a beam splitter is 0.5 (50%), so we do not need to specify this. The value we specify in the method arguments is the first mode which we place the beam splitter on. By default, if we don't specify a second mode then it will be set to the first argument + 1, so below we could have equivalently used ``add_bs(0,1)``.
 
@@ -36,7 +36,7 @@ Next, we add the beam splitter to the circuit, this is achieved with the ``add_b
     circuit.add_bs(0)
 
 .. note::
-    Like Python itself, indexing in the SDK starts from 0, meaning this is always the first mode. So for example, in a 4 mode circuit, the modes would be referred to using the indices 0, 1, 2 & 3.
+    Like Python itself, indexing in Lightworks starts from 0, meaning this is always the first mode. So for example, in a 4 mode circuit, the modes would be referred to using the indices 0, 1, 2 & 3.
 
 Once we have a circuit, we can then view the created circuit using the display method. For the circuit above this will produce the following:
 
@@ -53,7 +53,7 @@ Once we have built a circuit, we can then move on to simulating it with the emul
 
 .. code-block:: Python
 
-    input_state = sdk.State([1,1])
+    input_state = lw.State([1,1])
 
 The exact functionality of the State object is discussed further in the :doc:`sdk/state` section.
 
@@ -105,4 +105,4 @@ From the above, we see that in the case of distinguishable photons then approxim
 Next Steps
 ----------
 
-To find more about the usage of the different components of the Aegiq SDK head to the :doc:`sdk/index` and :doc:`emulator/index` sections. Alternatively, go to the :doc:`examples/index` section to see the different ways in which the Aegiq SDK can be utilised.
+To find more about the usage of the different components of Lightworks head to the :doc:`sdk/index` and :doc:`emulator/index` sections. Alternatively, go to the :doc:`examples/index` section to see the different ways in which Lightworks can be utilised.

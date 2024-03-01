@@ -3,7 +3,7 @@ Emulator
 
 This is an introduction
 
-Below is a comparison of the functionality of different simulation objects:
+Below is a comparison of the functionality of the different simulation objects included with the emulator:
 
 .. list-table:: Simulator object comparison
     :widths: 25 25 25 25
