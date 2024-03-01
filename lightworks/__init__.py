@@ -32,14 +32,12 @@ from .sdk import Circuit, Unitary
 from .sdk import Parameter, ParameterDict
 from .sdk import Display
 from .sdk import State
-from .sdk import RemoteQPU, ResultProcessor
 from .sdk import random_unitary, random_permutation
 from .sdk import db_loss_to_transmission, transmission_to_db_loss
 from .sdk import Optimisation
 from .sdk import PresetCircuits
-from .sdk import RemoteQPU
 
-__all__ = ["Circuit", "Unitary", "Display", "State", "RemoteQPU", 
-           "ResultProcessor", "random_unitary", "random_permutation",
-           "db_loss_to_transmission", "transmission_to_db_loss",
-           "Parameter", "ParameterDict", "Optimisation", "PresetCircuits"]
+__all__ = ["Circuit", "Unitary", "Display", "State", "random_unitary", 
+           "random_permutation", "db_loss_to_transmission", 
+           "transmission_to_db_loss", "Parameter", "ParameterDict", 
+           "Optimisation", "PresetCircuits"]
