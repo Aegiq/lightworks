@@ -1,0 +1,619 @@
+from lightworks import Parameter, ParameterDict, Circuit
+from lightworks import Unitary, random_unitary
+from lightworks import PresetCircuits
+from lightworks.sdk.circuit.circuit_compiler import CompiledCircuit
+from lightworks.sdk.circuit.circuit_compiler import CompiledUnitary
+from random import random, seed
+import unittest
+from numpy import round
+
+class CircuitTest(unittest.TestCase):
+    """
+    Unit tests to confirm correct functioning of the Circuit class when various 
+    operations are performed.
+    """
+    
+    def setUp(self) -> None:
+        """Create a circuit and associated parameters for testing."""
+        N = 6
+        self.param_circuit = Circuit(N)
+        self.parameters = ParameterDict()
+        self.original_parameters = ParameterDict()
+        seed(1)
+        for i in range(N-1):
+            for j in range(i%2, N-i%2, 2):
+                p1 = Parameter(random())
+                p1c = Parameter(p1.get())
+                p2 = Parameter(random())
+                p2c = Parameter(p2.get())
+                self.parameters[f"bs_{i}_{j}"] = p1
+                self.parameters[f"ps_{i}_{j}"] = p2
+                self.original_parameters[f"bs_{i}_{j}"] = p1c
+                self.original_parameters[f"ps_{i}_{j}"] = p2c
+                self.param_circuit.add_ps(j, self.parameters[f"ps_{i}_{j}"])
+                self.param_circuit.add_bs(j)
+                self.param_circuit.add_ps(j+1, self.parameters[f"bs_{i}_{j}"])
+                self.param_circuit.add_bs(j, loss = 0.1)
+                
+    def test_resultant_unitary(self):
+        """
+        Checks that the resultant unitary from a parameterized circuit is as
+        expected.
+        """
+        unitary = self.param_circuit.U
+        self.assertAlmostEqual(unitary[0,0],0.1817783235792+0.261054657406j,8)
+        self.assertAlmostEqual(unitary[1,2],0.1094958407210-0.2882179078302j,8)
+        self.assertAlmostEqual(unitary[4,3],0.03978296812819+0.354080300183j,8)
+        
+    def test_parameter_modification(self):
+        """
+        Confirms that parameter modification changes unitary in expected way.
+        """
+        self.parameters["bs_0_0"] = 4
+        self.parameters["bs_0_2"] = 4
+        unitary = self.param_circuit.U
+        self.assertAlmostEqual(unitary[0,0],0.1382843851268-0.1276219199576j,8)
+        self.assertAlmostEqual(unitary[1,2],0.6893944687270+0.2987967171732j,8)
+        self.assertAlmostEqual(unitary[4,3],-0.82752490939-0.0051178352488j,8)
+        self.restore_params()
+        
+    def test_circuit_addition(self):
+        """Confirms two circuits are added together correctly."""
+        new_circ = self.param_circuit + self.param_circuit
+        unitary = new_circ.U
+        self.assertAlmostEqual(unitary[0,0],0.2743757510982+0.6727464244294j,8)
+        self.assertAlmostEqual(unitary[1,2],-0.153884469732+0.0872489579891j,8)
+        self.assertAlmostEqual(unitary[4,3],-0.083445311860+0.154159863276j,8)
+        
+    def test_equivalent_circ(self):
+        """
+        Confirms that two identical circuits made using circuit and 
+        parameterized circuit calls return the same values.
+        """
+        circuit = CompiledCircuit(6)
+        U_addc = CompiledUnitary(random_unitary(3, seed = 14))
+        pcircuit = Circuit(6)
+        U_add = Unitary(random_unitary(3, seed = 14))
+        # Run through same build procedure for each circuit type
+        for circ, U in [(circuit, U_addc), (pcircuit, U_add)]:
+            seed(5)
+            for i in [0, 2, 4, 1, 3, 2]:
+                circ.add_bs(i, reflectivity = random())
+                circ.add_ps(i, random())
+            circ.add_mode_swaps({1:3, 2:4, 4:1, 3:2})
+            circ.add(U, 1)
+        # Get unitaries
+        U_circ = circuit.U_full
+        U_pcirc = pcircuit.U
+        for i in range(6):
+            for j in range(6):
+                self.assertAlmostEqual(U_circ[i,j], U_pcirc[i,j], 10)
+        # Also check that the produced build specs are equivalent
+        self.assertTrue(circuit._display_spec == pcircuit._display_spec)
+                
+    def test_equivalent_lossy_circ(self):
+        """
+        Confirms that two identical lossy circuits made using circuit and 
+        parameterized circuit calls return the same values.
+        """
+        circuit = CompiledCircuit(6)
+        U_addc = CompiledUnitary(random_unitary(3, seed = 14))
+        pcircuit = Circuit(6)
+        U_add = Unitary(random_unitary(3, seed = 14))
+        # Run through same build procedure for each circuit type
+        for circ, U in [(circuit, U_addc), (pcircuit, U_add)]:
+            seed(5)
+            for i in [0, 2, 4, 1, 3, 2]:
+                circ.add_bs(i, reflectivity = random())
+                circ.add_ps(i, random(), loss = random())
+                circ.add_loss(i, loss = random())
+                circ.add_loss(i+1, loss = random())
+            circ.add_mode_swaps({1:3, 2:4, 4:1, 3:2}, decompose_into_bs = True,
+                                element_loss = random())
+            circ.add(U, 1)
+        # Get unitaries, excluding loss modes due to attribute difference
+        U_circ = circuit.U_full[:6, :6]
+        U_pcirc = pcircuit.U
+        for i in range(6):
+            for j in range(6):
+                self.assertAlmostEqual(U_circ[i,j], U_pcirc[i,j], 10)
+        # Also check that the produced build specs are equivalent
+        self.assertTrue(circuit._display_spec == pcircuit._display_spec)
+        
+    def test_smaller_circuit_addition(self):
+        """
+        Confirms equivalence between building a single circuit and added a 
+        larger circuit to a smaller one with the add method.
+        """
+        # Comparison circuit
+        circ_comp = Circuit(6)
+        # First part
+        for i, m in enumerate([0,2,4,1,3,2]):
+            circ_comp.add_bs(m)
+            circ_comp.add_ps(m, i)
+        # Second part
+        for i, m in enumerate([3,1,3,2,1]):
+            circ_comp.add_ps(m+1, i)
+            circ_comp.add_bs(m, loss = 0.2*i)
+            circ_comp.add_ps(m, i, loss = 0.1)
+        # Addition circuit
+        c1 = Circuit(6)
+        for i, m in enumerate([0,2,4,1,3,2]):
+            c1.add_bs(m)
+            c1.add_ps(m, i)
+        c2 = Circuit(4)
+        for i, m in enumerate([2,0,2,1,0]):
+            c2.add_ps(m+1, i)
+            c2.add_bs(m, loss = 0.2*i)
+            c2.add_ps(m, i, loss = 0.1)
+        c1.add(c2, 1)
+        # Check unitary equivalence
+        U1 = round(circ_comp.U_full, 8)
+        U2 = round(c1.U_full, 8)
+        self.assertTrue((U1 == U2).all())
+                
+    def test_smaller_circuit_addition_grouped(self):
+        """
+        Confirms equivalence between building a single circuit and added a 
+        larger circuit to a smaller one with the add method, while using the 
+        group method.
+        """
+        # Comparison circuit
+        circ_comp = Circuit(6)
+        # First part
+        for i, m in enumerate([0,2,4,1,3,2]):
+            circ_comp.add_bs(m)
+            circ_comp.add_ps(m, i)
+        # Second part
+        for i in range(4):
+            for i, m in enumerate([3,1,3,2,1]):
+                circ_comp.add_ps(m+1, i)
+                circ_comp.add_bs(m, loss = 0.2*i)
+                circ_comp.add_ps(m, i, loss = 0.1)
+            circ_comp.add_mode_swaps({1:2, 2:3, 3:1}, decompose_into_bs = True)
+        # Addition circuit
+        c1 = Circuit(6)
+        for i, m in enumerate([0,2,4,1,3,2]):
+            c1.add_bs(m)
+            c1.add_ps(m, i)
+        c2 = Circuit(4)
+        for i, m in enumerate([2,0,2,1,0]):
+            c2.add_ps(m+1, i)
+            c2.add_bs(m, loss = 0.2*i)
+            c2.add_ps(m, i, loss = 0.1)
+        c2.add_mode_swaps({0:1, 1:2, 2:0}, decompose_into_bs = True)
+        # Test combinations of True and False for group option
+        c2.add(c2, 0, group = True)
+        c2.add(c2, 0, group = False)
+        c1.add(c2, 1, group = True)
+        # Check unitary equivalence
+        U1 = round(circ_comp.U_full, 8)
+        U2 = round(c1.U_full, 8)
+        self.assertTrue((U1 == U2).all())
+        
+    def test_mode_not_parameter(self):
+        """
+        Checks that an error is raised if a parameter is attempted to be 
+        assigned to a mode value.
+        """
+        new_circ = Circuit(4)
+        with self.assertRaises(TypeError):
+            new_circ.add_bs(Parameter(1))
+        with self.assertRaises(TypeError):
+            new_circ.add_ps(Parameter(1))
+        with self.assertRaises(TypeError):
+            new_circ.add_mode_swaps({Parameter(1):2, 2:Parameter(1)})
+            
+    def test_circ_unitary_combination(self):
+        """Test combination of a circuit and unitary objects."""
+        circ = Circuit(6)
+        for i, m in enumerate([0,2,4,1,3,2]):
+            circ.add_bs(m, loss = 0.2)
+            circ.add_ps(m, i)
+        u1 = Unitary(random_unitary(6, seed = 1))
+        u2 = Unitary(random_unitary(4, seed = 2))
+        circ.add(u1, 0)
+        circ.add(u2, 1)
+        self.assertAlmostEqual(circ.U[0,0],0.2287112952348-0.14731470234581j,8)
+        self.assertAlmostEqual(circ.U[1,2],0.0474053983616+0.01248244201229j,8)
+        self.assertAlmostEqual(circ.U[4,3],0.0267553699139-0.02848937675632j,8)
+        
+    def test_mode_modification(self):
+        """
+        Checks that n_modes attribute cannot be modified and will raise an 
+        attribute error.
+        """
+        circ = Circuit(4)
+        with self.assertRaises(AttributeError):
+            circ.n_modes = 6
+        
+    def test_mode_swap_decomposition(self):
+        """Confirms mode swap decomposition works as expected."""
+        circ1 = Circuit(4)
+        circ1.add_mode_swaps({0:2,2:3,3:1,1:0})
+        circ2 = Circuit(4)
+        circ2.add_mode_swaps({0:2,2:3,3:1,1:0}, decompose_into_bs = True,
+                             element_loss = 0)
+        U1 = round(abs(circ1.U_full)**2, 8)
+        U2 = round(abs(circ2.U_full)**2, 8)
+        self.assertTrue((U1 == U2).all())
+        
+    def test_circuit_copy(self):
+        """Test copy method of circuit creates an independent circuit."""
+        copied_circ = self.param_circuit.copy()
+        U1 = self.param_circuit.U_full
+        # Modify the new circuit and check the original U is unchanged
+        copied_circ.add_bs(0)
+        U2 = self.param_circuit.U_full
+        self.assertTrue((U1 == U2).all())
+        
+    def test_circuit_copy_parameter_modification(self):
+        """Test parameter modification still works on a copied circuit"""
+        copied_circ = self.param_circuit.copy()
+        U1 = copied_circ.U_full
+        # Modify parameter and get new unitary from copied circuit
+        self.parameters["bs_0_0"] = 2
+        U2 = copied_circ.U_full
+        # Unitary should be modified
+        self.assertFalse((U1 == U2).all())
+        self.restore_params()
+        
+    def test_circuit_copy_parameter_freeze(self):
+        """
+        Checks copy method of the circuit can be used with the freeze parameter
+        argument to create a new circuit without the Parameter objects.
+        """
+        copied_circ = self.param_circuit.copy(freeze_parameters = True)
+        U1 = copied_circ.U_full
+        # Modify parameter and get new unitary from copied circuit
+        self.parameters["bs_0_0"] = 4
+        U2 = copied_circ.U_full
+        # Unitary should not be modified
+        self.assertTrue((U1 == U2).all())
+        self.restore_params()
+        
+    def test_circuit_ungroup(self):
+        """
+        Check that the unpack_groups method removes any grouped components from
+        the circuit.
+        """
+        # Create initial basic circuit
+        circuit = Circuit(4)
+        circuit.add_bs(0)
+        circuit.add_bs(2)
+        circuit.add_ps(1, 0)
+        # Create smaller circuit to add and combine
+        circuit2 = Circuit(2)
+        circuit2.add_bs(0)
+        circuit2.add_ps(1, 1)
+        circuit2.add(circuit2, group = True)
+        circuit.add(circuit2, 1, group = True)
+        # Apply unpacking and check any groups have been removed
+        circuit.unpack_groups()
+        group_found = False
+        for spec in circuit._get_circuit_spec():
+            if spec[0] == "group":
+                group_found = True
+        self.assertFalse(group_found)
+        
+    def test_remove_mode_swaps(self):
+        """
+        Checks that the remove mode swaps function correctly removes any mode 
+        swaps from the circuit spec.
+        """
+        # Create test circuit
+        circuit = Circuit(6)
+        for i, m in enumerate([0,2,4,1,3,2]):
+            circuit.add_bs(m)
+            circuit.add_ps(m, i)
+            circuit.add_mode_swaps({1:2, 2:3, 3:1}, decompose_into_bs = False)
+        circuit.remove_mode_swaps()
+        for s in circuit._get_circuit_spec():
+            if s[0] == "mode_swaps":
+                self.fail("Mode swaps remained in circuit.")
+                
+    def test_remove_mode_swaps_grouped(self):
+        """
+        Checks that the remove mode swaps function correctly removes any mode 
+        swaps from the circuit spec when it is used as part of a group.
+        """
+        # Create test circuit
+        circuit = Circuit(6)
+        for i, m in enumerate([0,2,4,1,3,2]):
+            circuit.add_bs(m)
+            circuit.add_ps(m, i)
+        # Create separate circuit for mode swaps and add
+        circuit2 = Circuit(4)
+        circuit2.add_bs(0)
+        circuit2.add_mode_swaps({1:2, 2:3, 3:1}, decompose_into_bs = False)
+        circuit.add(circuit2, 1, group = True)
+        # Remove mode swaps, then unpack group before checking for mode swaps
+        circuit.remove_mode_swaps()
+        circuit.unpack_groups()
+        for s in circuit._get_circuit_spec():
+            if s[0] == "mode_swaps":
+                self.fail("Mode swaps remained in circuit.")
+                
+    def test_remove_mode_swaps_equivalence(self):
+        """
+        Confirms that the circuit configuration produced by the remove mode
+        swaps method produces an equivalent circuit.
+        """
+        circuit = Circuit(6)
+        circuit.add_mode_swaps({0:2, 2:1, 1:4, 4:3, 3:5, 5:0}, 
+                               decompose_into_bs = False)
+        u1 = abs(circuit.U).round(3)
+        circuit.remove_mode_swaps()
+        u2 = abs(circuit.U).round(3)
+        self.assertTrue((u1 == u2).all())
+        
+    def test_remove_mode_swaps_equivalence_grouped(self):
+        """
+        Confirms that the circuit configuration produced by the remove mode
+        swaps method with a grouped circuit produces an equivalent circuit.
+        """
+        circuit = Circuit(6)
+        mc = Circuit(6)
+        mc.add_mode_swaps({0:2, 2:1, 1:4, 4:3, 3:5, 5:0}, 
+                          decompose_into_bs = False)
+        circuit.add(mc, 0, group = True)
+        u1 = abs(circuit.U).round(3)
+        circuit.remove_mode_swaps()
+        u2 = abs(circuit.U).round(3)
+        self.assertTrue((u1 == u2).all())
+        
+    def test_remove_non_adj_bs_success(self):
+        """
+        Checks that the remove_non_adjacent_bs method of the circuit is able
+        to successfully remove all beam splitters which act on non-adjacent 
+        modes.
+        """
+        # Create circuit with beam splitters across non-adjacent modes
+        circuit = Circuit(8)
+        circuit.add_bs(0, 7)
+        circuit.add_bs(1, 4)
+        circuit.add_bs(2, 6)
+        circuit.add_bs(3, 7)
+        circuit.add_bs(0, 1)
+        # Apply method and check all remaining beam splitters
+        circuit.remove_non_adjacent_bs()
+        for spec in circuit._get_circuit_spec():
+            if spec[0] == "bs":
+                # Check it acts on adjacent modes, otherwise fail
+                if spec[1][0] != spec[1][1] - 1:
+                    self.fail()
+        
+    def test_remove_non_adj_bs_equivalence(self):
+        """
+        Checks that the remove_non_adjacent_bs method of the circuit retains 
+        the circuit unitary.
+        """
+        # Create circuit with beam splitters across non-adjacent modes
+        circuit = Circuit(8)
+        circuit.add_bs(0, 7)
+        circuit.add_bs(1, 4)
+        circuit.add_bs(2, 6)
+        circuit.add_bs(7, 3)
+        circuit.add_bs(0, 1)
+        # Apply method and check unitary equivalence
+        u1 = abs(circuit.U).round(3)
+        circuit.remove_non_adjacent_bs()
+        u2 = abs(circuit.U).round(3)
+        self.assertTrue((u1 == u2).all())
+                    
+    def test_remove_non_adj_bs_equivalence_grouped(self):
+        """
+        Checks that the remove_non_adjacent_bs method of the circuit retains 
+        the circuit unitary when grouped components are featured in the 
+        circuit.
+        """
+        # Create circuit with beam splitters across non-adjacent modes
+        circuit = Circuit(8)
+        circuit.add_bs(0, 7)
+        circuit.add_bs(1, 4)
+        circuit.add_bs(2, 6)
+        circuit.add_bs(3, 7)
+        circuit.add_bs(0, 1)
+        # Then create smaller second circuit and add, with group = True
+        circuit2 = Circuit(6)
+        circuit2.add_bs(1, 4)
+        circuit2.add_bs(2, 5)
+        circuit2.add_bs(3)
+        circuit.add(circuit2, 1, group = True)
+        # Apply method and check unitary equivalence
+        u1 = abs(circuit.U).round(8)
+        circuit.remove_non_adjacent_bs()
+        u2 = abs(circuit.U).round(8)
+        self.assertTrue((u1 == u2).all())
+    
+    def test_compress_mode_swap_equivalance(self):
+        """
+        Tests the circuit compress_mode_swaps method retains the circuit 
+        unitary.
+        """
+        # Create circuit with a few components and then mode swaps
+        circuit = Circuit(8)
+        circuit.add_bs(0)
+        circuit.add_bs(4)
+        circuit.add_mode_swaps({1:3, 3:5, 5:6, 6:1})
+        circuit.add_mode_swaps({0:1, 2:4, 1:2, 4:0})
+        circuit.add_mode_swaps({5:3, 3:5})
+        circuit.add_bs(0)
+        circuit.add_bs(4)
+        # Apply method and check unitary equivalence
+        u1 = abs(circuit.U).round(8)
+        circuit.compress_mode_swaps()
+        u2 = abs(circuit.U).round(8)
+        self.assertTrue((u1 == u2).all())
+        
+    def test_compress_mode_swap_removes_components(self):
+        """
+        Tests the circuit compress_mode_swaps method is able to reduce it down 
+        to using 2 mode swaps for an example circuit.
+        """
+        # Create circuit with a few components and then mode swaps
+        circuit = Circuit(8)
+        circuit.add_bs(0)
+        circuit.add_bs(4)
+        circuit.add_mode_swaps({1:3, 3:5, 5:6, 6:1})
+        circuit.add_mode_swaps({0:1, 2:4, 1:2, 4:0})
+        circuit.add_mode_swaps({5:3, 3:5})
+        circuit.add_bs(0)
+        circuit.add_bs(4)
+        circuit.add_mode_swaps({0:1, 2:4, 1:2, 4:0})
+        # Apply method and check only two mode_swap components are present
+        circuit.compress_mode_swaps()
+        counter = 0
+        for spec in circuit._get_circuit_spec():
+            if spec[0] == "mode_swaps": counter += 1
+        self.assertEqual(counter, 2)
+        
+    def test_compress_mode_swap_ignores_groups(self):
+        """Checks that the mode swap ignores components in groups."""
+        # Create circuit with a few components and then two mode swaps, one 
+        # placed within a group from a smaller circuit
+        circuit = Circuit(8)
+        circuit.add_bs(0)
+        circuit.add_bs(4)
+        circuit.add_mode_swaps({1:3, 3:5, 5:6, 6:1})
+        circuit2 = Circuit(5)
+        circuit2.add_mode_swaps({0:1, 2:4, 1:2, 4:0})
+        circuit.add(circuit2, 1, group=True)
+        circuit.add_bs(0)
+        circuit.add_bs(4)
+        # Apply method and check two mode_swap components are still present
+        circuit.compress_mode_swaps()
+        circuit.unpack_groups() # unpack groups for counting
+        counter = 0
+        for spec in circuit._get_circuit_spec():
+            if spec[0] == "mode_swaps": counter += 1
+        self.assertEqual(counter, 2)
+    
+    def restore_params(self):
+        """Reset params to original values after modification."""
+        for p in self.parameters:
+            self.parameters[p] = self.original_parameters[p].get()
+            
+class UnitaryTest(unittest.TestCase):
+    """
+    Unit tests to confirm correct functioning of the Unitary class when various 
+    operations are performed.
+    """
+    
+    def test_unitary_assignment(self):
+        """Checks that a unitary is correctly assigned with the component."""
+        u = random_unitary(4)
+        unitary = Unitary(u)
+        self.assertTrue((u == unitary.U).all())
+        
+    def test_non_unitary_assignment(self):
+        """
+        Checks that errors are raised when non-unitary matrices are assigned.
+        """
+        # Non-square unitary
+        u = random_unitary(4)
+        u = u[:,:-2]
+        with self.assertRaises(ValueError):
+            Unitary(u)
+        # Non-unitary matrix
+        u2 = random_unitary(4)
+        u2[0,0] = 1
+        with self.assertRaises(ValueError):
+            Unitary(u2)
+            
+    def test_circuit_addition_to_unitary(self):
+        """
+        Confirm that addition of a circuit to the Unitary object works as 
+        expected.
+        """
+        u = Unitary(random_unitary(6, seed = 95))
+        circ = Circuit(4)
+        circ.add_bs(0)
+        circ.add_bs(2, loss = 0.5)
+        circ.add_bs(1, loss = 0.2)
+        u.add(circ, 1)
+        self.assertAlmostEqual(u.U[0,0],-0.27084817086493-0.176576418865914j,8)
+        self.assertAlmostEqual(u.U[1,2],0.232353190742325-0.444902420616067j,8)
+        self.assertAlmostEqual(u.U[4,3],-0.31290267006132-0.091957924939349j,8)
+        
+    def test_unitary_is_circuit_child(self):
+        """
+        Checks that the unitary object is a child class of the Circuit object.
+        """
+        u = Unitary(random_unitary(4))
+        self.assertTrue(isinstance(u, Circuit))
+        
+    def test_n_mode_retrival(self):
+        """
+        Confirms n_mode attribute retrieval works for unitary component.
+        """
+        u = Unitary(random_unitary(4))
+        self.assertTrue(u.n_modes, 4)
+        
+class PresetCircuitTest(unittest.TestCase):
+    """
+    Unit tests to check circuits created using the preset circuits class are 
+    correct.
+    """
+    
+    def test_rectangular_interferometer(self):
+        """
+        Check a rectangular interferometer can be created and that the returned
+        parameter dict is the correct length, both with and without loss.
+        """
+        circ, params = PresetCircuits.RectangularInterferometer(6, 5)
+        self.assertEqual(len(params), 26)
+        # Inclusion of loss elements
+        circ, params = PresetCircuits.RectangularInterferometer(
+            6, 5, include_loss_elements = True, parametrize_loss = True
+            )
+        self.assertEqual(len(params), 52)
+    
+    def test_rectangular_interferometer_assignment(self):
+        """
+        Test parameter assignment for a rectangular interferometer and confirm
+        resulting unitary has expected values.
+        """
+        circ, params = PresetCircuits.RectangularInterferometer(6, 5)
+        seed(1)
+        for p in params.params:
+            params[p] = 6*random()
+        self.assertAlmostEqual(circ.U[2,2], -0.14574567874-0.426458499865j, 8)
+        self.assertAlmostEqual(circ.U[5,3], 0.266339673846-0.2037667311765j, 8)
+    
+    def test_triangular_interferometer(self):
+        """
+        Check a triangular interferometer can be created and that the returned
+        parameter dict is the correct length, both with and without loss.
+        """
+        circ, params = PresetCircuits.TriangularInterferometer(6, 4)
+        self.assertEqual(len(params), 28)
+        # Inclusion of loss elements
+        circ, params = PresetCircuits.TriangularInterferometer(
+            6, 4, include_loss_elements = True, parametrize_loss = True
+            )
+        self.assertEqual(len(params), 56)
+    
+    def test_triangular_interferometer_assignment(self):
+        """
+        Test parameter assignment for a triangular interferometer and confirm
+        resulting unitary has expected values.
+        """
+        circ, params = PresetCircuits.TriangularInterferometer(6, 4)
+        seed(1)
+        for p in params.params:
+            params[p] = 6*random()
+        self.assertAlmostEqual(circ.U[2,2], -0.78385775762+0.0118878706448j, 8)
+        self.assertAlmostEqual(circ.U[5,3], -0.25715148625-0.2499042077605j, 8)
+        
+    def test_preset_circuit_type(self):
+        """
+        Checks that the circuit returned from the PresetCircuits class has 
+        circuit type.
+        """
+        circ, _ = PresetCircuits.RectangularInterferometer(6, 5)
+        self.assertTrue(isinstance(circ, Circuit))
+    
+if __name__ == "__main__":
+    
+    unittest.main()

@@ -1,0 +1,102 @@
+"""
+A custom state datatype, which is created with the aim of making states in the
+emulator much easier to work with.
+"""
+
+from ..utils import state_to_string
+from ..utils import StateError
+
+from copy import copy
+from typing import Any
+
+class State:
+    """
+    State class
+    This class is designed to contain information about a quantum state, as 
+    well as allowing a number of operations to act on the state.
+    
+    Args:
+    
+        state (list) : The fock basis state to use with the class, this should
+            be a list of photon numbers per mode.
+    
+    """
+
+    def __init__(self, state: list) -> None:
+        self.__s = list(state)
+        self.__n_modes = len(state)
+        return
+    
+    def num(self) -> int:
+        """Returns the number of photons in a State."""
+        return sum(self.__s)
+    
+    def merge(self, merge_state: "State") -> "State":
+        """Combine two states, summing the number of photons per mode."""
+        if self.__n_modes == merge_state.n_modes:
+            return State([n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)])
+        else:
+            raise ValueError("Merged states must be the same length.")
+        
+    @property
+    def s(self) -> list:
+        """Returns a copy of the contents of the state as a list."""
+        return copy(self.__s)
+    
+    @s.setter
+    def s(self, value: Any) -> None:
+        msg = "State value should not be modified directly."
+        raise StateError(msg)
+    
+    @property
+    def n_modes(self) -> int:
+        """The total number of modes in the state."""
+        return self.__n_modes
+    
+    @n_modes.setter
+    def n_modes(self, value: Any) -> None:
+        msg = "Number of modes cannot be modified."
+        raise StateError(msg)
+
+    def __str__(self) -> str:
+        return state_to_string(self.__s)
+    
+    def __repr__(self) -> str: # Confirm this is the correct way to do this
+            return f"State({state_to_string(self.__s)})"
+    
+    def __add__ (self, value: "State") -> "State":
+        if isinstance(value, State):
+            return State(self.__s + value.__s)
+        else:
+            raise TypeError("Addition only supported between states.")
+        
+    def __mul__(self, value: int) -> "State":
+        if isinstance(value, int):
+            return State(self.__s*value)
+        else:
+            msg = "Multiplication only supported with integer values."
+            raise TypeError(msg)
+        
+    def __eq__(self, value: "State") -> bool:
+        if isinstance(value, State):
+            return self.__s == value.s
+        else:
+            return False
+    
+    def __hash__(self) -> str:
+        return hash(self.__str__())
+        
+    def __len__(self) -> int:
+        return self.__n_modes
+    
+    def __setitem__(self, key: Any, value: Any) -> None:
+        raise StateError("State object does not support item assignment.")
+    
+    def __getitem__(self, indices: slice | int) -> "State":
+        if isinstance(indices, slice):
+            return State(self.__s[indices])
+        elif isinstance(indices, int):
+            return self.__s[indices]
+        else:
+            raise TypeError("Subscript should either be int or slice.")
+        

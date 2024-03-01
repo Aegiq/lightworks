@@ -1,0 +1,223 @@
+from lightworks import Parameter, ParameterDict
+import unittest
+
+class ParameterTest(unittest.TestCase):
+    """Unit tests to test functionality of Parameter objects."""
+    
+    def test_parameter_creation(self):
+        """
+        Checks that a Parameter can be created as it's value can retrieved as 
+        expected.
+        """
+        p = Parameter(1)
+        self.assertEqual(p.get(), 1)
+        
+    def test_parameter_defaults(self):
+        """
+        Checks the default values for the different Parameter values when not 
+        specified.
+        """
+        p = Parameter(1)
+        self.assertEqual(p.label, None)
+        self.assertEqual(p.min_bound, None)
+        self.assertEqual(p.max_bound, None)
+        
+    def test_parameter_update(self):
+        """Checks that a Parameter can be updated with set method."""
+        p = Parameter(1)
+        p.set(2)
+        self.assertEqual(p.get(), 2)
+        
+    def test_bounded_parameter_creation(self):
+        """
+        Confirms that a Parameter can be created with bounds and also checks an
+        error is raised when set bounds don't contain Parameter value.
+        """
+        p = Parameter(1, bounds = [0, 2])
+        self.assertEqual(p.min_bound, 0)
+        self.assertEqual(p.max_bound, 2)
+        with self.assertRaises(ValueError):
+            p = Parameter(3, bounds = [0,2])
+    
+    def test_bounded_parameter_update(self):
+        """
+        Checks that a bounded Parameter can be updated with set method, and 
+        also confirms an error is raised when parameters are set outside the 
+        bounds.
+        """
+        p = Parameter(1, bounds = [0, 3])
+        p.set(2)
+        self.assertEqual(p.get(), 2)
+        with self.assertRaises(ValueError):
+            p.set(-1)
+        with self.assertRaises(ValueError):
+            p.set(4)
+            
+    def test_invalid_bound_update(self):
+        """
+        Checks that an error is raised when bounds are updated such that the
+        current Parameter value would become invalid.
+        """
+        p = Parameter(2, bounds = [0, 3])
+        with self.assertRaises(ValueError):
+            p.max_bound = 1
+        with self.assertRaises(ValueError):
+            p.min_bound = 3
+            
+    def test_non_numerical_value(self):
+        """
+        Checks non-numerical values can be assigned for Parameter objects and 
+        also checks an error is raised if bounds are to be added.
+        """
+        p = Parameter(True)
+        p.set(False)
+        self.assertEqual(p.get(), False)
+        with self.assertRaises(AttributeError):
+            p = Parameter(True, bounds = [0, 1])
+    
+    def test_non_numerical_bound_update(self):
+        """
+        Confirms that non-numerical Parameter cannot have bounds assigned after
+        creation.
+        """
+        p = Parameter(True)
+        with self.assertRaises(AttributeError):
+            p.min_bound = 0
+    
+    def test_bounded_value_type_updated(self):
+        """
+        Checks that a numerical Parameter with bounds cannot be switched to 
+        another non-numerical value.
+        """
+        p = Parameter(1, bounds = [0, 2])
+        with self.assertRaises(ValueError):
+            p.set("Test")
+    
+    def test_has_bounds_method(self):
+        """Checks behaviour of the has_bounds method is correct."""
+        p = Parameter(1)
+        self.assertFalse(p.has_bounds())
+        p = Parameter(1, bounds = [0, 2])
+        self.assertTrue(p.has_bounds())
+        
+    def test_str_return(self):
+        """
+        Confirms that Parameter value is returned when str function is used on 
+        Parameter.
+        """
+        p = Parameter(1.2)
+        self.assertEqual(str(p), "1.2")
+        
+class ParameterDictTest(unittest.TestCase):
+    """Unit tests to test functionality of ParameterDict objects."""
+    
+    def test_dict_creation(self):
+        """Checks dictionary can be created and is empty after creation."""
+        pd = ParameterDict()
+        self.assertEqual(pd.params, [])
+        
+    def test_dict_assignment(self):
+        """Check initial assignment of Parameter into dictionary."""
+        pd = ParameterDict()
+        pd["a"] = Parameter(1)
+        self.assertEqual(pd["a"].get(), 1)
+            
+    def test_dict_return(self):
+        """Confirms that the return when using [] is a Parameter object."""
+        pd = ParameterDict()
+        pd["a"] = Parameter(1)
+        self.assertTrue(isinstance(pd["a"], Parameter))
+    
+    def test_parameter_update(self):
+        """Test updating of parameter through assigning new value to dict."""
+        pd = ParameterDict()
+        pd["a"] = Parameter(1)
+        pd["a"] = 2
+        self.assertEqual(pd["a"].get(), 2)
+    
+    def test_incorrect_set_item(self):
+        """
+        Checks an error is raised when a non-Parameter object is assigned to a
+        new key and when it is attempted to overwrite a Parameter object in the
+        dictionary with another Parameter.
+        """
+        pd = ParameterDict()
+        with self.assertRaises(TypeError):
+            pd["a"] = 1
+        pd["a"] = Parameter(1)
+        with self.assertRaises(ValueError):
+            pd["a"] = Parameter(2)
+    
+    def test_len_method(self):
+        """Confirms len method produces the correct value."""
+        pd = ParameterDict()
+        pd["a"] = Parameter(1)
+        pd["b"] = Parameter(2)
+        pd["c"] = Parameter(3)
+        self.assertEqual(len(pd), 3)
+    
+    def test_has_bounds_method(self):
+        """
+        Checks has_bounds method returns correct values when bounds are/not 
+        present.
+        """
+        pd = ParameterDict()
+        pd["a"] = Parameter(1)
+        pd["b"] = Parameter(2)
+        self.assertFalse(pd.has_bounds())
+        pd["a"].min_bound = 0
+        self.assertTrue(pd.has_bounds())
+        
+    def test_params_property(self):
+        """
+        Confirms correct values are returned by params attribute of class.
+        """
+        pd = ParameterDict()
+        pd["a"] = Parameter(1)
+        pd["b"] = Parameter(2)
+        self.assertEqual(pd.params, ["a", "b"])
+        
+    def test_params_modification(self):
+        """Checks that params attribute cannot be modified."""
+        pd = ParameterDict()
+        with self.assertRaises(AttributeError):
+            pd.params = ["c"]
+            
+    def test_in_operator(self):
+        """Tests that key in ParameterDict returns the correct values."""
+        pd = ParameterDict()
+        pd["a"] = Parameter(1)
+        self.assertTrue("a" in pd)
+        self.assertTrue("b" not in pd)
+        self.assertFalse("b" in pd)
+            
+    def test_remove_method(self):
+        """
+        Checks that remove method of ParameterDict is able to remove a 
+        parameter from the dictionary.
+        """
+        pd = ParameterDict()
+        pd["a"] = Parameter(1)
+        pd["b"] = Parameter(2)
+        pd.remove("a")
+        self.assertTrue("a" not in pd)
+        
+    def test_iterable_behavior(self):
+        """
+        Confirms that the values when using the class as an iterable is the 
+        parameter keys.
+        """
+        pd = ParameterDict()
+        pd["a"] = Parameter(1)
+        pd["b"] = Parameter(2)
+        pd["c"] = Parameter(2)
+        # Loop over dictionary and store returned values
+        params = []
+        for p in pd:
+            params.append(p)
+        # Check lists is equivalent to params attribute
+        self.assertEqual(params, pd.params)
+
+if __name__ == "__main__":
+    
+    unittest.main()
