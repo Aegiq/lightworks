@@ -62,6 +62,18 @@ class SimulatorTest(unittest.TestCase):
         x = results.array[0,0]
         self.assertAlmostEqual(x, -0.18218877232689196-0.266230290128261j, 8)
         
+    def test_multi_photon_output_not_specified_case(self):
+        """
+        Runs a multi-photon sim and checks the correct value is found for one 
+        input with outputs not specified.
+        """
+        U = random_unitary(4, seed = 10)
+        unitary = Unitary(U)
+        sim = Simulator(unitary)
+        results = sim.simulate(State([1,0,1,0]))
+        x = results[State([0,2,0,0])]
+        self.assertAlmostEqual(x, -0.18218877232689196-0.266230290128261j, 8)
+        
     def test_lossy_multi_photon_case(self):
         """
         Runs a lossy multi-photon sim and checks the correct value is found for

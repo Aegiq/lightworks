@@ -1,4 +1,4 @@
-"""This file is used as the central import for the aegiq_sdk module."""
+"""This file is used as the central import for the lightworks module."""
 
 from pathlib import Path
 import sys

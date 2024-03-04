@@ -163,4 +163,4 @@ class Simulator:
                          inputs/outputs, this is not currently supported in the 
                          simulator."""
                 raise StateError(" ".join(msg.split()))
-            return inputs, outputs
+        return inputs, outputs
