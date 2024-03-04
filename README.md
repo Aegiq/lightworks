@@ -3,8 +3,8 @@
 Lightworks is designed to enable the encoding of jobs on photonic quantum computing hardware, which can then either be executed by a remote QPU or locally simulated using the provided emulation tools.
 
 Key features:
-    - Circuit
-    - Emulator
+- Circuit
+- Emulator
 
 ## Documentation
 
