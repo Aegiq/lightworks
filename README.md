@@ -12,7 +12,7 @@ Python 3.10+ is required.
 
 ## Documentation
 
-Documentation of this package is hosted at:
+Documentation of this package is hosted at: TBC
 
 ## Contributing
 
