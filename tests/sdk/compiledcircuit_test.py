@@ -49,23 +49,27 @@ class CompiledCircuitTest(unittest.TestCase):
         circ_comp = CompiledCircuit(4)
         # First part
         for i, m in enumerate([0,2,0,1,0]):
-            circ_comp.add_bs(m, loss = 0.3*i)
-            circ_comp.add_ps(m, i, loss = 0.1)
+            circ_comp.add_bs(m)
+            circ_comp.add_loss(m, 0.3*i)
+            circ_comp.add_ps(m, i)
         # Second part
         for i, m in enumerate([2,0,2,1,0]):
             circ_comp.add_ps(m+1, i)
-            circ_comp.add_bs(m, loss = 0.2*i)
-            circ_comp.add_ps(m, i, loss = 0.1)
+            circ_comp.add_bs(m)
+            circ_comp.add_loss(m, 0.2*i)
+            circ_comp.add_ps(m, i)
         # Addition circuit
         c1 = CompiledCircuit(4)
         for i, m in enumerate([0,2,0,1,0]):
-            c1.add_bs(m, loss = 0.3*i)
-            c1.add_ps(m, i, loss = 0.1)
+            c1.add_bs(m)
+            c1.add_loss(m, 0.3*i)
+            c1.add_ps(m, i)
         c2 = CompiledCircuit(4)
         for i, m in enumerate([2,0,2,1,0]):
             c2.add_ps(m+1, i)
-            c2.add_bs(m, loss = 0.2*i)
-            c2.add_ps(m, i, loss = 0.1)
+            c2.add_bs(m)
+            c2.add_loss(m, 0.2*i)
+            c2.add_ps(m, i)
         circ_add = c1 + c2
         for i in range(circ_comp.U_full.shape[0]):
             for j in range(circ_comp.U_full.shape[1]):
@@ -87,8 +91,9 @@ class CompiledCircuitTest(unittest.TestCase):
         # Second part
         for i, m in enumerate([2,0,2,1,0]):
             circ_comp.add_ps(m+1, i)
-            circ_comp.add_bs(m, loss = 0.2*i)
-            circ_comp.add_ps(m, i, loss = 0.1)
+            circ_comp.add_bs(m)
+            circ_comp.add_ps(m, i)
+            circ_comp.add_loss(m, 0.1)
         # Addition circuit
         c1 = CompiledCircuit(4)
         for i, m in enumerate([0,2,0,1,0]):
@@ -97,8 +102,9 @@ class CompiledCircuitTest(unittest.TestCase):
         c2 = CompiledCircuit(4)
         for i, m in enumerate([2,0,2,1,0]):
             c2.add_ps(m+1, i)
-            c2.add_bs(m, loss = 0.2*i)
-            c2.add_ps(m, i, loss = 0.1)
+            c2.add_bs(m)
+            c2.add_ps(m, i)
+            c2.add_loss(m, 0.1)
         circ_add = c1 + c2
         for i in range(circ_comp.U_full.shape[0]):
             for j in range(circ_comp.U_full.shape[1]):
@@ -119,8 +125,9 @@ class CompiledCircuitTest(unittest.TestCase):
         # Second part
         for i, m in enumerate([3,1,3,2,1]):
             circ_comp.add_ps(m+1, i)
-            circ_comp.add_bs(m, loss = 0.2*i)
-            circ_comp.add_ps(m, i, loss = 0.1)
+            circ_comp.add_bs(m)
+            circ_comp.add_ps(m, i)
+            circ_comp.add_loss(m, 0.1)
         # Addition circuit
         c1 = CompiledCircuit(6)
         for i, m in enumerate([0,2,4,1,3,2]):
@@ -129,8 +136,9 @@ class CompiledCircuitTest(unittest.TestCase):
         c2 = CompiledCircuit(4)
         for i, m in enumerate([2,0,2,1,0]):
             c2.add_ps(m+1, i)
-            c2.add_bs(m, loss = 0.2*i)
-            c2.add_ps(m, i, loss = 0.1)
+            c2.add_bs(m)
+            c2.add_ps(m, i)
+            c2.add_loss(m, 0.1)
         c1.add(c2, 1)
         # Check unitary equivalence
         U1 = round(circ_comp.U_full, 8)
@@ -153,8 +161,9 @@ class CompiledCircuitTest(unittest.TestCase):
         for i in range(4):
             for i, m in enumerate([3,1,3,2,1]):
                 circ_comp.add_ps(m+1, i)
-                circ_comp.add_bs(m, loss = 0.2*i)
-                circ_comp.add_ps(m, i, loss = 0.1)
+                circ_comp.add_bs(m)
+                circ_comp.add_ps(m, i)
+                circ_comp.add_loss(m, loss = 0.1)
             circ_comp.add_mode_swaps({1:2, 2:3, 3:1}, decompose_into_bs = True)
         # Addition circuit
         c1 = CompiledCircuit(6)
@@ -164,8 +173,9 @@ class CompiledCircuitTest(unittest.TestCase):
         c2 = CompiledCircuit(4)
         for i, m in enumerate([2,0,2,1,0]):
             c2.add_ps(m+1, i)
-            c2.add_bs(m, loss = 0.2*i)
-            c2.add_ps(m, i, loss = 0.1)
+            c2.add_bs(m)
+            c2.add_ps(m, i)
+            c2.add_loss(m, loss = 0.1)
         c2.add_mode_swaps({0:1, 1:2, 2:0}, decompose_into_bs = True)
         # Test combinations of True and False for group option
         c2.add(c2, 0, group = True)

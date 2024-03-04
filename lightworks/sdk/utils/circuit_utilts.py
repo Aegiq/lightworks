@@ -66,7 +66,7 @@ def convert_mode_swaps(spec: list, n_modes : int,
                 if preserve_phase:
                     new_spec.append(["ps", (sw, 3*np.pi/2, 0)])
                     new_spec.append(["ps", (sw+1, 3*np.pi/2, 0)])
-                new_spec.append(["bs", (sw, sw+1, 0, 0, "Rx")])
+                new_spec.append(["bs", (sw, sw+1, 0, "Rx")])
         elif s[0] == "group":
             new_s1 = [si for si in s[1]]
             new_s1[0] = convert_mode_swaps(s[1][0], n_modes, preserve_phase)
@@ -109,7 +109,7 @@ def convert_non_adj_beamsplitters(spec: list) -> list:
             if s[1][0] > s[1][1]:
                 add1, add2 = add2, add1
             # Add beam splitter on new modes
-            new_spec.append(["bs", (add1, add2, s[1][2],s[1][3],s[1][4])])
+            new_spec.append(["bs", (add1, add2, s[1][2],s[1][3])])
             swaps = {v : k for k, v in swaps.items()}
             new_spec.append(["mode_swaps", (swaps, None)])
         elif s[0] == "group":

@@ -171,8 +171,11 @@ class Circuit:
                 msg += conv + ", "
             msg = msg[:-2] + "']"
             raise CircuitError(msg)
-        self.__circuit_spec.append(["bs", (mode_1, mode_2, reflectivity, loss, 
-                                    convention)])
+        self.__circuit_spec.append(["bs", (mode_1, mode_2, reflectivity, 
+                                           convention)])
+        if loss > 0:
+            self.add_loss(mode_1, loss)
+            self.add_loss(mode_2, loss)
         
     def add_ps(self, mode: int, phi: float, loss: float = 0) -> None:
         """
@@ -190,7 +193,9 @@ class Circuit:
         """
         self._mode_in_range(mode)
         self._check_loss(loss)
-        self.__circuit_spec.append(["ps", (mode, phi, loss)])
+        self.__circuit_spec.append(["ps", (mode, phi)])
+        if loss > 0:
+            self.add_loss(mode, loss)
         
     def add_loss(self, mode: int, loss: float = 0) -> None:
         """
@@ -519,13 +524,8 @@ class Circuit:
             if cs == "bs":
                 display_spec.append(("BS", [cparams[0], cparams[1]], 
                                    (cparams[2])))
-                if self._display_loss_check(cparams[3]):
-                    display_spec.append(("LC", cparams[0], (cparams[3])))
-                    display_spec.append(("LC", cparams[1], (cparams[3])))
             elif cs == "ps":
                 display_spec.append(("PS", cparams[0], (cparams[1])))
-                if self._display_loss_check(cparams[2]):
-                    display_spec.append(("LC", cparams[0], (cparams[2])))
             elif cs == "loss":
                 if self._display_loss_check(cparams[1]):
                     display_spec.append(("LC", cparams[0], (cparams[1])))

@@ -105,7 +105,12 @@ class CircuitTest(unittest.TestCase):
             seed(5)
             for i in [0, 2, 4, 1, 3, 2]:
                 circ.add_bs(i, reflectivity = random())
-                circ.add_ps(i, random(), loss = random())
+                phase, loss = random(), random()
+                if isinstance(circ, Circuit):
+                    circ.add_ps(i, phase, loss = loss)
+                else:
+                    circ.add_ps(i, phase)
+                    circ.add_loss(i, loss)
                 circ.add_loss(i, loss = random())
                 circ.add_loss(i+1, loss = random())
             circ.add_mode_swaps({1:3, 2:4, 4:1, 3:2}, decompose_into_bs = True,

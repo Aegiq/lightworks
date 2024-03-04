@@ -185,8 +185,7 @@ class CompiledCircuit:
         return
     
     def add_bs(self, mode_1: int, mode_2: int | None = None, 
-               reflectivity: float = 0.5, loss: float = 0,
-               convention: str = "Rx") -> None:
+               reflectivity: float = 0.5, convention: str = "Rx") -> None:
         """
         Function to add a beam splitter of specified reflectivity between two 
         modes to the circuit.
@@ -201,9 +200,6 @@ class CompiledCircuit:
             
             reflectivity (float, optional) : The reflectivity value of the beam 
                 splitter. Defaults to 0.5.
-            
-            loss (float, optional) : The loss of the beam splitter, this should
-                be positive and given in dB.
                                      
             convention (str, optional) : The convention to use for the beam 
                 splitter, should be either "Rx" (the default value) or "H".
@@ -229,50 +225,30 @@ class CompiledCircuit:
             raise ValueError(msg)
         self._mode_in_range(mode_1)
         self._mode_in_range(mode_2)
-        self._check_loss(loss)
         # Find unitary assuming no loss     
         U_bs = np.identity(self.n_modes, dtype=complex)
+        U_bs_full = np.identity(self.n_modes+self.loss_modes, dtype=complex)
         theta = np.arccos(reflectivity**0.5)
-        if convention == "Rx":
-            U_bs[mode_1, mode_1] = np.cos(theta)
-            U_bs[mode_1, mode_2] = 1j*np.sin(theta)
-            U_bs[mode_2, mode_1] = 1j*np.sin(theta)
-            U_bs[mode_2, mode_2] = np.cos(theta)
-        elif convention == "H":
-            U_bs[mode_1, mode_1] = np.cos(theta)
-            U_bs[mode_1, mode_2] = np.sin(theta)
-            U_bs[mode_2, mode_1] = np.sin(theta)
-            U_bs[mode_2, mode_2] = -np.cos(theta)
-        self.U = U_bs @ self.U # Update U accordingly
-        # Calculate U_full with loss
-        if self._loss_included:
-            n = 2 if loss > 0 else 0
-            self._loss_modes = self._loss_modes + n
-            # Switch U_full and U_bs to larger size with new loss modes
-            U_full = self._grow_unitary(self.U_full, n)
-            U_bs_full = self._grow_unitary(U_bs, self._loss_modes)
-            # Create loss matrix and multiply
-            if loss > 0:
-                mode_total = self.n_modes + self._loss_modes
-                U_loss1 = self._loss_mat(mode_total, mode_1, mode_total-2,
-                                         loss)
-                U_loss2 = self._loss_mat(mode_total, mode_2, mode_total-1,
-                                         loss)
-                U_bs_full = U_loss1 @ U_loss2 @ U_bs_full 
-            # Once completed then reassign as U_bs
-            U_bs = U_bs_full
-        else:
-            U_full = self.U_full
-        self.U_full = U_bs @ U_full
+        for arr in [U_bs, U_bs_full]:
+            if convention == "Rx":
+                arr[mode_1, mode_1] = np.cos(theta)
+                arr[mode_1, mode_2] = 1j*np.sin(theta)
+                arr[mode_2, mode_1] = 1j*np.sin(theta)
+                arr[mode_2, mode_2] = np.cos(theta)
+            elif convention == "H":
+                arr[mode_1, mode_1] = np.cos(theta)
+                arr[mode_1, mode_2] = np.sin(theta)
+                arr[mode_2, mode_1] = np.sin(theta)
+                arr[mode_2, mode_2] = -np.cos(theta)
+        # Update unitaries
+        self.U = U_bs @ self.U
+        self.U_full = U_bs_full @ self.U_full
         # Update build spec attribute
         self._display_spec = self._display_spec + [("BS", [mode_1, mode_2], 
-                                                (reflectivity))]
-        if loss > 0:
-            self._display_spec = self._display_spec + [("LC", mode_1, (loss))]
-            self._display_spec = self._display_spec + [("LC", mode_2, (loss))]
+                                                   (reflectivity))]
         return
     
-    def add_ps(self, mode: int, phi: float, loss: float = 0) -> None:
+    def add_ps(self, mode: int, phi: float) -> None:
         """
         Applies a phase shift to a given mode in the circuit.
         
@@ -281,38 +257,19 @@ class CompiledCircuit:
             mode (int) : The mode on which the phase shift acts.
             
             phi (float) : The angular phase shift to apply.
-            
-            loss (float, optional) : The loss of the phase shifter, this should
-                be positive and given in dB.
                                                           
         """
         self._mode_in_range(mode)
-        self._check_loss(loss)
         # Create new unitary
         U_ps = np.identity(self.n_modes, dtype=complex)
         U_ps[mode, mode] = np.exp(1j*phi)
+        U_ps_full = np.identity(self.n_modes+self.loss_modes, dtype=complex)
+        U_ps_full[mode, mode] = np.exp(1j*phi)
         self.U = U_ps @ self.U
         # Calculate U_full with loss
-        if self._loss_included:
-            n = 1 if loss > 0 else 0
-            self._loss_modes = self._loss_modes + n
-            # Switch U_full and U_ps to larger size
-            U_full = self._grow_unitary(self.U_full, n)
-            U_ps_full = self._grow_unitary(U_ps, self._loss_modes)
-            # Create loss matrix and multiply
-            if loss > 0:
-                mode_total = self.n_modes + self._loss_modes
-                U_loss = self._loss_mat(mode_total, mode, mode_total-1, loss)
-                U_ps_full = U_loss @ U_ps_full
-            # Once completed then reassign as U_ps      
-            U_ps = U_ps_full
-        else:
-            U_full = self.U_full
-        self.U_full = U_ps @ U_full
+        self.U_full = U_ps_full @ self.U_full
         # Update build spec attribute
         self._display_spec = self._display_spec + [("PS", mode, (phi))]
-        if loss > 0:
-            self._display_spec = self._display_spec + [("LC", mode, (loss))]
         return
     
     def add_loss(self, mode: int, loss: float = 0) -> None:
@@ -427,7 +384,9 @@ class CompiledCircuit:
             swaps = permutation_to_mode_swaps(U)
             # Add beam splitters using existing function
             for sw in swaps:
-                self.add_bs(sw, reflectivity = 0, loss = element_loss)
+                self.add_bs(sw, reflectivity = 0)
+                self.add_loss(sw, element_loss)
+                self.add_loss(sw+1, element_loss)
         
         return
     
