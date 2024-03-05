@@ -141,6 +141,8 @@ class Sampler:
         The probability distribution as a continuous distribution. This can be
         used for random sampling from the distribution.
         """
+        if self._check_parameter_updates():
+            self.probability_distribution
         return self.__continuous_distribution
         
     def sample (self) -> State:
