@@ -1,7 +1,7 @@
 Circuit
 =======
 
-The Circuit is one of the key components of the Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
+The :doc:`../sdk_reference/circuit` is one of the key components of the Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
 
 .. note that somewhere here there will need to be a note on what loss is and how it is included.
 
