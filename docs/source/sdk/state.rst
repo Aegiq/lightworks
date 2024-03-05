@@ -1,7 +1,7 @@
 State
 =====
 
-In the Aegiq SDK, the :doc:`../sdk_reference/state` object is used to represent the photonic Fock states which are input/output from the system. States offer some similar behaviour to lists, but with the added benefit of being compatible with dictionaries for data management. 
+In Lightworks, the :doc:`../sdk_reference/state` object is used to represent the photonic Fock states which are input/output from the system. States offer some similar behaviour to lists, but with the added benefit of being compatible with dictionaries for data management. 
 
 Creation
 --------
