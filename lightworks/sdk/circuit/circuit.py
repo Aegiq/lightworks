@@ -21,7 +21,6 @@ from .circuit_compiler import CompiledCircuit, CompiledUnitary
 from .parameters import Parameter
 from ..utils import ModeRangeError, CircuitError
 from ..utils import CircuitCompilationError
-from ..utils import permutation_mat_from_swaps_dict
 from ..utils import unpack_circuit_spec, compress_mode_swaps
 from ..utils import convert_non_adj_beamsplitters
 from ..visualisation import Display

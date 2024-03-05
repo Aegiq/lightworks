@@ -40,7 +40,7 @@ class SamplingResult:
         if not isinstance(input, State):
             raise TypeError("Input state should have type State.")
         self.__input = input
-        self.__r = results
+        self.__dict = results
         self.__outputs = list(results.keys())
         # Store any additional provided data from kwargs as attributes    
         for k in kwargs:
@@ -49,9 +49,9 @@ class SamplingResult:
         return
     
     @property
-    def r(self) -> dict:
+    def dictionary(self) -> dict:
         """Stores the raw results dictionary generated in the experiment."""
-        return self.__r
+        return self.__dict
     
     @property
     def input(self) -> State:
@@ -66,38 +66,38 @@ class SamplingResult:
     def __getitem__(self, item: State) -> float | dict:
         """Custom get item behaviour - used when object accessed with []."""
         if isinstance(item, State):
-            if item in self.r:
-                return self.r[item]
+            if item in self.dictionary:
+                return self.dictionary[item]
             else:
                 raise KeyError("Provided output state not in data.")
         else:
             raise ValueError("Get item value must be a State.")
     
     def __str__(self) -> str:
-        return str(self.r)
+        return str(self.dictionary)
     
     def __len__(self) -> int:
-        return len(self.r)
+        return len(self.dictionary)
     
     def __iter__(self) -> iter:
         """Iterable to allow to do 'for param in ParameterDict'."""
-        for p in self.r:
+        for p in self.dictionary:
             yield p
     
     def items(self) -> iter:
-        return self.r.items()
+        return self.dictionary.items()
     
     def keys(self) -> iter:
-        return self.r.keys()
+        return self.dictionary.keys()
     
     def values(self) -> iter:
-        return self.r.values()
+        return self.dictionary.values()
         
     def apply_threshold_mapping(self, invert: bool = False
                                 ) -> "SamplingResult":
         """
-        Apply a threshold mapping to the results from the object and return this
-        as a dictionary.
+        Apply a threshold mapping to the results from the object and return 
+        this as a dictionary.
         
         Args:
         
@@ -111,7 +111,7 @@ class SamplingResult:
         
         """
         mapped_result = {}
-        for out_state, val in self.r.items():
+        for out_state, val in self.dictionary.items():
             new_s = State([1 if s>=1 else 0 for s in out_state])
             if invert:
                 new_s = State([1-s for s in new_s])
@@ -139,7 +139,7 @@ class SamplingResult:
         
         """
         mapped_result = {}
-        for out_state, val in self.r.items():
+        for out_state, val in self.dictionary.items():
             if invert:
                 new_s = State([1-(s%2) for s in out_state])
             else:
@@ -154,8 +154,9 @@ class SamplingResult:
         """Creates a new Result object from mapped data."""
         r = SamplingResult(mapped_result, self.input)
         for k, v in self.__dict__.items():
-            if k not in ['input', 'outputs', 'r', '_SamplingResult__input', 
-                         '_SamplingResult__outputs', '_SamplingResult__r']:
+            if k not in ['input', 'outputs', 'dictionary', 
+                         '_SamplingResult__input', '_SamplingResult__outputs', 
+                         '_SamplingResult__dict']:
                 r.__dict__[k] = v
         return r
         
@@ -186,11 +187,11 @@ class SamplingResult:
             state_labels[state] = str(label)
         
         fig, ax = plt.subplots(figsize = (7,6))
-        x_data = range(len(self.r))
-        ax.bar(x_data, self.r.values())
+        x_data = range(len(self.dictionary))
+        ax.bar(x_data, self.dictionary.values())
         ax.set_xticks(x_data)
         labels = [state_labels[s] if s in state_labels else str(s) 
-                  for s in self.r]
+                  for s in self.dictionary]
         ax.set_xticklabels(labels, rotation = 90)
         ax.set_xlabel("State")
         ax.set_ylabel("Counts")
@@ -215,7 +216,7 @@ class SamplingResult:
         """
 
         to_print = str(self.input) + " -> "
-        for ostate, p in self.r.items():
+        for ostate, p in self.dictionary.items():
             to_print += str(ostate) + " : " + str(p) + ", "
         to_print = to_print[:-2]    
         print(to_print)
@@ -249,7 +250,7 @@ class SamplingResult:
         in_strings = [str(self.input)]
         out_strings = [str(s) for s in self.outputs]
         # Switch to probability if required
-        data = np.array(list(self.r.values()))
+        data = np.array(list(self.dictionary.values()))
         # Apply thresholding to values
         for i in range(data.shape[0]):
             val = data[i]
