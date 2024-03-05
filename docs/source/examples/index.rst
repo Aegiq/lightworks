@@ -3,23 +3,21 @@ Examples
 
 This will be the examples section!
 
-Introductory examples
+Introductory Examples
 ---------------------
 
-Description
+.. toctree::
+    :maxdepth: 1
+
+    initial_simulation
+    multi_photon_sampling
+    heralding_and_post_selection
+
+Qubit Examples
+--------------
 
 .. toctree::
     :maxdepth: 1
 
-    example1
-
-Complex examples
-----------------
-
-Description
-
-.. toctree::
-    :maxdepth: 1
-
-    example2
     ralph_cnot
+    3_qubit_GHZ_generation
