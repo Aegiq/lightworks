@@ -336,4 +336,32 @@ When using ``add``, it is also possible to choose to group all of the elements b
 Other Functionality
 -------------------
 
-To do...
+Also included within the circuit, is a number of additional methods which enable a circuit to be modified as required. In the following, the functionality of each is briefly discussed:
+
+get_all_params
+^^^^^^^^^^^^^^
+
+This method will collect and return a list of all parameters used as part of a ciruit.
+
+copy
+^^^^
+
+Used to create an identical copy of a particular circuit. The ``freeze_parameters`` option can be used to decided whether any variables should remain assigned to parameters, or if they should just be assigned to the parameter value.
+
+.. warning::
+    If you decide not to freeze the parameters of a circuit before copying then both the original and copy of the circuit will be affected by any parameter changes.
+
+unpack_groups
+^^^^^^^^^^^^^
+
+Can be used to unpack any groups of components that have been added to a circuit into individual elements.
+
+compress_mode_swaps
+^^^^^^^^^^^^^^^^^^^
+
+Will this method is called it will look any adjacent mode swaps in a circuit and compress them into a single element. This can be useful for reducing the footprint of a circuit.
+
+remove_non_adjacent_bs
+^^^^^^^^^^^^^^^^^^^^^^
+
+This method can be used to convert and beam splitters that act across non adjacent modes into a beam splitter on adjacent modes and a set of mode swaps across this circuit. This is useful as in mode realisations of an interferometer the direct interaction between non-adjacent modes is not possible.

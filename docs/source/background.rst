@@ -16,7 +16,7 @@ The process begins with a single-photon source (SPS), which generates a temporal
 Boson Sampling
 --------------
 
-Boson Sampling was first proposed in :cite:p:`aaronson2010`. Similar to the configuration described above, it consists of multiple indistinguishable photons being input into a linear interferometer and the output of the system measured. The interaction of photons as they propagate through the system turns out to create an output probability distribution which is equivalent to the calculation of the permanent for the unitary implemented by the interferometer.  
+Boson Sampling was first proposed in :cite:p:`aaronson2010`. Similar to the configuration described above, it consists of multiple indistinguishable photons being input into a linear interferometer and the output of the system measured. The interaction of photons as they propagate through the system turns out to create an output probability distribution which is equivalent to the calculation of the permanent for the unitary implemented by the interferometer. The permanent of a matrix is computationally hard, and so this potentially offers a route towards quantum advantage for large enough systems.
 
 Qubit-based Computing
 ---------------------
