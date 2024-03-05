@@ -19,7 +19,7 @@ part of simulations.
 """
 
 from ..utils import CompiledCircuitError, ModeRangeError, check_unitary
-from ..utils import permutation_to_mode_swaps, permutation_mat_from_swaps_dict
+from ..utils import permutation_mat_from_swaps_dict
 from ..visualisation import Display
 
 from typing import Any
@@ -343,8 +343,7 @@ class CompiledCircuit:
         self._display_spec = self._display_spec + [("segment", modes, None)]
         return
     
-    def add_mode_swaps(self, swaps: dict, decompose_into_bs: bool = False,
-                       element_loss: float = 0) -> None:
+    def add_mode_swaps(self, swaps: dict) -> None:
         """
         Performs swaps between a given set of modes. The keys of the dictionary
         should correspond to the initial modes and the values to the modes they
@@ -356,15 +355,7 @@ class CompiledCircuit:
         
             swaps (dict) : A dictionary detailing the original modes and the 
                 locations that they are to be swapped to. 
-                           
-            decompose_into_bs (bool, optional) : Decompose the provided mode
-                swaps into a set of fully transmissive beam splitters which act
-                to perform mode swaps between pairs of modes.
-                                                 
-            element_loss (float, optional) : Include a loss on each beam 
-                splitter element if these are being used to perform the mode 
-                swaps. This option must be zero if decompose_into_bs is False.
-        
+                
         """
         # Check provided data is valid
         if not isinstance(swaps, dict):
@@ -377,31 +368,17 @@ class CompiledCircuit:
             msg = """Mode swaps not complete, dictionary keys and values should
                      contain the same modes."""
             raise ValueError(" ".join(msg.split()))
-        if not decompose_into_bs and element_loss > 0:
-            msg = """Loss can only be included when using beam splitters to 
-                     perform the mode swaps with the decompose_into_bs option.
-                     """
-            raise ValueError(" ".join(msg.split()))
         # Create swap unitary
         U = permutation_mat_from_swaps_dict(swaps, self.n_modes)
-        # When not using performing decomposition into beam splitters
-        if not decompose_into_bs: 
-            # Expand to include loss modes
-            U_full = np.identity(self.n_modes + self._loss_modes, dtype=complex)
-            U_full[:self.n_modes, :self.n_modes] = U[:, :]
-            # Combine with existing matrices
-            self.U = U @ self.U
-            self.U_full = U_full @ self.U_full
-            self._display_spec = self._display_spec + [("mode_swaps", swaps, 
-                                                        None)]
-        else:        
-            swaps = permutation_to_mode_swaps(U)
-            # Add beam splitters using existing function
-            for sw in swaps:
-                self.add_bs(sw, reflectivity = 0)
-                self.add_loss(sw, element_loss)
-                self.add_loss(sw+1, element_loss)
-        
+        # Expand to include loss modes
+        U_full = np.identity(self.n_modes + self._loss_modes, dtype=complex)
+        U_full[:self.n_modes, :self.n_modes] = U[:, :]
+        # Combine with existing matrices
+        self.U = U @ self.U
+        self.U_full = U_full @ self.U_full
+        self._display_spec = self._display_spec + [("mode_swaps", swaps, 
+                                                    None)]
+
         return
     
     def display(self, display_loss: bool = False, 

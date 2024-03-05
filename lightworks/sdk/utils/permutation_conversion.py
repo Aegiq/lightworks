@@ -49,65 +49,6 @@ def permutation_mat_from_swaps_dict(swaps: dict, n_modes: int) -> np.ndarray:
         permutation[j,i] = 1
     
     return permutation
-
-def permutation_to_mode_swaps(U: np.ndarray) -> list:
-    """
-    Converts a permutation matrix into an ordered set of modes swaps between
-    adjacent modes.
-    
-    Args:
-    
-        U (np.ndarray) : The square permutation matrix that is to be decomposed
-            into swaps.
-    
-    Returns:
-    
-        list : An ordered list of modes that need to be swapped. With the value
-            in the list being the lower of the two adjacent modes that are to 
-            be swapped.
-    
-    """
-    if not isinstance(U, (np.ndarray, list)):
-        msg = "Provided permutation matrix should be numpy array or list."
-        raise TypeError(msg)
-    U = np.array(U)
-    Uc = U.copy()
-    N = Uc.shape[0]
-    # Check matrix is permutation matrix
-    if Uc.shape[0] != Uc.shape[1]:
-        raise ValueError("Provided permutation matrix must be square.")
-    for i in range(Uc.shape[0]):
-        for j in range(Uc.shape[0]):
-            if not abs(Uc[i,j])**2 > 1-1e-10 and not abs(Uc[i,j])**2 < 1e-10:
-                msg = """Provided matrix is not a permutation matrix, it should 
-                         contain only zeros or ones."""
-                raise ValueError(" ".join(msg.split()))
-    # Determine required mode swaps and store
-    s1 = []
-    s2 = []
-    # Use logic here to start in bottom left corner of matrix and then
-    # zig-zag upwards
-    for n_col in range(0, N - 1):
-        for n in range(n_col + 1):
-            if n_col%2 == 1:
-                i = N - n_col - 1 + n
-                j = n
-            else:
-                i = N - 1 - n
-                j = n_col - n
-            # Only apply swap for any non-zero elements
-            if Uc[i,j] > 1e-3:
-                if n_col%2 == 1:
-                    Us = swapmat(N, i-1, i)
-                    Uc = Us@Uc
-                    s1 += [i-1]
-                else:
-                    Us = swapmat(N, j, j+1)
-                    Uc = Uc@Us
-                    s2 += [j]
-    # Combine list to create full swaps
-    swaps = s2 + list(reversed(s1))
-    return swaps
     
 def swapmat(N, m1, m2):
     """Determine unitary to perform mode swap between two modes"""

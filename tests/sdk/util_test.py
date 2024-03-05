@@ -15,7 +15,6 @@
 from lightworks import random_unitary, random_permutation, Circuit
 from lightworks import db_loss_to_transmission, transmission_to_db_loss
 from lightworks.sdk import check_unitary
-from lightworks.sdk.utils import permutation_to_mode_swaps
 from lightworks.sdk.utils import permutation_mat_from_swaps_dict
 from lightworks.emulator import set_statistic_type, get_statistic_type
 
@@ -76,19 +75,6 @@ class UtilTest(unittest.TestCase):
         """
         with self.assertRaises(ValueError):
             set_statistic_type("not_bosonic")
-            
-    def test_permuation_to_swaps(self):
-        """Confirms permutation to swaps function produces correct result."""
-        perm = random_permutation(4)
-        # Determine swaps and create circuit
-        swaps = permutation_to_mode_swaps(perm)
-        circ = Circuit(4)
-        for s in swaps:
-            circ.add_bs(s, reflectivity = 0)
-        # Check matrix equivalence
-        U1 = round(abs(perm)**2, 8)
-        U2 = round(abs(circ.U_full)**2, 8)
-        self.assertTrue((U1 == U2).all())
         
     def test_swaps_to_permutations(self):
         """

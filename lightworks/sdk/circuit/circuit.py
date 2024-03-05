@@ -21,8 +21,8 @@ from .circuit_compiler import CompiledCircuit, CompiledUnitary
 from .parameters import Parameter
 from ..utils import ModeRangeError, CircuitError
 from ..utils import CircuitCompilationError
-from ..utils import permutation_mat_from_swaps_dict, permutation_to_mode_swaps
-from ..utils import unpack_circuit_spec, convert_mode_swaps,compress_mode_swaps
+from ..utils import permutation_mat_from_swaps_dict
+from ..utils import unpack_circuit_spec, compress_mode_swaps
 from ..utils import convert_non_adj_beamsplitters
 from ..visualisation import Display
 
@@ -246,8 +246,7 @@ class Circuit:
             self._mode_in_range(m)
         self.__circuit_spec.append(["separation", tuple([modes])])
         
-    def add_mode_swaps(self, swaps: dict, decompose_into_bs: bool = False,
-                       element_loss: float = 0) -> None:
+    def add_mode_swaps(self, swaps: dict) -> None:
         """
         Performs swaps between a given set of modes. The keys of the dictionary
         should correspond to the initial modes and the values to the modes they
@@ -260,19 +259,7 @@ class Circuit:
             swaps (dict) : A dictionary detailing the original modes and the 
                 locations that they are to be swapped to. 
                            
-            decompose_into_bs (bool, optional) : Decompose the provided mode
-                swaps into a set of fully transmissive beam splitters which act
-                to perform mode swaps between pairs of modes.
-                                                 
-            element_loss (float, optional) : Include a loss on each beam 
-                splitter element if these are being used to perform the mode 
-                swaps. This option must be zero if decompose_into_bs is False.
-        
         """
-        # Enforce that decompose_into_bs cannot be parameter
-        if isinstance(decompose_into_bs, Parameter):
-            msg = "decompose_into_bs cannot be assigned to parameter object."
-            raise TypeError(msg)
         # Perform some error checking steps
         in_modes = sorted(list(swaps.keys()))
         out_modes = sorted(list(swaps.values()))
@@ -282,20 +269,7 @@ class Circuit:
             raise ValueError(" ".join(msg.split()))
         for m in in_modes:
             self._mode_in_range(m)
-        self._check_loss(element_loss)
-        if not decompose_into_bs and element_loss > 0:
-            msg = """Loss can only be included when using beam splitters to 
-                     perform the mode swaps with the decompose_into_bs option.
-                     """
-            raise ValueError(" ".join(msg.split()))
-        if not decompose_into_bs:
-            self.__circuit_spec.append(["mode_swaps", (swaps, None)])
-        else:
-            U = permutation_mat_from_swaps_dict(swaps, self.n_modes)
-            swaps = permutation_to_mode_swaps(U)
-            # Add beam splitters using existing function
-            for sw in swaps:
-                self.add_bs(sw, reflectivity = 0, loss = element_loss)
+        self.__circuit_spec.append(["mode_swaps", (swaps, None)])
         
     def display(self, show_parameter_values: bool = False, 
                 display_loss: bool = False, 
@@ -379,24 +353,6 @@ class Circuit:
         """
         self.__circuit_spec = unpack_circuit_spec(self.__circuit_spec)
         return
-    
-    def remove_mode_swaps(self, preserve_phase: bool = False) -> None:
-        """
-        Removes all mode swap components which have added to the circuit and
-        replaces them with fully transmissive beam splitters.
-        
-        Args:
-        
-            preserve_phase (bool, optional) : Can be used to include additional
-                phase shifters to ensure the unitary of each beam splitter is 
-                equal to that produced by the mode swap components. Defaults to
-                False.
-        
-        """
-        # Convert circuit spec and then assign to attribute
-        new_spec = convert_mode_swaps(deepcopy(self.__circuit_spec), 
-                                      self.n_modes, preserve_phase)
-        self.__circuit_spec = new_spec
         
     def compress_mode_swaps(self) -> None:
         """
@@ -450,7 +406,7 @@ class Circuit:
             elif cs == "separation":
                 circuit.add_separation(got_params[0])
             elif cs == "mode_swaps":
-                circuit.add_mode_swaps(got_params[0], False, 0)
+                circuit.add_mode_swaps(got_params[0])
             elif cs == "unitary":
                 unitary = CompiledUnitary(params[1])
                 circuit.add(unitary, params[0])

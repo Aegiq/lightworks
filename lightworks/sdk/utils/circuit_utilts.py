@@ -17,7 +17,6 @@ Contains a number of different utility functions for modifying circuits.
 """
 
 from .permutation_conversion import permutation_mat_from_swaps_dict
-from .permutation_conversion import permutation_to_mode_swaps
 
 import numpy as np
 
@@ -46,48 +45,6 @@ def unpack_circuit_spec(circuit_spec: list) -> list:
         new_spec = temp_spec
         components = [i[0] for i in new_spec]
     
-    return new_spec
-
-def convert_mode_swaps(spec: list, n_modes : int, 
-                       preserve_phase: bool = False) -> list:
-    """
-    Takes a given circuit spec and removes all mode swaps, replacing them
-    with fully transmissive beam splitters.
-    
-    Args:
-    
-        spec (list) : The circuit spec to remove mode swaps from.
-        
-        n_modes (int) : The number of modes used in the circuit. This is 
-            required to ensure the resulting permutation transform is of the 
-            correct size. 
-    
-        preserve_phase (bool, optional) : Can be used to include additional
-            phase shifters to ensure the unitary of each beam splitter is equal 
-            to that produced by the mode swap components. Defaults to False.
-                            
-    Returns:
-    
-        list : The processed circuit spec.
-                                            
-    """
-    new_spec = []
-    for s in spec:
-        if s[0] == "mode_swaps":
-            U = permutation_mat_from_swaps_dict(s[1][0], n_modes)
-            swaps = permutation_to_mode_swaps(U)
-            for sw in swaps:
-                if preserve_phase:
-                    new_spec.append(["ps", (sw, 3*np.pi/2, 0)])
-                    new_spec.append(["ps", (sw+1, 3*np.pi/2, 0)])
-                new_spec.append(["bs", (sw, sw+1, 0, "Rx")])
-        elif s[0] == "group":
-            new_s1 = [si for si in s[1]]
-            new_s1[0] = convert_mode_swaps(s[1][0], n_modes, preserve_phase)
-            s = [s[0], tuple(new_s1)]
-            new_spec.append(s)
-        else:
-            new_spec.append(s)
     return new_spec
 
 def convert_non_adj_beamsplitters(spec: list) -> list:

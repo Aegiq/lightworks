@@ -178,7 +178,7 @@ class CompiledCircuitTest(unittest.TestCase):
                 circ_comp.add_bs(m)
                 circ_comp.add_ps(m, i)
                 circ_comp.add_loss(m, loss = 0.1)
-            circ_comp.add_mode_swaps({1:2, 2:3, 3:1}, decompose_into_bs = True)
+            circ_comp.add_mode_swaps({1:2, 2:3, 3:1})
         # Addition circuit
         c1 = CompiledCircuit(6)
         for i, m in enumerate([0,2,4,1,3,2]):
@@ -190,7 +190,7 @@ class CompiledCircuitTest(unittest.TestCase):
             c2.add_bs(m)
             c2.add_ps(m, i)
             c2.add_loss(m, loss = 0.1)
-        c2.add_mode_swaps({0:1, 1:2, 2:0}, decompose_into_bs = True)
+        c2.add_mode_swaps({0:1, 1:2, 2:0})
         # Test combinations of True and False for group option
         c2.add(c2, 0, group = True)
         c2.add(c2, 0, group = False)

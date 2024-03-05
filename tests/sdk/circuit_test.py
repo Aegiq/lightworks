@@ -127,8 +127,7 @@ class CircuitTest(unittest.TestCase):
                     circ.add_loss(i, loss)
                 circ.add_loss(i, loss = random())
                 circ.add_loss(i+1, loss = random())
-            circ.add_mode_swaps({1:3, 2:4, 4:1, 3:2}, decompose_into_bs = True,
-                                element_loss = random())
+            circ.add_mode_swaps({1:3, 2:4, 4:1, 3:2})
             circ.add(U, 1)
         # Get unitaries, excluding loss modes due to attribute difference
         U_circ = circuit.U_full[:6, :6]
@@ -189,7 +188,7 @@ class CircuitTest(unittest.TestCase):
                 circ_comp.add_ps(m+1, i)
                 circ_comp.add_bs(m, loss = 0.2*i)
                 circ_comp.add_ps(m, i, loss = 0.1)
-            circ_comp.add_mode_swaps({1:2, 2:3, 3:1}, decompose_into_bs = True)
+            circ_comp.add_mode_swaps({1:2, 2:3, 3:1})
         # Addition circuit
         c1 = Circuit(6)
         for i, m in enumerate([0,2,4,1,3,2]):
@@ -200,7 +199,7 @@ class CircuitTest(unittest.TestCase):
             c2.add_ps(m+1, i)
             c2.add_bs(m, loss = 0.2*i)
             c2.add_ps(m, i, loss = 0.1)
-        c2.add_mode_swaps({0:1, 1:2, 2:0}, decompose_into_bs = True)
+        c2.add_mode_swaps({0:1, 1:2, 2:0})
         # Test combinations of True and False for group option
         c2.add(c2, 0, group = True)
         c2.add(c2, 0, group = False)
@@ -245,17 +244,6 @@ class CircuitTest(unittest.TestCase):
         circ = Circuit(4)
         with self.assertRaises(AttributeError):
             circ.n_modes = 6
-        
-    def test_mode_swap_decomposition(self):
-        """Confirms mode swap decomposition works as expected."""
-        circ1 = Circuit(4)
-        circ1.add_mode_swaps({0:2,2:3,3:1,1:0})
-        circ2 = Circuit(4)
-        circ2.add_mode_swaps({0:2,2:3,3:1,1:0}, decompose_into_bs = True,
-                             element_loss = 0)
-        U1 = round(abs(circ1.U_full)**2, 8)
-        U2 = round(abs(circ2.U_full)**2, 8)
-        self.assertTrue((U1 == U2).all())
         
     def test_circuit_copy(self):
         """Test copy method of circuit creates an independent circuit."""
@@ -314,72 +302,6 @@ class CircuitTest(unittest.TestCase):
             if spec[0] == "group":
                 group_found = True
         self.assertFalse(group_found)
-        
-    def test_remove_mode_swaps(self):
-        """
-        Checks that the remove mode swaps function correctly removes any mode 
-        swaps from the circuit spec.
-        """
-        # Create test circuit
-        circuit = Circuit(6)
-        for i, m in enumerate([0,2,4,1,3,2]):
-            circuit.add_bs(m)
-            circuit.add_ps(m, i)
-            circuit.add_mode_swaps({1:2, 2:3, 3:1}, decompose_into_bs = False)
-        circuit.remove_mode_swaps()
-        for s in circuit._get_circuit_spec():
-            if s[0] == "mode_swaps":
-                self.fail("Mode swaps remained in circuit.")
-                
-    def test_remove_mode_swaps_grouped(self):
-        """
-        Checks that the remove mode swaps function correctly removes any mode 
-        swaps from the circuit spec when it is used as part of a group.
-        """
-        # Create test circuit
-        circuit = Circuit(6)
-        for i, m in enumerate([0,2,4,1,3,2]):
-            circuit.add_bs(m)
-            circuit.add_ps(m, i)
-        # Create separate circuit for mode swaps and add
-        circuit2 = Circuit(4)
-        circuit2.add_bs(0)
-        circuit2.add_mode_swaps({1:2, 2:3, 3:1}, decompose_into_bs = False)
-        circuit.add(circuit2, 1, group = True)
-        # Remove mode swaps, then unpack group before checking for mode swaps
-        circuit.remove_mode_swaps()
-        circuit.unpack_groups()
-        for s in circuit._get_circuit_spec():
-            if s[0] == "mode_swaps":
-                self.fail("Mode swaps remained in circuit.")
-                
-    def test_remove_mode_swaps_equivalence(self):
-        """
-        Confirms that the circuit configuration produced by the remove mode
-        swaps method produces an equivalent circuit.
-        """
-        circuit = Circuit(6)
-        circuit.add_mode_swaps({0:2, 2:1, 1:4, 4:3, 3:5, 5:0}, 
-                               decompose_into_bs = False)
-        u1 = abs(circuit.U).round(3)
-        circuit.remove_mode_swaps()
-        u2 = abs(circuit.U).round(3)
-        self.assertTrue((u1 == u2).all())
-        
-    def test_remove_mode_swaps_equivalence_grouped(self):
-        """
-        Confirms that the circuit configuration produced by the remove mode
-        swaps method with a grouped circuit produces an equivalent circuit.
-        """
-        circuit = Circuit(6)
-        mc = Circuit(6)
-        mc.add_mode_swaps({0:2, 2:1, 1:4, 4:3, 3:5, 5:0}, 
-                          decompose_into_bs = False)
-        circuit.add(mc, 0, group = True)
-        u1 = abs(circuit.U).round(3)
-        circuit.remove_mode_swaps()
-        u2 = abs(circuit.U).round(3)
-        self.assertTrue((u1 == u2).all())
         
     def test_remove_non_adj_bs_success(self):
         """

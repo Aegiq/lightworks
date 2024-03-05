@@ -32,8 +32,6 @@ class DisplayTest(unittest.TestCase):
             self.circuit.add_ps(m+1, phi = 3*i)
             self.circuit.add_loss(m, loss = 1)
         self.circuit.add_mode_swaps({0:2,2:1,1:0})
-        self.circuit.add_mode_swaps({0:2,2:1,1:0}, decompose_into_bs = True,
-                                    element_loss = 0.5)
         self.circuit.add(Unitary(random_unitary(3, seed=1)), 1)
         self.circuit.add(Unitary(random_unitary(3, seed=1)), 0, group = True)
         circuit2 = Circuit(2)
