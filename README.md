@@ -19,7 +19,7 @@ Documentation of this package is hosted at: TBC
 
 Contributions to Lightworks can be made via a pull request. 
 
-Some things to keep in mind before contributing
+Some things to keep in mind before contributing:
 1) Any pull requests should currently be made to the development branch and not main. 
 2) We aim to follow the Google Python style guide (https://google.github.io/styleguide/pyguide.html) including their proposed doc strings format. 
 3) The exisiting unit tests should be used to ensure the core functionality of Lightworks remains intact. Additionally, any new features should ideally include a set of tests.
