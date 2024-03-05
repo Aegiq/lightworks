@@ -8,6 +8,7 @@
 # add these directories to sys.path here.
 import pathlib
 import sys
+import os
 sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
 
 # -- Project information -----------------------------------------------------
@@ -41,6 +42,8 @@ if False: # Switch this to True to export as pdf
 templates_path = ['_templates']
 exclude_patterns = []
 
+# Set python path variable to enable nbsphinx to run notebooks if required
+os.environ['PYTHONPATH'] = os.path.abspath('../../../lightworks')
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
