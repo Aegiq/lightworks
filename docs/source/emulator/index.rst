@@ -1,9 +1,7 @@
 Emulator
 ========
 
-This is an introduction
-
-Below is a comparison of the functionality of the different simulation objects included with the emulator:
+The emulator is included as a sub-module within Lightworks, designed to enable the simulation of photonic systems, with a set of tools for retrieving different data about the system functionality. While using the emulator, it is also possible to include imperfections in the system, enabling an understanding of the effect that these imperfections will likely have on a chosen algorithm. The 4 different simulation objects are discussed in the following sections, with an initial comparison of their functionality included below:
 
 .. list-table:: Simulator object comparison
     :widths: 25 25 25 25
@@ -13,20 +11,20 @@ Below is a comparison of the functionality of the different simulation objects i
       - Input
       - Output
       - Imperfect source/detectors
-    * - Simulator
+    * - :doc:`simulator`
       - Circuit, Input states, Output states
       - Probability amplitudes
       - No
-    * - Sampler
-      - Circuit, Input state, Post-selection/heralding
+    * - :doc:`sampler`
+      - Circuit, Input state, Post-selection/heralding rules
       - Sample counts
       - Yes
-    * - Analyzer
+    * - :doc:`analyzer`
       - Circuit, Input state, Post-selection/heralding rules
       - Probability distribution
       - No
-    * - QuickSampler
-      - Circuit, Input state
+    * - :doc:`quick_sampler`
+      - Circuit, Input state, Heralding rules
       - Sample counts
       - Only non-pnr detectors
 

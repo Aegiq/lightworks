@@ -28,6 +28,8 @@ where $x_i$ and $y_i$ are the photon numbers of the modes of the input and outpu
 Simulation of loss
 ------------------
 
+.. Describe what is loss?
+
 As noted earlier, the emulator deals with linear optic circuits, meaning that in principle any operations should be photon number conserving, and it should not be possible to include loss. There is, however, a trick we can use to achieve loss simulation with linear-optic components. This involves the addition of some additional modes to the circuit, which are imaginary loss modes. For each instance of loss in the photonic circuit, we use a beam splitter to couple the circuit mode with a loss mode and controllably remove photons with a given probability. An example of this is shown in the figure below. Each loss mode can only be used once and so this means that the number of loss modes can grow very quickly for a circuit with a large amount of lossy components. For example, an 8 mode interferometer typically requires at least 56 loss modes, meaning it is necessary to be careful with circuit size when simulating loss. 
 
 .. image:: ../assets/bs_loss_demo.jpg

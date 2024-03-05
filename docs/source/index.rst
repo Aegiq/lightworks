@@ -6,7 +6,7 @@ Lightworks |release| Documentation
 Introduction
 ------------
 
-Lightworks is designed to enable algorithms to be development and implemented on photonic quantum computing hardware. Also provided with Lightworks is an emulator, which features a set of local simulation tools for the testing of a provided configuration before hardware execution.
+Lightworks is an SDK designed to enable the encoding of jobs & algorithms for implementation on photonic quantum computing hardware. It features a set of components which allow for the configuration of a target QPU to be defined, with powerful parametrisation and visualization tools for easy display and modification of created systems. Also provided within Lightworks is the emulator, which is a local simulation framework for the testing of a provided configuration before hardware execution, with the ability to account for the typical hardware errors seen within a system.
 
 Where To Begin
 --------------

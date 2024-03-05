@@ -81,7 +81,7 @@ Alternatively, we can use the ``show`` method to quickly create a plot of the me
     :scale: 100%
     :align: center
 
-As expected, in near equal numbers we measure the states :math:`\ket{2,0}` and :math:`\ket{0,2}` in almost equal numbers, with the variation only existing due to the probabilistic nature of the system.
+As expected, in near equal numbers we measure the states :math:`\ket{2,0}` and :math:`\ket{0,2}`, with the variation only existing due to the probabilistic nature of the system.
 
 Distinguishable Photons
 ^^^^^^^^^^^^^^^^^^^^^^^
