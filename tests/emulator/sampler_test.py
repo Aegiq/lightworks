@@ -37,6 +37,21 @@ class SamplerTest(unittest.TestCase):
         results = sampler.sample_N_states(1000)
         self.assertEqual(results[State([0,1,1,0])], 1000)
         
+    def test_known_result_single_sample(self):
+        """
+        Builds a circuit which produces a known result and checks this is found
+        at the output, when using the sample method to get a single value.
+        """
+        # Build circuit
+        circuit = Circuit(4)
+        circuit.add_bs(1)
+        circuit.add_mode_swaps({0:1, 1:0, 2:3, 3:2})
+        circuit.add_bs(0, 3)
+        # And check output counts
+        sampler = Sampler(circuit, State([1,0,0,1]))
+        output = sampler.sample()
+        self.assertEqual(output, State([0,1,1,0]))
+        
     def test_sampling_perfect_source(self):
         """
         Checks that the probability distribution calculated by the sampler is 
