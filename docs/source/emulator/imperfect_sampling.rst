@@ -46,3 +46,32 @@ The system can then be sampled from in the usual way, and the source properties 
 
 Detectors
 ---------
+
+There is also a number of detector imperfections that can be included, through the use of the :doc:`../emulator_reference/detector` object. This includes the efficiency, which will alter the output count rates and whether the detectors are photon number resolving, which as well as reducing count rates can also be a benefit/limitation for some applications. Also included is dark counts, which are when the system registers a detection event where none is present, generating states that should not exist. This is provided as a probability, meaning the detector dark count rate and system clock needs to be taken into account. Currently it is assumed that all detection channels are identical across the system. A few examples of detector usage are shown below:
+
+.. code-block:: Python
+
+    # Non photon number resolving detectors
+    detector = emulator.Detector(photon_counting = False)
+
+    # 80% efficiency
+    detector = emulator.Detector(efficiency = 0.8)
+
+    # Non photon-number resolving and 10^-6 dark count probability
+    detector = emulator.Detector(photon_counting = False, p_dark = 1e-6)
+
+As with the Source, the Detector is then included in the initial Sampler creation.
+
+.. code-block:: Python
+
+    # Create circuit and unitary
+    circuit = lw.Unitary(lw.random_unitary(4))
+    input_state = lw.State([1,0,1,0])
+
+    # Then define a detector to use
+    detector = emulator.Detector(photon_counting = False, p_dark = 1e-6)
+
+    # And finally add this in the Sampler
+    sampler = emulator.Sampler(circuit, input_state, detector = detector)
+
+When the sample methods are used the detector is then applied as a post-processing step on the output state, before any heralding and post-selection options are included. It is important to note that, unlike when using a source, the detector options will not alter the values seen in the ``probability_distribution`` attribute. For example, using a Detector with ``photon_counting = False`` wouldn't produce states with a maximum of one photon per mode in the probability_distribution.
