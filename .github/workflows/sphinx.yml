@@ -34,6 +34,7 @@ jobs:
         run: | 
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install ghp-import
 
       - name: Install pandoc
         run: |
