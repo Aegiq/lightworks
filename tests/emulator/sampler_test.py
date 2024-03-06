@@ -238,7 +238,7 @@ class SamplerTest(unittest.TestCase):
         sampler = Sampler(circuit, State([1,0,1,0]))
         results = sampler.sample_N_states(5000, seed = 1)
         results2 = sampler.sample_N_states(5000, seed = 1)
-        self.assertEqual(results.r, results2.r)
+        self.assertEqual(results.dictionary, results2.dictionary)
         
     def test_circuit_update_with_sampler(self):
         """

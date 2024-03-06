@@ -7,6 +7,7 @@ with open("lightworks/__version.py") as f:
 setup(name = "lightworks",
       version = version["__version__"],
       description = "SDK for Aegiq's photonic quantum computing platform.",
+      license = "Apache 2.0",
       packages = find_packages(where=".", exclude = ["lightworks_tests"]),
       python_requires = ">=3.10",
       install_requires = ["thewalrus==0.20.0", "matplotlib>=3.7.1",

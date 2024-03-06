@@ -66,7 +66,7 @@ class SimulationResult:
             for j, ostate in enumerate(self.__outputs):
                 input_results[ostate] = self.__array[i,j]
             dict_results[istate] = input_results
-        self.__r = dict_results
+        self.__dict = dict_results
             
         # Store any additional provided data from kwargs as attributes    
         for k in kwargs:
@@ -93,9 +93,9 @@ class SimulationResult:
         return self.__outputs
     
     @property
-    def r(self) -> dict:
+    def dictionary(self) -> dict:
         """Stores a dictionary of inputs and the associated output values."""
-        return self.__r
+        return self.__dict
     
     @property
     def result_type(self) -> dict:
@@ -110,13 +110,13 @@ class SimulationResult:
             # When only one input is used, automatically return output value
             # from dictionary instead of dictionary
             if len(self.inputs) == 1:
-                if item in self.r[self.inputs[0]]:
-                    return self.r[self.inputs[0]][item]
+                if item in self.dictionary[self.inputs[0]]:
+                    return self.dictionary[self.inputs[0]][item]
                 else:
                     raise KeyError("Provided output state not in data.")
             else:
-                if item in self.r:
-                    return self.r[item]
+                if item in self.dictionary:
+                    return self.dictionary[item]
                 else:
                     raise KeyError("Provided input state not in data.")
         elif isinstance(item, slice):
@@ -127,16 +127,16 @@ class SimulationResult:
             # which case just return that
             if istate is None and ostate is None:
                 if len(self.inputs) == 1:
-                    return self.r[self.inputs[0]]
+                    return self.dictionary[self.inputs[0]]
                 else:
-                    return self.r
+                    return self.dictionary
             # Check all aspects are valid
             if (not isinstance(istate, State) or 
                 not isinstance(ostate, (State, type(None)))):
                 msg = "Items used in slices should have type State."
                 raise ValueError(msg)
-            if istate in self.r:
-                sub_r = self.r[istate]
+            if istate in self.dictionary:
+                sub_r = self.dictionary[istate]
             else:
                 raise KeyError("Provided input state not in data.")
             # If open ended slice used then return all results for input
@@ -151,13 +151,13 @@ class SimulationResult:
             raise ValueError("Get item value must be a State or slice.")
         
     def __str__(self) -> str:
-        return str(self.r)
+        return str(self.dictionary)
     
     def apply_threshold_mapping(self, invert: bool = False
                                 ) -> "SimulationResult":
         """
-        Apply a threshold mapping to the results from the object and return this
-        as a dictionary.
+        Apply a threshold mapping to the results from the object and return 
+        this as a dictionary.
         
         Args:
         
@@ -177,7 +177,7 @@ class SimulationResult:
         mapped_result = {}
         for in_state in self.inputs:
             mapped_result[in_state] = {}
-            for out_state, val in self.r[in_state].items():
+            for out_state, val in self.dictionary[in_state].items():
                 new_s = State([1 if s>=1 else 0 for s in out_state])
                 if invert:
                     new_s = State([1-s for s in new_s])
@@ -210,7 +210,7 @@ class SimulationResult:
         mapped_result = {}
         for in_state in self.inputs:
             mapped_result[in_state] = {}
-            for out_state, val in self.r[in_state].items():
+            for out_state, val in self.dictionary[in_state].items():
                 if invert:
                     new_s = State([1-(s%2) for s in out_state])
                 else:
@@ -318,11 +318,11 @@ class SimulationResult:
                 conv_to_probability):
                 if self.result_type == "probability_amplitude":
                     data = {}
-                    for s, p in self.r[istate].items():
+                    for s, p in self.dictionary[istate].items():
                         data[s] = abs(p)**2
                     title = "Probability"
                 else:
-                    data = self.r[istate]
+                    data = self.dictionary[istate]
                     title = self.result_type.capitalize()
                     
                 fig, ax = plt.subplots(figsize = (7,6))
@@ -337,13 +337,15 @@ class SimulationResult:
             # Plot both real and imaginary parts
             else:
                 fig, ax = plt.subplots(1, 2, figsize = (14,6))
-                x_data = range(len(self.r[istate]))
-                ax[0].bar(x_data, np.real(list(self.r[istate].values())))
-                ax[1].bar(x_data, np.imag(list(self.r[istate].values())))
+                x_data = range(len(self.dictionary[istate]))
+                ax[0].bar(x_data, 
+                          np.real(list(self.dictionary[istate].values())))
+                ax[1].bar(x_data, 
+                          np.imag(list(self.dictionary[istate].values())))
                 for i in range(2):
                     ax[i].set_xticks(x_data)
                     labels = [state_labels[s] if s in state_labels else str(s) 
-                              for s in self.r[istate]]
+                              for s in self.dictionary[istate]]
                     ax[i].set_xticklabels(labels, rotation = 90)
                     ax[i].set_xlabel("State")
                     ax[i].axhline(0, color = "black", linewidth = 0.5)
@@ -371,7 +373,7 @@ class SimulationResult:
         # Loop over each input and print results
         for istate in self.inputs:
             to_print = str(istate) + " -> "
-            for ostate, p in self.r[istate].items():
+            for ostate, p in self.dictionary[istate].items():
                 # Adjust print order based on quantity
                 if self.result_type == "counts":
                     to_print += str(ostate) + " : " + str(p) + ", "

@@ -17,7 +17,7 @@ Documentation of this package is hosted at: TBC
 
 ## Contributing
 
-Contributions to Lightworks can be made via a pull request. 
+Contributions to Lightworks can be made via a pull request. If you have an idea for a feature that you'd like to implement it may be best to first raise this in the issues sections, as it may be the case that this is already in developement internally or is potentially incompatiable with the existing Lightworks framework.
 
 Some things to keep in mind before contributing:
 1) Any pull requests should currently be made to the development branch and not main. 
