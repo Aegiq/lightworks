@@ -11,7 +11,7 @@ Key features:
 
 Python 3.10+ is required.
 
-Note: Currently package is not hosted on pypi, this will be added once general 1.0 release is ready. For now, installation can be achieved with:
+Currently the package is not hosted on pypi, this will be added once general 1.0 release is ready. For now, installation can be achieved with:
 
 ```concole
 pip install git+https://github.com/Aegiq/lightworks
