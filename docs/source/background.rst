@@ -1,17 +1,15 @@
 Background
 ==========
 
-.. This should probably include some references!!
+.. This should probably include some more references and detail
 
-Lightworks is designed to enable the configuration of linear optic interferometers for Discrete-Variable quantum computing. These linear interferometers have application in both the qubit and boson sampling paradigms of quantum computing.
-
-A typical system configuration is shown in the image below.
+Lightworks is designed to enable the configuration of linear optic interferometers for Discrete-Variable quantum computing. These linear interferometers have application in both the qubit and boson sampling paradigms of quantum computing. A typical system configuration is shown in the image below:
 
 .. image:: assets/demo_system_figure.svg
     :scale: 75%
     :align: center
 
-The process begins with a single-photon source (SPS), which generates a temporally separated train of single photons at regular intervals. The demultiplexer then uses fast switching to convert this into a set of spatially separated photons, with delay lines used to shift these photons into the same time bin. Once aligned, the created multi-photon input will enter the QPU, through which the photons will propagate while interfering with each other. The exact nature of this interference will depend on the QPU configuration. The photons then exit the QPU, at which point they are then measured to determine the results of the computation.
+The process begins with a single photon source (SPS), which generates a temporally separated train of single photons at regular intervals. The demultiplexer then uses fast switching to convert this into a set of spatially separated photons, with delay lines used to shift these photons into the same time bin. Once aligned, the created multi-photon input will enter the QPU, through which the photons will propagate while interfering with each other. The exact nature of this interference will depend on the QPU configuration. The photons then exit the QPU, at which point they are then measured to determine the results of the computation.
 
 Boson Sampling
 --------------
@@ -25,7 +23,11 @@ It has also been shown that linear optic systems can be used to probabilisticall
 
 When using photons as qubits, it is necessary to use one of the available properties of the photons for encoding the qubit state. There are a number of options for this encoding, including the spatial, temporal and polarisation degrees of freedom. Lightworks uses a spatial mode-based framework, so it is easiest to use the spatial dual rail encoding when examining photonic gates. In actual systems, there is also some benefit to using this type of encoding. As the name suggests, dual rail encoding consists of one photon across two spatial modes, with the :math:`\ket{0}` state being defined as the photon existing on one mode and the :math:`\ket{1}` state defined as the photon existing on the other mode. A superposition state is then when the photon exists in a superposition across the two spatial modes.
 
-This dual-rail encoded version of both CNOT gates are both demonstrated in example notebooks.
+.. Maybe needs a diagram here
+
+This dual-rail encoded version of both CNOT gates are both demonstrated in example notebooks. 
+
+.. Link?
 
 .. note::
     While Lightworks does not currently support other encoding methods, it is usually possible to translate a system with any other encoding into a set of spatial modes.

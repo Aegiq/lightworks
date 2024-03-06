@@ -35,10 +35,6 @@ extensions = [
     'sphinxcontrib.bibtex',
 ]
 
-if False: # Switch this to True to export as pdf
-    extensions += ['sphinx.ext.imgconverter']
-    image_converter_args=["-density", "300"]
-
 templates_path = ['_templates']
 exclude_patterns = []
 
