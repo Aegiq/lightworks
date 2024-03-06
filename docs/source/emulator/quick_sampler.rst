@@ -1,4 +1,0 @@
-Quick Sampler
-=============
-
-Intro
