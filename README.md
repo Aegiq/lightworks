@@ -19,7 +19,7 @@ pip install git+https://github.com/Aegiq/lightworks
 
 ## Documentation
 
-Documentation of this package is hosted at: TBC
+Documentation of this package is hosted at: https://aegiq.github.io/lightworks/
 
 ## Contributing
 
