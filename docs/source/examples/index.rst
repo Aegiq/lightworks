@@ -1,7 +1,10 @@
 Examples
 ========
 
-This will be the examples section!
+The examples section contains a number of notebooks which show some of the ways that Lightworks can be used.
+
+.. note::
+    Currently the examples section only contains a few basic examples of Lightworks functionality, it is intended that this will be expanded significantly in the near future.
 
 Introductory Examples
 ---------------------
