@@ -39,48 +39,17 @@ class Detector:
         
         photon_counting (bool, optional) : Set to True to use photon number
             resolving detectors and False to use threshold detection.
-                                           
-        preset (list | None, optional) : Choose from a set of preset detectors,
-            this should be provided as a list where the first value is a string
-            containing the detector type, and the second is the system clock 
-            speed in hz for calculation of the dark count probability. For 
-            example, a valid argument would be ["APD", 1e6]. Note that this 
-            will overwrite any other provided settings if set to anything other
-            than None.
             
     """
     def __init__(self, efficiency: float = 1, p_dark: float = 0, 
                  photon_counting: bool = True, 
                  preset: str | None = None) -> None:
-        if preset is None:
-            # Assign to attributes
-            self.efficiency = efficiency
-            self.p_dark = p_dark
-            self.photon_counting = photon_counting
-        else:
-            det, clock = preset
-            # Store presets in a dictionary, with dictionaries of values
-            detectors = {"APD" : {"efficiency" : 0.5,
-                                  "dark_count_rate" : 5000,
-                                  "photon_counting" : False},
-                         "SNSPD" : {"efficiency" : 0.85,
-                                    "dark_count_rate" : 10,
-                                    "photon_counting" : False},
-                         "PNR" : {"efficiency" : 0.95,
-                                  "dark_count_rate" : 10,
-                                  "photon_counting" : True},
-                         }
-            # Check preset in programmed values
-            if det not in detectors:
-                msg = "Detector type not in presets, should be in list: ["
-                for d in detectors:
-                    msg = msg + d + ", "
-                msg = msg[:-2] + "]."
-                raise KeyError(msg)
-            # If found then assign attributes
-            self.efficiency = detectors[det]["efficiency"]
-            self.p_dark = detectors[det]["dark_count_rate"]/clock
-            self.photon_counting = detectors[det]["photon_counting"]
+        
+        # Assign to attributes
+        self.efficiency = efficiency
+        self.p_dark = p_dark
+        self.photon_counting = photon_counting
+       
         return
     
     @property
