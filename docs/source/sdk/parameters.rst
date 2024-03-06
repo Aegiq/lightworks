@@ -78,3 +78,62 @@ Also included within Parameter is the ``had_bounds`` method, which can be used t
 
 ParameterDict
 -------------
+
+A ParameterDict functions very similar to a normal dictionary, but is designed specially for storing and modifying Parameters via assigned keys. On creation, it will initially be an empty dictionary.
+
+.. code-block:: Python
+    
+    pd = lw.ParameterDict()
+
+Parameters can then be added to the dictionary using the [] operator, where keys should typically be strings and the values are Parameter objects.
+
+.. code-block:: Python
+
+    pd["p1"] = lw.Parameter(1)
+    pd["p2"] = lw.Parameter(2)
+
+Once a Parameter has been added to the dictionary, it is possible to update the value without using the ``set`` method of the Parameter directly. Instead the following can be used.
+
+.. code-block:: Python
+
+    pd["p1"] = 3
+
+If "p1" was not an existing key in the dictionary then this would raise an exception. It can then be verified that the parameter has been updated using:
+
+.. code-block:: Python
+
+    print(pd["p1"].get())
+
+.. note::
+    Above, pd["p1"] returns the Parameter object itself and not its value, we therefore need to use get() to output the updated value of the object.
+
+A Parameter added to the dictionary can also be removed through providing the associated key to the ``remove`` method.
+
+.. code-block:: Python
+
+    pd.remove("p1")
+
+The ParameterDict also supports some other functionality which is similar to a normal dictionary, including the ``keys`` method to return an iterable of all keys used and ``items`` to return an iterable of keys and associated Parameter values. Alternatively, the keys used in a dictionary can be accessed from the ``params`` attribute, returning a list of values.
+
+.. code-block:: Python
+
+    print(pd.params)
+    # Output: ["p2"]
+
+Bounds
+^^^^^^
+
+The ParameterDict also supports some additional functionality related to bounds. The ``has_bounds`` will check if any of the Parameters included have associated bounds, retuning either True or False. The bounds associated with all Parameters used in the dictionary can also be retrieved with ``get_bounds``, which will return a dictionary of Parameter keys and bounds. For any bounds which are set to None these will be replaced with +/- infinity (using inf from the Python math module).
+
+.. code-block:: Python
+
+    pd = lw.ParameterDict()
+
+    pd["p1"] = lw.Parameter(1, bounds = [0, 2])
+    pd["p2"] = lw.Parameter(2, bounds = [0, None])
+
+    print(pd.has_bounds())
+    # Output: True
+
+    print(pd.get_bounds())
+    # Output: {'p1': (0, 2), 'p2': (0, inf)}
