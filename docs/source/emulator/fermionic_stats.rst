@@ -1,4 +1,0 @@
-Fermionic Statistics
-====================
-
-Intro
