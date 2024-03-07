@@ -35,11 +35,9 @@ import numpy as np
 
 class Circuit:
     """
-    Circuit class
-    This class provides support for building circuits from a set of linear 
-    optic components, with the ability to assign certain quantities of 
-    components to Parameter objects whose values can be adjusted after 
-    creation. 
+    Provides support for building circuits from a set of linear optic 
+    components, with the ability to assign certain quantities of components to 
+    Parameter objects whose values can be adjusted after creation. 
     
     Args:
     

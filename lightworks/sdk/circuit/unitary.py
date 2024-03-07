@@ -23,9 +23,8 @@ import numpy as np
 
 class Unitary(Circuit):
     """
-    Unitary class
-    This class can be used to create a circuit which implements the target 
-    provided unitary across all of its modes.
+    Create a circuit which implements the target provided unitary across all of
+    its modes.
     
     Args:
     

@@ -20,12 +20,11 @@ from math import inf
 
 class Parameter:
     """
-    Parameter Class
-    This class can enables the definition a modifiable parameter that can be 
-    used as part of a Parametrizable circuit. It allows for the parameter to be 
-    modified after utilisation in a circuit for the adjustment of a circuit 
-    with having to redefine the entire object. Once created the value of the
-    parameter should be modified with the get and set functions.
+    Enables the definition a modifiable parameter that can be used as part of a
+    Circuit. It allows for the parameter to be modified after utilisation in a 
+    Circuit for the adjustment of the functionality with having to redefine the 
+    entire object. Once created the value of the parameter should be modified 
+    with the get and set functions.
     
     Args:
     
@@ -149,13 +148,12 @@ class Parameter:
     
 class ParameterDict:
     """
-    ParameterDict Class
-    This class is used to store a number of Parameters, using assigned keys to
-    reference each Parameter object. This has custom get and set item which 
-    allows for the parameter object to be retrieved and the parameter value to 
-    be changed with the [] operator. For example ParameterDict["a"] would 
-    return a Parameter object and ParameterDict["a"] = 1 would set the value of
-    the Parameter associated with the 'a' key to 1.
+    Stores a number of Parameters, using assigned keys to reference each 
+    Parameter object. This has custom get and set item which allows for the 
+    parameter object to be retrieved and the parameter value to be changed with
+    the [] operator. For example ParameterDict["a"] would return a Parameter 
+    object and ParameterDict["a"] = 1 would set the value of the Parameter 
+    associated with the 'a' key to 1.
     """
     def __init__(self, **kwargs) -> None:
         
