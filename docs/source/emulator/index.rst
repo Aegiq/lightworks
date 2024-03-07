@@ -23,10 +23,10 @@ The emulator is included as a sub-module within Lightworks, designed to enable t
       - Circuit, Input state, Post-selection/heralding rules
       - Probability distribution
       - No
-    * - :doc:`quick_sampler`
-      - Circuit, Input state, Heralding rules
-      - Sample counts
-      - Only non-pnr detectors
+..    * - :doc:`quick_sampler`
+..      - Circuit, Input state, Heralding rules
+..      - Sample counts
+..      - Only non-pnr detectors
 
 Before using the emulator, a :doc:`theory` section is included which details some of they key concepts behind simulation of indistinguishable photons in linear optic systems.
 
@@ -41,4 +41,4 @@ Contents
     sampler
     imperfect_sampling
     analyzer
-    quick_sampler
+..    quick_sampler
