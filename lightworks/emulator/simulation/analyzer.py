@@ -88,6 +88,10 @@ class Analyzer:
             raise TypeError("Mode numbers should be integers.")
         if in_mode >= self.circuit.n_modes or out_mode >= self.circuit.n_modes:
             raise ValueError("Mode outside of circuit range.")
+        if in_mode in self.in_heralds:
+            raise ValueError("Heralding already set for given input mode.")
+        if out_mode in self.out_heralds:
+            raise ValueError("Heralding already set for given output mode.")
         self.in_heralds[in_mode] = n_photons
         self.out_heralds[out_mode] = n_photons
         
