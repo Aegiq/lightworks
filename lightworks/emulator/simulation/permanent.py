@@ -20,10 +20,8 @@ from math import factorial, prod
 
 class Permanent:
     """
-    Permanent class
-    This class contains the functions required to calculate the permanent of a
-    matrix. In this case, thewalrus module is used for all permanent 
-    calculations.
+    Calculate the permanent for a give unitary matrix and input state. In this 
+    case, thewalrus module is used for all permanent calculations.
     """
     
     @staticmethod

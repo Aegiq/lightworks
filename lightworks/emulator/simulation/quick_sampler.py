@@ -27,10 +27,9 @@ from typing import Any
     
 class QuickSampler:
     """
-    QuickSampler class
-    This class can be used to randomly sample from the photon number 
-    distribution output of a provided circuit. It is designed to provide 
-    quicker sampling in cases where a certain set of assumptions can be made. 
+    Randomly samples from the photon number distribution output of a provided 
+    circuit. It is designed to provide quicker sampling in cases where a 
+    certain set of assumptions can be made. 
     These assumptions are: 
     1) Photon number is preserved between the input and output.
     2) The source and detectors are perfect, with the exception of the ability 

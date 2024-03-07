@@ -18,10 +18,9 @@ import numpy as np
 
 class Determinant:
     """
-    Determinant class
-    This class contains the functions required to calculate the probability 
-    amplitude of transition between a given input and out state for the 
-    specified unitary matrix in cases of fermionic statistics. 
+    Contains the functions required to calculate the probability amplitude of 
+    transition between a given input and out state for the specified unitary 
+    matrix in cases of fermionic statistics. 
     """
     
     @staticmethod

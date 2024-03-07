@@ -27,11 +27,10 @@ from typing import Any
 
 class Sampler:
     """
-    Sampler class
-    This class can be used to randomly sample from the photon number 
-    distribution output of a provided circuit. The distribution is calculated
-    when the class is first called and then used to return output states with
-    the sample function.
+    Used to randomly sample from the photon number distribution output of a 
+    provided circuit. The distribution is calculated when the class is first 
+    called and then used to return output states with the sample function. Also
+    supports the inclusion of imperfect source and detection properties.
     
     Args:
     

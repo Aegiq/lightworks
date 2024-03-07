@@ -25,7 +25,9 @@ from copy import deepcopy
 
 class AnnotatedState:
     """
-    AnnotatedState class
+    Acts as a custom data state which enables fock states to be defined, with 
+    the main difference to the core State class being that here they are 
+    defined with a label to indicate photon indistinguishability. 
 
     Args:
     

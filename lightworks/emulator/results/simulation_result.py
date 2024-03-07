@@ -20,11 +20,10 @@ import pandas as pd
 
 class SimulationResult:
     """
-    SimulationResult Class
-    This class can be used to store results data from a given simulation in the
-    emulator. There is then a range of options for displaying the data, or
-    alternatively the data can be accessed directly using the [] operator on
-    the class to select which input and output data is required.
+    Stores results data from a given simulation in the emulator. There is then 
+    a range of options for displaying the data, or alternatively the data can 
+    be accessed directly using the [] operator on the class to select which 
+    input and output data is required.
     
     Args:
     

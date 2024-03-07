@@ -24,8 +24,6 @@ from types import FunctionType
 
 class Analyzer:
     """
-    Analyzer class
-    
     The analyzer class is built as an alternative to simulation, intended for
     cases where we want to look at the transformations between a specific 
     subset of states. It is useful for the simulation of probabilities in 
