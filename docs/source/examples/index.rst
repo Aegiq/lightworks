@@ -14,7 +14,6 @@ Introductory Examples
 
     initial_simulation
     multi_photon_sampling
-    heralding_and_post_selection
 
 Qubit Examples
 --------------

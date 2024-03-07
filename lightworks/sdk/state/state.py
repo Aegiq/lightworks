@@ -25,9 +25,8 @@ from typing import Any
 
 class State:
     """
-    State class
-    This class is designed to contain information about a quantum state, as 
-    well as allowing a number of operations to act on the state.
+    Custom data type to store information about a quantum state, as well as 
+    allowing a number of operations to act on the state.
     
     Args:
     

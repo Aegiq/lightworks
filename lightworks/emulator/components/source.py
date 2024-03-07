@@ -25,7 +25,8 @@ from numbers import Number
 
 class Source:
     """
-    Create an imperfect source to model properties of photon inputs.
+    Simulates an imperfect single photon source to model properties of photon 
+    inputs in the Sampler.
     
     Args:
     

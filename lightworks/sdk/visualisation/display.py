@@ -23,10 +23,7 @@ def Display(circuit: "Circuit", display_loss: bool = False,                    #
             mode_labels: bool = None, display_type: str = "svg"
             ) -> tuple[plt.figure, plt.axes] | drawsvg.Drawing:
     """
-    Display
-    
-    This function can be used to Display a circuit in the quantum emulator as a
-    figure in matplotlib.
+    Used to Display a circuit from lightworks in the chosen format.
     
     Args:
     

@@ -22,10 +22,8 @@ import numpy as np
 
 class Simulator:
     """
-    Simulator class
-    This class contains code required to simulate a circuit for a provided
-    number of inputs and outputs. Currently the inputs/outputs should contain
-    the same number of photons.
+    Simulates a circuit for a provided number of inputs and outputs, returning
+    the probability amplitude between them.
     
     Args:
     
@@ -59,7 +57,8 @@ class Simulator:
         """
         Function to run a simulation for a number of inputs/outputs, if no 
         outputs are specified then all possible outputs for the photon number
-        are calculated.
+        are calculated. All inputs and outputs should have the same photon 
+        number.
         
         Args:
         

@@ -30,9 +30,8 @@ from IPython import display
 
 class CompiledCircuit:
     """
-    CompiledCircuit class
-    This class can be used to build an arbitrary circuit for performing 
-    sampling experiments. It is not intended to be called directly.
+    Used for building an arbitrary photonic circuit from a set of fundamental 
+    components. It is not intended to be called directly.
     
     Args:
     
@@ -457,7 +456,6 @@ class CompiledCircuit:
                 
 class CompiledUnitary(CompiledCircuit):
     """
-    Unitary class
     This class can be used to create a circuit which implements the target 
     provided unitary across all of its modes.
     

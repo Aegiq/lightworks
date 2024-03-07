@@ -57,12 +57,12 @@ Once we have built a circuit, we can then move on to simulating it with the emul
 
 The exact functionality of the State object is discussed further in the :doc:`sdk/state` section.
 
-For this initial simulation, we will choose to use the :doc:`emulator_reference/sampler` to emulate the process of measuring photon outputs after they have propagated through the system. On creation of the Sampler, we specify the circuit and the input state to sample from. We then use the ``sample_N_states`` method to generate N samples from the system, in this case choosing N = 10000. We will also specify a random seed to ensure results are reproducible, but this is optional.
+For this initial simulation, we will choose to use the :doc:`emulator_reference/sampler` to emulate the process of measuring photon outputs after they have propagated through the system. On creation of the Sampler, we specify the circuit and the input state to sample from. We then use the ``sample_N_outputs`` method to generate N samples from the system, in this case choosing N = 10000. We will also specify a random seed to ensure results are reproducible, but this is optional.
 
 .. code-block:: Python
 
     sampler = emulator.Sampler(circuit, input_state)
-    results = sampler.sample_N_states(10000, seed = 1)
+    results = sampler.sample_N_outputs(10000, seed = 1)
 
 This produces a :doc:`emulator_reference/sampling_result` object, we can quickly the contents of this using the print statement.
 
@@ -93,7 +93,7 @@ With the emulator, we can also simulate distinguishable particles, to confirm th
     source = emulator.Source(indistinguishability = 0)
     sampler = emulator.Sampler(circuit, input_state, source = source)
 
-    results = sampler.sample_N_states(10000, seed = 1)
+    results = sampler.sample_N_outputs(10000, seed = 1)
     results.plot(show = True)
 
 .. image:: assets/getting_started_demo_plot2.png

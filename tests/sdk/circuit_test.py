@@ -14,7 +14,6 @@
 
 from lightworks import Parameter, ParameterDict, Circuit
 from lightworks import Unitary, random_unitary
-from lightworks import PresetCircuits
 from lightworks.sdk.circuit.circuit_compiler import CompiledCircuit
 from lightworks.sdk.circuit.circuit_compiler import CompiledUnitary
 from random import random, seed
@@ -490,70 +489,6 @@ class UnitaryTest(unittest.TestCase):
         """
         u = Unitary(random_unitary(4))
         self.assertTrue(u.n_modes, 4)
-        
-class PresetCircuitTest(unittest.TestCase):
-    """
-    Unit tests to check circuits created using the preset circuits class are 
-    correct.
-    """
-    
-    def test_rectangular_interferometer(self):
-        """
-        Check a rectangular interferometer can be created and that the returned
-        parameter dict is the correct length, both with and without loss.
-        """
-        circ, params = PresetCircuits.RectangularInterferometer(6, 5)
-        self.assertEqual(len(params), 26)
-        # Inclusion of loss elements
-        circ, params = PresetCircuits.RectangularInterferometer(
-            6, 5, include_loss_elements = True, parametrize_loss = True
-            )
-        self.assertEqual(len(params), 52)
-    
-    def test_rectangular_interferometer_assignment(self):
-        """
-        Test parameter assignment for a rectangular interferometer and confirm
-        resulting unitary has expected values.
-        """
-        circ, params = PresetCircuits.RectangularInterferometer(6, 5)
-        seed(1)
-        for p in params.params:
-            params[p] = 6*random()
-        self.assertAlmostEqual(circ.U[2,2], -0.14574567874-0.426458499865j, 8)
-        self.assertAlmostEqual(circ.U[5,3], 0.266339673846-0.2037667311765j, 8)
-    
-    def test_triangular_interferometer(self):
-        """
-        Check a triangular interferometer can be created and that the returned
-        parameter dict is the correct length, both with and without loss.
-        """
-        circ, params = PresetCircuits.TriangularInterferometer(6, 4)
-        self.assertEqual(len(params), 28)
-        # Inclusion of loss elements
-        circ, params = PresetCircuits.TriangularInterferometer(
-            6, 4, include_loss_elements = True, parametrize_loss = True
-            )
-        self.assertEqual(len(params), 56)
-    
-    def test_triangular_interferometer_assignment(self):
-        """
-        Test parameter assignment for a triangular interferometer and confirm
-        resulting unitary has expected values.
-        """
-        circ, params = PresetCircuits.TriangularInterferometer(6, 4)
-        seed(1)
-        for p in params.params:
-            params[p] = 6*random()
-        self.assertAlmostEqual(circ.U[2,2], -0.78385775762+0.0118878706448j, 8)
-        self.assertAlmostEqual(circ.U[5,3], -0.25715148625-0.2499042077605j, 8)
-        
-    def test_preset_circuit_type(self):
-        """
-        Checks that the circuit returned from the PresetCircuits class has 
-        circuit type.
-        """
-        circ, _ = PresetCircuits.RectangularInterferometer(6, 5)
-        self.assertTrue(isinstance(circ, Circuit))
     
 if __name__ == "__main__":
     

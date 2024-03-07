@@ -19,10 +19,10 @@ The emulator is included as a sub-module within Lightworks, designed to enable t
       - Circuit, Input state, Post-selection/heralding rules
       - Sample counts
       - Yes
-..    * - :doc:`analyzer`
-..      - Circuit, Input state, Post-selection/heralding rules
-..      - Probability distribution
-..      - No
+    * - :doc:`analyzer`
+      - Circuit, Input state, Post-selection/heralding rules
+      - Probability distribution
+      - No
 ..    * - :doc:`quick_sampler`
 ..      - Circuit, Input state, Heralding rules
 ..      - Sample counts
@@ -40,5 +40,5 @@ Contents
     simulator
     sampler
     imperfect_sampling
-..    analyzer
+    analyzer
 ..    quick_sampler

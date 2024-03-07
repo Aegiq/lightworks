@@ -31,8 +31,23 @@ class SamplerTest(unittest.TestCase):
         circuit.add_bs(0)
         sampler = Sampler(circuit, State([1,1]))
         N_sample = 100000
-        results = sampler.sample_N_states(N_sample, seed = 21)
+        results = sampler.sample_N_inputs(N_sample, seed = 21)
         self.assertEqual(len(results), 2)
+        self.assertTrue(0.49 < results[State([2,0])]/N_sample < 0.51)
+        self.assertTrue(0.49 < results[State([0,2])]/N_sample < 0.51)
+        
+    def test_hom_sample_N_outputs(self):
+        """
+        Checks a lossy hom experiment with sample N outputs produces outputs of
+        |2,0> and |0,2>.
+        """
+        circuit = Circuit(2)
+        circuit.add_bs(0, loss = 1)
+        sampler = Sampler(circuit, State([1,1]))
+        N_sample = 100000
+        results = sampler.sample_N_outputs(N_sample, seed = 54, 
+                                           min_detection = 2)
+        self.assertEqual(sum(results.values()), N_sample)
         self.assertTrue(0.49 < results[State([2,0])]/N_sample < 0.51)
         self.assertTrue(0.49 < results[State([0,2])]/N_sample < 0.51)
         
@@ -48,7 +63,7 @@ class SamplerTest(unittest.TestCase):
         circuit.add_bs(0, 3)
         # And check output counts
         sampler = Sampler(circuit, State([1,0,0,1]))
-        results = sampler.sample_N_states(1000)
+        results = sampler.sample_N_inputs(1000)
         self.assertEqual(results[State([0,1,1,0])], 1000)
         
     def test_known_result_single_sample(self):
@@ -160,7 +175,7 @@ class SamplerTest(unittest.TestCase):
         # Control
         detector = Detector(efficiency = 1)
         sampler = Sampler(circuit, State([1,0,1,0]), detector = detector)
-        results = sampler.sample_N_states(1000)
+        results = sampler.sample_N_inputs(1000)
         undetected_photons = False
         for s, c in results.items():
             if s.num() < 2:
@@ -170,7 +185,7 @@ class SamplerTest(unittest.TestCase):
         # With lossy detector
         detector = Detector(efficiency = 0.5)
         sampler = Sampler(circuit, State([1,0,1,0]), detector = detector)
-        results = sampler.sample_N_states(1000)
+        results = sampler.sample_N_inputs(1000)
         undetected_photons = False
         for s, c in results.items():
             if s.num() < 2:
@@ -184,7 +199,7 @@ class SamplerTest(unittest.TestCase):
         # Control
         detector = Detector(p_dark = 0)
         sampler = Sampler(circuit, State([0,0,0,0]), detector = detector)
-        results = sampler.sample_N_states(1000)
+        results = sampler.sample_N_inputs(1000)
         dark_counts = False
         for s, c in results.items():
             if s.num() > 0:
@@ -194,7 +209,7 @@ class SamplerTest(unittest.TestCase):
         # With dark counts enabled
         detector = Detector(p_dark = 0.1)
         sampler = Sampler(circuit, State([0,0,0,0]), detector = detector)
-        results = sampler.sample_N_states(1000)
+        results = sampler.sample_N_inputs(1000)
         dark_counts = False
         for s, c in results.items():
             if s.num() > 0:
@@ -211,7 +226,7 @@ class SamplerTest(unittest.TestCase):
         # Photon number resolving
         detector = Detector(photon_counting = True)
         sampler = Sampler(circuit, State([1,0,1,0]), detector = detector)
-        results = sampler.sample_N_states(1000)
+        results = sampler.sample_N_inputs(1000)
         all_2_photon_states = True
         for s, c in results.items():
             if s.num() < 2:
@@ -221,7 +236,7 @@ class SamplerTest(unittest.TestCase):
         # Non-photon number resolving
         detector = Detector(photon_counting = False)
         sampler = Sampler(circuit, State([0,0,0,0]), detector = detector)
-        results = sampler.sample_N_states(1000)
+        results = sampler.sample_N_inputs(1000)
         sub_2_photon_states = False
         for s, c in results.items():
             if s.num() < 2:
@@ -236,8 +251,8 @@ class SamplerTest(unittest.TestCase):
         """
         circuit = Unitary(random_unitary(4))
         sampler = Sampler(circuit, State([1,0,1,0]))
-        results = sampler.sample_N_states(5000, seed = 1)
-        results2 = sampler.sample_N_states(5000, seed = 1)
+        results = sampler.sample_N_inputs(5000, seed = 1)
+        results2 = sampler.sample_N_inputs(5000, seed = 1)
         self.assertEqual(results.dictionary, results2.dictionary)
         
     def test_circuit_update_with_sampler(self):
@@ -370,7 +385,7 @@ class SamplerTest(unittest.TestCase):
         circuit = Unitary(random_unitary(4))
         # Create sampler and get results
         sampler = Sampler(circuit, State([1,1,1,0]))
-        results = sampler.sample_N_states(10000)
+        results = sampler.sample_N_inputs(10000)
         # Then check no multi-photon states are present        
         for s in results:
             if max(s) > 1:

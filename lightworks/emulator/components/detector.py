@@ -24,9 +24,8 @@ from numbers import Number
 
 class Detector:
     """
-    Detector class
-    This class can be used to sample expected output states for a given input
-    and detector response.
+    Creates a detector which can be used to model the presence of imperfect 
+    detection properties when added to the Sampler.
     
     Args:
     

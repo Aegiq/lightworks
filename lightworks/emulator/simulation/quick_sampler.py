@@ -27,10 +27,9 @@ from typing import Any
     
 class QuickSampler:
     """
-    QuickSampler class
-    This class can be used to randomly sample from the photon number 
-    distribution output of a provided circuit. It is designed to provide 
-    quicker sampling in cases where a certain set of assumptions can be made. 
+    Randomly samples from the photon number distribution output of a provided 
+    circuit. It is designed to provide quicker sampling in cases where a 
+    certain set of assumptions can be made. 
     These assumptions are: 
     1) Photon number is preserved between the input and output.
     2) The source and detectors are perfect, with the exception of the ability 
@@ -172,43 +171,11 @@ class QuickSampler:
         # Return this as the found state - only return modes of interest
         return self.detector._get_output(state)
     
-    def sample_N(self, N: int, seed: int|None = None) -> list:
-        """
-        Function to sample from a circuit N times, this will return the 
-        measured output count distribution.
-        
-        Args:
-        
-            N (int) : The number of samples to take from the circuit.
-            
-            seed (int|None, optional) : Option to provide a random seed to 
-                reproducibly generate samples from the function. This is 
-                optional and can remain as None if this is not required.
-            
-        Returns:
-        
-            list : A list containing the measured photon number counts for each
-                of the modes.
-        
-        """
-        # Create list to store output counts
-        output_counts = [0]*self.circuit.n_modes
-        pdist = self.probability_distribution
-        vals = np.zeros(len(pdist), dtype=object)
-        for i, k in enumerate(pdist.keys()):
-            vals[i] = k
-        # Generate N random samples and then process and count photons per mode
-        np.random.seed(self._check_random_seed(seed))
-        samples = np.random.choice(vals, p = list(pdist.values()), size = N)
-        for state in samples:
-            output_counts = [x + y for x, y in zip(output_counts, state)]
-        return output_counts
     
-    def sample_N_states(self, N: int, seed: int|None = None) -> SamplingResult:
+    def sample_N_outputs(self, N: int, seed: int|None = None) -> SamplingResult:
         """
-        Function to sample a state from the provided distribution many time, 
-        if either heralding or post_select criteria are provided, the sampler 
-        will only output states which meet these.
+        Function to sample a state from the calculated provided distribution 
+        many times, producing N outputs which meet any criteria.
         
         Args:
         
