@@ -23,8 +23,6 @@ As sampling is how the system is utilised, it is very useful to be able to under
         cnot_circuit.add_bs(m, reflectivity = 0.5)
         cnot_circuit.add_ps(m+1, p)
 
-.. include display here
-
 Note that this CNOT gate requires a set of post-selection criteria to function correctly, but this will be discussed more later. We can view the created CNOT gate with ``display``. Mode labels can be specified to mark the ancillary (a) control qubit (c) and target qubit (t) modes.
 
 .. code-block:: Python
