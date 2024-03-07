@@ -50,11 +50,11 @@ Once the circuit and input state are defined, these can then be used in the crea
 
     sampler = emulator.Sampler(cnot_circuit, input_state)
 
-It is possible to view the output probability distribution by accessing the ``probability_distribution`` attribute, but this is not really the intended functionality of the Sampler. Instead, one of the sample methods should be used to simulate the process of generating samples from the system. The most commonly used will be ``sample_N_states``, which will replicate the process of using the target input state to the system N times and measuring the output. For example, to generate 10000 samples the following is used:
+It is possible to view the output probability distribution by accessing the ``probability_distribution`` attribute, but this is not really the intended functionality of the Sampler. Instead, one of the sample methods should be used to simulate the process of generating samples from the system. The most commonly used will be ``sample_N_outputs``, which will replicate the process of measuring from a system until we retrieve N valid outputs. For example, to generate 10000 samples the following is used:
 
 .. code-block:: Python
     
-    results = sampler.sample_N_states(10000, seed = 1)
+    results = sampler.sample_N_outputs(10000, seed = 1)
 
 The method also supports supplying a random seed for the creation of repeatable results. This returns a :doc:`../emulator_reference/sampling_result` object. This has a range of useful functionality, but primarily the ``plot`` method can be used to view the output counts from the sampling experiment. ``show = True`` can be used to directly display the created plot.
 
@@ -68,20 +68,17 @@ The method also supports supplying a random seed for the creation of repeatable 
 
 For the plot above, it can be seen there is no clear output, which is expected as the post-selection rules have not yet been applied. This is implemented in the next section.
 
-The other sample methods are ``sample``, which is used to generate single outputs from the system and ``sample_N`` which will total the expected number of photon counts for each mode of the system when using N inputs.
+The other sample methods are ``sample``, which is used to generate single outputs from the system and ``sample_N_inputs`` which will emulate the process of running a photonic sampling system for N clock samples. An example of using the former is shown below:
 
 .. code-block:: Python
 
     print(sampler.sample())
     # Output: |0,0,1,0,0,1> (Your output will vary here)
 
-    print(sampler.sample_N(10000, seed = 2))
-    # Output: [0, 0, 6778, 6670, 3290, 3262]
-
 Post-selection & Heralding
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As mentioned, post-selection/heralding is required for the CNOT gate above to work correctly. In particular, the gate requires that no photons are measured on the a0 & a1 modes. Additionally, there is a condition that only one photon is measured across c0 & c1 and another across t0 & t1. These can be implemented in the ``sample_N_states`` method by providing a function to the ``herald`` option. This can either be a dedicated function or can use the lambda function included with Python, but must take a single argument as the input, with this argument expected to be a State object. There is also a ``post_select`` option, which is used to set the minimum number of photons that should be detected at the output. In this case the function we supply will enforce this condition and so it is not necessary. 
+As mentioned, post-selection/heralding is required for the CNOT gate above to work correctly. In particular, the gate requires that no photons are measured on the a0 & a1 modes. Additionally, there is a condition that only one photon is measured across c0 & c1 and another across t0 & t1. These can be implemented in the ``sample_N_outputs`` method by providing a function to the ``herald`` option. This can either be a dedicated function or can use the lambda function included with Python, but must take a single argument as the input, with this argument expected to be a State object. There is also a ``min_detection`` option, which is used to set the minimum number of photons that should be detected at the output. In this case the function we supply will enforce this condition and so it is not necessary. 
 
 .. code-block:: Python
 
@@ -93,8 +90,8 @@ As mentioned, post-selection/heralding is required for the CNOT gate above to wo
     herald = lambda s: not s[0] and not s[5] and sum(s[1:3]) == 1 and sum(s[3:5]) == 1
 
     # Sample from the system again
-    results = sampler.sample_N_states(10000, herald = herald, seed = 1,
-                                      post_select = 2) # Not needed
+    results = sampler.sample_N_outputs(10000, herald = herald, seed = 1,
+                                       min_detection = 2) # Not needed
 
     # View results
     results.plot(show = True)
