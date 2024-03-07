@@ -177,66 +177,16 @@ class Sampler:
         # Return this as the found state - only return modes of interest
         return self.detector._get_output(state)
     
-    def sample_N(self, N: int, herald: FunctionType = None, 
-                 post_select: int = 0, seed: int|None = None) -> list:
-        """
-        Function to sample from a circuit N times, this will return the 
-        measured output count distribution.
-        
-        Args:
-        
-            N (int) : The number of samples to take from the circuit.
-            
-            herald (function, optional) : A function which applies a provided
-                set of heralding checks to a state.
-                                      
-            post_select (int, optional) : Post-select on a given minimum total
-                number of photons, this should include any heralded photons.
-                                          
-            seed (int|None, optional) : Option to provide a random seed to 
-                reproducibly generate samples from the function. This is 
-                optional and can remain as None if this is not required.
-            
-        Returns:
-        
-            list : A list containing the measured photon number counts for each
-                of the modes.
-        
-        """
-        # Create always true herald if one isn't provided
-        if herald is None:
-            herald = lambda s: True
-        if type(post_select) != int:
-            raise TypeError("Post-selection value should be an integer.")
-        if type(herald) != FunctionType:
-            raise TypeError("Provided herald value should be a function.")
-        n_modes = self.circuit.n_modes
-        output_counts = [0]*n_modes
-        pdist = self.probability_distribution
-        vals = np.zeros(len(pdist), dtype=object)
-        for i, k in enumerate(pdist.keys()):
-            vals[i] = k
-        # Generate N random samples and then process and count photons per mode
-        np.random.seed(self._check_random_seed(seed))
-        samples = np.random.choice(vals, p = list(pdist.values()), size = N)
-        for state in samples:
-            # Process state with detectors
-            state = self.detector._get_output(state)
-            if post_select: # Skip loop if below post select limit
-                if state.num() < post_select:
-                    continue
-            if not herald(state): # Skip loop if it fails heralding check
-                continue
-            output_counts = [x + y for x, y in zip(output_counts, state)]
-        return output_counts
-    
-    def sample_N_states(self, N: int, herald: FunctionType = None, 
-                        post_select: int = 0, 
+    def sample_N_inputs(self, N: int, herald: FunctionType = None, 
+                        min_detection: int = 0, 
                         seed: int|None = None) -> SamplingResult:
         """
-        Function to sample a state from the provided distribution many time, 
-        if either heralding or post_select criteria are provided, the sampler 
-        will only output states which meet these.
+        Function to sample from the configured system by running N clock cycles
+        of the system. In each of these clock cycles the input may differ from
+        the target input, dependent on the source properties, and there may be
+        a number of imperfections in place which means that photons are not
+        measured or false detections occur. This means it is possible to for 
+        less than N measured states to be returned.
         
         Args:
         
@@ -245,8 +195,9 @@ class Sampler:
             herald (function, optional) : A function which applies a provided
                 set of heralding checks to a state.
                                       
-            post_select (int, optional) : Post-select on a given minimum total
-                number of photons, this should include any heralded photons.
+            min_detection (int, optional) : Post-select on a given minimum 
+                total number of photons, this should include any heralded 
+                photons.
                                           
             seed (int|None, optional) : Option to provide a random seed to 
                 reproducibly generate samples from the function. This is 
@@ -261,7 +212,7 @@ class Sampler:
         # Create always true herald if one isn't provided
         if herald is None:
             herald = lambda s: True
-        if type(post_select) != int:
+        if type(min_detection) != int:
             raise TypeError("Post-selection value should be an integer.")
         if type(herald) != FunctionType:
             raise TypeError("Provided herald value should be a function.")
@@ -276,25 +227,31 @@ class Sampler:
         for state in samples:
             # Process output state
             state = self.detector._get_output(state)
-            if herald(state) and state.num() >= post_select:
+            if herald(state) and state.num() >= min_detection:
                 filtered_samples.append(state)
         results = dict(Counter(filtered_samples))
         results = SamplingResult(results, self.input_state)
         return results
     
-    def sample_N_n_photon_states(self, N: int, photon_number: int, 
-                                 seed: int|None = None) -> SamplingResult:
+    def sample_N_outputs(self, N: int, herald: FunctionType = None, 
+                         min_detection: int = 0, 
+                         seed: int|None = None) -> SamplingResult:
         """
-        Function to produce N samples from the probability distribution with a 
-        given number of photons. This sampling method does not support detector
-        dark counts.
+        Function to generate N output samples from a system, according to a set
+        of selection criteria. The function will raise an error if the 
+        selection criteria is too strict and removes all outputs. Also note 
+        this cannot be used to simulate detector dark counts.
         
         Args:
         
             N (int) : The number of samples that are to be returned.
             
-            photon_number (int) : The number of photons that each sampled state
-                should contain.
+            herald (function, optional) : A function which applies a provided
+                set of heralding checks to a state.
+                                      
+            min_detection (int, optional) : Post-select on a given minimum 
+                total number of photons, this should include any heralded 
+                photons.
                                   
             seed (int|None, optional) : Option to provide a random seed to 
                 reproducibly generate samples from the function. This is 
@@ -306,40 +263,45 @@ class Sampler:
                 the number of counts for each one.
                                          
         """
+        # Create always true herald if one isn't provided
+        if herald is None:
+            herald = lambda s: True
+        if type(min_detection) != int:
+            raise TypeError("Post-selection value should be an integer.")
+        if type(herald) != FunctionType:
+            raise TypeError("Provided herald value should be a function.")
         pdist = self.probability_distribution
         # Check no detector dark counts included
-        if self.detector.p_dark == 0:
-            # When photon counting remove any states with incorrect photon num
-            if self.detector.photon_counting:
-                n_dist = {s:p for s, p in pdist.items()
-                          if s.num() == photon_number}
-            # Otherwise need to apply thresholding and add to new distribution
-            else:
-                n_dist = {}
-                for s, p in pdist.items():
-                    s = State([min(1,i) for i in s])
-                    if s.num() == photon_number:
-                        if s in n_dist:
-                            n_dist[s] += p
-                        else:
-                            n_dist[s] = p
-            # If outputs found then re-normalize distribution
-            if n_dist:
-                pt = sum(n_dist.values())
-                n_dist = {s:p/pt for s, p in n_dist.items()}
-            # Otherwise raise error
-            else:
-                msg = "No output states with target photon number found."
-                raise ValueError(msg)
-        else:
+        if self.detector.p_dark != 0:
             raise ValueError("Not supported when using detector dark counts")
+        # Apply threshold affect + and post selection criteria
+        if not self.detector.photon_counting:
+            new_dist = {}
+            for s, p in pdist.items():
+                new_s = State([min(i,1) for i in s])
+                if sum(new_s) >= min_detection and herald(new_s):
+                    if new_s in new_dist:
+                        new_dist[new_s] += p
+                    else:
+                        new_dist[new_s] = p
+            pdist = new_dist
+        else:
+            pdist = {s:p for s, p in pdist.items() 
+                     if sum(s) >= min_detection and herald(s)}
+        # Check some states are found
+        if not pdist:
+            msg = "No output states compatible with provided criteria."
+            raise ValueError(msg)
+        # Re-normalise distribution probabilities
+        probs = np.array(list(pdist.values()))
+        probs = probs/sum(probs) 
         # Put all possible states into array
-        vals = np.zeros(len(n_dist), dtype=object)
-        for i, k in enumerate(n_dist.keys()):
+        vals = np.zeros(len(pdist), dtype=object)
+        for i, k in enumerate(pdist.keys()):
             vals[i] = k
         # Generate N random samples and then process and count output states
         np.random.seed(self._check_random_seed(seed))
-        samples = np.random.choice(vals, p = list(n_dist.values()), size = N)
+        samples = np.random.choice(vals, p = probs, size = N)
         # Count states and convert to results object
         results = dict(Counter(samples))
         results = SamplingResult(results, self.input_state)
