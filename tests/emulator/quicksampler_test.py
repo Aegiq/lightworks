@@ -32,7 +32,7 @@ class QuickSamplerTest(unittest.TestCase):
         circuit.add_bs(0)
         sampler = QuickSampler(circuit, State([1,1]))
         N_sample = 100000
-        results = sampler.sample_N_states(N_sample, seed = 21)
+        results = sampler.sample_N_outputs(N_sample, seed = 21)
         self.assertEqual(len(results), 2)
         self.assertTrue(0.49 < results[State([2,0])]/N_sample < 0.51)
         self.assertTrue(0.49 < results[State([0,2])]/N_sample < 0.51)
@@ -67,7 +67,7 @@ class QuickSamplerTest(unittest.TestCase):
         circuit.add_bs(0, 3)
         # And check output counts
         sampler = QuickSampler(circuit, State([1,0,0,1]))
-        results = sampler.sample_N_states(1000)
+        results = sampler.sample_N_outputs(1000)
         self.assertEqual(results[State([0,1,1,0])], 1000)
         
     def test_sampling(self):
@@ -233,7 +233,7 @@ class QuickSamplerTest(unittest.TestCase):
         circuit = Unitary(random_unitary(4))
         # Create sampler and get results
         sampler = QuickSampler(circuit, State([1,1,1,0]))
-        results = sampler.sample_N_states(10000)
+        results = sampler.sample_N_outputs(10000)
         # Then check no multi-photon states are present        
         for s in results:
             if max(s) > 1:
