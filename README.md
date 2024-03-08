@@ -1,3 +1,6 @@
+![Tests](https://github.com/Aegiq/lightworks/actions/workflows/tests.yml/badge.svg?branch=main?event=push)
+![Docs](https://github.com/Aegiq/lightworks/actions/workflows/sphinx_deploy.yml/badge.svg?event=push)
+
 # Lightworks
 
 Lightworks is an open source Python SDK, designed for the encoding of jobs & algorithms before execution on photonic quantum computing hardware. It focuses on discrete-variable quantum computing, and can be utilised for both qubit-based and boson sampling paradigms.

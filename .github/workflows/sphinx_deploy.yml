@@ -1,5 +1,5 @@
 # Used to build and deploy sphinx docs on submission to main
-name: Deploy-sphinx-docs
+name: Deploy Docs
 
 on:
   # Triggers the workflow on push events for main
