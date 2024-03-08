@@ -31,7 +31,7 @@ jobs:
             pip install -r requirements.txt
             pip install pytest
 
-      # Run with pytest
-      - name: Test with pytest
+      # Run with unittest
+      - name: Test with unittest
         run: |
-            pytest
+            python -m unittest discover -v -s "./tests" -p "*_test.py"
