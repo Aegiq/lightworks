@@ -5,6 +5,9 @@ on:
     branches: [main, development]
   pull_request:
     branches: [main, development]
+
+  # Allows workflow to be manually run from the Actions tab
+  workflow_dispatch:
         
 jobs:
   build:
@@ -20,7 +23,7 @@ jobs:
 
       # Configures the Python version
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
             python-version: ${{ matrix.python-version }}
 
