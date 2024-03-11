@@ -37,7 +37,7 @@ jobs:
         run: |
           sudo apt update
           wget https://github.com/jgm/pandoc/releases/download/3.1.12.2/pandoc-3.1.12.2-1-amd64.deb
-          sudo dpkg -i pandoc-2.9.2.1-1-amd64.deb
+          sudo dpkg -i pandoc-3.1.12.2-1-amd64.deb
         
       # Run sphinx build from docs folder
       - name: Build HTML
