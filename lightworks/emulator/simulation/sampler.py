@@ -13,9 +13,9 @@
 # limitations under the License.
 
 from .probability_distribution import ProbabilityDistributionCalc as PDC
-from ..utils import StateError, get_statistic_type
-from ...emulator import Source, Detector
+from ..utils import get_statistic_type, ModeMismatchError
 from ..results import SamplingResult
+from ..components import Source, Detector
 from ...sdk import State, Circuit
 
 import numpy as np
@@ -85,7 +85,8 @@ class Sampler:
         if type(value) != State:
             raise TypeError("A single input of type State should be provided.")
         if len(value) != self.circuit.n_modes:
-            raise StateError("Incorrect input length.")
+            msg = "Incorrect input length for provided circuit."
+            raise ModeMismatchError(msg)
         self.__input_state = value
         
     @property

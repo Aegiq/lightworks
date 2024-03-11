@@ -49,6 +49,7 @@ from .sdk import State
 from .sdk import random_unitary, random_permutation
 from .sdk import db_loss_to_transmission, transmission_to_db_loss
 from .sdk import Optimisation
+from .sdk.utils.exceptions import *
 
 __all__ = ["Circuit", "Unitary", "Display", "State", "random_unitary", 
            "random_permutation", "db_loss_to_transmission", 

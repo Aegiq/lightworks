@@ -13,10 +13,9 @@
 # limitations under the License.
 
 from .backend import Backend
-from ..utils import fock_basis, StateError, get_statistic_type
+from ..utils import fock_basis, get_statistic_type, ModeMismatchError
 from ..results import SamplingResult
 from ...sdk import State, Circuit
-from ...sdk.circuit.circuit_compiler import CompiledCircuit
 
 import numpy as np
 from random import random
@@ -87,7 +86,7 @@ class QuickSampler:
         if type(value) != State:
             raise TypeError("A single input of type State should be provided.")
         if len(value) != self.circuit.n_modes:
-            raise StateError("Incorrect input length.")
+            raise ModeMismatchError("Incorrect input length.")
         self.__input_state = value
         
     @property

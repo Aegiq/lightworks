@@ -14,6 +14,7 @@
 
 from .permanent import Permanent
 from .determinant import Determinant
+from ..utils import BackendError
 from ...sdk import State
 
 from numpy import ndarray
@@ -29,5 +30,5 @@ class Backend:
             return Determinant.calculate(U, in_state, out_state)
         else:
             msg = "statistic_type should be 'bosonic' or 'fermionic'."
-            raise ValueError(msg)
+            raise BackendError(msg)
     

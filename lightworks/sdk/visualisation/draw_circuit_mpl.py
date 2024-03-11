@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from .display_components_mpl import DisplayComponentsMPL
+from ..utils import DisplayError
 
 from typing import Any
 import matplotlib.pyplot as plt
@@ -109,7 +110,7 @@ class DrawCircuitMPL(DisplayComponentsMPL):
             if len(self.mode_labels) != N:
                 msg = """Length of provided mode labels list should be equal to
                          the number of modes."""
-                raise ValueError(" ".join(msg.split()))
+                raise DisplayError(" ".join(msg.split()))
             self.ax.set_yticklabels(self.mode_labels)
         self.ax.set_xticks([])
 

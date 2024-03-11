@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from lightworks import Parameter, ParameterDict
+from lightworks import ParameterValueError, ParameterBoundsError
+from lightworks import ParameterDictError
 import unittest
 
 class ParameterTest(unittest.TestCase):
@@ -50,7 +52,7 @@ class ParameterTest(unittest.TestCase):
         p = Parameter(1, bounds = [0, 2])
         self.assertEqual(p.min_bound, 0)
         self.assertEqual(p.max_bound, 2)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ParameterBoundsError):
             p = Parameter(3, bounds = [0,2])
     
     def test_bounded_parameter_update(self):
@@ -62,9 +64,9 @@ class ParameterTest(unittest.TestCase):
         p = Parameter(1, bounds = [0, 3])
         p.set(2)
         self.assertEqual(p.get(), 2)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ParameterValueError):
             p.set(-1)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ParameterValueError):
             p.set(4)
             
     def test_invalid_bound_update(self):
@@ -73,9 +75,9 @@ class ParameterTest(unittest.TestCase):
         current Parameter value would become invalid.
         """
         p = Parameter(2, bounds = [0, 3])
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ParameterBoundsError):
             p.max_bound = 1
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ParameterBoundsError):
             p.min_bound = 3
             
     def test_non_numerical_value(self):
@@ -86,7 +88,7 @@ class ParameterTest(unittest.TestCase):
         p = Parameter(True)
         p.set(False)
         self.assertEqual(p.get(), False)
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(ParameterBoundsError):
             p = Parameter(True, bounds = [0, 1])
     
     def test_non_numerical_bound_update(self):
@@ -95,7 +97,7 @@ class ParameterTest(unittest.TestCase):
         creation.
         """
         p = Parameter(True)
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(ParameterBoundsError):
             p.min_bound = 0
     
     def test_bounded_value_type_updated(self):
@@ -104,7 +106,7 @@ class ParameterTest(unittest.TestCase):
         another non-numerical value.
         """
         p = Parameter(1, bounds = [0, 2])
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ParameterValueError):
             p.set("Test")
     
     def test_has_bounds_method(self):
@@ -156,10 +158,10 @@ class ParameterDictTest(unittest.TestCase):
         dictionary with another Parameter.
         """
         pd = ParameterDict()
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ParameterDictError):
             pd["a"] = 1
         pd["a"] = Parameter(1)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ParameterDictError):
             pd["a"] = Parameter(2)
     
     def test_len_method(self):

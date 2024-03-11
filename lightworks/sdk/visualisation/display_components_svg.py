@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ..utils import DisplayError
+
 import drawsvg as draw
 import numpy as np
 
@@ -307,7 +309,7 @@ class DisplayComponentsSVG:
             ta = "end"
             db = "middle"
         else:
-            raise ValueError("Alignment value not recognised.")
+            raise DisplayError("Alignment value not recognised.")
         t = draw.Text(text, size, x, y, fill = colour, text_anchor = ta,
                       dominant_baseline = db, 
                       transform = f"rotate({rotation}, {x}, {y})")

@@ -14,6 +14,7 @@
 
 from .draw_circuit_mpl import DrawCircuitMPL
 from .draw_circuit_svg import DrawCircuitSVG
+from ..utils import DisplayError
 
 import drawsvg
 import matplotlib.pyplot as plt
@@ -47,8 +48,8 @@ def Display(circuit: "Circuit", display_loss: bool = False,                    #
         
     Raised:
     
-        ValueError : In any cases where an invalid display type is provided an
-            exception will be raised.
+        DisplayError : In any cases where an invalid display type is provided 
+            an exception will be raised.
                                            
     """
     
@@ -60,4 +61,4 @@ def Display(circuit: "Circuit", display_loss: bool = False,                    #
         disp = DrawCircuitSVG(circuit, display_loss, mode_labels)
         return disp.draw()
     else:
-        raise ValueError("Display type not recognised.")
+        raise DisplayError("Display type not recognised.")

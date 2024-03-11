@@ -13,18 +13,14 @@
 # limitations under the License.
 
 """
-Contains all custom exceptions created for the emulator
+Contains all custom exceptions created for the emulator section of Lightworks.
 """
 
-class EmulatorError(Exception):
-    """
-    Generic error for emulator
-    """
-    pass
+from ...sdk import LightworksError
 
-class StateError(EmulatorError):
+class EmulatorError(LightworksError):
     """
-    Error relating to issues with a provided State
+    Generic error for emulator which sub classes the main LightworksError
     """
     pass
 
@@ -33,3 +29,25 @@ class AnnotatedStateError(EmulatorError):
     Error relating to issues with a provided AnnotatedState
     """
     pass
+
+class ResultCreationError(EmulatorError):
+    """
+    For specific errors which occur when using creating a Result object.
+    """
+    
+class BackendError(EmulatorError):
+    """
+    Raised when errors occur in the Backend object.
+    """
+    
+class ModeMismatchError(EmulatorError):
+    """
+    For use in simulation objects when there is a mode mismatch between 
+    provided states/circuit.
+    """
+    
+class PhotonNumberError(EmulatorError):
+    """
+    For use in simulation objects when there is a photon number mismatch 
+    between inputs and/or outputs.
+    """

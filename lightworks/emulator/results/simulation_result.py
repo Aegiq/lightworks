@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ..utils import ResultCreationError
 from ...sdk import State
 
 import numpy as np
@@ -47,17 +48,17 @@ class SimulationResult:
         else:
             msg = """Valid result type not provided, should either be 
                      'probability', 'probability_amplitude'."""
-            raise ValueError(" ".join(msg.split()))
+            raise ResultCreationError(" ".join(msg.split()))
         
         self.__array = np.array(results)
         self.__inputs = inputs
         self.__outputs = outputs
         if len(self.__inputs) != self.__array.shape[0]:
             msg = "Mismatch between inputs length and array size."
-            raise ValueError(msg)
+            raise ResultCreationError(msg)
         if len(self.__outputs) != self.__array.shape[1]:
             msg = "Mismatch between outputs length and array size."
-            raise ValueError(msg)
+            raise ResultCreationError(msg)
         
         dict_results = {}
         for i, istate in enumerate(self.__inputs):

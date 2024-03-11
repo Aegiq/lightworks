@@ -14,7 +14,7 @@
 
 from .backend import Backend
 from ..utils import fock_basis, get_statistic_type
-from ..utils import StateError
+from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
 from ...sdk import State, Circuit
 
@@ -138,7 +138,7 @@ class Analyzer:
             msg = """Mismatch in number of heralds on the input/output modes,
                      it is likely this results from a herald being added twice
                      or modified."""
-            raise StateError(" ".join(msg.split()))
+            raise RuntimeError(" ".join(msg.split()))
         # Convert state to list of States if not provided for single state case
         if type(inputs) is State:
                 inputs = [inputs] 
@@ -198,7 +198,7 @@ class Analyzer:
                         if n_loss < 0:
                             msg = """Output photon number larger than input 
                                      number."""
-                            raise StateError(" ".join(msg.split()))
+                            raise PhotonNumberError(" ".join(msg.split()))
                         # Find loss states and find probability of each
                         loss_states = fock_basis(
                             self.__circuit_built.loss_modes, n_loss, 
@@ -237,7 +237,7 @@ class Analyzer:
         for s in inputs:
             if s not in expected:
                 msg = f"Input state {s} not in provided expectation dict."
-                raise StateError(msg)
+                raise KeyError(msg)
         # For each input check error rate
         errors = []
         for i, s in enumerate(inputs):
@@ -265,7 +265,8 @@ class Analyzer:
         # Ensure all photon numbers are the same   
         ns = [s.num() for s in inputs]
         if min(ns) != max(ns):
-            raise StateError("Mismatch in photon numbers between inputs")
+            msg = "Mismatch in photon numbers between inputs"
+            raise PhotonNumberError()
         full_inputs = []
         # Check dimensions of input and add heralded photons
         for state in inputs:
@@ -278,7 +279,7 @@ class Analyzer:
             if len(state) != n_modes:
                 msg = ("Input states are of the wrong dimension. " + 
                        "Remember to subtract Heralded modes.")
-                raise StateError(msg)
+                raise ModeMismatchError(msg)
             full_inputs += [self._build_state(state, self.in_heralds)]
         # Add extra states for loss modes here when included
         if self.__circuit_built.loss_modes > 0:

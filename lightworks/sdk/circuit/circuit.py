@@ -19,7 +19,7 @@ after creation.
 
 from .circuit_compiler import CompiledCircuit, CompiledUnitary
 from .parameters import Parameter
-from ..utils import ModeRangeError, CircuitError
+from ..utils import ModeRangeError, DisplayError
 from ..utils import CircuitCompilationError
 from ..utils import unpack_circuit_spec, compress_mode_swaps
 from ..utils import convert_non_adj_beamsplitters
@@ -173,7 +173,7 @@ class Circuit:
         if mode_2 is None: mode_2 = mode_1 + 1
         if mode_1 == mode_2:
             msg = "Beam splitter must act across two different modes."
-            raise ValueError(msg)
+            raise ModeRangeError(msg)
         self._mode_in_range(mode_2)
         self._check_loss(loss)
         # Check correct convention is given
@@ -183,7 +183,7 @@ class Circuit:
             for conv in all_convs:
                 msg += conv + ", "
             msg = msg[:-2] + "']"
-            raise CircuitError(msg)
+            raise ValueError(msg)
         self.__circuit_spec.append(["bs", (mode_1, mode_2, reflectivity, 
                                            convention)])
         if loss > 0:
@@ -408,7 +408,8 @@ class Circuit:
                 unitary = CompiledUnitary(params[1])
                 circuit.add(unitary, params[0])
             else:
-                raise RuntimeError("Component not recognised.")
+                msg = "Component in circuit spec not recognised."
+                raise CircuitCompilationError(msg)
         
         return circuit
     
@@ -510,7 +511,7 @@ class Circuit:
                 display_spec.append(("group", [params[2], params[3]], 
                                    (params[1])))
             else:
-                raise RuntimeError("Component not recognised.")
+                raise DisplayError("Component in circuit spec not recognised.")
             
         return display_spec
     

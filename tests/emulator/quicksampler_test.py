@@ -13,8 +13,8 @@
 # limitations under the License.
 
 from lightworks import State, Unitary, Circuit, random_unitary, Parameter
-from lightworks.emulator import QuickSampler, Sampler, StateError
-from lightworks.emulator import set_statistic_type
+from lightworks.emulator import QuickSampler, Sampler
+from lightworks.emulator import set_statistic_type, ModeMismatchError
 import unittest
 
 class QuickSamplerTest(unittest.TestCase):
@@ -201,7 +201,7 @@ class QuickSamplerTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             sampler.input_state = [1,2,3,4]
         # Incorrect number of modes
-        with self.assertRaises(StateError):
+        with self.assertRaises(ModeMismatchError):
             sampler.input_state = State([1,2,3])
             
     def test_herald_assignment(self):

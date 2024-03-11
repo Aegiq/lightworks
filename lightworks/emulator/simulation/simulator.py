@@ -13,7 +13,8 @@
 # limitations under the License.
 
 from .backend import Backend
-from ..utils import fock_basis, StateError, get_statistic_type
+from ..utils import fock_basis, get_statistic_type
+from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
 from ...sdk import State, Circuit
 
@@ -127,7 +128,7 @@ class Simulator:
                 msg = f"""One or more input states have an incorrect number of 
                           modes, correct number of modes is 
                           {self.circuit.n_modes}."""
-                raise StateError(" ".join(msg.split())) 
+                raise ModeMismatchError(" ".join(msg.split())) 
         return inputs
     
     def _process_outputs(self, inputs: list, 
@@ -142,7 +143,7 @@ class Simulator:
             if min(ns) != max(ns):
                 msg = """Mismatch in total photon number between inputs, this 
                          is not currently supported by the Simulator."""
-                raise StateError(" ".join(msg.split()))
+                raise PhotonNumberError(" ".join(msg.split()))
             outputs = fock_basis(self.circuit.n_modes, max(ns), 
                                  self.__stats_type)
             outputs = [State(s) for s in outputs]
@@ -167,7 +168,7 @@ class Simulator:
                     msg = f"""One of more input states have an incorrect number
                               of modes, correct number of modes is 
                               {self.circuit.n_modes}."""
-                    raise StateError(" ".join(msg.split())) 
+                    raise ModeMismatchError(" ".join(msg.split())) 
             # Ensure photon numbers are the same in all states - variation not 
             # currently supported
             ns = [s.num() for s in inputs + outputs]
@@ -175,5 +176,5 @@ class Simulator:
                 msg = """Mismatch in photon numbers between some 
                          inputs/outputs, this is not currently supported in the 
                          simulator."""
-                raise StateError(" ".join(msg.split()))
+                raise PhotonNumberError(" ".join(msg.split()))
         return inputs, outputs

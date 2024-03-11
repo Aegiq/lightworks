@@ -18,7 +18,7 @@ optics components. It also supports the inclusion of loss when being used as
 part of simulations.
 """
 
-from ..utils import CompiledCircuitError, ModeRangeError, check_unitary
+from ..utils import ModeRangeError, check_unitary
 from ..utils import permutation_mat_from_swaps_dict
 from ..visualisation import Display
 
@@ -147,7 +147,7 @@ class CompiledCircuit:
         self._mode_in_range(mode)
         if not isinstance(circuit, (CompiledCircuit, CompiledUnitary)):
             msg = "Addition only supported between two compiled circuits."
-            raise CompiledCircuitError(msg)
+            raise TypeError(msg)
         if mode + circuit.n_modes > self.n_modes:
             raise ModeRangeError("Circuit to add is outside of mode range")
         

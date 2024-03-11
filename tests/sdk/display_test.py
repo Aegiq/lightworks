@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from lightworks import Display, Circuit, Unitary, random_unitary, Parameter
+from lightworks import DisplayError
 import unittest
 import matplotlib.pyplot as plt
 
@@ -96,9 +97,9 @@ class DisplayTest(unittest.TestCase):
         Confirms an error is raised when an invalid display type is passed to 
         the display function.
         """
-        with self.assertRaises(ValueError):
+        with self.assertRaises(DisplayError):
             self.circuit.display(display_type = "not_valid")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(DisplayError):
             Display(self.circuit, display_type = "not_valid")
 
 if __name__ == "__main__":

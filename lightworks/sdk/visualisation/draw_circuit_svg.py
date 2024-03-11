@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from .display_components_svg import SVGDrawSpec, DisplayComponentsSVG
+from ..utils import DisplayError
 
 import drawsvg as draw
 
@@ -149,7 +150,7 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
             elif c == "group":
                 self._draw_grouped_circuit(*data)
             else:
-                raise ValueError("Element in draw spec not recognised.")
+                raise DisplayError("Element in draw spec not recognised.")
                 
         # Adjust size of figure to meet target scale
         target_scale = min(50+self.N*65, 900)

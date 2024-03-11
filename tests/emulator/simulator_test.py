@@ -13,7 +13,8 @@
 # limitations under the License.
 
 from lightworks import State, Unitary, random_unitary, Circuit, Parameter
-from lightworks.emulator import Simulator, set_statistic_type, StateError
+from lightworks.emulator import PhotonNumberError
+from lightworks.emulator import Simulator, set_statistic_type
 import unittest
 
 class SimulatorTest(unittest.TestCase):
@@ -176,10 +177,10 @@ class SimulatorTest(unittest.TestCase):
         circuit = Unitary(random_unitary(4))
         sim = Simulator(circuit)
         # Without output specified
-        with self.assertRaises(StateError):
+        with self.assertRaises(PhotonNumberError):
             sim.simulate([State([1,0,1,0]), State([0,1,0,0])])
         # With some outputs specified
-        with self.assertRaises(StateError):
+        with self.assertRaises(PhotonNumberError):
             sim.simulate([State([1,0,1,0]), State([0,1,0,0])],
                          [State([1,0,1,0]), State([0,1,0,1])])
             
@@ -192,11 +193,11 @@ class SimulatorTest(unittest.TestCase):
         circuit = Unitary(random_unitary(4))
         sim = Simulator(circuit)
         # With different number to input
-        with self.assertRaises(StateError):
+        with self.assertRaises(PhotonNumberError):
             sim.simulate([State([1,0,1,0]), State([0,1,0,1])],
                          [State([0,0,1,0]), State([0,1,0,0])])
         # With different number to each other
-        with self.assertRaises(StateError):
+        with self.assertRaises(PhotonNumberError):
             sim.simulate([State([1,0,1,0]), State([0,1,0,1])],
                          [State([1,0,1,0]), State([0,1,0,0])])
             
