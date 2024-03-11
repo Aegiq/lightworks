@@ -43,7 +43,7 @@ class CNOTTest(unittest.TestCase):
             cnot_circuit.add_bs(m, loss = loss, reflectivity = 0.5)
             cnot_circuit.add_ps(m+1, p)
             if m in [3,4,3]:
-                cnot_circuit.add_separation()
+                cnot_circuit.add_barrier()
         # Define imperfect source and detector
         source = Source(purity = 0.99, brightness = 0.4, 
                         indistinguishability = 0.94)
@@ -83,7 +83,7 @@ class CNOTTest(unittest.TestCase):
             cnot_circuit.add_bs(m, loss = loss, reflectivity = 0.5)
             cnot_circuit.add_ps(m+1, p)
             if m in [3,4,3]:
-                cnot_circuit.add_separation()
+                cnot_circuit.add_barrier()
         # Define imperfect source and detector
         source = Source(purity = 0.99, brightness = 0.4, 
                         indistinguishability = 0.94)

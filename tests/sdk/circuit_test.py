@@ -208,6 +208,15 @@ class CircuitTest(unittest.TestCase):
         U2 = round(c1.U_full, 8)
         self.assertTrue((U1 == U2).all())
         
+    def test_barrier_inclusion(self):
+        """
+        Checks that barrier component can be added across all and a selected 
+        mode range.
+        """
+        circuit = Circuit(4)
+        circuit.add_barrier()
+        circuit.add_barrier([0,2])
+        
     def test_mode_not_parameter(self):
         """
         Checks that an error is raised if a parameter is attempted to be 

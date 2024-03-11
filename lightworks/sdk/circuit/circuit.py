@@ -226,14 +226,14 @@ class Circuit:
         self._check_loss(loss)
         self.__circuit_spec.append(["loss", (mode, loss)])
         
-    def add_separation(self, modes: list | None = None) -> None:
+    def add_barrier(self, modes: list | None = None) -> None:
         """
-        Adds a separation to different parts of the circuit. This is applied 
-        to the specified modes.
+        Adds a barrier to separate different parts of a circuit. This is 
+        applied to the specified modes.
         
         Args:
         
-            modes (list | None) : The modes over which the separation should be
+            modes (list | None) : The modes over which the barrier should be
                 applied to.
                 
         """
@@ -241,7 +241,7 @@ class Circuit:
             modes = [i for i in range(self.__n_modes)]
         for m in modes:
             self._mode_in_range(m)
-        self.__circuit_spec.append(["separation", tuple([modes])])
+        self.__circuit_spec.append(["barrier", tuple([modes])])
         
     def add_mode_swaps(self, swaps: dict) -> None:
         """
@@ -400,8 +400,8 @@ class Circuit:
                 circuit.add_ps(*got_params)
             elif cs == "loss":
                 circuit.add_loss(*got_params)
-            elif cs == "separation":
-                circuit.add_separation(got_params[0])
+            elif cs == "barrier":
+                circuit.add_barrier(got_params[0])
             elif cs == "mode_swaps":
                 circuit.add_mode_swaps(got_params[0])
             elif cs == "unitary":
@@ -460,7 +460,7 @@ class Circuit:
             if c in ["bs"]:
                 params[0] = params[0] + mode
                 params[1] = params[1] + mode
-            elif c == "separation":
+            elif c == "barrier":
                 params = [p+mode for p in params[0]]
                 params = tuple([params])
             elif c == "mode_swaps":
@@ -499,8 +499,8 @@ class Circuit:
             elif cs == "loss":
                 if self._display_loss_check(cparams[1]):
                     display_spec.append(("LC", cparams[0], (cparams[1])))
-            elif cs == "separation":
-                display_spec.append(("segment", cparams[0], None))
+            elif cs == "barrier":
+                display_spec.append(("barrier", cparams[0], None))
             elif cs == "mode_swaps":
                 display_spec.append(("mode_swaps", cparams[0], None))
             elif cs == "unitary":

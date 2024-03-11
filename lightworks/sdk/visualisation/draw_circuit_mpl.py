@@ -81,8 +81,8 @@ class DrawCircuitMPL(DisplayComponentsMPL):
                 self._add_bs(m1, m2, ref)
             elif c == "LC" and self.display_loss:
                 self._add_loss(modes, params)
-            elif c == "segment":
-                self._add_segment(modes)
+            elif c == "barrier":
+                self._add_barrier(modes)
             elif c == "mode_swaps":
                 self._add_mode_swaps(modes)
             elif c == "unitary":

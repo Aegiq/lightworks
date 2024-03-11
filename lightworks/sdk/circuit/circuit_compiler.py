@@ -322,24 +322,24 @@ class CompiledCircuit:
             self._display_spec = self._display_spec + [("LC", mode, (loss))]
         return
     
-    def add_separation(self, modes: list | None = None) -> None:
+    def add_barrier(self, modes: list | None = None) -> None:
         """
-        Adds a separation to different parts of the circuit. This is applied 
-        to the specified modes.
+        Adds a barrier to separate different parts a the circuit. This is 
+        applied to the specified modes.
         
         Args:
         
-            modes (list | None) : The modes over which the separation should be
+            modes (list | None) : The modes over which the barrier should be
                 applied to.
                 
         """
         if modes == None:
             modes = [i for i in range(self.n_modes)]
         if type(modes) != list:
-            raise TypeError("Modes to apply separation to should be a list.")
+            raise TypeError("Modes to apply barrier to should be a list.")
         for m in modes:
             self._mode_in_range(m)
-        self._display_spec = self._display_spec + [("segment", modes, None)]
+        self._display_spec = self._display_spec + [("barrier", modes, None)]
         return
     
     def add_mode_swaps(self, swaps: dict) -> None:

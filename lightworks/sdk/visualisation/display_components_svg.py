@@ -173,9 +173,9 @@ class SVGDrawSpec:
         
         return
     
-    def _add_segment(self, modes: list) -> None:
+    def _add_barrier(self, modes: list) -> None:
         """
-        Add a segment which will separate different parts of the circuit. This
+        Add a barrier which will separate different parts of the circuit. This
         is applied to the provided modes.
         """
         max_loc = max([self.locations[m] for m in modes])
