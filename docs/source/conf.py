@@ -56,7 +56,7 @@ html_theme_options = {
         "color-brand-content": "#9198cc",
     },
 }
-html_static_path = ['_static']
+html_static_path = []
 html_logo = "assets/aegiq_logo.svg"
 html_show_sphinx = True
 html_scaled_image_link = False
