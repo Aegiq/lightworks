@@ -41,7 +41,7 @@ class Unitary(Circuit):
         
         # Ensure unitary is valid
         if not check_unitary(unitary):
-            raise ValueError("Matrix is not unitary.")
+            raise ValueError("Provided matrix is not unitary.")
         
         super().__init__(int(unitary.shape[0]))
         self._Circuit__circuit_spec = [["unitary", (0, unitary)]]

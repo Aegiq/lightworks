@@ -70,9 +70,9 @@ class CompiledCircuit:
         """Method for addition of two circuits."""
         if isinstance(value, CompiledCircuit):
             if self.n_modes != value.n_modes:
-                msg = """Mismatch in number of circuit modes, used add method 
-                         to add a circuits of a different size."""
-                raise ModeRangeError(" ".join(msg.split()))
+                raise ModeRangeError(
+                    "Mismatch in number of circuit modes, used add method to "
+                    "add a circuits of a different size.")
             nm = self.n_modes
             newU = value.U @ self.U 
             loss = self._loss_included or value._loss_included
@@ -108,9 +108,9 @@ class CompiledCircuit:
             if not hasattr(self, "n_modes"):
                 self.__dict__[__name] = __value
             else:
-                msg = """Number of modes should not be modified after Circuit 
-                         creation."""
-                raise AttributeError(" ".join(msg.split()))
+                raise AttributeError(
+                    "Number of modes should not be modified after Circuit "
+                    "creation.")
         else:
             super().__setattr__(__name, __value)
             
@@ -145,9 +145,9 @@ class CompiledCircuit:
         """
         # Check provided entries are valid
         self._mode_in_range(mode)
-        if not isinstance(circuit, (CompiledCircuit, CompiledUnitary)):
-            msg = "Addition only supported between two compiled circuits."
-            raise TypeError(msg)
+        if not isinstance(circuit, (CompiledCircuit, CompiledUnitary)): 
+            raise TypeError(
+                "Addition only supported between two compiled circuits.")
         if mode + circuit.n_modes > self.n_modes:
             raise ModeRangeError("Circuit to add is outside of mode range")
         
@@ -222,8 +222,8 @@ class CompiledCircuit:
         if mode_2 is None:
             mode_2 = mode_1 + 1
         if mode_1 == mode_2:
-            msg = "Beam splitter must act across two different modes."
-            raise ValueError(msg)
+            raise ValueError(
+                "Beam splitter must act across two different modes.")
         # Check correct convention is given
         all_convs = ["Rx", "H"]
         if convention not in all_convs:
@@ -234,8 +234,8 @@ class CompiledCircuit:
             raise ValueError(msg)
         # Check valid beam splitter reflectivity
         if reflectivity < 0 or reflectivity > 1:
-            msg = "Beam splitter reflectivity should be in range [0,1]."
-            raise ValueError(msg)
+            raise ValueError(
+                "Beam splitter reflectivity should be in range [0,1].")
         self._mode_in_range(mode_1)
         self._mode_in_range(mode_2)
         # Find unitary assuming no loss     
@@ -364,9 +364,9 @@ class CompiledCircuit:
         in_modes = sorted(list(swaps.keys()))
         out_modes = sorted(list(swaps.values()))
         if in_modes != out_modes:
-            msg = """Mode swaps not complete, dictionary keys and values should
-                     contain the same modes."""
-            raise ValueError(" ".join(msg.split()))
+            raise ValueError(
+                "Mode swaps not complete, dictionary keys and values should "
+                "contain the same modes.")
         # Create swap unitary
         U = permutation_mat_from_swaps_dict(swaps, self.n_modes)
         # Expand to include loss modes
@@ -441,9 +441,9 @@ class CompiledCircuit:
         if 0 <= mode < self.n_modes:
             return True
         else:
-            msg = """Selected mode(s) is not within the range of the created 
-                     circuit."""
-            raise ModeRangeError(" ".join(msg.split()))
+            raise ModeRangeError(
+                "Selected mode(s) is not within the range of the created "
+                "circuit.")
         
     def _check_loss(self, loss: float) -> bool:
         """Check that loss is positive and toggle _loss_included if not already

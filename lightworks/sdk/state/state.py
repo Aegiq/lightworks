@@ -58,8 +58,7 @@ class State:
     
     @s.setter
     def s(self, value: Any) -> None:
-        msg = "State value should not be modified directly."
-        raise StateError(msg)
+        raise StateError("State value should not be modified directly.")
     
     @property
     def n_modes(self) -> int:
@@ -68,8 +67,7 @@ class State:
     
     @n_modes.setter
     def n_modes(self, value: Any) -> None:
-        msg = "Number of modes cannot be modified."
-        raise StateError(msg)
+        raise StateError("Number of modes cannot be modified.")
 
     def __str__(self) -> str:
         return state_to_string(self.__s)

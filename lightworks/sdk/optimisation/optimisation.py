@@ -61,10 +61,10 @@ class Optimisation:
                 all_in = False
         # If not then raise a warning - use warning instead of error as in 
         # principle it should still be possible to optimise
-        msg = """One or more of the parameters in the ParameterDict are not 
-                 used in the optimisation circuit."""
         if not all_in:
-            warnings.warn(" ".join(msg.split()), Warning)
+            warnings.warn(
+                "One or more of the parameters in the ParameterDict are not "
+                "used in the optimisation circuit.", Warning)
         
         return
     
@@ -89,8 +89,8 @@ class Optimisation:
             if args is None:
                 raise ValueError("args not specified.")
             elif len(args) != function.__code__.co_argcount - 1:
-                msg = "args has an incorrect number of items for the function."
-                raise ValueError(msg)
+                raise ValueError(
+                    "args has an incorrect number of items for the function.")
         else:
             args = []
         
@@ -111,8 +111,8 @@ class Optimisation:
         
         """
         if not isinstance(input, State):
-            msg = "Optimisation input should be a single State object."
-            raise TypeError(msg)
+            raise TypeError(
+                "Optimisation input should be a single State object.")
         self.__input = input
         return
     
@@ -135,8 +135,8 @@ class Optimisation:
             raise TypeError("processor_args should be a dictionary.")
         if processor == "simulator":
             if processor_args is not None:
-                msg = "No processor arguments available when using simulator."
-                raise ValueError(msg)
+                raise ValueError(
+                    "No processor arguments available when using simulator.")
         elif processor == "sampler":
             args = {"samples" : 10000,
                     "source" : Source(),
@@ -149,9 +149,9 @@ class Optimisation:
                         args[p] = v
                     else:
                         options = ", ".join(list(args.keys()))
-                        msg = f"""Incorrect sampler argument entered, valid 
-                                  options are '{options}'.""" 
-                        raise ValueError(" ".join(msg.split()))
+                        raise ValueError(
+                            "Incorrect sampler argument entered, valid "
+                            f"options are '{options}'.")
         else:
             raise ValueError("Processor type not valid.")
         self.__processor = processor
@@ -212,8 +212,8 @@ class Optimisation:
         self._opt_checks()
         self.__invert_fom = not minimise
         if self.parameters.has_bounds():
-            msg = "Bounds not supported by basinhopping optimise method."
-            raise ValueError(msg)
+            raise ValueError(
+                "Bounds not supported by basinhopping optimise method.")
         res = basinhopping(self._fom, x0 = self.__x0, niter = n_iter)
         self.__opt_results = {p : x for p, x in zip(self.parameters.keys(), 
                                                     res.x)}
@@ -374,17 +374,17 @@ class Optimisation:
         input and returns a numeric output.
         """
         if not hasattr(self, "_Optimisation__opt_func"):
-            msg = "Optimisation function needs to be specified first."
-            raise RuntimeError(msg)
+            raise RuntimeError(
+                "Optimisation function needs to be specified first.")
         n = self.opt_circuit.n_modes
         results = SamplingResult({State([0]*n):0.5, State([1]+[0]*(n-1)):0.5},
                                  input = State([1]+[0]*(n-1)))
         try:
             return_val = self.__opt_func(results, *self.__func_args)
         except Exception as e:
-            msg = """An error occurred while trying to test the provided 
-                     optimisation function."""
-            raise RuntimeError(" ".join(msg.split())) from e
+            raise RuntimeError(
+                "An error occurred while trying to test the provided "
+                "optimisation function.") from e
         if not isinstance(return_val, Number):
             raise ValueError("Function return value should be a number.")        
     
@@ -392,8 +392,8 @@ class Optimisation:
         
         if __name == "opt_circuit":
             if not isinstance(__value, Circuit):
-                msg = "opt_circuit attribute should be a Circuit object."
-                raise TypeError(msg)
+                raise TypeError(
+                    "opt_circuit attribute should be a Circuit object.")
         elif __name == "parameters":
             if not isinstance(__value, ParameterDict):
                 raise TypeError("parameters should be a ParameterDict.")

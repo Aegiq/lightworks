@@ -62,16 +62,16 @@ class Circuit:
         """Defines custom addition behaviour for two circuits."""
         if isinstance(value, Circuit):
             if self.__n_modes != value.__n_modes:
-                msg = "Two circuits to add must have the same number of modes."
-                raise ModeRangeError(msg)
+                raise ModeRangeError(
+                    "Two circuits to add must have the same number of modes.")
             # Create new circuits and combine circuits specs to create new one
             new_circ = Circuit(self.__n_modes)
             new_circ.__circuit_spec = (self.__circuit_spec + 
                                        value.__circuit_spec)
             return new_circ
         else:
-            msg = """Addition only supported between two Circuit objects."""
-            raise TypeError(msg)
+            raise TypeError(
+                "Addition only supported between two Circuit objects.")
         
     @property
     def U(self) -> np.ndarray:
@@ -139,8 +139,8 @@ class Circuit:
                                                       mode + 
                                                       circuit.__n_modes - 1)])
         else:
-            msg = "Add method only supported for Circuit or Unitary objects."
-            raise TypeError(msg)
+            raise TypeError(
+                "Add method only supported for Circuit or Unitary objects.")
         
         return
     
@@ -172,8 +172,8 @@ class Circuit:
         self._mode_in_range(mode_1)
         if mode_2 is None: mode_2 = mode_1 + 1
         if mode_1 == mode_2:
-            msg = "Beam splitter must act across two different modes."
-            raise ModeRangeError(msg)
+            raise ModeRangeError(
+                "Beam splitter must act across two different modes.")
         self._mode_in_range(mode_2)
         self._check_loss(loss)
         # Check correct convention is given
@@ -261,9 +261,9 @@ class Circuit:
         in_modes = sorted(list(swaps.keys()))
         out_modes = sorted(list(swaps.values()))
         if in_modes != out_modes:
-            msg = """Mode swaps not complete, dictionary keys and values should
-                     contain the same modes."""
-            raise ValueError(" ".join(msg.split()))
+            raise ValueError(
+                "Mode swaps not complete, dictionary keys and values should "
+                "contain the same modes.")
         for m in in_modes:
             self._mode_in_range(m)
         self.__circuit_spec.append(["mode_swaps", (swaps, None)])
@@ -408,8 +408,8 @@ class Circuit:
                 unitary = CompiledUnitary(params[1])
                 circuit.add(unitary, params[0])
             else:
-                msg = "Component in circuit spec not recognised."
-                raise CircuitCompilationError(msg)
+                raise CircuitCompilationError(
+                    "Component in circuit spec not recognised.")
         
         return circuit
     
@@ -431,9 +431,9 @@ class Circuit:
         if 0 <= mode < self.__n_modes:
             return True
         else:
-            msg = """Selected mode(s) is not within the range of the created 
-                     circuit."""
-            raise ModeRangeError(" ".join(msg.split()))
+            raise ModeRangeError(
+                "Selected mode(s) is not within the range of the created "
+                "circuit.")
         
     def _check_loss(self, loss: float) -> bool:
         """

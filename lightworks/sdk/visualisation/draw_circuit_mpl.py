@@ -108,9 +108,9 @@ class DrawCircuitMPL(DisplayComponentsMPL):
         self.ax.set_yticks(range(0, N))
         if self.mode_labels is not None:
             if len(self.mode_labels) != N:
-                msg = """Length of provided mode labels list should be equal to
-                         the number of modes."""
-                raise DisplayError(" ".join(msg.split()))
+                raise DisplayError(
+                    "Length of provided mode labels list should be equal to "
+                    "the number of modes.")
             self.ax.set_yticklabels(self.mode_labels)
         self.ax.set_xticks([])
 
