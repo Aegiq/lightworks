@@ -25,8 +25,8 @@ def set_statistic_type(new_type: str) -> None:
     from ...emulator import __settings
     
     if new_type not in ["bosonic", "fermionic"]:
-        msg = "Statistic type should have value of 'bosonic' or 'fermionic'."
-        raise ValueError(msg)
+        raise ValueError(
+            "Statistic type should have value of 'bosonic' or 'fermionic'.")
     
     __settings["statistic_type"] = new_type
     

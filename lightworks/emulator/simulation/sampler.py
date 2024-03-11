@@ -71,8 +71,8 @@ class Sampler:
     @circuit.setter
     def circuit(self, value: Circuit) -> None:
         if not isinstance(value, Circuit):
-            msg = "Provided circuit should be a Circuit or Unitary object."
-            raise TypeError(msg)
+            raise TypeError(
+                "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
         
     @property
@@ -85,8 +85,8 @@ class Sampler:
         if type(value) != State:
             raise TypeError("A single input of type State should be provided.")
         if len(value) != self.circuit.n_modes:
-            msg = "Incorrect input length for provided circuit."
-            raise ModeMismatchError(msg)
+            raise ModeMismatchError(
+                "Incorrect input length for provided circuit.")
         self.__input_state = value
         
     @property
@@ -129,8 +129,8 @@ class Sampler:
         if self._check_parameter_updates():
             # Check circuit and input modes match
             if self.circuit.n_modes != len(self.input_state):
-                msg = "Mismatch in number of modes between input and circuit."
-                raise ValueError(msg)
+                raise ValueError(
+                    "Mismatch in number of modes between input and circuit.")
             # Check inputs are valid depending on the statistics 
             self._check_stats_type()
             all_inputs = self.source._build_statistics(self.input_state)
@@ -290,8 +290,8 @@ class Sampler:
                      if sum(s) >= min_detection and herald(s)}
         # Check some states are found
         if not pdist:
-            msg = "No output states compatible with provided criteria."
-            raise ValueError(msg)
+            raise ValueError(
+                "No output states compatible with provided criteria.")
         # Re-normalise distribution probabilities
         probs = np.array(list(pdist.values()))
         probs = probs/sum(probs) 
@@ -367,16 +367,16 @@ class Sampler:
     def _fermionic_checks(self, in_state: State, source: Source) -> None:
         """Perform additional checks when doing fermionic sampling."""
         if max(in_state) > 1:
-            msg = """Max number of photons per mode must be 1 when using 
-                        fermionic statistics."""
-            raise ValueError(" ".join(msg.split()))
+            raise ValueError(
+                "Max number of photons per mode must be 1 when using " 
+                "fermionic statistics.")
         if source.purity < 1:
-            msg = "Fermionic sampling does not support non-ideal purity."
-            raise ValueError(msg)
+            raise ValueError(
+                "Fermionic sampling does not support non-ideal purity.")
         if source.indistinguishability < 1:
-            msg = """Fermionic sampling does not support indistinguishability
-                     modification."""
-            raise ValueError(" ".join(msg.split()))
+            raise ValueError(
+                "Fermionic sampling does not support indistinguishability "
+                "modification.")
         
     def _check_random_seed(self, seed: Any) -> int | None:
         """Process a supplied random seed."""

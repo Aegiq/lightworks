@@ -49,8 +49,8 @@ class Simulator:
     @circuit.setter
     def circuit(self, value: Circuit) -> None:
         if not isinstance(value, Circuit):
-            msg = "Provided circuit should be a Circuit or Unitary object."
-            raise TypeError(msg)
+            raise TypeError(
+                "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
     
     def simulate (self, inputs: list, 
@@ -115,20 +115,20 @@ class Simulator:
         for state in inputs:
             # Ensure correct type
             if not isinstance(state, State):
-                msg = "inputs should be a State or list of State objects."
-                raise TypeError(msg)
+                raise TypeError(
+                    "inputs should be a State or list of State objects.")
             # Fermionic checks
             if self.__stats_type == "fermionic":
                 if max(state) > 1:
-                    msg = """Max number of photons per mode must be 1 when
-                             using fermionic statistics."""
-                    raise ValueError(" ".join(msg.split()))   
+                    raise ValueError(
+                        "Max number of photons per mode must be 1 when using "
+                        "fermionic statistics.")   
             # Dimension check
             if len(state) != self.circuit.n_modes:
-                msg = f"""One or more input states have an incorrect number of 
-                          modes, correct number of modes is 
-                          {self.circuit.n_modes}."""
-                raise ModeMismatchError(" ".join(msg.split())) 
+                raise ModeMismatchError(
+                    "One or more input states have an incorrect number of "
+                    "modes, correct number of modes is "
+                    f"{self.circuit.n_modes}.") 
         return inputs
     
     def _process_outputs(self, inputs: list, 
@@ -141,9 +141,9 @@ class Simulator:
         if outputs is None:
             ns = [s.num() for s in inputs]
             if min(ns) != max(ns):
-                msg = """Mismatch in total photon number between inputs, this 
-                         is not currently supported by the Simulator."""
-                raise PhotonNumberError(" ".join(msg.split()))
+                raise PhotonNumberError(
+                    "Mismatch in total photon number between inputs, this is "
+                    "not currently supported by the Simulator.")
             outputs = fock_basis(self.circuit.n_modes, max(ns), 
                                  self.__stats_type)
             outputs = [State(s) for s in outputs]
@@ -155,26 +155,25 @@ class Simulator:
             for state in outputs:
                 # Ensure correct type
                 if not isinstance(state, State):
-                    msg = "outputs should be a State or list of State objects."
-                    raise TypeError(msg)  
+                    raise TypeError(
+                        "outputs should be a State or list of State objects.")  
                 # Fermionic checks
                 if self.__stats_type == "fermionic":
                     if max(state) > 1:
-                        msg = """Max number of photons per mode must be 1 when
-                                using fermionic statistics."""
-                        raise ValueError(" ".join(msg.split()))
+                        raise ValueError(
+                            "Max number of photons per mode must be 1 when "
+                            "using fermionic statistics.")
                 # Dimension check
                 if len(state) != self.circuit.n_modes:
-                    msg = f"""One of more input states have an incorrect number
-                              of modes, correct number of modes is 
-                              {self.circuit.n_modes}."""
-                    raise ModeMismatchError(" ".join(msg.split())) 
+                    raise ModeMismatchError(
+                        "One or more input states have an incorrect number of "
+                        "modes, correct number of modes is "
+                        f"{self.circuit.n_modes}.")
             # Ensure photon numbers are the same in all states - variation not 
             # currently supported
             ns = [s.num() for s in inputs + outputs]
             if min(ns) != max(ns):
-                msg = """Mismatch in photon numbers between some 
-                         inputs/outputs, this is not currently supported in the 
-                         simulator."""
-                raise PhotonNumberError(" ".join(msg.split()))
+                raise PhotonNumberError(
+                    "Mismatch in photon numbers between some inputs/outputs, "
+                    "this is not currently supported in the Simulator.")
         return inputs, outputs

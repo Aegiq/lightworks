@@ -72,8 +72,8 @@ class QuickSampler:
     @circuit.setter
     def circuit(self, value: Circuit) -> None:
         if not isinstance(value, Circuit):
-            msg = "Provided circuit should be a Circuit or Unitary object."
-            raise TypeError(msg)
+            raise TypeError(
+                "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
         
     @property
@@ -123,8 +123,8 @@ class QuickSampler:
         if self._check_parameter_updates():
             # Check circuit and input modes match
             if self.circuit.n_modes != len(self.input_state):
-                msg = "Mismatch in number of modes between input and circuit."
-                raise ValueError(msg)
+                raise ValueError(
+                    "Mismatch in number of modes between input and circuit.")
             # Check inputs are valid depending on the statistics and get type
             stats_type = self._check_stats_type()
             # For given input work out all possible outputs
@@ -134,8 +134,8 @@ class QuickSampler:
                 out_states = [s for s in out_states if max(s) == 1]
             out_states = [s for s in out_states if self.herald(s)]
             if not out_states:
-                msg = "Heralding function removed all possible outputs."
-                raise ValueError(msg)
+                raise ValueError(
+                    "Heralding function removed all possible outputs.")
             # Find the probability distribution
             pdist = self._calculate_probabiltiies(out_states, stats_type)
             # Then assign calculated distribution to attribute
@@ -283,9 +283,9 @@ class QuickSampler:
     def _fermionic_checks(self, in_state):
         """Perform additional checks when doing fermionic sampling."""
         if max(in_state) > 1:
-            msg = """Max number of photons per mode must be 1 when using 
-                        fermionic statistics."""
-            raise ValueError(" ".join(msg.split()))
+            raise ValueError(
+                "Max number of photons per mode must be 1 when using "
+                "fermionic statistics.")
         
     def _check_random_seed(self, seed: Any) -> int | None:
         """Process a supplied random seed."""

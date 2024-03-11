@@ -65,8 +65,8 @@ class Analyzer:
     @circuit.setter
     def circuit(self, value: Circuit) -> None:
         if not isinstance(value, Circuit):
-            msg = "Provided circuit should be a Circuit or Unitary object."
-            raise TypeError(msg)
+            raise TypeError(
+                "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
     
     def set_herald(self, in_mode: int, n_photons: int = 0, 
@@ -77,9 +77,9 @@ class Analyzer:
         # Check n_photons <= 1 for fermionic case
         if get_statistic_type() == "fermionic":
             if n_photons > 1:
-                msg = """Heralding photons should be one or less when using 
-                         fermionic statistics."""
-                raise ValueError(" ".join(msg.split()))
+                raise ValueError(
+                    "Heralding photons should be one or less when using " 
+                    "fermionic statistics.")
         if out_mode is None:
             out_mode = in_mode
         if type(in_mode) != int or type(out_mode) != int:
@@ -102,8 +102,7 @@ class Analyzer:
         # NOTE: If multiple lambda functions are created and passed to this 
         # using a loop this may create issues related to how lambda functions
         # use out of scope variables. See the following for more info:
-        # https://docs.python.org/3/faq/programming.html#why-do-lambdas-
-        # defined-in-a-loop-with-different-values-all-return-the-same-result
+        # https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
         if not isinstance(function, FunctionType):
             raise TypeError("Post-selection rule should be a function.")
         self.post_selects += [function]
@@ -135,10 +134,10 @@ class Analyzer:
         self.__circuit_built = self.circuit._build()
         n_modes = self.__circuit_built.n_modes - len(self.in_heralds)
         if self.in_heralds != self.out_heralds:
-            msg = """Mismatch in number of heralds on the input/output modes,
-                     it is likely this results from a herald being added twice
-                     or modified."""
-            raise RuntimeError(" ".join(msg.split()))
+            raise RuntimeError(
+                "Mismatch in number of heralds on the input/output modes, it "
+                "is likely this results from a herald being added twice or "
+                "modified.")
         # Convert state to list of States if not provided for single state case
         if type(inputs) is State:
                 inputs = [inputs] 
@@ -196,9 +195,9 @@ class Analyzer:
                         # and find probability of each
                         n_loss = ins.num() - outs.num()
                         if n_loss < 0:
-                            msg = """Output photon number larger than input 
-                                     number."""
-                            raise PhotonNumberError(" ".join(msg.split()))
+                            raise PhotonNumberError(
+                                "Output photon number larger than input "
+                                "number.")
                         # Find loss states and find probability of each
                         loss_states = fock_basis(
                             self.__circuit_built.loss_modes, n_loss, 
@@ -236,8 +235,8 @@ class Analyzer:
         # Check all inputs in expectation mapping
         for s in inputs:
             if s not in expected:
-                msg = f"Input state {s} not in provided expectation dict."
-                raise KeyError(msg)
+                raise KeyError(
+                    f"Input state {s} not in provided expectation dict.")
         # For each input check error rate
         errors = []
         for i, s in enumerate(inputs):
@@ -265,21 +264,21 @@ class Analyzer:
         # Ensure all photon numbers are the same   
         ns = [s.num() for s in inputs]
         if min(ns) != max(ns):
-            msg = "Mismatch in photon numbers between inputs"
-            raise PhotonNumberError()
+            raise PhotonNumberError(
+                "Mismatch in photon numbers between inputs")
         full_inputs = []
         # Check dimensions of input and add heralded photons
         for state in inputs:
             # Also check input state is valid in fermionic case
             if self.__stats_type == "fermionic":
                 if max(state) > 1:
-                    msg = """Max number of photons per mode must be 1 when 
-                             using fermionic statistics."""
-                    raise ValueError(" ".join(msg.split()))
+                    raise ValueError(
+                        "Max number of photons per mode must be 1 when using "
+                        "fermionic statistics.")
             if len(state) != n_modes:
-                msg = ("Input states are of the wrong dimension. " + 
-                       "Remember to subtract Heralded modes.")
-                raise ModeMismatchError(msg)
+                raise ModeMismatchError(
+                    "Input states are of the wrong dimension. Remember to "
+                    "subtract heralded modes.")
             full_inputs += [self._build_state(state, self.in_heralds)]
         # Add extra states for loss modes here when included
         if self.__circuit_built.loss_modes > 0:
@@ -321,7 +320,7 @@ class Analyzer:
                 full_outputs += [fo]
         # Check some valid outputs found
         if not full_outputs:
-            msg = "No valid outputs found, consider relaxing post-selection."
-            raise ValueError(msg)
+            raise ValueError(
+                "No valid outputs found, consider relaxing post-selection.")
         
         return (full_outputs, filtered_outputs)

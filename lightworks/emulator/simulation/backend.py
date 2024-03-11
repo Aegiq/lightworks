@@ -29,6 +29,6 @@ class Backend:
         elif statistic_type == "fermionic":
             return Determinant.calculate(U, in_state, out_state)
         else:
-            msg = "statistic_type should be 'bosonic' or 'fermionic'."
-            raise BackendError(msg)
+            raise BackendError(
+                "statistic_type should be 'bosonic' or 'fermionic'.")
     

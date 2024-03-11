@@ -64,8 +64,8 @@ class AnnotatedState:
     
     @s.setter
     def s(self, value: Any) -> None:
-        msg = "State value should not be modified directly."
-        raise AnnotatedStateError(msg)
+        raise AnnotatedStateError(
+            "State value should not be modified directly.")
     
     @property
     def n_modes(self) -> None:
@@ -73,8 +73,7 @@ class AnnotatedState:
     
     @n_modes.setter
     def n_modes(self, value: Any) -> None:
-        msg = "Number of modes cannot be modified."
-        raise AnnotatedStateError(msg)
+        raise AnnotatedStateError("Number of modes cannot be modified.")
     
     def __str__(self) -> str:
         return annotated_state_to_string(self.__s)
@@ -86,8 +85,8 @@ class AnnotatedState:
         if isinstance(value, AnnotatedState):
             return AnnotatedState(self.__s + value.__s)
         else:
-            msg = "Addition only supported between annotated states."
-            raise TypeError(msg)
+            raise TypeError(
+                "Addition only supported between annotated states.")
         
     def __eq__(self, value: "AnnotatedState") -> bool:
         if isinstance(value, AnnotatedState):
@@ -102,8 +101,8 @@ class AnnotatedState:
         return self.__n_modes
     
     def __setitem__(self, key: Any, value: Any) -> None:
-        msg = "AnnotatedState object does not support item assignment."
-        raise AnnotatedStateError(msg)
+        raise AnnotatedStateError(
+            "AnnotatedState object does not support item assignment.")
     
     def __getitem__(self, indices: int | slice) -> "AnnotatedState":
         if isinstance(indices, slice):
