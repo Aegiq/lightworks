@@ -4,7 +4,7 @@ name: Build-sphinx-docs
 on:
   # Triggers the workflow on pull request events for main
   pull_request:
-    branches: [ main ]
+    branches: [main, development]
 
   # Allows workflow to be manually run from the Actions tab
   workflow_dispatch:
