@@ -83,13 +83,6 @@ class State:
         else:
             raise TypeError("Addition only supported between states.")
         
-    def __mul__(self, value: int) -> "State":
-        if isinstance(value, int):
-            return State(self.__s*value)
-        else:
-            msg = "Multiplication only supported with integer values."
-            raise TypeError(msg)
-        
     def __eq__(self, value: "State") -> bool:
         if isinstance(value, State):
             return self.__s == value.s
