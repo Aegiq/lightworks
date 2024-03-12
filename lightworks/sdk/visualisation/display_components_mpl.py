@@ -65,9 +65,9 @@ class DisplayComponentsMPL:
             # Otherwise round phi to 4 decimal places
             else:
                 phi_text = round(phi,4)
-            phi_text = f"$\phi = {phi_text}$"
+            phi_text = f"$\\phi = {phi_text}$"
         else:
-            phi_text = "$\phi =$ " + phi
+            phi_text = "$\\phi =$ " + phi
         self.ax.text(xloc + size/2, yloc + size/2 + 0.15, 
                      phi_text, color= "black", size = 5,
                      horizontalalignment = "center", 
