@@ -39,7 +39,7 @@ It is also possible to index the State to retrieve partial information on its va
 .. note::
     Indexing the state does not allow the photon numbers on each mode to be modified. For example state[0] = 1 would raise an Exception.
 
-A number of properties can also be viewed about a state, including the number of modes used and the total photon number of the state. The number of modes can be viewed using either the ``len`` operator on the state or accessing the ``n_modes`` attribute. For photon number, the ``num`` method is used.
+A number of properties can also be viewed about a state, including the number of modes used and the total photon number of the state. The number of modes can be viewed using either the ``len`` operator on the state or accessing the ``n_modes`` attribute. For photon number, the ``n_photons`` attribute is used.
 
 .. code-block:: Python
 
@@ -51,7 +51,7 @@ A number of properties can also be viewed about a state, including the number of
     print(state.n_modes)
     # Output: 4
 
-    print(state.num())
+    print(state.n_photons)
     # Output: 3
 
 As mentioned earlier, the State object is also hashable so can be used as a key for referencing in dictionaries. Additionally, if two state objects have identical contents then they are evaluated as equivalent, so can easily be compared in this way. This also means the ``in`` operator can be used with the dictionary. 
