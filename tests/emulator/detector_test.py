@@ -65,7 +65,7 @@ class DetectorTest(unittest.TestCase):
         measured = set()
         for i in range(1000):
             measured.add(self.dc_detector._get_output(State([0,0,0,0])))
-        n_photons = [s.num() for s in measured]
+        n_photons = [s.n_photons for s in measured]
         self.assertTrue(max(n_photons) > 0)
         
     def test_efficiency_modification(self):

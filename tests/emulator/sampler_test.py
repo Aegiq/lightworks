@@ -178,7 +178,7 @@ class SamplerTest(unittest.TestCase):
         results = sampler.sample_N_inputs(1000)
         undetected_photons = False
         for s, c in results.items():
-            if s.num() < 2:
+            if s.n_photons < 2:
                 undetected_photons = True
                 break
         self.assertFalse(undetected_photons)
@@ -188,7 +188,7 @@ class SamplerTest(unittest.TestCase):
         results = sampler.sample_N_inputs(1000)
         undetected_photons = False
         for s, c in results.items():
-            if s.num() < 2:
+            if s.n_photons < 2:
                 undetected_photons = True
                 break
         self.assertTrue(undetected_photons)
@@ -202,7 +202,7 @@ class SamplerTest(unittest.TestCase):
         results = sampler.sample_N_inputs(1000)
         dark_counts = False
         for s, c in results.items():
-            if s.num() > 0:
+            if s.n_photons > 0:
                 dark_counts = True
                 break
         self.assertFalse(dark_counts)
@@ -212,7 +212,7 @@ class SamplerTest(unittest.TestCase):
         results = sampler.sample_N_inputs(1000)
         dark_counts = False
         for s, c in results.items():
-            if s.num() > 0:
+            if s.n_photons > 0:
                 dark_counts = True
                 break
         self.assertTrue(dark_counts)
@@ -229,7 +229,7 @@ class SamplerTest(unittest.TestCase):
         results = sampler.sample_N_inputs(1000)
         all_2_photon_states = True
         for s, c in results.items():
-            if s.num() < 2:
+            if s.n_photons < 2:
                 all_2_photon_states = False
                 break
         self.assertTrue(all_2_photon_states)
@@ -239,7 +239,7 @@ class SamplerTest(unittest.TestCase):
         results = sampler.sample_N_inputs(1000)
         sub_2_photon_states = False
         for s, c in results.items():
-            if s.num() < 2:
+            if s.n_photons < 2:
                 sub_2_photon_states = True
                 break
         self.assertTrue(sub_2_photon_states)

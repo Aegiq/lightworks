@@ -139,7 +139,7 @@ class Simulator:
         """
         # If outputs not specified then determine all combinations
         if outputs is None:
-            ns = [s.num() for s in inputs]
+            ns = [s.n_photons for s in inputs]
             if min(ns) != max(ns):
                 raise PhotonNumberError(
                     "Mismatch in total photon number between inputs, this is "
@@ -171,7 +171,7 @@ class Simulator:
                         f"{self.circuit.n_modes}.")
             # Ensure photon numbers are the same in all states - variation not 
             # currently supported
-            ns = [s.num() for s in inputs + outputs]
+            ns = [s.n_photons for s in inputs + outputs]
             if min(ns) != max(ns):
                 raise PhotonNumberError(
                     "Mismatch in photon numbers between some inputs/outputs, "

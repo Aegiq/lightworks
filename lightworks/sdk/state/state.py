@@ -40,16 +40,10 @@ class State:
         self.__n_modes = len(state)
         return
     
-    def num(self) -> int:
+    @property
+    def n_photons(self) -> int:
         """Returns the number of photons in a State."""
         return sum(self.__s)
-    
-    def merge(self, merge_state: "State") -> "State":
-        """Combine two states, summing the number of photons per mode."""
-        if self.__n_modes == merge_state.n_modes:
-            return State([n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)])
-        else:
-            raise ValueError("Merged states must be the same length.")
         
     @property
     def s(self) -> list:
@@ -68,6 +62,13 @@ class State:
     @n_modes.setter
     def n_modes(self, value: Any) -> None:
         raise StateError("Number of modes cannot be modified.")
+    
+    def merge(self, merge_state: "State") -> "State":
+        """Combine two states, summing the number of photons per mode."""
+        if self.__n_modes == merge_state.n_modes:
+            return State([n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)])
+        else:
+            raise ValueError("Merged states must be the same length.")
 
     def __str__(self) -> str:
         return state_to_string(self.__s)

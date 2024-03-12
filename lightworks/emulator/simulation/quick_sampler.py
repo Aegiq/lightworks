@@ -129,7 +129,7 @@ class QuickSampler:
             stats_type = self._check_stats_type()
             # For given input work out all possible outputs
             out_states = fock_basis(len(self.input_state), 
-                                    self.input_state.num(), stats_type)
+                                    self.input_state.n_photons, stats_type)
             if not self.photon_counting:
                 out_states = [s for s in out_states if max(s) == 1]
             out_states = [s for s in out_states if self.herald(s)]

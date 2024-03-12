@@ -143,7 +143,7 @@ class Analyzer:
                 inputs = [inputs] 
         # Process inputs using dedicated function
         full_inputs = self._process_inputs(inputs)
-        n_photons = sum(full_inputs[0])
+        n_photons = full_inputs[0].n_photons
         # Generate lists of possible outputs with and without heralded modes
         full_outputs, filtered_outputs = self._generate_outputs(n_modes, 
                                                                 n_photons)
@@ -183,7 +183,7 @@ class Analyzer:
                 # Lossy case
                 else:
                     # Photon number preserved
-                    if ins.num() == outs.num():
+                    if ins.n_photons == outs.n_photons:
                         outs = (outs + 
                                 State([0]*self.__circuit_built.loss_modes))
                         p = Backend.calculate(self.__circuit_built.U_full, 
@@ -193,7 +193,7 @@ class Analyzer:
                     else:
                         # If n_out < n_in work out all loss mode combinations
                         # and find probability of each
-                        n_loss = ins.num() - outs.num()
+                        n_loss = ins.n_photons - outs.n_photons
                         if n_loss < 0:
                             raise PhotonNumberError(
                                 "Output photon number larger than input "
@@ -262,7 +262,7 @@ class Analyzer:
         """
         n_modes = self.__circuit_built.n_modes - len(self.in_heralds)
         # Ensure all photon numbers are the same   
-        ns = [s.num() for s in inputs]
+        ns = [s.n_photons for s in inputs]
         if min(ns) != max(ns):
             raise PhotonNumberError(
                 "Mismatch in photon numbers between inputs")

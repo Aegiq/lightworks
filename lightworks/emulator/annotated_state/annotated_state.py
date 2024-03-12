@@ -46,17 +46,10 @@ class AnnotatedState:
         self.__n_modes = len(state)
         return
     
-    def num(self) -> int:
+    @property
+    def n_photons(self) -> int:
         """Returns the number of photons in a State."""
         return sum([len(s) for s in self.__s])
-    
-    def merge(self, merge_state: "AnnotatedState") -> "AnnotatedState":
-        """Combine two states, summing the number of photons per mode."""
-        if self.__n_modes == merge_state.__n_modes:
-            return AnnotatedState([n1 + n2 for n1, n2 in zip(self.__s, 
-                                                             merge_state.s)])
-        else:
-            raise ValueError("Merged states must be the same length.")
     
     @property
     def s(self) -> None:
@@ -74,6 +67,14 @@ class AnnotatedState:
     @n_modes.setter
     def n_modes(self, value: Any) -> None:
         raise AnnotatedStateError("Number of modes cannot be modified.")
+    
+    def merge(self, merge_state: "AnnotatedState") -> "AnnotatedState":
+        """Combine two states, summing the number of photons per mode."""
+        if self.__n_modes == merge_state.__n_modes:
+            return AnnotatedState([n1 + n2 for n1, n2 in zip(self.__s, 
+                                                             merge_state.s)])
+        else:
+            raise ValueError("Merged states must be the same length.")
     
     def __str__(self) -> str:
         return annotated_state_to_string(self.__s)

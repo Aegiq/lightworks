@@ -60,9 +60,9 @@ class StateTest(unittest.TestCase):
         
     def test_photon_number(self):
         """Checks calculated photon number value is correct."""
-        self.assertEqual(State([1,0,2,1,1]).num(), 5)
-        self.assertEqual(State([0,0,0,0,0]).num(), 0)
-        self.assertEqual(State([]).num(), 0)
+        self.assertEqual(State([1,0,2,1,1]).n_photons, 5)
+        self.assertEqual(State([0,0,0,0,0]).n_photons, 0)
+        self.assertEqual(State([]).n_photons, 0)
         
 if __name__ == "__main__":
     unittest.main()

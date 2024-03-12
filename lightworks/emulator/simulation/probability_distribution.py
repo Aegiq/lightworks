@@ -47,7 +47,7 @@ class ProbabilityDistributionCalc:
             if circuit.loss_modes > 0:
                 istate = istate + State([0]*circuit.loss_modes)
             # For a given input work out all possible outputs
-            out_states = fock_basis(len(istate), istate.num(), stats_type)
+            out_states = fock_basis(len(istate), istate.n_photons, stats_type)
             for ostate in out_states:
                 # Skip any zero photon states
                 if sum(ostate[:circuit.n_modes]) == 0:
@@ -118,7 +118,7 @@ class ProbabilityDistributionCalc:
                 istate = istate + State([0]*circuit.loss_modes) 
             pdist = {}
             # For a given input work out all possible outputs
-            out_states = fock_basis(len(istate), istate.num(), stats_type)
+            out_states = fock_basis(len(istate), istate.n_photons, stats_type)
             for ostate in out_states:
                 # Skip any zero photon states
                 if sum(ostate[:circuit.n_modes]) == 0:

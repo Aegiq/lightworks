@@ -227,7 +227,7 @@ class Sampler:
         for state in samples:
             # Process output state
             state = self.detector._get_output(state)
-            if herald(state) and state.num() >= min_detection:
+            if herald(state) and state.n_photons >= min_detection:
                 filtered_samples.append(state)
         results = dict(Counter(filtered_samples))
         results = SamplingResult(results, self.input_state)
@@ -279,7 +279,7 @@ class Sampler:
             new_dist = {}
             for s, p in pdist.items():
                 new_s = State([min(i,1) for i in s])
-                if sum(new_s) >= min_detection and herald(new_s):
+                if new_s.n_photons >= min_detection and herald(new_s):
                     if new_s in new_dist:
                         new_dist[new_s] += p
                     else:
@@ -287,7 +287,7 @@ class Sampler:
             pdist = new_dist
         else:
             pdist = {s:p for s, p in pdist.items() 
-                     if sum(s) >= min_detection and herald(s)}
+                     if s.n_photons >= min_detection and herald(s)}
         # Check some states are found
         if not pdist:
             raise ValueError(

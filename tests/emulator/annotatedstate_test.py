@@ -70,9 +70,9 @@ class AnnotatedStateTest(unittest.TestCase):
         
     def test_photon_number(self):
         """Checks calculated photon number value is correct."""
-        self.assertEqual(AnnotatedState([[],[0],[1,2],[],[0]]).num(), 4)
-        self.assertEqual(AnnotatedState([[],[],[],[]]).num(), 0)
-        self.assertEqual(AnnotatedState([]).num(), 0)
+        self.assertEqual(AnnotatedState([[],[0],[1,2],[],[0]]).n_photons, 4)
+        self.assertEqual(AnnotatedState([[],[],[],[]]).n_photons, 0)
+        self.assertEqual(AnnotatedState([]).n_photons, 0)
         
 if __name__ == "__main__":
     unittest.main()
