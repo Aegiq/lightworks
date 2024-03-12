@@ -69,7 +69,6 @@ class TestCircuit:
         assert unitary[0,0] == pytest.approx(0.1382843851268-0.1276219199576j,8)
         assert unitary[1,2] == pytest.approx(0.6893944687270+0.2987967171732j,8)
         assert unitary[4,3] == pytest.approx(-0.82752490939-0.0051178352488j,8)
-        self.restore_params()
         
     def test_circuit_addition(self):
         """Confirms two circuits are added together correctly."""
@@ -272,7 +271,6 @@ class TestCircuit:
         U2 = copied_circ.U_full
         # Unitary should be modified
         assert not (U1 == U2).all()
-        self.restore_params()
         
     def test_circuit_copy_parameter_freeze(self):
         """
@@ -286,7 +284,6 @@ class TestCircuit:
         U2 = copied_circ.U_full
         # Unitary should not be modified
         assert (U1 == U2).all()
-        self.restore_params()
         
     def test_circuit_ungroup(self):
         """
@@ -438,12 +435,15 @@ class TestCircuit:
         for spec in circuit._get_circuit_spec():
             if spec[0] == "mode_swaps": counter += 1
         assert counter == 2
-    
-    def restore_params(self):
-        """Reset params to original values after modification."""
-        for p in self.parameters:
-            self.parameters[p] = self.original_parameters[p].get()
-            
+        
+    def test_parameterized_loss(self):
+        """Checks that loss can be parameterized in a circuit."""
+        param = Parameter(0.5, label = "loss")
+        circuit = Circuit(4)
+        circuit.add_bs(0, loss = param)
+        circuit.add_ps(2, 1, loss = param)
+        circuit.add_loss(2, param)
+        
 class TestUnitary:
     """
     Unit tests to confirm correct functioning of the Unitary class when various 

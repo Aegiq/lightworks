@@ -186,7 +186,7 @@ class Circuit:
             raise ValueError(msg)
         self.__circuit_spec.append(["bs", (mode_1, mode_2, reflectivity, 
                                            convention)])
-        if loss > 0:
+        if isinstance(loss, Parameter) or loss > 0:
             self.add_loss(mode_1, loss)
             self.add_loss(mode_2, loss)
         
@@ -207,7 +207,7 @@ class Circuit:
         self._mode_in_range(mode)
         self._check_loss(loss)
         self.__circuit_spec.append(["ps", (mode, phi)])
-        if loss > 0:
+        if isinstance(loss, Parameter) or loss > 0:
             self.add_loss(mode, loss)
         
     def add_loss(self, mode: int, loss: float = 0) -> None:
