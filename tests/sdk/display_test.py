@@ -14,13 +14,14 @@
 
 from lightworks import Display, Circuit, Unitary, random_unitary, Parameter
 from lightworks import DisplayError
-import unittest
+
+import pytest
 import matplotlib.pyplot as plt
 
-class DisplayTest(unittest.TestCase):
+class TestDisplay:
     """Unit testing for display functionality of circuit."""
     
-    def setUp(self) -> None:
+    def setup_method(self) -> None:
         """
         Create a circuit for testing with, this should utilise all components 
         to ensure thorough testing.
@@ -47,7 +48,7 @@ class DisplayTest(unittest.TestCase):
         try:
             self.circuit.display(display_loss = True)
         except:
-            self.fail("Exception occurred during display operation.")
+            pytest.fail("Exception occurred during display operation.")
             
     def test_circuit_display_show_parameter_values(self):
         """
@@ -58,7 +59,7 @@ class DisplayTest(unittest.TestCase):
             self.circuit.display(display_loss = True, 
                                  show_parameter_values = True)
         except:
-            self.fail("Exception occurred during display operation.")
+            pytest.fail("Exception occurred during display operation.")
             
     def test_circuit_display_mode_labels(self):
         """
@@ -69,7 +70,7 @@ class DisplayTest(unittest.TestCase):
             self.circuit.display(display_loss = True, 
                                  mode_labels = ["a", "b", "c", "d"])
         except:
-            self.fail("Exception occurred during display operation.")
+            pytest.fail("Exception occurred during display operation.")
             
     def test_circuit_display_function(self):
         """
@@ -79,7 +80,7 @@ class DisplayTest(unittest.TestCase):
         try:
             Display(self.circuit, display_loss = True)
         except:
-            self.fail("Exception occurred during display operation.")
+            pytest.fail("Exception occurred during display operation.")
             
     def test_circuit_display_function_mpl(self):
         """
@@ -90,17 +91,14 @@ class DisplayTest(unittest.TestCase):
             Display(self.circuit, display_loss = True, display_type = "mpl")
             plt.close()
         except:
-            self.fail("Exception occurred during display operation.")
+            pytest.fail("Exception occurred during display operation.")
             
     def test_display_type_error(self):
         """
         Confirms an error is raised when an invalid display type is passed to 
         the display function.
         """
-        with self.assertRaises(DisplayError):
+        with pytest.raises(DisplayError):
             self.circuit.display(display_type = "not_valid")
-        with self.assertRaises(DisplayError):
+        with pytest.raises(DisplayError):
             Display(self.circuit, display_type = "not_valid")
-
-if __name__ == "__main__":
-    unittest.main()

@@ -15,9 +15,10 @@
 from lightworks import State, Unitary, Circuit, random_unitary, Parameter
 from lightworks.emulator import QuickSampler, Sampler
 from lightworks.emulator import set_statistic_type, ModeMismatchError
-import unittest
 
-class QuickSamplerTest(unittest.TestCase):
+import pytest
+
+class TestQuickSampler:
     """
     Unit tests to check results produced by QuickSampler object in the 
     emulator.
@@ -33,9 +34,9 @@ class QuickSamplerTest(unittest.TestCase):
         sampler = QuickSampler(circuit, State([1,1]))
         N_sample = 100000
         results = sampler.sample_N_outputs(N_sample, seed = 21)
-        self.assertEqual(len(results), 2)
-        self.assertTrue(0.49 < results[State([2,0])]/N_sample < 0.51)
-        self.assertTrue(0.49 < results[State([0,2])]/N_sample < 0.51)
+        assert len(results) == 2
+        assert 0.49 < results[State([2,0])]/N_sample < 0.51
+        assert 0.49 < results[State([0,2])]/N_sample < 0.51
         
     def test_equivalence(self):
         """
@@ -51,9 +52,9 @@ class QuickSamplerTest(unittest.TestCase):
         # accuracy
         for s1 in p1:
             if s1 not in p2: # Cannot be identical if a state is missed
-                self.fail("Missing state in QuickSampler distribution.")
+                pytest.fail("Missing state in QuickSampler distribution.")
             if round(p1[s1], 8) != round(p2[s1], 8): # Checks equivalence
-                self.fail("Probabilities not equivalent.")
+                pytest.fail("Probabilities not equivalent.")
     
     def test_known_result(self):
         """
@@ -68,7 +69,7 @@ class QuickSamplerTest(unittest.TestCase):
         # And check output counts
         sampler = QuickSampler(circuit, State([1,0,0,1]))
         results = sampler.sample_N_outputs(1000)
-        self.assertEqual(results[State([0,1,1,0])], 1000)
+        assert results[State([0,1,1,0])] == 1000
         
     def test_sampling(self):
         """
@@ -80,7 +81,7 @@ class QuickSamplerTest(unittest.TestCase):
                                photon_counting = False, 
                                herald = lambda s: s[0] == 0)
         p = sampler.probability_distribution[State([0,1,1,0])]
-        self.assertAlmostEqual(p, 0.3156177858, 8)
+        assert p == pytest.approx(0.3156177858), 8
         
     def test_sampling_2photons_in_mode(self):
         """
@@ -92,7 +93,7 @@ class QuickSamplerTest(unittest.TestCase):
                                photon_counting = False, 
                                herald = lambda s: s[0] == 0)
         p = sampler.probability_distribution[State([0,1,1,0])]
-        self.assertAlmostEqual(p, 0.071330233065, 8)
+        assert p == pytest.approx(0.071330233065), 8
             
     def test_lossy_sampling(self):
         """
@@ -111,7 +112,7 @@ class QuickSamplerTest(unittest.TestCase):
                                photon_counting = False, 
                                herald = lambda s: s[0] == 0)
         p = sampler.probability_distribution[State([0,1,1,0])]
-        self.assertAlmostEqual(p, 0.386272843449, 8)
+        assert p == pytest.approx(0.386272843449), 8
         
     def test_circuit_update_with_sampler(self):
         """
@@ -124,7 +125,7 @@ class QuickSamplerTest(unittest.TestCase):
         circuit.add_bs(0)
         circuit.add_bs(2)
         p2 = sampler.probability_distribution
-        self.assertNotEqual(p1, p2)
+        assert p1 != p2
         
     def test_circuit_parameter_update_with_sampler(self):
         """
@@ -140,7 +141,7 @@ class QuickSamplerTest(unittest.TestCase):
         p1 = sampler.probability_distribution
         p.set(0.7)
         p2 = sampler.probability_distribution
-        self.assertNotEqual(p1, p2)
+        assert p1 != p2
         
     def test_input_update_with_sampler(self):
         """
@@ -152,7 +153,7 @@ class QuickSamplerTest(unittest.TestCase):
         p1 = sampler.probability_distribution
         sampler.input_state = State([0,1,0,1])
         p2 = sampler.probability_distribution
-        self.assertNotEqual(p1, p2)
+        assert p1 != p2
         
     def test_photon_counting_update_with_sampler(self):
         """
@@ -165,7 +166,7 @@ class QuickSamplerTest(unittest.TestCase):
         p1 = sampler.probability_distribution
         sampler.photon_counting = False
         p2 = sampler.probability_distribution
-        self.assertNotEqual(p1, p2)
+        assert p1 != p2
         
     def test_herald_update_with_sampler(self):
         """
@@ -178,7 +179,7 @@ class QuickSamplerTest(unittest.TestCase):
         p1 = sampler.probability_distribution
         sampler.herald = lambda s: s[1] == 1
         p2 = sampler.probability_distribution
-        self.assertNotEqual(p1, p2)
+        assert p1 != p2
     
     def test_circuit_assignment(self):
         """
@@ -187,7 +188,7 @@ class QuickSamplerTest(unittest.TestCase):
         """
         circuit = Unitary(random_unitary(4))
         sampler = QuickSampler(circuit, State([1,0,1,0]))
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             sampler.circuit = random_unitary(4)
                 
     def test_input_assignmnet(self):
@@ -198,10 +199,10 @@ class QuickSamplerTest(unittest.TestCase):
         circuit = Unitary(random_unitary(4))
         sampler = QuickSampler(circuit, State([1,0,1,0]))
         # Incorrect type
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             sampler.input_state = [1,2,3,4]
         # Incorrect number of modes
-        with self.assertRaises(ModeMismatchError):
+        with pytest.raises(ModeMismatchError):
             sampler.input_state = State([1,2,3])
             
     def test_herald_assignment(self):
@@ -211,7 +212,7 @@ class QuickSamplerTest(unittest.TestCase):
         """
         circuit = Unitary(random_unitary(4))
         sampler = QuickSampler(circuit, State([1,0,1,0]))
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             sampler.herald = True
             
     def test_photon_counting_assignment(self):
@@ -221,7 +222,7 @@ class QuickSamplerTest(unittest.TestCase):
         """
         circuit = Unitary(random_unitary(4))
         sampler = QuickSampler(circuit, State([1,0,1,0]))
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             sampler.photon_counting = 1
             
     def test_fermionic_sampling_output(self):
@@ -237,7 +238,7 @@ class QuickSamplerTest(unittest.TestCase):
         # Then check no multi-photon states are present        
         for s in results:
             if max(s) > 1:
-                self.fail("Multiple photons present in a single mode.")
+                pytest.fail("Multiple photons present in a single mode.")
         # Reset statistics to bosonic
         set_statistic_type("bosonic")
         
@@ -248,7 +249,7 @@ class QuickSamplerTest(unittest.TestCase):
         # Create sampler and check calculated probability is correct
         sampler = QuickSampler(circuit, State([1,0,1,0]))
         p = sampler.probability_distribution[State([1,0,1,0])]
-        self.assertAlmostEqual(p, 0.1846147449203965, 8)
+        assert p == pytest.approx(0.1846147449203965), 8
         # Reset statistics to bosonic
         set_statistic_type("bosonic")
         
@@ -261,16 +262,11 @@ class QuickSamplerTest(unittest.TestCase):
         circuit = Unitary(random_unitary(4, seed = 99))
         # Create sampler and calculate probability distribution to raise error
         sampler = QuickSampler(circuit, State([2,0,0,0]))
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             sampler.probability_distribution
         # Reset statistics to bosonic
         set_statistic_type("bosonic")
         
-    def tearDown(self) -> None:
+    def teardown_method(self) -> None:
         """Reset stats to bosonic after all calculation."""
         set_statistic_type("bosonic")
-        return super().tearDown()
-    
-if __name__ == "__main__":
-    
-    unittest.main()

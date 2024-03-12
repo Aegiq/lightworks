@@ -15,9 +15,10 @@
 from lightworks import State, Unitary, random_unitary, Circuit, Parameter
 from lightworks.emulator import PhotonNumberError
 from lightworks.emulator import Simulator, set_statistic_type
-import unittest
 
-class SimulatorTest(unittest.TestCase):
+import pytest
+
+class TestSimulator:
     """
     Unit tests to check results returned from simulator in different cases,
     including when fermionic statistics are used.
@@ -32,7 +33,7 @@ class SimulatorTest(unittest.TestCase):
         circ.add_bs(0)
         sim = Simulator(circ)
         results = sim.simulate(State([1,1]),State([2,0]))
-        self.assertAlmostEqual(0.5, abs(results.array[0,0])**2, 8)
+        assert 0.5 == pytest.approx(abs(results.array[0,0])**2, 8)
     
     def test_single_photon_case(self):
         """
@@ -47,7 +48,7 @@ class SimulatorTest(unittest.TestCase):
         for i in range(N):
             states.append(State([int(i==j) for j in range(N)]))
         results = sim.simulate(states, states)
-        self.assertTrue((U.T.round(8) == results.array.round(8)).all())
+        assert (U.T.round(8) == results.array.round(8)).all()
         
     def test_known_result(self):
         """
@@ -63,7 +64,7 @@ class SimulatorTest(unittest.TestCase):
         # And check output probability
         sim = Simulator(circuit)
         results = sim.simulate(State([1,0,0,1]), State([0,1,1,0]))
-        self.assertAlmostEqual(abs(results.array[0,0])**2, 0.5, 8)
+        assert abs(results.array[0,0])**2 == pytest.approx(0.5, 8)
                 
     def test_multi_photon_case(self):
         """
@@ -75,7 +76,7 @@ class SimulatorTest(unittest.TestCase):
         sim = Simulator(unitary)
         results = sim.simulate(State([1,0,1,0]), State([0,2,0,0]))
         x = results.array[0,0]
-        self.assertAlmostEqual(x, -0.18218877232689196-0.266230290128261j, 8)
+        assert x == pytest.approx(-0.18218877232689196-0.266230290128261j), 8
         
     def test_multi_photon_output_not_specified_case(self):
         """
@@ -87,7 +88,7 @@ class SimulatorTest(unittest.TestCase):
         sim = Simulator(unitary)
         results = sim.simulate(State([1,0,1,0]))
         x = results[State([0,2,0,0])]
-        self.assertAlmostEqual(x, -0.18218877232689196-0.266230290128261j, 8)
+        assert x == pytest.approx(-0.18218877232689196-0.266230290128261j), 8
         
     def test_lossy_multi_photon_case(self):
         """
@@ -104,7 +105,7 @@ class SimulatorTest(unittest.TestCase):
         sim = Simulator(circ)
         results = sim.simulate(State([2,0,0,0]), State([0,1,1,0]))
         x = results.array[0,0]
-        self.assertAlmostEqual(x, 0.03647550871283556+0.01285838825922496j, 8)
+        assert x == pytest.approx(0.03647550871283556+0.01285838825922496j), 8
         
     def test_lossy_fermionic_multi_photon_case(self):
         """
@@ -122,7 +123,7 @@ class SimulatorTest(unittest.TestCase):
         sim = Simulator(circ)
         results = sim.simulate(State([1,1,0,0]), State([1,0,0,1]))
         x = results.array[0,0]
-        self.assertAlmostEqual(x, -0.19016315330615347-0.05882435665766534j, 8)
+        assert x == pytest.approx(-0.19016315330615347-0.05882435665766534j), 8
         set_statistic_type("bosonic")
         
     def test_circuit_update(self):
@@ -136,7 +137,7 @@ class SimulatorTest(unittest.TestCase):
         unitary.add_bs(0)
         results = sim.simulate(State([1,0,1,0]), State([0,2,0,0]))
         x2 = results.array[0,0]
-        self.assertNotEqual(x, x2)
+        assert x != x2
         
     def test_circuit_parameter_update(self):
         """
@@ -156,7 +157,7 @@ class SimulatorTest(unittest.TestCase):
         param.set(0.65)
         results = sim.simulate(State([1,0,1,0]), State([0,2,0,0]))
         x2 = results.array[0,0]
-        self.assertNotEqual(x, x2)
+        assert x != x2
         
     def test_circuit_assignment(self):
         """
@@ -165,7 +166,7 @@ class SimulatorTest(unittest.TestCase):
         """
         circuit = Unitary(random_unitary(4))
         sim = Simulator(circuit)
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             sim.circuit = random_unitary(5)
             
     def test_varied_input_n_raises_error(self):
@@ -177,10 +178,10 @@ class SimulatorTest(unittest.TestCase):
         circuit = Unitary(random_unitary(4))
         sim = Simulator(circuit)
         # Without output specified
-        with self.assertRaises(PhotonNumberError):
+        with pytest.raises(PhotonNumberError):
             sim.simulate([State([1,0,1,0]), State([0,1,0,0])])
         # With some outputs specified
-        with self.assertRaises(PhotonNumberError):
+        with pytest.raises(PhotonNumberError):
             sim.simulate([State([1,0,1,0]), State([0,1,0,0])],
                          [State([1,0,1,0]), State([0,1,0,1])])
             
@@ -193,11 +194,11 @@ class SimulatorTest(unittest.TestCase):
         circuit = Unitary(random_unitary(4))
         sim = Simulator(circuit)
         # With different number to input
-        with self.assertRaises(PhotonNumberError):
+        with pytest.raises(PhotonNumberError):
             sim.simulate([State([1,0,1,0]), State([0,1,0,1])],
                          [State([0,0,1,0]), State([0,1,0,0])])
         # With different number to each other
-        with self.assertRaises(PhotonNumberError):
+        with pytest.raises(PhotonNumberError):
             sim.simulate([State([1,0,1,0]), State([0,1,0,1])],
                          [State([1,0,1,0]), State([0,1,0,0])])
             
@@ -210,16 +211,12 @@ class SimulatorTest(unittest.TestCase):
         # Create simulator and simulate with incorrect input and outputs
         unitary = Unitary(random_unitary(4))
         sim = Simulator(unitary)
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             sim.simulate(State([2,0,1,0]))
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             sim.simulate(State([1,1,1,0]), [State([2,0,1,0]),State([1,0,1,1])])
         set_statistic_type("bosonic")
         
-    def tearDown(self):
+    def teardown_method(self):
         """Reset stats to bosonic after all calculation."""
         set_statistic_type("bosonic")
-        return super().tearDown()
-    
-if __name__ == "__main__":
-    unittest.main()

@@ -12,3 +12,4 @@ furo
 nbsphinx
 sphinx-copybutton
 sphinxcontrib-bibtex
+pytest

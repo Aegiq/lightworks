@@ -14,14 +14,15 @@
 
 from lightworks import State, Circuit, Unitary, random_unitary, Parameter
 from lightworks.emulator import Analyzer, set_statistic_type
-import unittest
 
-class AnalyzerTest(unittest.TestCase):
+import pytest
+
+class TestAnalyzer:
     """
     Unit tests to check results produced by Analyzer object in the emulator.
     """
     
-    def setUp(self) -> None:
+    def setup_class(self) -> None:
         """Create a non-lossy and a lossy circuit for use."""
         self.circuit = Circuit(4)
         self.lossy_circuit = Circuit(4)
@@ -36,6 +37,10 @@ class AnalyzerTest(unittest.TestCase):
             self.lossy_circuit.add_bs(m, loss = 0.6 + 0.1*i)
             self.lossy_circuit.add_ps(m+1, phi = 3*i)
             
+    def teardown_class(self) -> None:
+        """Reset stats to bosonic after all calculation."""
+        set_statistic_type("bosonic")
+            
     def test_hom(self):
         """Checks basic hom and confirms probability of |2,0> is 0.5."""
         circuit = Circuit(2)
@@ -43,7 +48,7 @@ class AnalyzerTest(unittest.TestCase):
         analyzer = Analyzer(circuit)
         results = analyzer.analyze(State([1,1]))
         p = results[State([2,0])]
-        self.assertAlmostEqual(p, 0.5, 6)
+        assert pytest.approx(p) == 0.5
         
     def test_known_result(self):
         """
@@ -59,21 +64,21 @@ class AnalyzerTest(unittest.TestCase):
         # And check output counts
         analyzer = Analyzer(circuit)
         results = analyzer.analyze(State([1,0,0,1]))
-        self.assertAlmostEqual(abs(results[State([0,1,1,0])]), 0.5, 8)
+        assert pytest.approx(abs(results[State([0,1,1,0])])) == 0.5
     
     def test_analyzer_basic(self):
         """Check analyzer result with basic circuit."""
         analyzer = Analyzer(self.circuit)
         results = analyzer.analyze(State([1,0,1,0]))
         p = results[State([0,1,0,1])]
-        self.assertAlmostEqual(p, 0.6331805740170607, 8)
+        assert pytest.approx(p, 1e-8) == 0.6331805740170607
         
     def test_analyzer_basic_2photons_in_mode(self):
         """Check analyzer result with basic circuit."""
         analyzer = Analyzer(self.circuit)
         results = analyzer.analyze(State([2,0,0,0]))
         p = results[State([0,1,0,1])]
-        self.assertAlmostEqual(p, 0.0022854516590, 8)
+        assert pytest.approx(p, 1e-8) == 0.0022854516590
         
     def test_analyzer_complex(self):
         """Check analyzer result when using post-selection and heralding."""
@@ -82,14 +87,14 @@ class AnalyzerTest(unittest.TestCase):
         analyzer.set_herald(3, 0)
         results = analyzer.analyze(State([1,0,1]))
         p = results[State([0,1,1])]
-        self.assertAlmostEqual(p, 0.091713377373246, 8)
+        assert pytest.approx(p, 1e-8) == 0.091713377373246
         # Heralding + post-selection
         analyzer.set_post_selection(lambda s: s[0] == 1)
         results = analyzer.analyze(State([1,0,1]))
         p = results[State([1,1,0])]
-        self.assertAlmostEqual(p, 0.002934140618653, 8)
+        assert pytest.approx(p, 1e-8) == 0.002934140618653
         # Check performance metric
-        self.assertAlmostEqual(results.performance, 0.03181835438235, 8)
+        assert pytest.approx(results.performance, 1e-8) == 0.03181835438235
         
     def test_analyzer_complex_lossy(self):
         """
@@ -101,16 +106,16 @@ class AnalyzerTest(unittest.TestCase):
         analyzer.set_herald(3, 0)
         results = analyzer.analyze(State([1,0,1]))
         p = results[State([0,1,0])]
-        self.assertAlmostEqual(p, 0.062204471804458, 8)
+        assert pytest.approx(p, 1e-8) == 0.062204471804458
         # Heralding + post-selection
         analyzer.set_post_selection(lambda s: s[0] == 0)
         results = analyzer.analyze(State([1,0,1]))
         p = results[State([0,0,1])]
-        self.assertAlmostEqual(p, 0.0202286624257920, 8)
+        assert pytest.approx(p, 1e-8) == 0.0202286624257920
         p = results[State([0,0,0])]
-        self.assertAlmostEqual(p, 0.6051457174354371, 8)
+        assert pytest.approx(p, 1e-8) == 0.6051457174354371
         # Check performance metric
-        self.assertAlmostEqual(results.performance, 0.6893563871958014, 8)
+        assert pytest.approx(results.performance, 1e-8) == 0.6893563871958014
         
     def test_analyzer_error_rate(self):
         """Check the calculated error rate is correct for a given situation."""
@@ -119,7 +124,7 @@ class AnalyzerTest(unittest.TestCase):
                         State([0,1,0,1]) : State([1,0,1,0])}
         results = analyzer.analyze([State([1,0,1,0]), State([0,1,0,1])],
                                    expected = expectations)
-        self.assertAlmostEqual(results.error_rate, 0.46523865112110574, 8)
+        assert pytest.approx(results.error_rate, 1e-8) == 0.46523865112110574
         
     def test_analyzer_circuit_update(self):
         """Check analyzer result before and after a circuit is modified."""
@@ -133,7 +138,7 @@ class AnalyzerTest(unittest.TestCase):
         circuit.add_bs(0)
         results = analyzer.analyze(State([1,0,1,0]))
         p2 = results[State([1,1,0,0])]
-        self.assertNotEqual(p, p2)
+        assert p != p2
         
     def test_analyzer_circuit_parameter_update(self):
         """
@@ -154,7 +159,7 @@ class AnalyzerTest(unittest.TestCase):
         param.set(0.65)
         results = analyzer.analyze(State([1,0,1,0]))
         p2 = results[State([1,1,0,0])]
-        self.assertNotEqual(p, p2)
+        assert p != p2
                 
     def test_circuit_assignment(self):
         """
@@ -163,7 +168,7 @@ class AnalyzerTest(unittest.TestCase):
         """
         circuit = Unitary(random_unitary(4))
         analyzer = Analyzer(circuit)
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             analyzer.circuit = random_unitary(5)
             
     def test_analyzer_fermionic_outputs(self):
@@ -179,7 +184,7 @@ class AnalyzerTest(unittest.TestCase):
         # Check results
         for s in results[:]:
             if max(s) > 1:
-                self.fail("Multi-photon state found in a mode.")
+                pytest.fail("Multi-photon state found in a mode.")
         set_statistic_type("bosonic")
         
     def test_analyzer_fermionic_value(self):
@@ -195,9 +200,9 @@ class AnalyzerTest(unittest.TestCase):
         results = analyzer.analyze(State([1,0,1]))
         # Check results
         p = results[State([0,1,0])]
-        self.assertAlmostEqual(p, 0.06216965933376453, 8)
+        assert pytest.approx(p, 1e-8) == 0.06216965933376453
         # Also check performance metric
-        self.assertAlmostEqual(results.performance, 0.6892747403578104, 8)
+        assert pytest.approx(results.performance, 1e-8) == 0.6892747403578104
         set_statistic_type("bosonic")
         
     def test_analyzer_fermionic_invalid_input(self):
@@ -210,17 +215,9 @@ class AnalyzerTest(unittest.TestCase):
         # Build analyzer
         analyzer = Analyzer(self.lossy_circuit)
         # Multi-photon input
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             results = analyzer.analyze(State([2,0,1]))
         # Multi-photon herald
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             analyzer.set_herald(3, 2)
         set_statistic_type("bosonic")
-            
-    def tearDown(self) -> None:
-        """Reset stats to bosonic after all calculation."""
-        set_statistic_type("bosonic")
-        return super().tearDown()
-
-if __name__ == "__main__":
-    unittest.main()

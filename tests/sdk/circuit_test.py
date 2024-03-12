@@ -16,17 +16,18 @@ from lightworks import Parameter, ParameterDict, Circuit
 from lightworks import Unitary, random_unitary
 from lightworks.sdk.circuit.circuit_compiler import CompiledCircuit
 from lightworks.sdk.circuit.circuit_compiler import CompiledUnitary
+
+import pytest
 from random import random, seed
-import unittest
 from numpy import round
 
-class CircuitTest(unittest.TestCase):
+class TestCircuit:
     """
     Unit tests to confirm correct functioning of the Circuit class when various 
     operations are performed.
     """
     
-    def setUp(self) -> None:
+    def setup_method(self) -> None:
         """Create a circuit and associated parameters for testing."""
         N = 6
         self.param_circuit = Circuit(N)
@@ -54,9 +55,9 @@ class CircuitTest(unittest.TestCase):
         expected.
         """
         unitary = self.param_circuit.U
-        self.assertAlmostEqual(unitary[0,0],0.1817783235792+0.261054657406j,8)
-        self.assertAlmostEqual(unitary[1,2],0.1094958407210-0.2882179078302j,8)
-        self.assertAlmostEqual(unitary[4,3],0.03978296812819+0.354080300183j,8)
+        assert unitary[0,0] == pytest.approx(0.1817783235792+0.261054657406j,8)
+        assert unitary[1,2] == pytest.approx(0.1094958407210-0.2882179078302j,8)
+        assert unitary[4,3] == pytest.approx(0.03978296812819+0.354080300183j,8)
         
     def test_parameter_modification(self):
         """
@@ -65,18 +66,18 @@ class CircuitTest(unittest.TestCase):
         self.parameters["bs_0_0"] = 4
         self.parameters["bs_0_2"] = 4
         unitary = self.param_circuit.U
-        self.assertAlmostEqual(unitary[0,0],0.1382843851268-0.1276219199576j,8)
-        self.assertAlmostEqual(unitary[1,2],0.6893944687270+0.2987967171732j,8)
-        self.assertAlmostEqual(unitary[4,3],-0.82752490939-0.0051178352488j,8)
+        assert unitary[0,0] == pytest.approx(0.1382843851268-0.1276219199576j,8)
+        assert unitary[1,2] == pytest.approx(0.6893944687270+0.2987967171732j,8)
+        assert unitary[4,3] == pytest.approx(-0.82752490939-0.0051178352488j,8)
         self.restore_params()
         
     def test_circuit_addition(self):
         """Confirms two circuits are added together correctly."""
         new_circ = self.param_circuit + self.param_circuit
         unitary = new_circ.U
-        self.assertAlmostEqual(unitary[0,0],0.2743757510982+0.6727464244294j,8)
-        self.assertAlmostEqual(unitary[1,2],-0.153884469732+0.0872489579891j,8)
-        self.assertAlmostEqual(unitary[4,3],-0.083445311860+0.154159863276j,8)
+        assert unitary[0,0] == pytest.approx(0.2743757510982+0.6727464244294j,8)
+        assert unitary[1,2] == pytest.approx(-0.153884469732+0.0872489579891j,8)
+        assert unitary[4,3] == pytest.approx(-0.083445311860+0.154159863276j,8)
         
     def test_equivalent_circ(self):
         """
@@ -100,9 +101,9 @@ class CircuitTest(unittest.TestCase):
         U_pcirc = pcircuit.U
         for i in range(6):
             for j in range(6):
-                self.assertAlmostEqual(U_circ[i,j], U_pcirc[i,j], 10)
+                assert U_circ[i,j] == pytest.approx(U_pcirc[i,j], 10)
         # Also check that the produced build specs are equivalent
-        self.assertTrue(circuit._display_spec == pcircuit._display_spec)
+        assert circuit._display_spec == pcircuit._display_spec
                 
     def test_equivalent_lossy_circ(self):
         """
@@ -133,9 +134,9 @@ class CircuitTest(unittest.TestCase):
         U_pcirc = pcircuit.U
         for i in range(6):
             for j in range(6):
-                self.assertAlmostEqual(U_circ[i,j], U_pcirc[i,j], 10)
+                assert U_circ[i,j] == pytest.approx(U_pcirc[i,j], 10)
         # Also check that the produced build specs are equivalent
-        self.assertTrue(circuit._display_spec == pcircuit._display_spec)
+        assert circuit._display_spec == pcircuit._display_spec
         
     def test_smaller_circuit_addition(self):
         """
@@ -167,7 +168,7 @@ class CircuitTest(unittest.TestCase):
         # Check unitary equivalence
         U1 = round(circ_comp.U_full, 8)
         U2 = round(c1.U_full, 8)
-        self.assertTrue((U1 == U2).all())
+        assert (U1 == U2).all()
                 
     def test_smaller_circuit_addition_grouped(self):
         """
@@ -206,7 +207,7 @@ class CircuitTest(unittest.TestCase):
         # Check unitary equivalence
         U1 = round(circ_comp.U_full, 8)
         U2 = round(c1.U_full, 8)
-        self.assertTrue((U1 == U2).all())
+        assert (U1 == U2).all()
         
     def test_barrier_inclusion(self):
         """
@@ -223,11 +224,11 @@ class CircuitTest(unittest.TestCase):
         assigned to a mode value.
         """
         new_circ = Circuit(4)
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             new_circ.add_bs(Parameter(1))
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             new_circ.add_ps(Parameter(1))
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             new_circ.add_mode_swaps({Parameter(1):2, 2:Parameter(1)})
             
     def test_circ_unitary_combination(self):
@@ -240,9 +241,9 @@ class CircuitTest(unittest.TestCase):
         u2 = Unitary(random_unitary(4, seed = 2))
         circ.add(u1, 0)
         circ.add(u2, 1)
-        self.assertAlmostEqual(circ.U[0,0],0.2287112952348-0.14731470234581j,8)
-        self.assertAlmostEqual(circ.U[1,2],0.0474053983616+0.01248244201229j,8)
-        self.assertAlmostEqual(circ.U[4,3],0.0267553699139-0.02848937675632j,8)
+        assert circ.U[0,0] == pytest.approx(0.2287112952348-0.14731470234581j,8)
+        assert circ.U[1,2] == pytest.approx(0.0474053983616+0.01248244201229j,8)
+        assert circ.U[4,3] == pytest.approx(0.0267553699139-0.02848937675632j,8)
         
     def test_mode_modification(self):
         """
@@ -250,7 +251,7 @@ class CircuitTest(unittest.TestCase):
         attribute error.
         """
         circ = Circuit(4)
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             circ.n_modes = 6
         
     def test_circuit_copy(self):
@@ -260,7 +261,7 @@ class CircuitTest(unittest.TestCase):
         # Modify the new circuit and check the original U is unchanged
         copied_circ.add_bs(0)
         U2 = self.param_circuit.U_full
-        self.assertTrue((U1 == U2).all())
+        assert (U1 == U2).all()
         
     def test_circuit_copy_parameter_modification(self):
         """Test parameter modification still works on a copied circuit"""
@@ -270,7 +271,7 @@ class CircuitTest(unittest.TestCase):
         self.parameters["bs_0_0"] = 2
         U2 = copied_circ.U_full
         # Unitary should be modified
-        self.assertFalse((U1 == U2).all())
+        assert not (U1 == U2).all()
         self.restore_params()
         
     def test_circuit_copy_parameter_freeze(self):
@@ -284,7 +285,7 @@ class CircuitTest(unittest.TestCase):
         self.parameters["bs_0_0"] = 4
         U2 = copied_circ.U_full
         # Unitary should not be modified
-        self.assertTrue((U1 == U2).all())
+        assert (U1 == U2).all()
         self.restore_params()
         
     def test_circuit_ungroup(self):
@@ -309,7 +310,7 @@ class CircuitTest(unittest.TestCase):
         for spec in circuit._get_circuit_spec():
             if spec[0] == "group":
                 group_found = True
-        self.assertFalse(group_found)
+        assert not group_found
         
     def test_remove_non_adj_bs_success(self):
         """
@@ -330,7 +331,7 @@ class CircuitTest(unittest.TestCase):
             if spec[0] == "bs":
                 # Check it acts on adjacent modes, otherwise fail
                 if spec[1][0] != spec[1][1] - 1:
-                    self.fail()
+                    pytest.fail()
         
     def test_remove_non_adj_bs_equivalence(self):
         """
@@ -348,7 +349,7 @@ class CircuitTest(unittest.TestCase):
         u1 = abs(circuit.U).round(3)
         circuit.remove_non_adjacent_bs()
         u2 = abs(circuit.U).round(3)
-        self.assertTrue((u1 == u2).all())
+        assert (u1 == u2).all()
                     
     def test_remove_non_adj_bs_equivalence_grouped(self):
         """
@@ -373,7 +374,7 @@ class CircuitTest(unittest.TestCase):
         u1 = abs(circuit.U).round(8)
         circuit.remove_non_adjacent_bs()
         u2 = abs(circuit.U).round(8)
-        self.assertTrue((u1 == u2).all())
+        assert (u1 == u2).all()
     
     def test_compress_mode_swap_equivalance(self):
         """
@@ -393,7 +394,7 @@ class CircuitTest(unittest.TestCase):
         u1 = abs(circuit.U).round(8)
         circuit.compress_mode_swaps()
         u2 = abs(circuit.U).round(8)
-        self.assertTrue((u1 == u2).all())
+        assert (u1 == u2).all()
         
     def test_compress_mode_swap_removes_components(self):
         """
@@ -415,7 +416,7 @@ class CircuitTest(unittest.TestCase):
         counter = 0
         for spec in circuit._get_circuit_spec():
             if spec[0] == "mode_swaps": counter += 1
-        self.assertEqual(counter, 2)
+        assert counter == 2
         
     def test_compress_mode_swap_ignores_groups(self):
         """Checks that the mode swap ignores components in groups."""
@@ -436,14 +437,14 @@ class CircuitTest(unittest.TestCase):
         counter = 0
         for spec in circuit._get_circuit_spec():
             if spec[0] == "mode_swaps": counter += 1
-        self.assertEqual(counter, 2)
+        assert counter == 2
     
     def restore_params(self):
         """Reset params to original values after modification."""
         for p in self.parameters:
             self.parameters[p] = self.original_parameters[p].get()
             
-class UnitaryTest(unittest.TestCase):
+class TestUnitary:
     """
     Unit tests to confirm correct functioning of the Unitary class when various 
     operations are performed.
@@ -453,7 +454,7 @@ class UnitaryTest(unittest.TestCase):
         """Checks that a unitary is correctly assigned with the component."""
         u = random_unitary(4)
         unitary = Unitary(u)
-        self.assertTrue((u == unitary.U).all())
+        assert (u == unitary.U).all()
         
     def test_non_unitary_assignment(self):
         """
@@ -462,12 +463,12 @@ class UnitaryTest(unittest.TestCase):
         # Non-square unitary
         u = random_unitary(4)
         u = u[:,:-2]
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             Unitary(u)
         # Non-unitary matrix
         u2 = random_unitary(4)
         u2[0,0] = 1
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             Unitary(u2)
             
     def test_circuit_addition_to_unitary(self):
@@ -481,24 +482,20 @@ class UnitaryTest(unittest.TestCase):
         circ.add_bs(2, loss = 0.5)
         circ.add_bs(1, loss = 0.2)
         u.add(circ, 1)
-        self.assertAlmostEqual(u.U[0,0],-0.27084817086493-0.176576418865914j,8)
-        self.assertAlmostEqual(u.U[1,2],0.232353190742325-0.444902420616067j,8)
-        self.assertAlmostEqual(u.U[4,3],-0.31290267006132-0.091957924939349j,8)
+        assert u.U[0,0] == pytest.approx(-0.27084817086493-0.176576418865914j,8)
+        assert u.U[1,2] == pytest.approx(0.232353190742325-0.444902420616067j,8)
+        assert u.U[4,3] == pytest.approx(-0.31290267006132-0.091957924939349j,8)
         
     def test_unitary_is_circuit_child(self):
         """
         Checks that the unitary object is a child class of the Circuit object.
         """
         u = Unitary(random_unitary(4))
-        self.assertTrue(isinstance(u, Circuit))
+        assert isinstance(u, Circuit)
         
     def test_n_mode_retrival(self):
         """
         Confirms n_mode attribute retrieval works for unitary component.
         """
         u = Unitary(random_unitary(4))
-        self.assertTrue(u.n_modes, 4)
-    
-if __name__ == "__main__":
-    
-    unittest.main()
+        assert u.n_modes, 4
