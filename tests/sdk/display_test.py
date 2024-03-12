@@ -16,6 +16,7 @@ from lightworks import Display, Circuit, Unitary, random_unitary, Parameter
 from lightworks import DisplayError
 
 import pytest
+import matplotlib
 import matplotlib.pyplot as plt
 
 class TestDisplay:
@@ -87,11 +88,19 @@ class TestDisplay:
         Checks that a circuit passed to the display function is able to be
         processed without any exceptions arising for the matplotlib method.
         """
+        # NOTE: There is a non intermittent issue that occurs during testing
+        # with the subplots method in mpl. This can be fixed by altering the
+        # backend to Agg for these tests. Issue noted here:
+        # https://stackoverflow.com/questions/71443540/intermittent-pytest-failures-complaining-about-missing-tcl-files-even-though-the
+        original_backend = matplotlib.get_backend()
+        matplotlib.use('Agg')
         try:
             Display(self.circuit, display_loss = True, display_type = "mpl")
             plt.close()
         except:
             pytest.fail("Exception occurred during display operation.")
+        # Reset backend after test
+        matplotlib.use(original_backend)
             
     def test_display_type_error(self):
         """
