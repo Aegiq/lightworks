@@ -5,6 +5,7 @@ with open("lightworks/__version.py") as f:
       exec(f.read(), version)
 
 setup(name = "lightworks",
+      author = "Aegiq Ltd.",
       version = version["__version__"],
       description = "Open-source Python SDK for photonic quantum computation.",
       url = "https://github.com/Aegiq/lightworks",
