@@ -90,7 +90,7 @@ class TestSampler:
         unitary = Unitary(random_unitary(4, seed = 20))
         sampler = Sampler(unitary, State([1,0,1,0]))
         p = sampler.probability_distribution[State([0,1,1,0])]
-        assert p == pytest.approx(0.112093500), 8
+        assert p == pytest.approx(0.112093500, 1e-8)
         
     def test_sampling_imperfect_source(self):
         """
@@ -102,7 +102,7 @@ class TestSampler:
                         indistinguishability = 0.9)
         sampler = Sampler(unitary, State([1,0,1,0]), source = source)
         p = sampler.probability_distribution[State([0,0,1,0])]
-        assert p == pytest.approx(0.0129992654), 8
+        assert p == pytest.approx(0.0129992654, 1e-8)
         
     def test_sampling_2photons_in_mode_perfect_source(self):
         """
@@ -112,7 +112,7 @@ class TestSampler:
         unitary = Unitary(random_unitary(4, seed = 20))
         sampler = Sampler(unitary, State([0,2,0,0]))
         p = sampler.probability_distribution[State([0,1,1,0])]
-        assert p == pytest.approx(0.2875114938), 8
+        assert p == pytest.approx(0.2875114938, 1e-8)
         
     def test_sampling_2photons_in_mode_imperfect_source(self):
         """
@@ -124,7 +124,7 @@ class TestSampler:
                         indistinguishability = 0.9)
         sampler = Sampler(unitary, State([0,2,0,0]), source = source)
         p = sampler.probability_distribution[State([0,0,1,0])]
-        assert p == pytest.approx(0.09767722765), 8
+        assert p == pytest.approx(0.09767722765, 1e-8)
             
     def test_lossy_sampling_perfect_source(self):
         """
@@ -143,9 +143,9 @@ class TestSampler:
         # Sample from circuit
         sampler = Sampler(circuit, State([1,0,1,0]))
         p = sampler.probability_distribution[State([0,1,1,0])]
-        assert p == pytest.approx(0.01111424631), 8
+        assert p == pytest.approx(0.01111424631, 1e-8)
         p = sampler.probability_distribution[State([0,0,0,0])]
-        assert p == pytest.approx(0.24688532527), 8
+        assert p == pytest.approx(0.24688532527, 1e-8)
         
     def test_lossy_sampling_imperfect_source(self):
         """
@@ -166,9 +166,9 @@ class TestSampler:
                         indistinguishability = 0.9)
         sampler = Sampler(circuit, State([1,0,1,0]), source = source)
         p = sampler.probability_distribution[State([0,0,1,0])]
-        assert p == pytest.approx(0.03122592963), 8
+        assert p == pytest.approx(0.03122592963, 1e-8)
         p = sampler.probability_distribution[State([0,0,0,0])]
-        assert p == pytest.approx(0.28709359025), 8
+        assert p == pytest.approx(0.28709359025, 1e-8)
         
     def test_imperfect_detection(self):
         """Tests the behaviour of detectors with less than ideal efficiency."""

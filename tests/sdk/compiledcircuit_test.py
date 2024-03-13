@@ -52,8 +52,8 @@ class TestCompiledCircuit:
         circ_add = c1 + c2
         for i in range(circ_comp.U_full.shape[0]):
             for j in range(circ_comp.U_full.shape[1]):
-                assert circ_comp.U_full[i,j] == pytest.approx(
-                                       circ_add.U_full[i,j], 6)
+                assert (circ_comp.U_full[i,j] == 
+                        pytest.approx(circ_add.U_full[i,j], 1e-6))
                 
     def test_two_lossy_circuit_addition(self):
         """
@@ -88,8 +88,8 @@ class TestCompiledCircuit:
         circ_add = c1 + c2
         for i in range(circ_comp.U_full.shape[0]):
             for j in range(circ_comp.U_full.shape[1]):
-                assert circ_comp.U_full[i,j] == pytest.approx(
-                                       circ_add.U_full[i,j], 6)
+                assert (circ_comp.U_full[i,j] == 
+                        pytest.approx(circ_add.U_full[i,j], 1e-6))
                 
     def test_one_lossy_circuit_addition(self):
         """
@@ -123,8 +123,8 @@ class TestCompiledCircuit:
         circ_add = c1 + c2
         for i in range(circ_comp.U_full.shape[0]):
             for j in range(circ_comp.U_full.shape[1]):
-                assert circ_comp.U_full[i,j] == pytest.approx(
-                                       circ_add.U_full[i,j], 6)
+                assert (circ_comp.U_full[i,j] == 
+                        pytest.approx(circ_add.U_full[i,j], 1e-6))
                 
     def test_smaller_circuit_addition(self):
         """

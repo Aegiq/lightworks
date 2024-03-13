@@ -35,9 +35,9 @@ class TestUtil:
         """
         U = random_unitary(4, seed = 111)
         # Check one diagonal element and two off-diagonals
-        assert U[0,0] == pytest.approx(-0.49007982458868+0.212658840316704j, 8)
-        assert U[1,2] == pytest.approx(-0.3483593186025-0.683182137239902j, 8)
-        assert U[3,2] == pytest.approx(0.12574265147702-0.1257183128681681j, 8)
+        assert U[0,0] == pytest.approx(-0.49007982458868+0.212658840316704j, 1e-8)
+        assert U[1,2] == pytest.approx(-0.3483593186025-0.683182137239902j, 1e-8)
+        assert U[3,2] == pytest.approx(0.12574265147702-0.1257183128681681j, 1e-8)
     
     def test_random_permutation(self):
         """
@@ -70,14 +70,14 @@ class TestUtil:
     def test_db_loss_to_decimal_conv(self):
         """Test conversion from db loss to a decimal transmission value."""
         r = db_loss_to_transmission(0.5)
-        assert r == pytest.approx(0.8912509381337456), 8
+        assert r == pytest.approx(0.8912509381337456, 1e-8)
         
     def test_decimal_to_db_loss_conv(self):
         """
         Tests conversion between a decimal transmission and db loss value.
         """
         r = transmission_to_db_loss(0.75)
-        assert r == pytest.approx(1.2493873660829995), 8
+        assert r == pytest.approx(1.2493873660829995, 1e-8)
         
     def test_seeded_random(self):
         """
@@ -85,4 +85,4 @@ class TestUtil:
         when using the same seed. If this changes then it could result in other
         unit tests failing."""
         seed(999)
-        assert random() == pytest.approx(0.7813468849570298), 8
+        assert random() == pytest.approx(0.7813468849570298, 1e-8)

@@ -51,10 +51,10 @@ class TestSource:
         # Check number of inputs is correct
         assert len(stats) == 204
         # Check some random values
-        assert stats[AnnotatedState([[],[],[0],[0],[],[0],[],[]])] == pytest.approx(
-            0.10844531898317525, 6)
-        assert stats[AnnotatedState([[]]*8)] == pytest.approx(
-                               0.06502113537379095), 6
+        assert (stats[AnnotatedState([[],[],[0],[0],[],[0],[],[]])] == 
+                pytest.approx(0.10844531898317525, 1e-6))
+        assert (stats[AnnotatedState([[]]*8)] == 
+                pytest.approx(0.06502113537379095, 1e-6))
         # Ensure all state lengths are correct
         for state in stats:
             assert len(state) == 8

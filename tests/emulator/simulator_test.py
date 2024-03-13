@@ -33,7 +33,7 @@ class TestSimulator:
         circ.add_bs(0)
         sim = Simulator(circ)
         results = sim.simulate(State([1,1]),State([2,0]))
-        assert 0.5 == pytest.approx(abs(results.array[0,0])**2, 8)
+        assert 0.5 == pytest.approx(abs(results.array[0,0])**2, 1e-8)
     
     def test_single_photon_case(self):
         """
@@ -64,7 +64,7 @@ class TestSimulator:
         # And check output probability
         sim = Simulator(circuit)
         results = sim.simulate(State([1,0,0,1]), State([0,1,1,0]))
-        assert abs(results.array[0,0])**2 == pytest.approx(0.5, 8)
+        assert abs(results.array[0,0])**2 == pytest.approx(0.5, 1e-8)
                 
     def test_multi_photon_case(self):
         """
@@ -76,7 +76,8 @@ class TestSimulator:
         sim = Simulator(unitary)
         results = sim.simulate(State([1,0,1,0]), State([0,2,0,0]))
         x = results.array[0,0]
-        assert x == pytest.approx(-0.18218877232689196-0.266230290128261j), 8
+        assert x == pytest.approx(-0.18218877232689196-0.266230290128261j, 
+                                  1e-8)
         
     def test_multi_photon_output_not_specified_case(self):
         """
@@ -88,7 +89,8 @@ class TestSimulator:
         sim = Simulator(unitary)
         results = sim.simulate(State([1,0,1,0]))
         x = results[State([0,2,0,0])]
-        assert x == pytest.approx(-0.18218877232689196-0.266230290128261j), 8
+        assert x == pytest.approx(-0.18218877232689196-0.266230290128261j, 
+                                  1e-8)
         
     def test_lossy_multi_photon_case(self):
         """
@@ -105,7 +107,8 @@ class TestSimulator:
         sim = Simulator(circ)
         results = sim.simulate(State([2,0,0,0]), State([0,1,1,0]))
         x = results.array[0,0]
-        assert x == pytest.approx(0.03647550871283556+0.01285838825922496j), 8
+        assert x == pytest.approx(0.03647550871283556+0.01285838825922496j, 
+                                  1e-8)
         
     def test_circuit_update(self):
         """Used to check circuit updates affect simulator results."""

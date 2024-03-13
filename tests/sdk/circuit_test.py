@@ -55,9 +55,9 @@ class TestCircuit:
         expected.
         """
         unitary = self.param_circuit.U
-        assert unitary[0,0] == pytest.approx(0.1817783235792+0.261054657406j,8)
-        assert unitary[1,2] == pytest.approx(0.1094958407210-0.2882179078302j,8)
-        assert unitary[4,3] == pytest.approx(0.03978296812819+0.354080300183j,8)
+        assert unitary[0,0] == pytest.approx(0.1817783235792+0.261054657406j,1e-8)
+        assert unitary[1,2] == pytest.approx(0.1094958407210-0.2882179078302j,1e-8)
+        assert unitary[4,3] == pytest.approx(0.03978296812819+0.354080300183j,1e-8)
         
     def test_parameter_modification(self):
         """
@@ -66,17 +66,17 @@ class TestCircuit:
         self.parameters["bs_0_0"] = 4
         self.parameters["bs_0_2"] = 4
         unitary = self.param_circuit.U
-        assert unitary[0,0] == pytest.approx(0.1382843851268-0.1276219199576j,8)
-        assert unitary[1,2] == pytest.approx(0.6893944687270+0.2987967171732j,8)
-        assert unitary[4,3] == pytest.approx(-0.82752490939-0.0051178352488j,8)
+        assert unitary[0,0] == pytest.approx(0.1382843851268-0.1276219199576j,1e-8)
+        assert unitary[1,2] == pytest.approx(0.6893944687270+0.2987967171732j,1e-8)
+        assert unitary[4,3] == pytest.approx(-0.82752490939-0.0051178352488j,1e-8)
         
     def test_circuit_addition(self):
         """Confirms two circuits are added together correctly."""
         new_circ = self.param_circuit + self.param_circuit
         unitary = new_circ.U
-        assert unitary[0,0] == pytest.approx(0.2743757510982+0.6727464244294j,8)
-        assert unitary[1,2] == pytest.approx(-0.153884469732+0.0872489579891j,8)
-        assert unitary[4,3] == pytest.approx(-0.083445311860+0.154159863276j,8)
+        assert unitary[0,0] == pytest.approx(0.2743757510982+0.6727464244294j,1e-8)
+        assert unitary[1,2] == pytest.approx(-0.153884469732+0.0872489579891j,1e-8)
+        assert unitary[4,3] == pytest.approx(-0.083445311860+0.154159863276j,1e-8)
         
     def test_equivalent_circ(self):
         """
@@ -100,7 +100,7 @@ class TestCircuit:
         U_pcirc = pcircuit.U
         for i in range(6):
             for j in range(6):
-                assert U_circ[i,j] == pytest.approx(U_pcirc[i,j], 10)
+                assert U_circ[i,j] == pytest.approx(U_pcirc[i,j], 1e-10)
         # Also check that the produced build specs are equivalent
         assert circuit._display_spec == pcircuit._display_spec
                 
@@ -133,7 +133,7 @@ class TestCircuit:
         U_pcirc = pcircuit.U
         for i in range(6):
             for j in range(6):
-                assert U_circ[i,j] == pytest.approx(U_pcirc[i,j], 10)
+                assert U_circ[i,j] == pytest.approx(U_pcirc[i,j], 1e-10)
         # Also check that the produced build specs are equivalent
         assert circuit._display_spec == pcircuit._display_spec
         
@@ -240,9 +240,9 @@ class TestCircuit:
         u2 = Unitary(random_unitary(4, seed = 2))
         circ.add(u1, 0)
         circ.add(u2, 1)
-        assert circ.U[0,0] == pytest.approx(0.2287112952348-0.14731470234581j,8)
-        assert circ.U[1,2] == pytest.approx(0.0474053983616+0.01248244201229j,8)
-        assert circ.U[4,3] == pytest.approx(0.0267553699139-0.02848937675632j,8)
+        assert circ.U[0,0] == pytest.approx(0.2287112952348-0.14731470234581j,1e-8)
+        assert circ.U[1,2] == pytest.approx(0.0474053983616+0.01248244201229j,1e-8)
+        assert circ.U[4,3] == pytest.approx(0.0267553699139-0.02848937675632j,1e-8)
         
     def test_mode_modification(self):
         """
@@ -482,9 +482,9 @@ class TestUnitary:
         circ.add_bs(2, loss = 0.5)
         circ.add_bs(1, loss = 0.2)
         u.add(circ, 1)
-        assert u.U[0,0] == pytest.approx(-0.27084817086493-0.176576418865914j,8)
-        assert u.U[1,2] == pytest.approx(0.232353190742325-0.444902420616067j,8)
-        assert u.U[4,3] == pytest.approx(-0.31290267006132-0.091957924939349j,8)
+        assert u.U[0,0] == pytest.approx(-0.27084817086493-0.176576418865914j,1e-8)
+        assert u.U[1,2] == pytest.approx(0.232353190742325-0.444902420616067j,1e-8)
+        assert u.U[4,3] == pytest.approx(-0.31290267006132-0.091957924939349j,1e-8)
         
     def test_unitary_is_circuit_child(self):
         """

@@ -81,7 +81,7 @@ class TestQuickSampler:
                                photon_counting = False, 
                                herald = lambda s: s[0] == 0)
         p = sampler.probability_distribution[State([0,1,1,0])]
-        assert p == pytest.approx(0.3156177858), 8
+        assert p == pytest.approx(0.3156177858, 1e-8)
         
     def test_sampling_2photons_in_mode(self):
         """
@@ -93,7 +93,7 @@ class TestQuickSampler:
                                photon_counting = False, 
                                herald = lambda s: s[0] == 0)
         p = sampler.probability_distribution[State([0,1,1,0])]
-        assert p == pytest.approx(0.071330233065), 8
+        assert p == pytest.approx(0.071330233065, 1e-8)
             
     def test_lossy_sampling(self):
         """
@@ -112,7 +112,7 @@ class TestQuickSampler:
                                photon_counting = False, 
                                herald = lambda s: s[0] == 0)
         p = sampler.probability_distribution[State([0,1,1,0])]
-        assert p == pytest.approx(0.386272843449), 8
+        assert p == pytest.approx(0.386272843449, 1e-8)
         
     def test_circuit_update_with_sampler(self):
         """
