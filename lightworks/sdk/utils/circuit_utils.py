@@ -16,10 +16,6 @@
 Contains a number of different utility functions for modifying circuits.
 """
 
-from .permutation_conversion import permutation_mat_from_swaps_dict
-
-import numpy as np
-
 def unpack_circuit_spec(circuit_spec: list) -> list:
     """
     Unpacks and removes any grouped components from a circuit.

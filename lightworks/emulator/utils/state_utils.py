@@ -16,8 +16,6 @@
 Script to store various useful functions for the simulation aspect of the code.
 """
 
-from numpy import zeros, ones, concatenate
-
 def fock_basis(N: int, n: int, statistic_type: str) -> list:
     """Returns the Fock basis for n photons in N modes for either bosonic of
     fermionic statistics."""
