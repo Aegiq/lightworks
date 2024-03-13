@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .backend import Backend
-from ..utils import fock_basis, get_statistic_type, ModeMismatchError
+from ..utils import fock_basis, ModeMismatchError
 from ..results import SamplingResult
 from ...sdk import State, Circuit
 
@@ -125,11 +125,9 @@ class QuickSampler:
             if self.circuit.n_modes != len(self.input_state):
                 raise ValueError(
                     "Mismatch in number of modes between input and circuit.")
-            # Check inputs are valid depending on the statistics and get type
-            stats_type = self._check_stats_type()
             # For given input work out all possible outputs
             out_states = fock_basis(len(self.input_state), 
-                                    self.input_state.n_photons, stats_type)
+                                    self.input_state.n_photons)
             if not self.photon_counting:
                 out_states = [s for s in out_states if max(s) == 1]
             out_states = [s for s in out_states if self.herald(s)]
@@ -137,7 +135,7 @@ class QuickSampler:
                 raise ValueError(
                     "Heralding function removed all possible outputs.")
             # Find the probability distribution
-            pdist = self._calculate_probabiltiies(out_states, stats_type)
+            pdist = self._calculate_probabiltiies(out_states)
             # Then assign calculated distribution to attribute
             self.__probability_distribution = pdist
             # Also pre-calculate continuous distribution
@@ -235,7 +233,7 @@ class QuickSampler:
                 self.photon_counting]
         return vals
     
-    def _calculate_probabiltiies(self, outputs: list, stats_type: str) -> dict:
+    def _calculate_probabiltiies(self, outputs: list) -> dict:
         """
         Calculate the probabilities of all of the provided outputs and returns
         this as a normalised distribution.
@@ -248,8 +246,7 @@ class QuickSampler:
         # Loop through possible outputs and calculate probability of each
         for ostate in outputs:
             p = Backend.calculate(built_circuit.U_full, in_state.s, 
-                                    ostate + [0]*built_circuit.loss_modes, 
-                                    stats_type)
+                                    ostate + [0]*built_circuit.loss_modes)
             # Add output to distribution
             if abs(p)**2 > 0:
                 pdist[State(ostate)] = abs(p)**2
@@ -270,16 +267,6 @@ class QuickSampler:
             pcon += p
             cdist[s] = pcon
         return cdist
-    
-    def _check_stats_type(self) -> str:
-        """
-        Returns the current stats type and also performs some checking that the
-        currently set values are valid.
-        """
-        stats_type = get_statistic_type()
-        if stats_type == "fermionic":
-            self._fermionic_checks(self.input_state)
-        return stats_type 
     
     def _fermionic_checks(self, in_state):
         """Perform additional checks when doing fermionic sampling."""

@@ -48,18 +48,22 @@ class DisplayError(LightworksError):
     """
     Used when specific errors during the Display methods. 
     """
-    
+    pass
+
 class ParameterValueError(LightworksError):
     """
     For errors in the setting of a Parameter value.
     """
+    pass
     
 class ParameterBoundsError(LightworksError):
     """
     For errors in the setting of Parameter bounds.
     """
-    
+    pass
+
 class ParameterDictError(LightworksError):
     """
     Exceptions relating to ParameterDict behaviour.
     """
+    pass

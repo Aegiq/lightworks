@@ -14,7 +14,7 @@
 
 from lightworks import State, Unitary, random_unitary, Circuit, Parameter
 from lightworks.emulator import PhotonNumberError
-from lightworks.emulator import Simulator, set_statistic_type
+from lightworks.emulator import Simulator
 
 import pytest
 
@@ -107,25 +107,6 @@ class TestSimulator:
         x = results.array[0,0]
         assert x == pytest.approx(0.03647550871283556+0.01285838825922496j), 8
         
-    def test_lossy_fermionic_multi_photon_case(self):
-        """
-        Runs a lossy multi-photon sim and checks the correct value is found
-        for one input/output.
-        """
-        set_statistic_type("fermionic")
-        circ = Circuit(4)
-        circ.add_bs(0, loss = 2)
-        circ.add_ps(1, phi = 0.3)
-        circ.add_bs(1, loss = 2)
-        circ.add_bs(2, loss = 2)
-        circ.add_ps(1, phi = 0.5)
-        circ.add_bs(1, loss = 2)
-        sim = Simulator(circ)
-        results = sim.simulate(State([1,1,0,0]), State([1,0,0,1]))
-        x = results.array[0,0]
-        assert x == pytest.approx(-0.19016315330615347-0.05882435665766534j), 8
-        set_statistic_type("bosonic")
-        
     def test_circuit_update(self):
         """Used to check circuit updates affect simulator results."""
         unitary = Unitary(random_unitary(4))
@@ -201,22 +182,3 @@ class TestSimulator:
         with pytest.raises(PhotonNumberError):
             sim.simulate([State([1,0,1,0]), State([0,1,0,1])],
                          [State([1,0,1,0]), State([0,1,0,0])])
-            
-    def test_invalid_fermionic_state(self):
-        """
-        Confirms an error is raised when an incorrect state is provided to the
-        simulator with fermionic statistics.
-        """
-        set_statistic_type("fermionic")
-        # Create simulator and simulate with incorrect input and outputs
-        unitary = Unitary(random_unitary(4))
-        sim = Simulator(unitary)
-        with pytest.raises(ValueError):
-            sim.simulate(State([2,0,1,0]))
-        with pytest.raises(ValueError):
-            sim.simulate(State([1,1,1,0]), [State([2,0,1,0]),State([1,0,1,1])])
-        set_statistic_type("bosonic")
-        
-    def teardown_method(self):
-        """Reset stats to bosonic after all calculation."""
-        set_statistic_type("bosonic")

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .backend import Backend
-from ..utils import fock_basis, get_statistic_type
+from ..utils import fock_basis
 from ...sdk import State
 from ...sdk.circuit.circuit_compiler import CompiledCircuit
 
@@ -39,7 +39,6 @@ class ProbabilityDistributionCalc:
             dict : The calculated output probability distribution.
             
         """
-        stats_type = get_statistic_type()
         pdist = {}
         # Loop over each possible input
         for istate, prob in inputs.items():
@@ -47,13 +46,12 @@ class ProbabilityDistributionCalc:
             if circuit.loss_modes > 0:
                 istate = istate + State([0]*circuit.loss_modes)
             # For a given input work out all possible outputs
-            out_states = fock_basis(len(istate), istate.n_photons, stats_type)
+            out_states = fock_basis(len(istate), istate.n_photons)
             for ostate in out_states:
                 # Skip any zero photon states
                 if sum(ostate[:circuit.n_modes]) == 0:
                     continue
-                p = Backend.calculate(circuit.U_full, istate.s, ostate, 
-                                      stats_type)
+                p = Backend.calculate(circuit.U_full, istate.s, ostate)
                 if abs(p)**2 > 0:
                     # Only care about non-loss modes
                     ostate = State(ostate[:circuit.n_modes])
@@ -88,7 +86,6 @@ class ProbabilityDistributionCalc:
             dict : The calculated output probability distribution.
             
         """
-        stats_type = get_statistic_type()
         # Determine the input state combinations given the labels
         unique_inputs = set()
         input_combinations = {}
@@ -118,13 +115,12 @@ class ProbabilityDistributionCalc:
                 istate = istate + State([0]*circuit.loss_modes) 
             pdist = {}
             # For a given input work out all possible outputs
-            out_states = fock_basis(len(istate), istate.n_photons, stats_type)
+            out_states = fock_basis(len(istate), istate.n_photons)
             for ostate in out_states:
                 # Skip any zero photon states
                 if sum(ostate[:circuit.n_modes]) == 0:
                     continue
-                p = Backend.calculate(circuit.U_full, istate.s, ostate, 
-                                      stats_type)
+                p = Backend.calculate(circuit.U_full, istate.s, ostate)
                 if abs(p)**2 > 0:
                     # Only care about non-loss modes
                     ostate = State(ostate[:circuit.n_modes])

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .backend import Backend
-from ..utils import fock_basis, get_statistic_type
+from ..utils import fock_basis
 from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
 from ...sdk import State, Circuit
@@ -74,12 +74,6 @@ class Analyzer:
         """
         Set heralded modes for the circuit
         """
-        # Check n_photons <= 1 for fermionic case
-        if get_statistic_type() == "fermionic":
-            if n_photons > 1:
-                raise ValueError(
-                    "Heralding photons should be one or less when using " 
-                    "fermionic statistics.")
         if out_mode is None:
             out_mode = in_mode
         if type(in_mode) != int or type(out_mode) != int:
@@ -130,7 +124,6 @@ class Analyzer:
                 values between the provided inputs/outputs. 
             
         """
-        self.__stats_type = get_statistic_type()
         self.__circuit_built = self.circuit._build()
         n_modes = self.__circuit_built.n_modes - len(self.in_heralds)
         if self.in_heralds != self.out_heralds:
@@ -178,7 +171,7 @@ class Analyzer:
                 # No loss case
                 if not self.__circuit_built.loss_modes:
                     p = Backend.calculate(self.__circuit_built.U_full, ins.s, 
-                                          outs.s, self.__stats_type)
+                                          outs.s)
                     probs[i, j] += abs(p)**2
                 # Lossy case
                 else:
@@ -187,7 +180,7 @@ class Analyzer:
                         outs = (outs + 
                                 State([0]*self.__circuit_built.loss_modes))
                         p = Backend.calculate(self.__circuit_built.U_full, 
-                                              ins.s, outs.s, self.__stats_type)
+                                              ins.s, outs.s)
                         probs[i, j] += abs(p)**2
                     # Otherwise
                     else:
@@ -200,14 +193,11 @@ class Analyzer:
                                 "number.")
                         # Find loss states and find probability of each
                         loss_states = fock_basis(
-                            self.__circuit_built.loss_modes, n_loss, 
-                            self.__stats_type
-                            )
+                            self.__circuit_built.loss_modes, n_loss)
                         for ls in loss_states:
                             fs = outs + State(ls)
                             p = Backend.calculate(self.__circuit_built.U_full, 
-                                                  ins.s, fs.s, 
-                                                  self.__stats_type)
+                                                  ins.s, fs.s)
                             probs[i, j] += abs(p)**2       
         return probs
     
@@ -269,12 +259,6 @@ class Analyzer:
         full_inputs = []
         # Check dimensions of input and add heralded photons
         for state in inputs:
-            # Also check input state is valid in fermionic case
-            if self.__stats_type == "fermionic":
-                if max(state) > 1:
-                    raise ValueError(
-                        "Max number of photons per mode must be 1 when using "
-                        "fermionic statistics.")
             if len(state) != n_modes:
                 raise ModeMismatchError(
                     "Input states are of the wrong dimension. Remember to "
@@ -295,17 +279,12 @@ class Analyzer:
         """
         # Get all possible outputs for the non-herald modes
         if not self.__circuit_built.loss_modes:            
-            outputs = fock_basis(n_modes, n_photons, self.__stats_type)
+            outputs = fock_basis(n_modes, n_photons)
         # Combine all n < n_in for lossy case
         else:
             outputs = []
             for n in range(0, n_photons+1):
-                outputs += fock_basis(n_modes, n, self.__stats_type)
-            # Remove invalid fermionic outputs in case where this is not enough
-            # loss modes to support a potential lossy output
-            if self.__stats_type == "fermionic":
-                outputs = [o for o in outputs if 
-                           sum(o)+self.__circuit_built.loss_modes >= n_photons]
+                outputs += fock_basis(n_modes, n)
         # Filter outputs according to post selection and add heralded photons
         filtered_outputs = []
         full_outputs = []

@@ -51,7 +51,3 @@ from .utils import *
 __all__ = ["Simulator", "Sampler", "fidelity", "Source", "Detector", 
            "Analyzer", "EmulatorError", "QuickSampler", 
            "set_statistic_type"]
-
-# Store type of sampling statistics to use
-__settings = {}
-__settings["statistic_type"] = "bosonic"

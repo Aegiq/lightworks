@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .backend import Backend
-from ..utils import fock_basis, get_statistic_type
+from ..utils import fock_basis
 from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
 from ...sdk import State, Circuit
@@ -78,7 +78,6 @@ class Simulator:
                 state used to create the array.
             
         """
-        self.__stats_type = get_statistic_type()
         circuit = self.circuit._build()
         # Convert state to list of States if not provided for single state case
         if type(inputs) is State:
@@ -97,8 +96,7 @@ class Simulator:
         for i, ins in enumerate(inputs):
             for j, outs in enumerate(outputs):
                 amplitudes[i, j] = Backend.calculate(circuit.U_full, 
-                                                     ins.s, outs.s, 
-                                                     self.__stats_type)
+                                                     ins.s, outs.s)
         if circuit.loss_modes > 0:
             inputs = [s[:circuit.n_modes] for s in inputs]
             outputs = [s[:circuit.n_modes] for s in outputs]
@@ -116,13 +114,7 @@ class Simulator:
             # Ensure correct type
             if not isinstance(state, State):
                 raise TypeError(
-                    "inputs should be a State or list of State objects.")
-            # Fermionic checks
-            if self.__stats_type == "fermionic":
-                if max(state) > 1:
-                    raise ValueError(
-                        "Max number of photons per mode must be 1 when using "
-                        "fermionic statistics.")   
+                    "inputs should be a State or list of State objects.")  
             # Dimension check
             if len(state) != self.circuit.n_modes:
                 raise ModeMismatchError(
@@ -144,8 +136,7 @@ class Simulator:
                 raise PhotonNumberError(
                     "Mismatch in total photon number between inputs, this is "
                     "not currently supported by the Simulator.")
-            outputs = fock_basis(self.circuit.n_modes, max(ns), 
-                                 self.__stats_type)
+            outputs = fock_basis(self.circuit.n_modes, max(ns))
             outputs = [State(s) for s in outputs]
         # Otherwise check provided outputs
         else:
@@ -157,12 +148,6 @@ class Simulator:
                 if not isinstance(state, State):
                     raise TypeError(
                         "outputs should be a State or list of State objects.")  
-                # Fermionic checks
-                if self.__stats_type == "fermionic":
-                    if max(state) > 1:
-                        raise ValueError(
-                            "Max number of photons per mode must be 1 when "
-                            "using fermionic statistics.")
                 # Dimension check
                 if len(state) != self.circuit.n_modes:
                     raise ModeMismatchError(

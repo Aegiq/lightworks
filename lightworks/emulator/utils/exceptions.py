@@ -34,20 +34,24 @@ class ResultCreationError(EmulatorError):
     """
     For specific errors which occur when using creating a Result object.
     """
+    pass
     
 class BackendError(EmulatorError):
     """
     Raised when errors occur in the Backend object.
     """
+    pass
     
 class ModeMismatchError(EmulatorError):
     """
     For use in simulation objects when there is a mode mismatch between 
     provided states/circuit.
     """
+    pass
     
 class PhotonNumberError(EmulatorError):
     """
     For use in simulation objects when there is a photon number mismatch 
     between inputs and/or outputs.
     """
+    pass

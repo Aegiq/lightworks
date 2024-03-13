@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from lightworks import State, Circuit, Unitary, random_unitary, Parameter
-from lightworks.emulator import Analyzer, set_statistic_type
+from lightworks.emulator import Analyzer
 
 import pytest
 
@@ -36,10 +36,6 @@ class TestAnalyzer:
             self.lossy_circuit.add_ps(m, phi = i)
             self.lossy_circuit.add_bs(m, loss = 0.6 + 0.1*i)
             self.lossy_circuit.add_ps(m+1, phi = 3*i)
-            
-    def teardown_class(self) -> None:
-        """Reset stats to bosonic after all calculation."""
-        set_statistic_type("bosonic")
             
     def test_hom(self):
         """Checks basic hom and confirms probability of |2,0> is 0.5."""
@@ -170,54 +166,3 @@ class TestAnalyzer:
         analyzer = Analyzer(circuit)
         with pytest.raises(TypeError):
             analyzer.circuit = random_unitary(5)
-            
-    def test_analyzer_fermionic_outputs(self):
-        """
-        Confirm that the analyzer with fermionic statistics produces only 
-        single photon outputs.
-        """ 
-        set_statistic_type("fermionic")
-        # Build analyzer
-        analyzer = Analyzer(self.lossy_circuit)
-        analyzer.set_herald(3, 0)
-        results = analyzer.analyze(State([1,0,1]))
-        # Check results
-        for s in results[:]:
-            if max(s) > 1:
-                pytest.fail("Multi-photon state found in a mode.")
-        set_statistic_type("bosonic")
-        
-    def test_analyzer_fermionic_value(self):
-        """
-        Confirm that the analyzer with fermionic statistics produces known 
-        output values.
-        """ 
-        set_statistic_type("fermionic")
-        # Build analyzer
-        analyzer = Analyzer(self.lossy_circuit)
-        analyzer.set_herald(3, 0)
-        analyzer.set_post_selection(lambda s: s[0] == 0)
-        results = analyzer.analyze(State([1,0,1]))
-        # Check results
-        p = results[State([0,1,0])]
-        assert pytest.approx(p, 1e-8) == 0.06216965933376453
-        # Also check performance metric
-        assert pytest.approx(results.performance, 1e-8) == 0.6892747403578104
-        set_statistic_type("bosonic")
-        
-    def test_analyzer_fermionic_invalid_input(self):
-        """
-        Check an error is raised when a state with multi-photons on the same
-        mode is attempted to be used with the analyzer, and also when a 
-        multi-photon state is used for heralding.
-        """
-        set_statistic_type("fermionic")
-        # Build analyzer
-        analyzer = Analyzer(self.lossy_circuit)
-        # Multi-photon input
-        with pytest.raises(ValueError):
-            results = analyzer.analyze(State([2,0,1]))
-        # Multi-photon herald
-        with pytest.raises(ValueError):
-            analyzer.set_herald(3, 2)
-        set_statistic_type("bosonic")

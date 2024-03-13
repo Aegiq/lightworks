@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .probability_distribution import ProbabilityDistributionCalc as PDC
-from ..utils import get_statistic_type, ModeMismatchError
+from ..utils import ModeMismatchError
 from ..results import SamplingResult
 from ..components import Source, Detector
 from ...sdk import State, Circuit
@@ -132,13 +132,12 @@ class Sampler:
                 raise ValueError(
                     "Mismatch in number of modes between input and circuit.")
             # Check inputs are valid depending on the statistics 
-            self._check_stats_type()
             all_inputs = self.source._build_statistics(self.input_state)
             if isinstance(next(iter(all_inputs)), State):
                 pdist = PDC.state_prob_calc(self.circuit._build(), all_inputs)
             else:
                 pdist = PDC.annotated_state_prob_calc(self.circuit._build(), 
-                                                    all_inputs)
+                                                      all_inputs)
             # Special case to catch an empty distribution
             if not pdist:
                 pdist = {State([0]*self.circuit.n_modes) : 1}
@@ -353,16 +352,6 @@ class Sampler:
             pcon += p
             cdist[s] = pcon/total
         return cdist
-    
-    def _check_stats_type(self) -> str:
-        """
-        Returns the current stats type and also performs some checking that the
-        currently set values are valid.
-        """
-        stats_type = get_statistic_type()
-        if stats_type == "fermionic":
-            self._fermionic_checks(self.input_state, self.source)
-        return stats_type 
     
     def _fermionic_checks(self, in_state: State, source: Source) -> None:
         """Perform additional checks when doing fermionic sampling."""

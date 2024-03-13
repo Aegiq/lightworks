@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from lightworks import State, Unitary, Circuit, random_unitary, Parameter
-from lightworks.emulator import set_statistic_type, ModeMismatchError
+from lightworks.emulator import ModeMismatchError
 from lightworks.emulator import Sampler, Source, Detector
 
 import pytest
@@ -376,64 +376,3 @@ class TestSampler:
         sampler = Sampler(circuit, State([1,0,1,0]))
         with pytest.raises(TypeError):
             sampler.detector = random_unitary(4)
-            
-    def test_fermionic_sampling_output(self):
-        """
-        Checks that fermionic sampling behaves as expected, returning only 
-        single photon states.
-        """
-        set_statistic_type("fermionic")
-        circuit = Unitary(random_unitary(4))
-        # Create sampler and get results
-        sampler = Sampler(circuit, State([1,1,1,0]))
-        results = sampler.sample_N_inputs(10000)
-        # Then check no multi-photon states are present        
-        for s in results:
-            if max(s) > 1:
-                pytest.fail("Multiple photons present in a single mode.")
-        # Reset statistics to bosonic
-        set_statistic_type("bosonic")
-        
-    def test_fermionic_sampling_values(self):
-        """Checks that fermionic sampling results remain consistent."""
-        set_statistic_type("fermionic")
-        circuit = Unitary(random_unitary(4, seed = 99))
-        # Create sampler and check calculated probability is correct
-        sampler = Sampler(circuit, State([1,0,1,0]))
-        p = sampler.probability_distribution[State([1,0,1,0])]
-        assert p == pytest.approx(0.1846147449203965), 8
-        # Reset statistics to bosonic
-        set_statistic_type("bosonic")
-        
-    def test_invalid_input_fermionic_sampling(self):
-        """
-        Confirm an error is raised when an invalid input is used for fermionic 
-        sampling.
-        """
-        set_statistic_type("fermionic")
-        circuit = Unitary(random_unitary(4, seed = 99))
-        # Create sampler and calculate probability distribution to raise error
-        sampler = Sampler(circuit, State([2,0,0,0]))
-        with pytest.raises(ValueError):
-            sampler.probability_distribution
-        # Reset statistics to bosonic
-        set_statistic_type("bosonic")
-        
-    def test_invalid_source_fermionic_sampling(self):
-        """
-        Confirm an error is raised when an invalid input is used for fermionic 
-        sampling.
-        """
-        set_statistic_type("fermionic")
-        circuit = Unitary(random_unitary(4, seed = 99))
-        # Create sampler and calculate probability distribution to raise error
-        sampler = Sampler(circuit, State([1,0,1,0]), 
-                          source = Source(purity = 0.9))
-        with pytest.raises(ValueError):
-            sampler.probability_distribution
-        # Reset statistics to bosonic
-        set_statistic_type("bosonic")
-        
-    def teardown_method(self) -> None:
-        """Reset stats to bosonic after all calculation."""
-        set_statistic_type("bosonic")

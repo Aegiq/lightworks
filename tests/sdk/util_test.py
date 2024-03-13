@@ -16,7 +16,6 @@ from lightworks import random_unitary, random_permutation, Circuit
 from lightworks import db_loss_to_transmission, transmission_to_db_loss
 from lightworks.sdk import check_unitary
 from lightworks.sdk.utils import permutation_mat_from_swaps_dict
-from lightworks.emulator import set_statistic_type, get_statistic_type
 
 import pytest
 from numpy import identity, round
@@ -57,25 +56,6 @@ class TestUtil:
         assert check_unitary(identity(8))
         assert check_unitary(identity(8, dtype=complex))
         
-    def test_check_default_statistic(self):
-        """Check that the default statistic type is bosonic."""
-        assert "bosonic" == get_statistic_type()
-        
-    def test_update_statistic(self):
-        """
-        Check that the statistic type can be switched between bosonic and
-        fermionic.
-        """
-        set_statistic_type("fermionic")
-        assert "fermionic" == get_statistic_type()
-        
-    def test_incorrect_statistic_update(self):
-        """
-        Confirms that only valid values can be assigned to statistic type.
-        """
-        with pytest.raises(ValueError):
-            set_statistic_type("not_bosonic")
-        
     def test_swaps_to_permutations(self):
         """
         Checks that conversion from swaps dict to permutation matrix works as 
@@ -106,7 +86,3 @@ class TestUtil:
         unit tests failing."""
         seed(999)
         assert random() == pytest.approx(0.7813468849570298), 8
-        
-    def teardown_method(self):
-        """Reset stats to bosonic after all tests."""
-        set_statistic_type("bosonic")

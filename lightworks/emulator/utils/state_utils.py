@@ -16,15 +16,9 @@
 Script to store various useful functions for the simulation aspect of the code.
 """
 
-def fock_basis(N: int, n: int, statistic_type: str) -> list:
-    """Returns the Fock basis for n photons in N modes for either bosonic of
-    fermionic statistics."""
-    if statistic_type == "bosonic":
-        return list(_sums(N,n))
-    elif statistic_type == "fermionic":
-        return _fermionic_basis(N, n)
-    else:
-        raise ValueError("statistic_type should be 'bosonic' or 'fermionic'.")
+def fock_basis(N: int, n: int) -> list:
+    """Returns the Fock basis for n photons in N modes."""
+    return list(_sums(N,n))
     
 def _fermionic_basis(N,n):
     """This returns the possible states of n fermions in N modes as vectors."""
