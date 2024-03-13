@@ -205,8 +205,8 @@ class Sampler:
         
         Returns:
         
-            Result : A dictionary containing the different output states and 
-                the number of counts for each one.
+            SamplingResult : A dictionary containing the different output 
+                states and the number of counts for each one.
                     
         """
         # Create always true herald if one isn't provided
@@ -259,8 +259,8 @@ class Sampler:
                                   
         Returns:
         
-            Result : A dictionary containing the different output states and 
-                the number of counts for each one.
+            SamplingResult : A dictionary containing the different output 
+                states and the number of counts for each one.
                                          
         """
         # Create always true herald if one isn't provided

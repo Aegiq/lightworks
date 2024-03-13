@@ -126,8 +126,8 @@ class Analyzer:
                         
         Returns:
         
-            dict : A dictionary containing an array of probability values 
-                between the provided inputs/outputs. 
+            SimulationResult : A dictionary containing an array of probability 
+                values between the provided inputs/outputs. 
             
         """
         self.__stats_type = get_statistic_type()

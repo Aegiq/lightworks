@@ -171,7 +171,8 @@ class QuickSampler:
         return self.detector._get_output(state)
     
     
-    def sample_N_outputs(self, N: int, seed: int|None = None) -> SamplingResult:
+    def sample_N_outputs(self, N: int, 
+                         seed: int|None = None) -> SamplingResult:
         """
         Function to sample a state from the calculated provided distribution 
         many times, producing N outputs which meet any criteria.
@@ -186,8 +187,8 @@ class QuickSampler:
         
         Returns:
         
-            Result : A dictionary containing the different output states and 
-                the number of counts for each one.
+            SamplingResult : A dictionary containing the different output 
+                states and the number of counts for each one.
                     
         """
         pdist = self.probability_distribution

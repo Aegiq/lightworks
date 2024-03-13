@@ -72,10 +72,10 @@ class Simulator:
             
         Returns:
         
-            Result : A dictionary containing the calculated probability 
-                amplitudes, where the first index of the array corresponds to 
-                the input state, as well as the input and output state used to 
-                create the array.
+            SimulationResult : A dictionary containing the calculated 
+                probability amplitudes, where the first index of the array 
+                corresponds to the input state, as well as the input and output
+                state used to create the array.
             
         """
         self.__stats_type = get_statistic_type()
