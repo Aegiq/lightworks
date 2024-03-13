@@ -49,5 +49,4 @@ from .simulation import *
 from .utils import *
 
 __all__ = ["Simulator", "Sampler", "fidelity", "Source", "Detector", 
-           "Analyzer", "EmulatorError", "QuickSampler", 
-           "set_statistic_type"]
+           "Analyzer", "QuickSampler"]
