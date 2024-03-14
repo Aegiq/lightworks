@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from .display_components_mpl import DisplayComponentsMPL
+from ..utils import DisplayError
 
 from typing import Any
 import matplotlib.pyplot as plt
@@ -80,8 +81,8 @@ class DrawCircuitMPL(DisplayComponentsMPL):
                 self._add_bs(m1, m2, ref)
             elif c == "LC" and self.display_loss:
                 self._add_loss(modes, params)
-            elif c == "segment":
-                self._add_segment(modes)
+            elif c == "barrier":
+                self._add_barrier(modes)
             elif c == "mode_swaps":
                 self._add_mode_swaps(modes)
             elif c == "unitary":
@@ -107,9 +108,9 @@ class DrawCircuitMPL(DisplayComponentsMPL):
         self.ax.set_yticks(range(0, N))
         if self.mode_labels is not None:
             if len(self.mode_labels) != N:
-                msg = """Length of provided mode labels list should be equal to
-                         the number of modes."""
-                raise ValueError(" ".join(msg.split()))
+                raise DisplayError(
+                    "Length of provided mode labels list should be equal to "
+                    "the number of modes.")
             self.ax.set_yticklabels(self.mode_labels)
         self.ax.set_xticks([])
 

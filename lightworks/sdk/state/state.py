@@ -40,16 +40,10 @@ class State:
         self.__n_modes = len(state)
         return
     
-    def num(self) -> int:
+    @property
+    def n_photons(self) -> int:
         """Returns the number of photons in a State."""
         return sum(self.__s)
-    
-    def merge(self, merge_state: "State") -> "State":
-        """Combine two states, summing the number of photons per mode."""
-        if self.__n_modes == merge_state.n_modes:
-            return State([n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)])
-        else:
-            raise ValueError("Merged states must be the same length.")
         
     @property
     def s(self) -> list:
@@ -58,8 +52,7 @@ class State:
     
     @s.setter
     def s(self, value: Any) -> None:
-        msg = "State value should not be modified directly."
-        raise StateError(msg)
+        raise StateError("State value should not be modified directly.")
     
     @property
     def n_modes(self) -> int:
@@ -68,8 +61,14 @@ class State:
     
     @n_modes.setter
     def n_modes(self, value: Any) -> None:
-        msg = "Number of modes cannot be modified."
-        raise StateError(msg)
+        raise StateError("Number of modes cannot be modified.")
+    
+    def merge(self, merge_state: "State") -> "State":
+        """Combine two states, summing the number of photons per mode."""
+        if self.__n_modes == merge_state.n_modes:
+            return State([n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)])
+        else:
+            raise ValueError("Merged states must be the same length.")
 
     def __str__(self) -> str:
         return state_to_string(self.__s)
@@ -82,13 +81,6 @@ class State:
             return State(self.__s + value.__s)
         else:
             raise TypeError("Addition only supported between states.")
-        
-    def __mul__(self, value: int) -> "State":
-        if isinstance(value, int):
-            return State(self.__s*value)
-        else:
-            msg = "Multiplication only supported with integer values."
-            raise TypeError(msg)
         
     def __eq__(self, value: "State") -> bool:
         if isinstance(value, State):

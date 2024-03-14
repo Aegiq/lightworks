@@ -13,7 +13,8 @@
 # limitations under the License.
 
 from .backend import Backend
-from ..utils import fock_basis, StateError, get_statistic_type
+from ..utils import fock_basis
+from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
 from ...sdk import State, Circuit
 
@@ -48,8 +49,8 @@ class Simulator:
     @circuit.setter
     def circuit(self, value: Circuit) -> None:
         if not isinstance(value, Circuit):
-            msg = "Provided circuit should be a Circuit or Unitary object."
-            raise TypeError(msg)
+            raise TypeError(
+                "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
     
     def simulate (self, inputs: list, 
@@ -71,13 +72,12 @@ class Simulator:
             
         Returns:
         
-            Result : A dictionary containing the calculated probability 
-                amplitudes, where the first index of the array corresponds to 
-                the input state, as well as the input and output state used to 
-                create the array.
+            SimulationResult : A dictionary containing the calculated 
+                probability amplitudes, where the first index of the array 
+                corresponds to the input state, as well as the input and output
+                state used to create the array.
             
         """
-        self.__stats_type = get_statistic_type()
         circuit = self.circuit._build()
         # Convert state to list of States if not provided for single state case
         if type(inputs) is State:
@@ -96,8 +96,7 @@ class Simulator:
         for i, ins in enumerate(inputs):
             for j, outs in enumerate(outputs):
                 amplitudes[i, j] = Backend.calculate(circuit.U_full, 
-                                                     ins.s, outs.s, 
-                                                     self.__stats_type)
+                                                     ins.s, outs.s)
         if circuit.loss_modes > 0:
             inputs = [s[:circuit.n_modes] for s in inputs]
             outputs = [s[:circuit.n_modes] for s in outputs]
@@ -114,20 +113,14 @@ class Simulator:
         for state in inputs:
             # Ensure correct type
             if not isinstance(state, State):
-                msg = "inputs should be a State or list of State objects."
-                raise TypeError(msg)
-            # Fermionic checks
-            if self.__stats_type == "fermionic":
-                if max(state) > 1:
-                    msg = """Max number of photons per mode must be 1 when
-                             using fermionic statistics."""
-                    raise ValueError(" ".join(msg.split()))   
+                raise TypeError(
+                    "inputs should be a State or list of State objects.")  
             # Dimension check
             if len(state) != self.circuit.n_modes:
-                msg = f"""One or more input states have an incorrect number of 
-                          modes, correct number of modes is 
-                          {self.circuit.n_modes}."""
-                raise StateError(" ".join(msg.split())) 
+                raise ModeMismatchError(
+                    "One or more input states have an incorrect number of "
+                    "modes, correct number of modes is "
+                    f"{self.circuit.n_modes}.") 
         return inputs
     
     def _process_outputs(self, inputs: list, 
@@ -138,13 +131,12 @@ class Simulator:
         """
         # If outputs not specified then determine all combinations
         if outputs is None:
-            ns = [s.num() for s in inputs]
+            ns = [s.n_photons for s in inputs]
             if min(ns) != max(ns):
-                msg = """Mismatch in total photon number between inputs, this 
-                         is not currently supported by the Simulator."""
-                raise StateError(" ".join(msg.split()))
-            outputs = fock_basis(self.circuit.n_modes, max(ns), 
-                                 self.__stats_type)
+                raise PhotonNumberError(
+                    "Mismatch in total photon number between inputs, this is "
+                    "not currently supported by the Simulator.")
+            outputs = fock_basis(self.circuit.n_modes, max(ns))
             outputs = [State(s) for s in outputs]
         # Otherwise check provided outputs
         else:
@@ -154,26 +146,19 @@ class Simulator:
             for state in outputs:
                 # Ensure correct type
                 if not isinstance(state, State):
-                    msg = "outputs should be a State or list of State objects."
-                    raise TypeError(msg)  
-                # Fermionic checks
-                if self.__stats_type == "fermionic":
-                    if max(state) > 1:
-                        msg = """Max number of photons per mode must be 1 when
-                                using fermionic statistics."""
-                        raise ValueError(" ".join(msg.split()))
+                    raise TypeError(
+                        "outputs should be a State or list of State objects.")  
                 # Dimension check
                 if len(state) != self.circuit.n_modes:
-                    msg = f"""One of more input states have an incorrect number
-                              of modes, correct number of modes is 
-                              {self.circuit.n_modes}."""
-                    raise StateError(" ".join(msg.split())) 
+                    raise ModeMismatchError(
+                        "One or more input states have an incorrect number of "
+                        "modes, correct number of modes is "
+                        f"{self.circuit.n_modes}.")
             # Ensure photon numbers are the same in all states - variation not 
             # currently supported
-            ns = [s.num() for s in inputs + outputs]
+            ns = [s.n_photons for s in inputs + outputs]
             if min(ns) != max(ns):
-                msg = """Mismatch in photon numbers between some 
-                         inputs/outputs, this is not currently supported in the 
-                         simulator."""
-                raise StateError(" ".join(msg.split()))
+                raise PhotonNumberError(
+                    "Mismatch in photon numbers between some inputs/outputs, "
+                    "this is not currently supported in the Simulator.")
         return inputs, outputs

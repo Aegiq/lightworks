@@ -49,12 +49,3 @@ def permutation_mat_from_swaps_dict(swaps: dict, n_modes: int) -> np.ndarray:
         permutation[j,i] = 1
     
     return permutation
-    
-def swapmat(N, m1, m2):
-    """Determine unitary to perform mode swap between two modes"""
-    U = np.identity(N)
-    U[m1, m1] = 0
-    U[m2, m1] = 1
-    U[m1, m2] = 1
-    U[m2, m2] = 0
-    return U

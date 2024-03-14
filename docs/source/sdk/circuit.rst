@@ -44,8 +44,8 @@ We can then begin to add components to the circuit, the following are included a
     * - :ref:`Loss Element <losselement>`
       - ``add_loss``
       - Mode, Loss
-    * - :ref:`Separations <separations>`
-      - ``add_separation``
+    * - :ref:`Barriers <barriers>`
+      - ``add_barrier``
       - Modes
 
 Below, a sub-section is dedicated to each component, with more information about how each component can be used and their options.
@@ -148,22 +148,22 @@ To add a loss component on mode 1 of a circuit, with value of 3dB, the method ca
 
     circuit.add_loss(1, 3)
 
-.. _separations:
+.. _barriers:
 
-Separations
+Barriers
 ^^^^^^^^^^^
 
-The ``add_separation`` method only affects how circuits are displayed by the visualization functions, and does not alter the actual functionality of the circuit. It is useful as it allows for different aspects of a circuit to be spatially separated allow for a user to see which components correspond to a particular functionality they are trying to implement. 
+The ``add_barrier`` method only affects how circuits are displayed by the visualization functions, and does not alter the actual functionality of the circuit. It is useful as it allows for different aspects of a circuit to be spatially separated allow for a user to see which components correspond to a particular functionality they are trying to implement. 
 
-When adding a separation, a list of the modes which it should be applied to is provided, alternatively if no arguments are provided to the function then it will be applied across all modes of the circuit.
+When adding a barrier, a list of the modes which it should be applied to is provided, alternatively if no arguments are provided to the function then it will be applied across all modes of the circuit.
 
 .. code-block:: Python
 
     # Apply to all circuit modes
-    circuit.add_separation()
+    circuit.add_barrier()
     
     # Apply to modes 0, 2, 4
-    circuit.add_separation([0,2,4])
+    circuit.add_barrier([0,2,4])
 
 Visualization
 -------------
@@ -176,7 +176,7 @@ Once a circuit has been created, the created configuration can be viewed with th
   
     circuit.add_bs(0, reflectivity = 0.4)
     circuit.add_loss(0, 1)
-    circuit.add_separation()
+    circuit.add_barrier()
     circuit.add_bs(2, loss = 2)
     circuit.add_ps(0, 2)
     circuit.add_mode_swaps({0:2,2:1,1:0})
@@ -191,7 +191,7 @@ The ``display`` method is then called on the circuit.
     :scale: 125%
     :align: center
 
-From the circuit above, there is a few things to note. The first is that the beam splitter across modes 2 and 3 is not inline with the other beam splitter, this is directly as a result of the ``add_separation`` method used in the circuit, which creates a horizontal distinction between them. It may be useful to recreate this circuit and remove the separation so the effect of this can be seen. The other thing to note is that the loss elements, both those included with the beam splitter and the dedicated ``add_loss`` call are not shown. This is because we need to use the display_loss option to choose to show this. Implementing this option yields:
+From the circuit above, there is a few things to note. The first is that the beam splitter across modes 2 and 3 is not inline with the other beam splitter, this is directly as a result of the ``add_barrier`` method used in the circuit, which creates a horizontal distinction between them. It may be useful to recreate this circuit and remove the barrier so the effect of this can be seen. The other thing to note is that the loss elements, both those included with the beam splitter and the dedicated ``add_loss`` call are not shown. This is because we need to use the display_loss option to choose to show this. Implementing this option yields:
 
 .. code-block:: Python
   

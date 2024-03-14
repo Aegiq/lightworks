@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ..utils import DisplayError
+
 import drawsvg as draw
 import numpy as np
 
@@ -171,9 +173,9 @@ class SVGDrawSpec:
         
         return
     
-    def _add_segment(self, modes: list) -> None:
+    def _add_barrier(self, modes: list) -> None:
         """
-        Add a segment which will separate different parts of the circuit. This
+        Add a barrier which will separate different parts of the circuit. This
         is applied to the provided modes.
         """
         max_loc = max([self.locations[m] for m in modes])
@@ -307,7 +309,7 @@ class DisplayComponentsSVG:
             ta = "end"
             db = "middle"
         else:
-            raise ValueError("Alignment value not recognised.")
+            raise DisplayError("Alignment value not recognised.")
         t = draw.Text(text, size, x, y, fill = colour, text_anchor = ta,
                       dominant_baseline = db, 
                       transform = f"rotate({rotation}, {x}, {y})")

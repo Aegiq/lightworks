@@ -46,9 +46,27 @@ class AnnotatedState:
         self.__n_modes = len(state)
         return
     
-    def num(self) -> int:
+    @property
+    def n_photons(self) -> int:
         """Returns the number of photons in a State."""
         return sum([len(s) for s in self.__s])
+    
+    @property
+    def s(self) -> None:
+        return deepcopy(self.__s)
+    
+    @s.setter
+    def s(self, value: Any) -> None:
+        raise AnnotatedStateError(
+            "State value should not be modified directly.")
+    
+    @property
+    def n_modes(self) -> None:
+        return self.__n_modes
+    
+    @n_modes.setter
+    def n_modes(self, value: Any) -> None:
+        raise AnnotatedStateError("Number of modes cannot be modified.")
     
     def merge(self, merge_state: "AnnotatedState") -> "AnnotatedState":
         """Combine two states, summing the number of photons per mode."""
@@ -57,24 +75,6 @@ class AnnotatedState:
                                                              merge_state.s)])
         else:
             raise ValueError("Merged states must be the same length.")
-    
-    @property
-    def s(self) -> None:
-        return deepcopy(self.__s)
-    
-    @s.setter
-    def s(self, value: Any) -> None:
-        msg = "State value should not be modified directly."
-        raise AnnotatedStateError(msg)
-    
-    @property
-    def n_modes(self) -> None:
-        return self.__n_modes
-    
-    @n_modes.setter
-    def n_modes(self, value: Any) -> None:
-        msg = "Number of modes cannot be modified."
-        raise AnnotatedStateError(msg)
     
     def __str__(self) -> str:
         return annotated_state_to_string(self.__s)
@@ -86,8 +86,8 @@ class AnnotatedState:
         if isinstance(value, AnnotatedState):
             return AnnotatedState(self.__s + value.__s)
         else:
-            msg = "Addition only supported between annotated states."
-            raise TypeError(msg)
+            raise TypeError(
+                "Addition only supported between annotated states.")
         
     def __eq__(self, value: "AnnotatedState") -> bool:
         if isinstance(value, AnnotatedState):
@@ -102,8 +102,8 @@ class AnnotatedState:
         return self.__n_modes
     
     def __setitem__(self, key: Any, value: Any) -> None:
-        msg = "AnnotatedState object does not support item assignment."
-        raise AnnotatedStateError(msg)
+        raise AnnotatedStateError(
+            "AnnotatedState object does not support item assignment.")
     
     def __getitem__(self, indices: int | slice) -> "AnnotatedState":
         if isinstance(indices, slice):

@@ -13,42 +13,57 @@
 # limitations under the License.
 
 """
-Contains all custom exceptions created for the emulator
+Defines all custom exceptions used as part of the SDK section of lightworks.
+In general, the approach is to use the built-in exceptions where possible, but
+provide custom exceptions where the extra context would be useful, or it may 
+cause confusion as to the root of an issue if a generic type is used.
 """
 
-class SDKError(Exception):
+class LightworksError(Exception):
     """
-    Generic error for SDK
+    Generic error from which all other errors are derived.
     """
     pass
 
-class StateError(SDKError):
+class StateError(LightworksError):
     """
     Error relating to issues with a provided State
     """
     pass
 
-class CircuitError(SDKError):
-    """
-    For all errors related to circuits.
-    """
-    pass
-
-class ModeRangeError(CircuitError):
+class ModeRangeError(LightworksError):
     """
     Error for specific errors arising when a provided mode is outside of the 
     circuit range.
     """
     pass
 
-class CircuitCompilationError(SDKError):
+class CircuitCompilationError(LightworksError):
     """
     For all errors that arise during compilation of a circuit.
     """
     pass
 
-class CompiledCircuitError(SDKError):
+class DisplayError(LightworksError):
     """
-    For errors arising in CompiledCircuit class which do not fall under typical
-    python exceptions.
+    Used when specific errors during the Display methods. 
     """
+    pass
+
+class ParameterValueError(LightworksError):
+    """
+    For errors in the setting of a Parameter value.
+    """
+    pass
+    
+class ParameterBoundsError(LightworksError):
+    """
+    For errors in the setting of Parameter bounds.
+    """
+    pass
+
+class ParameterDictError(LightworksError):
+    """
+    Exceptions relating to ParameterDict behaviour.
+    """
+    pass

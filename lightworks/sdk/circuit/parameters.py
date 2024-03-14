@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ..utils import ParameterBoundsError, ParameterValueError
+from ..utils import ParameterDictError
+
 from typing import Any
 from numbers import Number
 from types import NoneType
@@ -55,12 +58,12 @@ class Parameter:
             raise TypeError("Bounds should be a tuple or list.")
         if bounds is not None:
             if len(bounds) != 2:
-                msg = """Bounds should have length 2, containing a min and max 
-                         value for the parameter."""
-                raise ValueError(" ".join(msg.split()))
+                raise ValueError(
+                    "Bounds should have length 2, containing a min and max "
+                    "value for the parameter.")
             if not isinstance(value, Number) or isinstance(value, bool):
-                msg = "Bounds cannot be set for non-numeric parameters."
-                raise AttributeError(msg)
+                raise ParameterBoundsError(
+                    "Bounds cannot be set for non-numeric parameters.")
             self.min_bound, self.max_bound = bounds[0], bounds[1]
         else:
             self.min_bound, self.max_bound = None, None
@@ -76,13 +79,13 @@ class Parameter:
     def min_bound(self, __value: Any) -> None:
         if __value is not None:
             if not self._isnumeric(self.__value):
-                msg = "Bounds cannot be set for non-numeric parameters."
-                raise AttributeError(msg)
+                raise ParameterBoundsError(
+                    "Bounds cannot be set for non-numeric parameters.")
             if not self._isnumeric(__value):
-                raise ValueError("Bound should be numeric or None.")
+                raise ParameterBoundsError("Bound should be numeric or None.")
             if self.__value < __value:
-                msg = "Current parameter value is below new minimum bound."
-                raise ValueError(msg)
+                raise ParameterBoundsError(
+                    "Current parameter value is below new minimum bound.")
         self.__min_bound = __value
         
     @property
@@ -94,13 +97,13 @@ class Parameter:
     def max_bound(self, __value: Any) -> None:
         if __value is not None:
             if not self._isnumeric(self.__value):
-                msg = "Bounds cannot be set for non-numeric parameters."
-                raise AttributeError(msg)
+                raise ParameterBoundsError(
+                    "Bounds cannot be set for non-numeric parameters.")
             if not self._isnumeric(__value):
-                raise ValueError("Bound should be numeric or None.")
+                raise ParameterBoundsError("Bound should be numeric or None.")
             if self.__value > __value:
-                msg = "Current parameter value is above new maximum bound."
-                raise ValueError(msg)
+                raise ParameterBoundsError(
+                    "Current parameter value is above new maximum bound.")
         self.__max_bound = __value
         
     def _isnumeric(self, __value: Any) -> bool:
@@ -123,15 +126,15 @@ class Parameter:
         # Don't allow parameter to be set to non-numeric value if bounds set
         if self.has_bounds():
             if not isinstance(value, Number) or isinstance(value, bool):
-                msg = """Parameter cannot be set to non-numeric value when 
-                         bounds are assigned to parameter."""
-                raise ValueError(" ".join(msg.split()))
+                raise ParameterValueError(
+                    "Parameter cannot be set to non-numeric value when "
+                    "bounds are assigned to parameter.")
         if self.min_bound is not None:
             if value < self.min_bound:
-                raise ValueError("Set value is below minimum bound.")
+                raise ParameterValueError("Set value is below minimum bound.")
         if self.max_bound is not None:
             if value > self.max_bound:
-                raise ValueError("Set value is above maximum bound.")
+                raise ParameterValueError("Set value is above maximum bound.")
         self.__value = value
         return
         
@@ -238,17 +241,17 @@ class ParameterDict:
         # updated in __pdict attribute.
         if key in self.__pdict:
             if isinstance(value, Parameter):
-                msg = """Cannot overwrite existing Parameter with new Parameter
-                         object."""
-                raise ValueError(" ".join(msg.split()))
+                raise ParameterDictError(
+                    "Cannot overwrite existing Parameter with new Parameter "
+                    "object.")
             self.__pdict[key].set(value)
         else:
             if isinstance(value, Parameter):
                 self.__pdict[key] = value
             else:
-                msg = """Values being assigned to new keys should be Parameter 
-                         objects."""
-                raise TypeError(" ".join(msg.split()))
+                raise ParameterDictError(
+                    "Values being assigned to new keys should be Parameter "
+                    "objects.")
         
     def __getitem__(self, key: str) -> None:
         # Custom get item to return values from __pdict attribute

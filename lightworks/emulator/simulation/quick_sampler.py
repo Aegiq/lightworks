@@ -13,10 +13,9 @@
 # limitations under the License.
 
 from .backend import Backend
-from ..utils import fock_basis, StateError, get_statistic_type
+from ..utils import fock_basis, ModeMismatchError
 from ..results import SamplingResult
 from ...sdk import State, Circuit
-from ...sdk.circuit.circuit_compiler import CompiledCircuit
 
 import numpy as np
 from random import random
@@ -73,8 +72,8 @@ class QuickSampler:
     @circuit.setter
     def circuit(self, value: Circuit) -> None:
         if not isinstance(value, Circuit):
-            msg = "Provided circuit should be a Circuit or Unitary object."
-            raise TypeError(msg)
+            raise TypeError(
+                "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
         
     @property
@@ -87,7 +86,7 @@ class QuickSampler:
         if type(value) != State:
             raise TypeError("A single input of type State should be provided.")
         if len(value) != self.circuit.n_modes:
-            raise StateError("Incorrect input length.")
+            raise ModeMismatchError("Incorrect input length.")
         self.__input_state = value
         
     @property
@@ -124,21 +123,19 @@ class QuickSampler:
         if self._check_parameter_updates():
             # Check circuit and input modes match
             if self.circuit.n_modes != len(self.input_state):
-                msg = "Mismatch in number of modes between input and circuit."
-                raise ValueError(msg)
-            # Check inputs are valid depending on the statistics and get type
-            stats_type = self._check_stats_type()
+                raise ValueError(
+                    "Mismatch in number of modes between input and circuit.")
             # For given input work out all possible outputs
             out_states = fock_basis(len(self.input_state), 
-                                    self.input_state.num(), stats_type)
+                                    self.input_state.n_photons)
             if not self.photon_counting:
                 out_states = [s for s in out_states if max(s) == 1]
             out_states = [s for s in out_states if self.herald(s)]
             if not out_states:
-                msg = "Heralding function removed all possible outputs."
-                raise ValueError(msg)
+                raise ValueError(
+                    "Heralding function removed all possible outputs.")
             # Find the probability distribution
-            pdist = self._calculate_probabiltiies(out_states, stats_type)
+            pdist = self._calculate_probabiltiies(out_states)
             # Then assign calculated distribution to attribute
             self.__probability_distribution = pdist
             # Also pre-calculate continuous distribution
@@ -172,7 +169,8 @@ class QuickSampler:
         return self.detector._get_output(state)
     
     
-    def sample_N_outputs(self, N: int, seed: int|None = None) -> SamplingResult:
+    def sample_N_outputs(self, N: int, 
+                         seed: int|None = None) -> SamplingResult:
         """
         Function to sample a state from the calculated provided distribution 
         many times, producing N outputs which meet any criteria.
@@ -187,8 +185,8 @@ class QuickSampler:
         
         Returns:
         
-            Result : A dictionary containing the different output states and 
-                the number of counts for each one.
+            SamplingResult : A dictionary containing the different output 
+                states and the number of counts for each one.
                     
         """
         pdist = self.probability_distribution
@@ -235,7 +233,7 @@ class QuickSampler:
                 self.photon_counting]
         return vals
     
-    def _calculate_probabiltiies(self, outputs: list, stats_type: str) -> dict:
+    def _calculate_probabiltiies(self, outputs: list) -> dict:
         """
         Calculate the probabilities of all of the provided outputs and returns
         this as a normalised distribution.
@@ -248,8 +246,7 @@ class QuickSampler:
         # Loop through possible outputs and calculate probability of each
         for ostate in outputs:
             p = Backend.calculate(built_circuit.U_full, in_state.s, 
-                                    ostate + [0]*built_circuit.loss_modes, 
-                                    stats_type)
+                                    ostate + [0]*built_circuit.loss_modes)
             # Add output to distribution
             if abs(p)**2 > 0:
                 pdist[State(ostate)] = abs(p)**2
@@ -271,22 +268,12 @@ class QuickSampler:
             cdist[s] = pcon
         return cdist
     
-    def _check_stats_type(self) -> str:
-        """
-        Returns the current stats type and also performs some checking that the
-        currently set values are valid.
-        """
-        stats_type = get_statistic_type()
-        if stats_type == "fermionic":
-            self._fermionic_checks(self.input_state)
-        return stats_type 
-    
     def _fermionic_checks(self, in_state):
         """Perform additional checks when doing fermionic sampling."""
         if max(in_state) > 1:
-            msg = """Max number of photons per mode must be 1 when using 
-                        fermionic statistics."""
-            raise ValueError(" ".join(msg.split()))
+            raise ValueError(
+                "Max number of photons per mode must be 1 when using "
+                "fermionic statistics.")
         
     def _check_random_seed(self, seed: Any) -> int | None:
         """Process a supplied random seed."""

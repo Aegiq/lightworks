@@ -19,7 +19,7 @@ after creation.
 
 from .circuit_compiler import CompiledCircuit, CompiledUnitary
 from .parameters import Parameter
-from ..utils import ModeRangeError, CircuitError
+from ..utils import ModeRangeError, DisplayError
 from ..utils import CircuitCompilationError
 from ..utils import unpack_circuit_spec, compress_mode_swaps
 from ..utils import convert_non_adj_beamsplitters
@@ -62,16 +62,16 @@ class Circuit:
         """Defines custom addition behaviour for two circuits."""
         if isinstance(value, Circuit):
             if self.__n_modes != value.__n_modes:
-                msg = "Two circuits to add must have the same number of modes."
-                raise ModeRangeError(msg)
+                raise ModeRangeError(
+                    "Two circuits to add must have the same number of modes.")
             # Create new circuits and combine circuits specs to create new one
             new_circ = Circuit(self.__n_modes)
             new_circ.__circuit_spec = (self.__circuit_spec + 
                                        value.__circuit_spec)
             return new_circ
         else:
-            msg = """Addition only supported between two Circuit objects."""
-            raise TypeError(msg)
+            raise TypeError(
+                "Addition only supported between two Circuit objects.")
         
     @property
     def U(self) -> np.ndarray:
@@ -139,8 +139,8 @@ class Circuit:
                                                       mode + 
                                                       circuit.__n_modes - 1)])
         else:
-            msg = "Add method only supported for Circuit or Unitary objects."
-            raise TypeError(msg)
+            raise TypeError(
+                "Add method only supported for Circuit or Unitary objects.")
         
         return
     
@@ -172,8 +172,8 @@ class Circuit:
         self._mode_in_range(mode_1)
         if mode_2 is None: mode_2 = mode_1 + 1
         if mode_1 == mode_2:
-            msg = "Beam splitter must act across two different modes."
-            raise ValueError(msg)
+            raise ModeRangeError(
+                "Beam splitter must act across two different modes.")
         self._mode_in_range(mode_2)
         self._check_loss(loss)
         # Check correct convention is given
@@ -183,10 +183,10 @@ class Circuit:
             for conv in all_convs:
                 msg += conv + ", "
             msg = msg[:-2] + "']"
-            raise CircuitError(msg)
+            raise ValueError(msg)
         self.__circuit_spec.append(["bs", (mode_1, mode_2, reflectivity, 
                                            convention)])
-        if loss > 0:
+        if isinstance(loss, Parameter) or loss > 0:
             self.add_loss(mode_1, loss)
             self.add_loss(mode_2, loss)
         
@@ -207,7 +207,7 @@ class Circuit:
         self._mode_in_range(mode)
         self._check_loss(loss)
         self.__circuit_spec.append(["ps", (mode, phi)])
-        if loss > 0:
+        if isinstance(loss, Parameter) or loss > 0:
             self.add_loss(mode, loss)
         
     def add_loss(self, mode: int, loss: float = 0) -> None:
@@ -226,14 +226,14 @@ class Circuit:
         self._check_loss(loss)
         self.__circuit_spec.append(["loss", (mode, loss)])
         
-    def add_separation(self, modes: list | None = None) -> None:
+    def add_barrier(self, modes: list | None = None) -> None:
         """
-        Adds a separation to different parts of the circuit. This is applied 
-        to the specified modes.
+        Adds a barrier to separate different parts of a circuit. This is 
+        applied to the specified modes.
         
         Args:
         
-            modes (list | None) : The modes over which the separation should be
+            modes (list | None) : The modes over which the barrier should be
                 applied to.
                 
         """
@@ -241,7 +241,7 @@ class Circuit:
             modes = [i for i in range(self.__n_modes)]
         for m in modes:
             self._mode_in_range(m)
-        self.__circuit_spec.append(["separation", tuple([modes])])
+        self.__circuit_spec.append(["barrier", tuple([modes])])
         
     def add_mode_swaps(self, swaps: dict) -> None:
         """
@@ -261,9 +261,9 @@ class Circuit:
         in_modes = sorted(list(swaps.keys()))
         out_modes = sorted(list(swaps.values()))
         if in_modes != out_modes:
-            msg = """Mode swaps not complete, dictionary keys and values should
-                     contain the same modes."""
-            raise ValueError(" ".join(msg.split()))
+            raise ValueError(
+                "Mode swaps not complete, dictionary keys and values should "
+                "contain the same modes.")
         for m in in_modes:
             self._mode_in_range(m)
         self.__circuit_spec.append(["mode_swaps", (swaps, None)])
@@ -400,15 +400,16 @@ class Circuit:
                 circuit.add_ps(*got_params)
             elif cs == "loss":
                 circuit.add_loss(*got_params)
-            elif cs == "separation":
-                circuit.add_separation(got_params[0])
+            elif cs == "barrier":
+                circuit.add_barrier(got_params[0])
             elif cs == "mode_swaps":
                 circuit.add_mode_swaps(got_params[0])
             elif cs == "unitary":
                 unitary = CompiledUnitary(params[1])
                 circuit.add(unitary, params[0])
             else:
-                raise RuntimeError("Component not recognised.")
+                raise CircuitCompilationError(
+                    "Component in circuit spec not recognised.")
         
         return circuit
     
@@ -430,9 +431,9 @@ class Circuit:
         if 0 <= mode < self.__n_modes:
             return True
         else:
-            msg = """Selected mode(s) is not within the range of the created 
-                     circuit."""
-            raise ModeRangeError(" ".join(msg.split()))
+            raise ModeRangeError(
+                "Selected mode(s) is not within the range of the created "
+                "circuit.")
         
     def _check_loss(self, loss: float) -> bool:
         """
@@ -459,7 +460,7 @@ class Circuit:
             if c in ["bs"]:
                 params[0] = params[0] + mode
                 params[1] = params[1] + mode
-            elif c == "separation":
+            elif c == "barrier":
                 params = [p+mode for p in params[0]]
                 params = tuple([params])
             elif c == "mode_swaps":
@@ -498,8 +499,8 @@ class Circuit:
             elif cs == "loss":
                 if self._display_loss_check(cparams[1]):
                     display_spec.append(("LC", cparams[0], (cparams[1])))
-            elif cs == "separation":
-                display_spec.append(("segment", cparams[0], None))
+            elif cs == "barrier":
+                display_spec.append(("barrier", cparams[0], None))
             elif cs == "mode_swaps":
                 display_spec.append(("mode_swaps", cparams[0], None))
             elif cs == "unitary":
@@ -510,7 +511,7 @@ class Circuit:
                 display_spec.append(("group", [params[2], params[3]], 
                                    (params[1])))
             else:
-                raise RuntimeError("Component not recognised.")
+                raise DisplayError("Component in circuit spec not recognised.")
             
         return display_spec
     

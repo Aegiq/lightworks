@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ..utils import ResultCreationError
 from ...sdk import State
 
 import numpy as np
@@ -37,7 +38,7 @@ class SamplingResult:
                  **kwargs) -> None:
         
         if not isinstance(input, State):
-            raise TypeError("Input state should have type State.")
+            raise ResultCreationError("Input state should have type State.")
         self.__input = input
         self.__dict = results
         self.__outputs = list(results.keys())

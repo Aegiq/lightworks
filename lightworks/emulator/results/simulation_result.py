@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ..utils import ResultCreationError
 from ...sdk import State
 
 import numpy as np
@@ -45,19 +46,19 @@ class SimulationResult:
         if result_type in ["probability", "probability_amplitude"]:
             self.__result_type = result_type
         else:
-            msg = """Valid result type not provided, should either be 
-                     'probability', 'probability_amplitude'."""
-            raise ValueError(" ".join(msg.split()))
+            raise ResultCreationError(
+                "Valid result type not provided, should either be "
+                "'probability', 'probability_amplitude'.")
         
         self.__array = np.array(results)
         self.__inputs = inputs
         self.__outputs = outputs
         if len(self.__inputs) != self.__array.shape[0]:
-            msg = "Mismatch between inputs length and array size."
-            raise ValueError(msg)
+            raise ResultCreationError(
+                "Mismatch between inputs length and array size.")
         if len(self.__outputs) != self.__array.shape[1]:
-            msg = "Mismatch between outputs length and array size."
-            raise ValueError(msg)
+            raise ResultCreationError(
+                "Mismatch between outputs length and array size.")
         
         dict_results = {}
         for i, istate in enumerate(self.__inputs):
@@ -132,8 +133,8 @@ class SimulationResult:
             # Check all aspects are valid
             if (not isinstance(istate, State) or 
                 not isinstance(ostate, (State, type(None)))):
-                msg = "Items used in slices should have type State."
-                raise ValueError(msg)
+                raise ValueError(
+                    "Items used in slices should have type State.")
             if istate in self.dictionary:
                 sub_r = self.dictionary[istate]
             else:
@@ -170,9 +171,9 @@ class SimulationResult:
         
         """
         if self.result_type == "probability_amplitude":
-            msg = """Threshold mapping cannot be applied to probability 
-                     amplitudes."""
-            raise ValueError(" ".join(msg.split()))
+            raise ValueError(
+                "Threshold mapping cannot be applied to probability "
+                "amplitudes.")
         mapped_result = {}
         for in_state in self.inputs:
             mapped_result[in_state] = {}
@@ -204,8 +205,8 @@ class SimulationResult:
         
         """
         if self.result_type == "probability_amplitude":
-            msg = "Parity mapping cannot be applied to probability amplitudes."
-            raise ValueError(msg)
+            raise ValueError(
+                "Parity mapping cannot be applied to probability amplitudes.")
         mapped_result = {}
         for in_state in self.inputs:
             mapped_result[in_state] = {}

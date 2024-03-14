@@ -13,8 +13,8 @@
 # limitations under the License.
 
 from .backend import Backend
-from ..utils import fock_basis, get_statistic_type
-from ..utils import StateError
+from ..utils import fock_basis
+from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
 from ...sdk import State, Circuit
 
@@ -65,8 +65,8 @@ class Analyzer:
     @circuit.setter
     def circuit(self, value: Circuit) -> None:
         if not isinstance(value, Circuit):
-            msg = "Provided circuit should be a Circuit or Unitary object."
-            raise TypeError(msg)
+            raise TypeError(
+                "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
     
     def set_herald(self, in_mode: int, n_photons: int = 0, 
@@ -74,12 +74,6 @@ class Analyzer:
         """
         Set heralded modes for the circuit
         """
-        # Check n_photons <= 1 for fermionic case
-        if get_statistic_type() == "fermionic":
-            if n_photons > 1:
-                msg = """Heralding photons should be one or less when using 
-                         fermionic statistics."""
-                raise ValueError(" ".join(msg.split()))
         if out_mode is None:
             out_mode = in_mode
         if type(in_mode) != int or type(out_mode) != int:
@@ -102,8 +96,7 @@ class Analyzer:
         # NOTE: If multiple lambda functions are created and passed to this 
         # using a loop this may create issues related to how lambda functions
         # use out of scope variables. See the following for more info:
-        # https://docs.python.org/3/faq/programming.html#why-do-lambdas-
-        # defined-in-a-loop-with-different-values-all-return-the-same-result
+        # https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
         if not isinstance(function, FunctionType):
             raise TypeError("Post-selection rule should be a function.")
         self.post_selects += [function]
@@ -127,24 +120,23 @@ class Analyzer:
                         
         Returns:
         
-            dict : A dictionary containing an array of probability values 
-                between the provided inputs/outputs. 
+            SimulationResult : A dictionary containing an array of probability 
+                values between the provided inputs/outputs. 
             
         """
-        self.__stats_type = get_statistic_type()
         self.__circuit_built = self.circuit._build()
         n_modes = self.__circuit_built.n_modes - len(self.in_heralds)
         if self.in_heralds != self.out_heralds:
-            msg = """Mismatch in number of heralds on the input/output modes,
-                     it is likely this results from a herald being added twice
-                     or modified."""
-            raise StateError(" ".join(msg.split()))
+            raise RuntimeError(
+                "Mismatch in number of heralds on the input/output modes, it "
+                "is likely this results from a herald being added twice or "
+                "modified.")
         # Convert state to list of States if not provided for single state case
         if type(inputs) is State:
                 inputs = [inputs] 
         # Process inputs using dedicated function
         full_inputs = self._process_inputs(inputs)
-        n_photons = sum(full_inputs[0])
+        n_photons = full_inputs[0].n_photons
         # Generate lists of possible outputs with and without heralded modes
         full_outputs, filtered_outputs = self._generate_outputs(n_modes, 
                                                                 n_photons)
@@ -179,36 +171,33 @@ class Analyzer:
                 # No loss case
                 if not self.__circuit_built.loss_modes:
                     p = Backend.calculate(self.__circuit_built.U_full, ins.s, 
-                                          outs.s, self.__stats_type)
+                                          outs.s)
                     probs[i, j] += abs(p)**2
                 # Lossy case
                 else:
                     # Photon number preserved
-                    if ins.num() == outs.num():
+                    if ins.n_photons == outs.n_photons:
                         outs = (outs + 
                                 State([0]*self.__circuit_built.loss_modes))
                         p = Backend.calculate(self.__circuit_built.U_full, 
-                                              ins.s, outs.s, self.__stats_type)
+                                              ins.s, outs.s)
                         probs[i, j] += abs(p)**2
                     # Otherwise
                     else:
                         # If n_out < n_in work out all loss mode combinations
                         # and find probability of each
-                        n_loss = ins.num() - outs.num()
+                        n_loss = ins.n_photons - outs.n_photons
                         if n_loss < 0:
-                            msg = """Output photon number larger than input 
-                                     number."""
-                            raise StateError(" ".join(msg.split()))
+                            raise PhotonNumberError(
+                                "Output photon number larger than input "
+                                "number.")
                         # Find loss states and find probability of each
                         loss_states = fock_basis(
-                            self.__circuit_built.loss_modes, n_loss, 
-                            self.__stats_type
-                            )
+                            self.__circuit_built.loss_modes, n_loss)
                         for ls in loss_states:
                             fs = outs + State(ls)
                             p = Backend.calculate(self.__circuit_built.U_full, 
-                                                  ins.s, fs.s, 
-                                                  self.__stats_type)
+                                                  ins.s, fs.s)
                             probs[i, j] += abs(p)**2       
         return probs
     
@@ -236,8 +225,8 @@ class Analyzer:
         # Check all inputs in expectation mapping
         for s in inputs:
             if s not in expected:
-                msg = f"Input state {s} not in provided expectation dict."
-                raise StateError(msg)
+                raise KeyError(
+                    f"Input state {s} not in provided expectation dict.")
         # For each input check error rate
         errors = []
         for i, s in enumerate(inputs):
@@ -263,22 +252,17 @@ class Analyzer:
         """
         n_modes = self.__circuit_built.n_modes - len(self.in_heralds)
         # Ensure all photon numbers are the same   
-        ns = [s.num() for s in inputs]
+        ns = [s.n_photons for s in inputs]
         if min(ns) != max(ns):
-            raise StateError("Mismatch in photon numbers between inputs")
+            raise PhotonNumberError(
+                "Mismatch in photon numbers between inputs")
         full_inputs = []
         # Check dimensions of input and add heralded photons
         for state in inputs:
-            # Also check input state is valid in fermionic case
-            if self.__stats_type == "fermionic":
-                if max(state) > 1:
-                    msg = """Max number of photons per mode must be 1 when 
-                             using fermionic statistics."""
-                    raise ValueError(" ".join(msg.split()))
             if len(state) != n_modes:
-                msg = ("Input states are of the wrong dimension. " + 
-                       "Remember to subtract Heralded modes.")
-                raise StateError(msg)
+                raise ModeMismatchError(
+                    "Input states are of the wrong dimension. Remember to "
+                    "subtract heralded modes.")
             full_inputs += [self._build_state(state, self.in_heralds)]
         # Add extra states for loss modes here when included
         if self.__circuit_built.loss_modes > 0:
@@ -295,17 +279,12 @@ class Analyzer:
         """
         # Get all possible outputs for the non-herald modes
         if not self.__circuit_built.loss_modes:            
-            outputs = fock_basis(n_modes, n_photons, self.__stats_type)
+            outputs = fock_basis(n_modes, n_photons)
         # Combine all n < n_in for lossy case
         else:
             outputs = []
             for n in range(0, n_photons+1):
-                outputs += fock_basis(n_modes, n, self.__stats_type)
-            # Remove invalid fermionic outputs in case where this is not enough
-            # loss modes to support a potential lossy output
-            if self.__stats_type == "fermionic":
-                outputs = [o for o in outputs if 
-                           sum(o)+self.__circuit_built.loss_modes >= n_photons]
+                outputs += fock_basis(n_modes, n)
         # Filter outputs according to post selection and add heralded photons
         filtered_outputs = []
         full_outputs = []
@@ -320,7 +299,7 @@ class Analyzer:
                 full_outputs += [fo]
         # Check some valid outputs found
         if not full_outputs:
-            msg = "No valid outputs found, consider relaxing post-selection."
-            raise ValueError(msg)
+            raise ValueError(
+                "No valid outputs found, consider relaxing post-selection.")
         
         return (full_outputs, filtered_outputs)

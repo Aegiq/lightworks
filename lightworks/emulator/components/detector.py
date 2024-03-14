@@ -41,8 +41,7 @@ class Detector:
             
     """
     def __init__(self, efficiency: float = 1, p_dark: float = 0, 
-                 photon_counting: bool = True, 
-                 preset: str | None = None) -> None:
+                 photon_counting: bool = True) -> None:
         
         # Assign to attributes
         self.efficiency = efficiency

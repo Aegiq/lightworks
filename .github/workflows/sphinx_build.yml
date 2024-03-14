@@ -1,10 +1,10 @@
 # Used to check docs can be built when pull requests are made
-name: Build-sphinx-docs
+name: Test Build Docs
 
 on:
   # Triggers the workflow on pull request events for main
   pull_request:
-    branches: [ main ]
+    branches: [main, development]
 
   # Allows workflow to be manually run from the Actions tab
   workflow_dispatch:
@@ -35,8 +35,8 @@ jobs:
       # Pandoc install required for sphinx docs
       - name: Install pandoc
         run: |
-          sudo apt update
-          sudo apt install pandoc
+          wget https://github.com/jgm/pandoc/releases/download/3.1.12.2/pandoc-3.1.12.2-1-amd64.deb
+          sudo dpkg -i pandoc-3.1.12.2-1-amd64.deb
         
       # Run sphinx build from docs folder
       - name: Build HTML

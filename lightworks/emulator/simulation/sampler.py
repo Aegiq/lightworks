@@ -13,9 +13,9 @@
 # limitations under the License.
 
 from .probability_distribution import ProbabilityDistributionCalc as PDC
-from ..utils import StateError, get_statistic_type
-from ...emulator import Source, Detector
+from ..utils import ModeMismatchError
 from ..results import SamplingResult
+from ..components import Source, Detector
 from ...sdk import State, Circuit
 
 import numpy as np
@@ -71,8 +71,8 @@ class Sampler:
     @circuit.setter
     def circuit(self, value: Circuit) -> None:
         if not isinstance(value, Circuit):
-            msg = "Provided circuit should be a Circuit or Unitary object."
-            raise TypeError(msg)
+            raise TypeError(
+                "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
         
     @property
@@ -85,7 +85,8 @@ class Sampler:
         if type(value) != State:
             raise TypeError("A single input of type State should be provided.")
         if len(value) != self.circuit.n_modes:
-            raise StateError("Incorrect input length.")
+            raise ModeMismatchError(
+                "Incorrect input length for provided circuit.")
         self.__input_state = value
         
     @property
@@ -128,16 +129,15 @@ class Sampler:
         if self._check_parameter_updates():
             # Check circuit and input modes match
             if self.circuit.n_modes != len(self.input_state):
-                msg = "Mismatch in number of modes between input and circuit."
-                raise ValueError(msg)
+                raise ValueError(
+                    "Mismatch in number of modes between input and circuit.")
             # Check inputs are valid depending on the statistics 
-            self._check_stats_type()
             all_inputs = self.source._build_statistics(self.input_state)
             if isinstance(next(iter(all_inputs)), State):
                 pdist = PDC.state_prob_calc(self.circuit._build(), all_inputs)
             else:
                 pdist = PDC.annotated_state_prob_calc(self.circuit._build(), 
-                                                    all_inputs)
+                                                      all_inputs)
             # Special case to catch an empty distribution
             if not pdist:
                 pdist = {State([0]*self.circuit.n_modes) : 1}
@@ -204,8 +204,8 @@ class Sampler:
         
         Returns:
         
-            Result : A dictionary containing the different output states and 
-                the number of counts for each one.
+            SamplingResult : A dictionary containing the different output 
+                states and the number of counts for each one.
                     
         """
         # Create always true herald if one isn't provided
@@ -226,7 +226,7 @@ class Sampler:
         for state in samples:
             # Process output state
             state = self.detector._get_output(state)
-            if herald(state) and state.num() >= min_detection:
+            if herald(state) and state.n_photons >= min_detection:
                 filtered_samples.append(state)
         results = dict(Counter(filtered_samples))
         results = SamplingResult(results, self.input_state)
@@ -258,8 +258,8 @@ class Sampler:
                                   
         Returns:
         
-            Result : A dictionary containing the different output states and 
-                the number of counts for each one.
+            SamplingResult : A dictionary containing the different output 
+                states and the number of counts for each one.
                                          
         """
         # Create always true herald if one isn't provided
@@ -278,7 +278,7 @@ class Sampler:
             new_dist = {}
             for s, p in pdist.items():
                 new_s = State([min(i,1) for i in s])
-                if sum(new_s) >= min_detection and herald(new_s):
+                if new_s.n_photons >= min_detection and herald(new_s):
                     if new_s in new_dist:
                         new_dist[new_s] += p
                     else:
@@ -286,11 +286,11 @@ class Sampler:
             pdist = new_dist
         else:
             pdist = {s:p for s, p in pdist.items() 
-                     if sum(s) >= min_detection and herald(s)}
+                     if s.n_photons >= min_detection and herald(s)}
         # Check some states are found
         if not pdist:
-            msg = "No output states compatible with provided criteria."
-            raise ValueError(msg)
+            raise ValueError(
+                "No output states compatible with provided criteria.")
         # Re-normalise distribution probabilities
         probs = np.array(list(pdist.values()))
         probs = probs/sum(probs) 
@@ -353,29 +353,19 @@ class Sampler:
             cdist[s] = pcon/total
         return cdist
     
-    def _check_stats_type(self) -> str:
-        """
-        Returns the current stats type and also performs some checking that the
-        currently set values are valid.
-        """
-        stats_type = get_statistic_type()
-        if stats_type == "fermionic":
-            self._fermionic_checks(self.input_state, self.source)
-        return stats_type 
-    
     def _fermionic_checks(self, in_state: State, source: Source) -> None:
         """Perform additional checks when doing fermionic sampling."""
         if max(in_state) > 1:
-            msg = """Max number of photons per mode must be 1 when using 
-                        fermionic statistics."""
-            raise ValueError(" ".join(msg.split()))
+            raise ValueError(
+                "Max number of photons per mode must be 1 when using " 
+                "fermionic statistics.")
         if source.purity < 1:
-            msg = "Fermionic sampling does not support non-ideal purity."
-            raise ValueError(msg)
+            raise ValueError(
+                "Fermionic sampling does not support non-ideal purity.")
         if source.indistinguishability < 1:
-            msg = """Fermionic sampling does not support indistinguishability
-                     modification."""
-            raise ValueError(" ".join(msg.split()))
+            raise ValueError(
+                "Fermionic sampling does not support indistinguishability "
+                "modification.")
         
     def _check_random_seed(self, seed: Any) -> int | None:
         """Process a supplied random seed."""

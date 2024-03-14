@@ -13,17 +13,17 @@
 # limitations under the License.
 
 from lightworks import State, Circuit
-from lightworks.emulator import Sampler, Source, Detector 
-import unittest
+from lightworks.emulator import Sampler, Source, Detector
+
 from numpy import arccos, pi
 
-class CNOTTest(unittest.TestCase):
+class TestCNOT:
     """
     Samples from a non-heralded CNOT circuit with loss, imperfect source and 
     detector to check that the correct results is produced.  
     """
     
-    def test_cnot_sample_N_inputs(self):
+    def test_cnot_sample_n_inputs(self):
         """
         Checks the correct output is produced from the CNOT gate when sampling 
         N inputs from the system. Note, very occasionally this test may fail 
@@ -43,7 +43,7 @@ class CNOTTest(unittest.TestCase):
             cnot_circuit.add_bs(m, loss = loss, reflectivity = 0.5)
             cnot_circuit.add_ps(m+1, p)
             if m in [3,4,3]:
-                cnot_circuit.add_separation()
+                cnot_circuit.add_barrier()
         # Define imperfect source and detector
         source = Source(purity = 0.99, brightness = 0.4, 
                         indistinguishability = 0.94)
@@ -61,9 +61,9 @@ class CNOTTest(unittest.TestCase):
         # reasonable fidelity, so we will assert this is measured for > 80% of
         # the total samples which met the herald condition
         eff = results[State([0,0,1,0,1,0])] / sum(results.values())
-        self.assertTrue(eff > 0.8) 
+        assert eff > 0.8
         
-    def test_cnot_sample_N_outputs(self):
+    def test_cnot_sample_n_outputs(self):
         """
         Checks the correct output is produced from the CNOT gate when sampling 
         N outputs from the system. Note, very occasionally this test may fail 
@@ -83,7 +83,7 @@ class CNOTTest(unittest.TestCase):
             cnot_circuit.add_bs(m, loss = loss, reflectivity = 0.5)
             cnot_circuit.add_ps(m+1, p)
             if m in [3,4,3]:
-                cnot_circuit.add_separation()
+                cnot_circuit.add_barrier()
         # Define imperfect source and detector
         source = Source(purity = 0.99, brightness = 0.4, 
                         indistinguishability = 0.94)
@@ -100,7 +100,4 @@ class CNOTTest(unittest.TestCase):
         # reasonable fidelity, so we will assert this is measured for > 80% of
         # the total samples which met the herald condition
         eff = results[State([0,0,1,0,1,0])] / sum(results.values())
-        self.assertTrue(eff > 0.8) 
-
-if __name__ == "__main__":
-    unittest.main()
+        assert eff > 0.8

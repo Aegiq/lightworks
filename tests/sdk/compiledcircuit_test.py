@@ -13,10 +13,11 @@
 # limitations under the License.
 
 from lightworks.sdk.circuit.circuit_compiler import CompiledCircuit
-import unittest
+
+import pytest
 from numpy import round
 
-class CompiledCircuitTest(unittest.TestCase):
+class TestCompiledCircuit:
     """
     Unit tests to confirm correct functioning of the CompiledCircuit class when
     various operations are performed.
@@ -51,8 +52,8 @@ class CompiledCircuitTest(unittest.TestCase):
         circ_add = c1 + c2
         for i in range(circ_comp.U_full.shape[0]):
             for j in range(circ_comp.U_full.shape[1]):
-                self.assertAlmostEqual(circ_comp.U_full[i,j], 
-                                       circ_add.U_full[i,j], 6)
+                assert (circ_comp.U_full[i,j] == 
+                        pytest.approx(circ_add.U_full[i,j], 1e-6))
                 
     def test_two_lossy_circuit_addition(self):
         """
@@ -87,8 +88,8 @@ class CompiledCircuitTest(unittest.TestCase):
         circ_add = c1 + c2
         for i in range(circ_comp.U_full.shape[0]):
             for j in range(circ_comp.U_full.shape[1]):
-                self.assertAlmostEqual(circ_comp.U_full[i,j], 
-                                       circ_add.U_full[i,j], 6)
+                assert (circ_comp.U_full[i,j] == 
+                        pytest.approx(circ_add.U_full[i,j], 1e-6))
                 
     def test_one_lossy_circuit_addition(self):
         """
@@ -122,8 +123,8 @@ class CompiledCircuitTest(unittest.TestCase):
         circ_add = c1 + c2
         for i in range(circ_comp.U_full.shape[0]):
             for j in range(circ_comp.U_full.shape[1]):
-                self.assertAlmostEqual(circ_comp.U_full[i,j], 
-                                       circ_add.U_full[i,j], 6)
+                assert (circ_comp.U_full[i,j] == 
+                        pytest.approx(circ_add.U_full[i,j], 1e-6))
                 
     def test_smaller_circuit_addition(self):
         """
@@ -157,7 +158,7 @@ class CompiledCircuitTest(unittest.TestCase):
         # Check unitary equivalence
         U1 = round(circ_comp.U_full, 8)
         U2 = round(c1.U_full, 8)
-        self.assertTrue((U1 == U2).all())
+        assert (U1 == U2).all()
                 
     def test_smaller_circuit_addition_grouped(self):
         """
@@ -198,7 +199,7 @@ class CompiledCircuitTest(unittest.TestCase):
         # Check unitary equivalence
         U1 = round(circ_comp.U_full, 8)
         U2 = round(c1.U_full, 8)
-        self.assertTrue((U1 == U2).all())
+        assert (U1 == U2).all()
                 
     def test_mode_modification(self):
         """
@@ -206,8 +207,5 @@ class CompiledCircuitTest(unittest.TestCase):
         not intended for the circuit and could cause issues.
         """
         circuit = CompiledCircuit(4)
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             circuit.n_modes = 6
-    
-if __name__ == "__main__":
-    unittest.main()

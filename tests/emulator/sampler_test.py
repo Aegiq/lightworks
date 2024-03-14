@@ -13,11 +13,12 @@
 # limitations under the License.
 
 from lightworks import State, Unitary, Circuit, random_unitary, Parameter
-from lightworks.emulator import StateError, set_statistic_type
+from lightworks.emulator import ModeMismatchError
 from lightworks.emulator import Sampler, Source, Detector
-import unittest
 
-class SamplerTest(unittest.TestCase):
+import pytest
+
+class TestSampler:
     """
     Unit tests to check results produced by Sampler object in the emulator.
     """
@@ -32,11 +33,11 @@ class SamplerTest(unittest.TestCase):
         sampler = Sampler(circuit, State([1,1]))
         N_sample = 100000
         results = sampler.sample_N_inputs(N_sample, seed = 21)
-        self.assertEqual(len(results), 2)
-        self.assertTrue(0.49 < results[State([2,0])]/N_sample < 0.51)
-        self.assertTrue(0.49 < results[State([0,2])]/N_sample < 0.51)
+        assert len(results) == 2
+        assert 0.49 < results[State([2,0])]/N_sample < 0.51
+        assert 0.49 < results[State([0,2])]/N_sample < 0.51
         
-    def test_hom_sample_N_outputs(self):
+    def test_hom_sample_n_outputs(self):
         """
         Checks a lossy hom experiment with sample N outputs produces outputs of
         |2,0> and |0,2>.
@@ -47,9 +48,9 @@ class SamplerTest(unittest.TestCase):
         N_sample = 100000
         results = sampler.sample_N_outputs(N_sample, seed = 54, 
                                            min_detection = 2)
-        self.assertEqual(sum(results.values()), N_sample)
-        self.assertTrue(0.49 < results[State([2,0])]/N_sample < 0.51)
-        self.assertTrue(0.49 < results[State([0,2])]/N_sample < 0.51)
+        assert sum(results.values()) == N_sample
+        assert 0.49 < results[State([2,0])]/N_sample < 0.51
+        assert 0.49 < results[State([0,2])]/N_sample < 0.51
         
     def test_known_result(self):
         """
@@ -64,7 +65,7 @@ class SamplerTest(unittest.TestCase):
         # And check output counts
         sampler = Sampler(circuit, State([1,0,0,1]))
         results = sampler.sample_N_inputs(1000)
-        self.assertEqual(results[State([0,1,1,0])], 1000)
+        assert results[State([0,1,1,0])] == 1000
         
     def test_known_result_single_sample(self):
         """
@@ -79,7 +80,7 @@ class SamplerTest(unittest.TestCase):
         # And check output counts
         sampler = Sampler(circuit, State([1,0,0,1]))
         output = sampler.sample()
-        self.assertEqual(output, State([0,1,1,0]))
+        assert output == State([0,1,1,0])
         
     def test_sampling_perfect_source(self):
         """
@@ -89,7 +90,7 @@ class SamplerTest(unittest.TestCase):
         unitary = Unitary(random_unitary(4, seed = 20))
         sampler = Sampler(unitary, State([1,0,1,0]))
         p = sampler.probability_distribution[State([0,1,1,0])]
-        self.assertAlmostEqual(p, 0.112093500, 8)
+        assert p == pytest.approx(0.112093500, 1e-8)
         
     def test_sampling_imperfect_source(self):
         """
@@ -101,7 +102,7 @@ class SamplerTest(unittest.TestCase):
                         indistinguishability = 0.9)
         sampler = Sampler(unitary, State([1,0,1,0]), source = source)
         p = sampler.probability_distribution[State([0,0,1,0])]
-        self.assertAlmostEqual(p, 0.0129992654, 8)
+        assert p == pytest.approx(0.0129992654, 1e-8)
         
     def test_sampling_2photons_in_mode_perfect_source(self):
         """
@@ -111,7 +112,7 @@ class SamplerTest(unittest.TestCase):
         unitary = Unitary(random_unitary(4, seed = 20))
         sampler = Sampler(unitary, State([0,2,0,0]))
         p = sampler.probability_distribution[State([0,1,1,0])]
-        self.assertAlmostEqual(p, 0.2875114938, 8)
+        assert p == pytest.approx(0.2875114938, 1e-8)
         
     def test_sampling_2photons_in_mode_imperfect_source(self):
         """
@@ -123,7 +124,7 @@ class SamplerTest(unittest.TestCase):
                         indistinguishability = 0.9)
         sampler = Sampler(unitary, State([0,2,0,0]), source = source)
         p = sampler.probability_distribution[State([0,0,1,0])]
-        self.assertAlmostEqual(p, 0.09767722765, 8)
+        assert p == pytest.approx(0.09767722765, 1e-8)
             
     def test_lossy_sampling_perfect_source(self):
         """
@@ -142,9 +143,9 @@ class SamplerTest(unittest.TestCase):
         # Sample from circuit
         sampler = Sampler(circuit, State([1,0,1,0]))
         p = sampler.probability_distribution[State([0,1,1,0])]
-        self.assertAlmostEqual(p, 0.01111424631, 8)
+        assert p == pytest.approx(0.01111424631, 1e-8)
         p = sampler.probability_distribution[State([0,0,0,0])]
-        self.assertAlmostEqual(p, 0.24688532527, 8)
+        assert p == pytest.approx(0.24688532527, 1e-8)
         
     def test_lossy_sampling_imperfect_source(self):
         """
@@ -165,9 +166,9 @@ class SamplerTest(unittest.TestCase):
                         indistinguishability = 0.9)
         sampler = Sampler(circuit, State([1,0,1,0]), source = source)
         p = sampler.probability_distribution[State([0,0,1,0])]
-        self.assertAlmostEqual(p, 0.03122592963, 8)
+        assert p == pytest.approx(0.03122592963, 1e-8)
         p = sampler.probability_distribution[State([0,0,0,0])]
-        self.assertAlmostEqual(p, 0.28709359025, 8)
+        assert p == pytest.approx(0.28709359025, 1e-8)
         
     def test_imperfect_detection(self):
         """Tests the behaviour of detectors with less than ideal efficiency."""
@@ -178,20 +179,20 @@ class SamplerTest(unittest.TestCase):
         results = sampler.sample_N_inputs(1000)
         undetected_photons = False
         for s, c in results.items():
-            if s.num() < 2:
+            if s.n_photons < 2:
                 undetected_photons = True
                 break
-        self.assertFalse(undetected_photons)
+        assert not undetected_photons
         # With lossy detector
         detector = Detector(efficiency = 0.5)
         sampler = Sampler(circuit, State([1,0,1,0]), detector = detector)
         results = sampler.sample_N_inputs(1000)
         undetected_photons = False
         for s, c in results.items():
-            if s.num() < 2:
+            if s.n_photons < 2:
                 undetected_photons = True
                 break
-        self.assertTrue(undetected_photons)
+        assert undetected_photons
         
     def test_detector_dark_counts(self):
         """Confirms detector dark counts are introduced as expected."""
@@ -202,20 +203,20 @@ class SamplerTest(unittest.TestCase):
         results = sampler.sample_N_inputs(1000)
         dark_counts = False
         for s, c in results.items():
-            if s.num() > 0:
+            if s.n_photons > 0:
                 dark_counts = True
                 break
-        self.assertFalse(dark_counts)
+        assert not dark_counts
         # With dark counts enabled
         detector = Detector(p_dark = 0.1)
         sampler = Sampler(circuit, State([0,0,0,0]), detector = detector)
         results = sampler.sample_N_inputs(1000)
         dark_counts = False
         for s, c in results.items():
-            if s.num() > 0:
+            if s.n_photons > 0:
                 dark_counts = True
                 break
-        self.assertTrue(dark_counts)
+        assert dark_counts
         
     def test_detector_photon_counting(self):
         """
@@ -229,22 +230,22 @@ class SamplerTest(unittest.TestCase):
         results = sampler.sample_N_inputs(1000)
         all_2_photon_states = True
         for s, c in results.items():
-            if s.num() < 2:
+            if s.n_photons < 2:
                 all_2_photon_states = False
                 break
-        self.assertTrue(all_2_photon_states)
+        assert all_2_photon_states
         # Non-photon number resolving
         detector = Detector(photon_counting = False)
         sampler = Sampler(circuit, State([0,0,0,0]), detector = detector)
         results = sampler.sample_N_inputs(1000)
         sub_2_photon_states = False
         for s, c in results.items():
-            if s.num() < 2:
+            if s.n_photons < 2:
                 sub_2_photon_states = True
                 break
-        self.assertTrue(sub_2_photon_states)
+        assert sub_2_photon_states
         
-    def test_sample_N_states_seed(self):
+    def test_sample_n_states_seed(self):
         """
         Checks that two successive function calls with a consistent seed 
         produce the same result.
@@ -253,7 +254,7 @@ class SamplerTest(unittest.TestCase):
         sampler = Sampler(circuit, State([1,0,1,0]))
         results = sampler.sample_N_inputs(5000, seed = 1)
         results2 = sampler.sample_N_inputs(5000, seed = 1)
-        self.assertEqual(results.dictionary, results2.dictionary)
+        assert results.dictionary == results2.dictionary
         
     def test_circuit_update_with_sampler(self):
         """
@@ -266,7 +267,7 @@ class SamplerTest(unittest.TestCase):
         circuit.add_bs(0)
         circuit.add_bs(2)
         p2 = sampler.probability_distribution
-        self.assertNotEqual(p1, p2)
+        assert p1 != p2
         
     def test_circuit_parameter_update_with_sampler(self):
         """
@@ -282,7 +283,7 @@ class SamplerTest(unittest.TestCase):
         p1 = sampler.probability_distribution
         p.set(0.7)
         p2 = sampler.probability_distribution
-        self.assertNotEqual(p1, p2)
+        assert p1 != p2
         
     def test_input_update_with_sampler(self):
         """
@@ -294,7 +295,7 @@ class SamplerTest(unittest.TestCase):
         p1 = sampler.probability_distribution
         sampler.input_state = State([0,1,0,1])
         p2 = sampler.probability_distribution
-        self.assertNotEqual(p1, p2)
+        assert p1 != p2
         
     def test_imperfect_source_update_with_sampler(self):
         """
@@ -310,27 +311,27 @@ class SamplerTest(unittest.TestCase):
         # Indistinguishability
         source.indistinguishability = 0.2
         p2 = sampler.probability_distribution
-        self.assertNotEqual(p1, p2)
+        assert p1 != p2
         # Purity (reset previous variable to original value)
         source.indistinguishability = 0.9
         source.purity = 0.7
         p2 = sampler.probability_distribution
-        self.assertNotEqual(p1, p2)
+        assert p1 != p2
         # Brightness
         source.purity = 0.9
         source.brightness = 0.4
         p2 = sampler.probability_distribution
-        self.assertNotEqual(p1, p2)
+        assert p1 != p2
         # Probability threshold
         source.brightness = 0.9
         source.probability_threshold = 1e-3
         p2 = sampler.probability_distribution
-        self.assertNotEqual(p1, p2)
+        assert p1 != p2
         # Return all values to defaults and check this then returns the 
         # original distribution
         source.probability_threshold = 1e-6
         p2 = sampler.probability_distribution
-        self.assertEqual(p1, p2)
+        assert p1 == p2
         
     def test_circuit_assignment(self):
         """
@@ -339,7 +340,7 @@ class SamplerTest(unittest.TestCase):
         """
         circuit = Unitary(random_unitary(4))
         sampler = Sampler(circuit, State([1,0,1,0]))
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             sampler.circuit = random_unitary(4)
                 
     def test_input_assignmnet(self):
@@ -350,10 +351,10 @@ class SamplerTest(unittest.TestCase):
         circuit = Unitary(random_unitary(4))
         sampler = Sampler(circuit, State([1,0,1,0]))
         # Incorrect type
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             sampler.input_state = [1,2,3,4]
         # Incorrect number of modes
-        with self.assertRaises(StateError):
+        with pytest.raises(ModeMismatchError):
             sampler.input_state = State([1,2,3])
             
     def test_source_assignment(self):
@@ -363,7 +364,7 @@ class SamplerTest(unittest.TestCase):
         """
         circuit = Unitary(random_unitary(4))
         sampler = Sampler(circuit, State([1,0,1,0]))
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             sampler.source = random_unitary(4)
             
     def test_detector_assignment(self):
@@ -373,71 +374,5 @@ class SamplerTest(unittest.TestCase):
         """
         circuit = Unitary(random_unitary(4))
         sampler = Sampler(circuit, State([1,0,1,0]))
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             sampler.detector = random_unitary(4)
-            
-    def test_fermionic_sampling_output(self):
-        """
-        Checks that fermionic sampling behaves as expected, returning only 
-        single photon states.
-        """
-        set_statistic_type("fermionic")
-        circuit = Unitary(random_unitary(4))
-        # Create sampler and get results
-        sampler = Sampler(circuit, State([1,1,1,0]))
-        results = sampler.sample_N_inputs(10000)
-        # Then check no multi-photon states are present        
-        for s in results:
-            if max(s) > 1:
-                self.fail("Multiple photons present in a single mode.")
-        # Reset statistics to bosonic
-        set_statistic_type("bosonic")
-        
-    def test_fermionic_sampling_values(self):
-        """Checks that fermionic sampling results remain consistent."""
-        set_statistic_type("fermionic")
-        circuit = Unitary(random_unitary(4, seed = 99))
-        # Create sampler and check calculated probability is correct
-        sampler = Sampler(circuit, State([1,0,1,0]))
-        p = sampler.probability_distribution[State([1,0,1,0])]
-        self.assertAlmostEqual(p, 0.1846147449203965, 8)
-        # Reset statistics to bosonic
-        set_statistic_type("bosonic")
-        
-    def test_invalid_input_fermionic_sampling(self):
-        """
-        Confirm an error is raised when an invalid input is used for fermionic 
-        sampling.
-        """
-        set_statistic_type("fermionic")
-        circuit = Unitary(random_unitary(4, seed = 99))
-        # Create sampler and calculate probability distribution to raise error
-        sampler = Sampler(circuit, State([2,0,0,0]))
-        with self.assertRaises(ValueError):
-            sampler.probability_distribution
-        # Reset statistics to bosonic
-        set_statistic_type("bosonic")
-        
-    def test_invalid_source_fermionic_sampling(self):
-        """
-        Confirm an error is raised when an invalid input is used for fermionic 
-        sampling.
-        """
-        set_statistic_type("fermionic")
-        circuit = Unitary(random_unitary(4, seed = 99))
-        # Create sampler and calculate probability distribution to raise error
-        sampler = Sampler(circuit, State([1,0,1,0]), 
-                          source = Source(purity = 0.9))
-        with self.assertRaises(ValueError):
-            sampler.probability_distribution
-        # Reset statistics to bosonic
-        set_statistic_type("bosonic")
-        
-    def tearDown(self) -> None:
-        """Reset stats to bosonic after all calculation."""
-        set_statistic_type("bosonic")
-        return super().tearDown()
-    
-if __name__ == "__main__":
-    
-    unittest.main()

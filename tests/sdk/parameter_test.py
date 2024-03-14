@@ -13,9 +13,12 @@
 # limitations under the License.
 
 from lightworks import Parameter, ParameterDict
-import unittest
+from lightworks import ParameterValueError, ParameterBoundsError
+from lightworks import ParameterDictError
 
-class ParameterTest(unittest.TestCase):
+import pytest
+
+class TestParameter:
     """Unit tests to test functionality of Parameter objects."""
     
     def test_parameter_creation(self):
@@ -24,7 +27,7 @@ class ParameterTest(unittest.TestCase):
         expected.
         """
         p = Parameter(1)
-        self.assertEqual(p.get(), 1)
+        assert p.get() == 1
         
     def test_parameter_defaults(self):
         """
@@ -32,15 +35,15 @@ class ParameterTest(unittest.TestCase):
         specified.
         """
         p = Parameter(1)
-        self.assertEqual(p.label, None)
-        self.assertEqual(p.min_bound, None)
-        self.assertEqual(p.max_bound, None)
+        assert p.label == None
+        assert p.min_bound == None
+        assert p.max_bound == None
         
     def test_parameter_update(self):
         """Checks that a Parameter can be updated with set method."""
         p = Parameter(1)
         p.set(2)
-        self.assertEqual(p.get(), 2)
+        assert p.get() == 2
         
     def test_bounded_parameter_creation(self):
         """
@@ -48,9 +51,9 @@ class ParameterTest(unittest.TestCase):
         error is raised when set bounds don't contain Parameter value.
         """
         p = Parameter(1, bounds = [0, 2])
-        self.assertEqual(p.min_bound, 0)
-        self.assertEqual(p.max_bound, 2)
-        with self.assertRaises(ValueError):
+        assert p.min_bound == 0
+        assert p.max_bound == 2
+        with pytest.raises(ParameterBoundsError):
             p = Parameter(3, bounds = [0,2])
     
     def test_bounded_parameter_update(self):
@@ -61,10 +64,10 @@ class ParameterTest(unittest.TestCase):
         """
         p = Parameter(1, bounds = [0, 3])
         p.set(2)
-        self.assertEqual(p.get(), 2)
-        with self.assertRaises(ValueError):
+        assert p.get() == 2
+        with pytest.raises(ParameterValueError):
             p.set(-1)
-        with self.assertRaises(ValueError):
+        with pytest.raises(ParameterValueError):
             p.set(4)
             
     def test_invalid_bound_update(self):
@@ -73,9 +76,9 @@ class ParameterTest(unittest.TestCase):
         current Parameter value would become invalid.
         """
         p = Parameter(2, bounds = [0, 3])
-        with self.assertRaises(ValueError):
+        with pytest.raises(ParameterBoundsError):
             p.max_bound = 1
-        with self.assertRaises(ValueError):
+        with pytest.raises(ParameterBoundsError):
             p.min_bound = 3
             
     def test_non_numerical_value(self):
@@ -85,8 +88,8 @@ class ParameterTest(unittest.TestCase):
         """
         p = Parameter(True)
         p.set(False)
-        self.assertEqual(p.get(), False)
-        with self.assertRaises(AttributeError):
+        assert p.get() == False
+        with pytest.raises(ParameterBoundsError):
             p = Parameter(True, bounds = [0, 1])
     
     def test_non_numerical_bound_update(self):
@@ -95,7 +98,7 @@ class ParameterTest(unittest.TestCase):
         creation.
         """
         p = Parameter(True)
-        with self.assertRaises(AttributeError):
+        with pytest.raises(ParameterBoundsError):
             p.min_bound = 0
     
     def test_bounded_value_type_updated(self):
@@ -104,15 +107,15 @@ class ParameterTest(unittest.TestCase):
         another non-numerical value.
         """
         p = Parameter(1, bounds = [0, 2])
-        with self.assertRaises(ValueError):
+        with pytest.raises(ParameterValueError):
             p.set("Test")
     
     def test_has_bounds_method(self):
         """Checks behaviour of the has_bounds method is correct."""
         p = Parameter(1)
-        self.assertFalse(p.has_bounds())
+        assert not p.has_bounds()
         p = Parameter(1, bounds = [0, 2])
-        self.assertTrue(p.has_bounds())
+        assert p.has_bounds()
         
     def test_str_return(self):
         """
@@ -120,34 +123,34 @@ class ParameterTest(unittest.TestCase):
         Parameter.
         """
         p = Parameter(1.2)
-        self.assertEqual(str(p), "1.2")
+        assert str(p) == "1.2"
         
-class ParameterDictTest(unittest.TestCase):
+class TestParameterDict:
     """Unit tests to test functionality of ParameterDict objects."""
     
     def test_dict_creation(self):
         """Checks dictionary can be created and is empty after creation."""
         pd = ParameterDict()
-        self.assertEqual(pd.params, [])
+        assert pd.params == []
         
     def test_dict_assignment(self):
         """Check initial assignment of Parameter into dictionary."""
         pd = ParameterDict()
         pd["a"] = Parameter(1)
-        self.assertEqual(pd["a"].get(), 1)
+        assert pd["a"].get() == 1
             
     def test_dict_return(self):
         """Confirms that the return when using [] is a Parameter object."""
         pd = ParameterDict()
         pd["a"] = Parameter(1)
-        self.assertTrue(isinstance(pd["a"], Parameter))
+        assert isinstance(pd["a"], Parameter)
     
     def test_parameter_update(self):
         """Test updating of parameter through assigning new value to dict."""
         pd = ParameterDict()
         pd["a"] = Parameter(1)
         pd["a"] = 2
-        self.assertEqual(pd["a"].get(), 2)
+        assert pd["a"].get() == 2
     
     def test_incorrect_set_item(self):
         """
@@ -156,10 +159,10 @@ class ParameterDictTest(unittest.TestCase):
         dictionary with another Parameter.
         """
         pd = ParameterDict()
-        with self.assertRaises(TypeError):
+        with pytest.raises(ParameterDictError):
             pd["a"] = 1
         pd["a"] = Parameter(1)
-        with self.assertRaises(ValueError):
+        with pytest.raises(ParameterDictError):
             pd["a"] = Parameter(2)
     
     def test_len_method(self):
@@ -168,7 +171,7 @@ class ParameterDictTest(unittest.TestCase):
         pd["a"] = Parameter(1)
         pd["b"] = Parameter(2)
         pd["c"] = Parameter(3)
-        self.assertEqual(len(pd), 3)
+        assert len(pd) == 3
     
     def test_has_bounds_method(self):
         """
@@ -178,9 +181,9 @@ class ParameterDictTest(unittest.TestCase):
         pd = ParameterDict()
         pd["a"] = Parameter(1)
         pd["b"] = Parameter(2)
-        self.assertFalse(pd.has_bounds())
+        assert not pd.has_bounds()
         pd["a"].min_bound = 0
-        self.assertTrue(pd.has_bounds())
+        assert pd.has_bounds()
         
     def test_params_property(self):
         """
@@ -189,21 +192,21 @@ class ParameterDictTest(unittest.TestCase):
         pd = ParameterDict()
         pd["a"] = Parameter(1)
         pd["b"] = Parameter(2)
-        self.assertEqual(pd.params, ["a", "b"])
+        assert pd.params == ["a", "b"]
         
     def test_params_modification(self):
         """Checks that params attribute cannot be modified."""
         pd = ParameterDict()
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             pd.params = ["c"]
             
     def test_in_operator(self):
         """Tests that key in ParameterDict returns the correct values."""
         pd = ParameterDict()
         pd["a"] = Parameter(1)
-        self.assertTrue("a" in pd)
-        self.assertTrue("b" not in pd)
-        self.assertFalse("b" in pd)
+        assert "a" in pd
+        assert "b" not in pd
+        assert not "b" in pd
             
     def test_remove_method(self):
         """
@@ -214,7 +217,7 @@ class ParameterDictTest(unittest.TestCase):
         pd["a"] = Parameter(1)
         pd["b"] = Parameter(2)
         pd.remove("a")
-        self.assertTrue("a" not in pd)
+        assert "a" not in pd
         
     def test_iterable_behavior(self):
         """
@@ -230,8 +233,4 @@ class ParameterDictTest(unittest.TestCase):
         for p in pd:
             params.append(p)
         # Check lists is equivalent to params attribute
-        self.assertEqual(params, pd.params)
-
-if __name__ == "__main__":
-    
-    unittest.main()
+        assert params == pd.params
