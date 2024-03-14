@@ -16,10 +16,10 @@ Key features:
 
 Python 3.10+ is required.
 
-Currently the package is not hosted on pypi, this will be added once general 1.0 release is ready. For now, installation can be achieved with:
+Lightworks can be installed through pip using the command:
 
-```console
-pip install git+https://github.com/Aegiq/lightworks
+```bash
+pip install lightworks
 ```
 
 ## Documentation
