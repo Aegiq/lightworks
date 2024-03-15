@@ -356,7 +356,7 @@ class Sampler:
         returns this.
         """
         # Store circuit unitary and input state
-        vals = [self.__circuit.U_full, self.input_state]
+        vals = [self.__circuit.U_full, self.input_state, self.backend.backend]
         # Loop through source parameters and add these as well
         for prop in ["brightness", "purity", "indistinguishability", 
                      "probability_threshold"]:
