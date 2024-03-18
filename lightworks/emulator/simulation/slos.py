@@ -8,7 +8,7 @@ class SLOS:
     Contains calculate function for SLOS method.
     """
     @staticmethod
-    def calculate(U, input_state):
+    def calculate(U, input_state: State) -> dict:
 
         p = []
         for m, n in enumerate(input_state):
@@ -26,9 +26,8 @@ class SLOS:
                 output = add_dicts(output, step_2) # Add it to the total
             input = output
 
-        # Renormalise the output with the overall factorial term
-        output_renormalised = dict_scale(input,1/np.sqrt(vector_factorial(input_state)))
-        return {key:np.abs(value)**2 for key, value in output_renormalised.items()}
+        # Renormalise the output with the overall factorial term and return
+        return dict_scale(input,1/np.sqrt(vector_factorial(input_state)))
 
 def a_i_dagger(i,v):
     """

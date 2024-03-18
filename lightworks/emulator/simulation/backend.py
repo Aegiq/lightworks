@@ -83,9 +83,9 @@ class Backend:
             for s, p in full_dist.items():
                 new_s = State(s[:circuit.n_modes])
                 if new_s in pdist:
-                    pdist[new_s] += p
+                    pdist[new_s] += abs(p)**2
                 else:
-                    pdist[new_s] = p
+                    pdist[new_s] = abs(p)**2
         elif self.backend == "clifford": 
             raise RuntimeError(
                 "Probability distribution calculation not supported for "
