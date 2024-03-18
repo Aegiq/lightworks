@@ -23,6 +23,11 @@ class Backend:
     """
     Provide central location for selecting and interacting with different 
     simulation backends.
+    
+    Args:
+    
+        backend (str) : A string detailing the backend which to be used.
+        
     """
     
     def __init__(self, backend: str) -> None:
@@ -45,6 +50,12 @@ class Backend:
             raise NotImplementedError(
                 "Support for this backend has not yet been included.")
         self.__backend = value
+        
+    def __str__(self) -> str:
+        return self.backend
+    
+    def __repr__(self) -> str:
+        return f"lightworks.emulator.Backend('{self.backend}')"
         
     def full_probability_distribution(self, circuit: Circuit, 
                                       input_state: State) -> dict:

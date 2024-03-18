@@ -114,7 +114,10 @@ class Parameter:
         return str(self.__value)
         
     def __repr__(self) -> str:
-        to_output = str(self.__value)
+        if isinstance(self.__value, str):
+            to_output = f"'{self.__value}'"
+        else:
+            to_output = str(self.__value)
         if self.label is not None:
             to_output += f", '{self.label}'"
         if self.has_bounds():
