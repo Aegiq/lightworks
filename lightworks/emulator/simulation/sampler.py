@@ -47,12 +47,16 @@ class Sampler:
         detector (Detector, optional) : Provide detector to simulate imperfect
             detector probabilities. This defaults to None, which will assume a
             perfect detector.
+            
+        backend (Backend | str, optional) : Specify which backend is to be used
+            for the sampling process. If not selected this will default to
+            permanent calculation. 
     
     """
     
     def __init__(self, circuit: Circuit, input_state: State, 
                  source: Source = None, detector: Detector = None,
-                 backend: Backend = None) -> None:
+                 backend: Backend | str = None) -> None:
         
         # Assign provided quantities to attributes
         self.circuit = circuit
@@ -133,7 +137,8 @@ class Sampler:
     def backend(self, value) -> None:
         if value is None:
             value = Backend("permanent")
-        # NOTE: Could probably support string here?
+        if isinstance(value, str):
+            value = Backend(value)
         if not isinstance(value, Backend):
             raise TypeError("Provided backend should be a Backend object.")
         self.__backend = value
