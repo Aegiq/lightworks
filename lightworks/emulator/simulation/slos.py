@@ -1,7 +1,21 @@
+# Copyright 2024 Aegiq Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from ...sdk import State
 
 import numpy as np
-import math
+from math import factorial
 
 class SLOS:
     """
@@ -18,49 +32,42 @@ class SLOS:
         input = {tuple(N*[0]):1} #N-mode vacuum state
 
         # Successively apply the matrices A_k
-        for k in p: # Each matrix is indexed by the components of p
+        for i in p: # Each matrix is indexed by the components of p
             output = {}
-            for i in range(N):  # Sum over i
-                step_1 = a_i_dagger(i, input) # Apply ladder operator
-                step_2 = dict_scale(step_1, U[i,k]) # Multiply by the unitary matrix component
-                output = add_dicts(output, step_2) # Add it to the total
+            for j in range(N):  # Sum over i
+                step_1 = a_i_dagger(j, input, U[j,i]) # Apply ladder operator
+                output = add_dicts(output, step_1) # Add it to the total
             input = output
 
         # Renormalise the output with the overall factorial term and return
-        return dict_scale(input,1/np.sqrt(vector_factorial(input_state)))
+        m = 1/np.sqrt(vector_factorial(input_state))
+        return {k:v*m for k, v in input.items()}
 
-def a_i_dagger(i,v):
+def a_i_dagger(mode, dist, multiplier):
     """
     Ladder operator for the ith mode applied to the state v, where v is a 
     dictionary
     """
     
-    updated_v = {}  # Create a new dictionary to store updated keys and values
+    updated_dist = {}  # Create a new dictionary to store updated keys and values
 
-    for key, value in v.items():
+    for key, value in dist.items():
         key = list(key)
-        key[i] += 1 # Increase the number of photons in the ith mode by 1
-        updated_v[tuple(key)] = np.sqrt(key[i])*value  # Update the new dictionary with modified key and value, with the normalisation factor
+        key[mode] += 1 # Increase the number of photons in the ith mode by 1
+        # Update the new dictionary with modified key, value + normalisation
+        updated_dist[tuple(key)] = np.sqrt(key[mode])*value*multiplier  
 
-    return updated_v
+    return updated_dist
 
-def dict_scale(x,a):
-    """Scales all entries of a dictionary by the factor a"""
-    y = {k:a*v for k, v in x.items()}
-    return y
-
-def vector_factorial(v):
+def vector_factorial(vector):
     """Calculates the product of factorials of the elements of the vector v"""
-    c = 1
-    for i in v:
-        c = c*math.factorial(i)
-    return c
+    return np.prod([factorial(i) for i in vector])
 
 def add_dicts(dict1, dict2):
     """Adds two dictionaries together"""
     for key, value in dict2.items():
         if key in dict1:
-            dict1[key] += value  # If key exists in dict1, add the value to it
+            dict1[key] += value
         else:
-            dict1[key] = value  # If key does not exist in dict1, add it with its value
+            dict1[key] = value 
     return dict1
