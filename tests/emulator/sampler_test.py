@@ -376,3 +376,56 @@ class TestSampler:
         sampler = Sampler(circuit, State([1,0,1,0]))
         with pytest.raises(TypeError):
             sampler.detector = random_unitary(4)
+            
+    def test_slos_equivalence_basic(self):
+        """
+        Checks probability distribution calculation from a simple unitary is 
+        nearly equivalent using both permanent and slos calculations.
+        """
+        circuit = Unitary(random_unitary(4))
+        # Permanent
+        sampler = Sampler(circuit, State([1,0,1,0]), backend = "permanent")
+        p1 = sampler.probability_distribution
+        # SLOS
+        sampler.backend = "slos"
+        p2 = sampler.probability_distribution
+        for s in p1:
+            if round(p1[s], 8) != round(p2[s], 8):
+                pytest.fail("Methods do not produce equivalent distributions.")
+                
+    def test_slos_equivalence_complex(self):
+        """
+        Checks probability distribution calculation is nearly equivalent using 
+        both permanent and slos calculations, when using loss and an imperfect
+        source.
+        """
+        circuit = Unitary(random_unitary(4))
+        for i in range(4):
+            circuit.add_loss(i, 1)
+        source = Source(indistinguishability = 0.9, brightness = 0.9,
+                        purity = 0.9)
+        # Permanent
+        sampler = Sampler(circuit, State([1,0,1,0]), source = source, 
+                          backend = "permanent")
+        p1 = sampler.probability_distribution
+        # SLOS
+        sampler.backend = "slos"
+        p2 = sampler.probability_distribution
+        # Test equivalence
+        for s in p1:
+            if round(p1[s], 8) != round(p2[s], 8):
+                pytest.fail("Methods do not produce equivalent distributions.")
+                
+    def test_backend_updated_recalculates(self):
+        """
+        Checks that updating the backend causes recalculation of the 
+        probability distribution.
+        """
+        circuit = Unitary(random_unitary(4))
+        # Get initial distribution
+        sampler = Sampler(circuit, State([1,0,1,0]), backend = "permanent")
+        p1 = sampler.probability_distribution
+        # Then switch to SLOS
+        sampler.backend = "slos"
+        # Check method below returns True
+        assert sampler._check_parameter_updates()
