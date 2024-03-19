@@ -1,5 +1,7 @@
 ![Tests](https://github.com/Aegiq/lightworks/actions/workflows/tests.yml/badge.svg?event=push)
 ![Docs](https://github.com/Aegiq/lightworks/actions/workflows/sphinx_deploy.yml/badge.svg?event=push)
+[![Pyversions](https://img.shields.io/pypi/pyversions/lightworks.svg?style=plastic)](https://pypi.org/project/lightworks/)
+
 
 # Lightworks
 
