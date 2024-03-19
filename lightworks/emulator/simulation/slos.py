@@ -35,21 +35,21 @@ class SLOS:
         for i in p: # Each matrix is indexed by the components of p
             output = {}
             for j in range(N):  # Sum over i
-                step_1 = a_i_dagger(j, input, U[j,i]) # Apply ladder operator
-                output = add_dicts(output, step_1) # Add it to the total
+                step = a_i_dagger(input, j, U[j,i]) # Apply ladder operator
+                output = add_dicts(output, step) # Add it to the total
             input = output
 
         # Renormalise the output with the overall factorial term and return
         m = 1/np.sqrt(vector_factorial(input_state))
         return {k:v*m for k, v in input.items()}
 
-def a_i_dagger(mode, dist, multiplier):
+def a_i_dagger(dist: dict, mode: int, multiplier: complex) -> dict:
     """
     Ladder operator for the ith mode applied to the state v, where v is a 
     dictionary
     """
     
-    updated_dist = {}  # Create a new dictionary to store updated keys and values
+    updated_dist = {}  # Create a new dictionary to store updated values
 
     for key, value in dist.items():
         key = list(key)
@@ -59,12 +59,12 @@ def a_i_dagger(mode, dist, multiplier):
 
     return updated_dist
 
-def vector_factorial(vector):
+def vector_factorial(vector: list) -> int:
     """Calculates the product of factorials of the elements of the vector v"""
     return np.prod([factorial(i) for i in vector])
 
-def add_dicts(dict1, dict2):
-    """Adds two dictionaries together"""
+def add_dicts(dict1: dict, dict2: dict) -> dict:
+    """Function for combining two dictionaries together"""
     for key, value in dict2.items():
         if key in dict1:
             dict1[key] += value
