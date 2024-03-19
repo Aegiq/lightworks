@@ -15,7 +15,8 @@
 from .permanent import Permanent
 from .slos import SLOS
 from ..utils import fock_basis
-from ...sdk import Circuit, State
+from ...sdk import State
+from ...sdk.circuit.circuit_compiler import CompiledCircuit
 
 from numpy import ndarray
 
@@ -56,8 +57,33 @@ class Backend:
     
     def __repr__(self) -> str:
         return f"lightworks.emulator.Backend('{self.backend}')"
+    
+    def probability_amplitude(self, unitary: ndarray, 
+                              input_state: list, 
+                              output_state: list) -> complex:
+        """
+        Find the probability amplitude between a given input and output state
+        for the provided unitary. Note values should be provided as an 
+        array/list.
+        """
+        if self.backend == "permanent":
+            return Permanent.calculate(unitary, input_state, output_state)
+        else:
+            raise ValueError(
+                "Direct probability amplitude calculation only supported for "
+                "permanent backend.")
         
-    def full_probability_distribution(self, circuit: Circuit, 
+    def probability(self, unitary: ndarray, input_state: list, 
+                    output_state: list) -> float:
+        """
+        Calculates the probability of a given output state for a provided 
+        unitary and input state to the system. Note values should be provided 
+        as an array/list.
+        """
+        return abs(self.probability_amplitude(unitary, input_state, 
+                                              output_state))**2
+        
+    def full_probability_distribution(self, circuit: CompiledCircuit, 
                                       input_state: State) -> dict:
         """Finds the probability distribution for the provided input state."""
         

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .permanent import Permanent
+from ..backend import Backend
 from ..utils import fock_basis
 from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
@@ -35,6 +35,7 @@ class Simulator:
         
         # Assign circuit to attribute
         self.circuit = circuit
+        self.__backend = Backend("permanent")
         
         return
     
@@ -95,8 +96,8 @@ class Simulator:
         amplitudes = np.zeros((len(inputs), len(outputs)), dtype = complex)
         for i, ins in enumerate(inputs):
             for j, outs in enumerate(outputs):
-                amplitudes[i, j] = Permanent.calculate(circuit.U_full, 
-                                                       ins.s, outs.s)
+                amplitudes[i, j] = self.__backend.probability_amplitude(
+                    circuit.U_full, ins.s, outs.s)
         if circuit.loss_modes > 0:
             inputs = [s[:circuit.n_modes] for s in inputs]
             outputs = [s[:circuit.n_modes] for s in outputs]
