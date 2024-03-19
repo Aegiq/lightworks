@@ -14,7 +14,7 @@
 
 from lightworks import State, Unitary, Circuit, random_unitary, Parameter
 from lightworks.emulator import ModeMismatchError
-from lightworks.emulator import Sampler, Source, Detector
+from lightworks.emulator import Sampler, Source, Detector, Backend
 
 import pytest
 
@@ -429,3 +429,16 @@ class TestSampler:
         sampler.backend = "slos"
         # Check method below returns True
         assert sampler._check_parameter_updates()
+        
+    def test_backend_assignment(self):
+        """
+        Tests that backend can be set both by assigning backend object and by
+        providing a string.
+        """
+        
+        sampler = Sampler(Circuit(4), State([1,0,1,0]))
+        # Assign object directly
+        sampler.backend = Backend("permanent")
+        # Assign string
+        sampler.backend = "permanent"
+        assert isinstance(sampler.backend, Backend)

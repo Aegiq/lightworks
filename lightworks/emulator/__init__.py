@@ -46,6 +46,7 @@ Simulators:
 
 from .components import *
 from .simulation import *
+from .backend import *
 from .utils import *
 
 __all__ = ["Simulator", "Sampler", "fidelity", "Source", "Detector", 
