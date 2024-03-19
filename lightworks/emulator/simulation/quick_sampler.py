@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .backend import Backend
+from .permanent import Permanent
 from ..utils import fock_basis, ModeMismatchError
 from ..results import SamplingResult
 from ...sdk import State, Circuit
@@ -245,7 +245,7 @@ class QuickSampler:
         pdist = {}
         # Loop through possible outputs and calculate probability of each
         for ostate in outputs:
-            p = Backend.calculate(built_circuit.U_full, in_state.s, 
+            p = Permanent.calculate(built_circuit.U_full, in_state.s, 
                                     ostate + [0]*built_circuit.loss_modes)
             # Add output to distribution
             if abs(p)**2 > 0:

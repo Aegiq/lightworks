@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from .probability_distribution import ProbabilityDistributionCalc as PDC
+from .backend import Backend
 from ..utils import ModeMismatchError
 from ..results import SamplingResult
 from ..components import Source, Detector
@@ -46,17 +47,23 @@ class Sampler:
         detector (Detector, optional) : Provide detector to simulate imperfect
             detector probabilities. This defaults to None, which will assume a
             perfect detector.
+            
+        backend (Backend | str, optional) : Specify which backend is to be used
+            for the sampling process. If not selected this will default to
+            permanent calculation. 
     
     """
     
     def __init__(self, circuit: Circuit, input_state: State, 
-                 source: Source = None, detector: Detector = None) -> None:
+                 source: Source = None, detector: Detector = None,
+                 backend: Backend | str = None) -> None:
         
         # Assign provided quantities to attributes
         self.circuit = circuit
         self.input_state = input_state
         self.source = source
         self.detector = detector
+        self.backend = backend
         
         return
 
@@ -120,6 +127,23 @@ class Sampler:
         self.__detector = value
         
     @property
+    def backend(self) -> Backend:
+        """
+        Stores backend which is currently in use.
+        """
+        return self.__backend
+    
+    @backend.setter
+    def backend(self, value) -> None:
+        if value is None:
+            value = Backend("permanent")
+        if isinstance(value, str):
+            value = Backend(value)
+        if not isinstance(value, Backend):
+            raise TypeError("Provided backend should be a Backend object.")
+        self.__backend = value
+        
+    @property
     def probability_distribution(self) -> dict:
         """
         The output probability distribution for the currently set configuration
@@ -134,10 +158,12 @@ class Sampler:
             # Check inputs are valid depending on the statistics 
             all_inputs = self.source._build_statistics(self.input_state)
             if isinstance(next(iter(all_inputs)), State):
-                pdist = PDC.state_prob_calc(self.circuit._build(), all_inputs)
+                pdist = PDC.state_prob_calc(self.circuit._build(), all_inputs,
+                                            self.backend)
             else:
                 pdist = PDC.annotated_state_prob_calc(self.circuit._build(), 
-                                                      all_inputs)
+                                                      all_inputs,
+                                                      self.backend)
             # Special case to catch an empty distribution
             if not pdist:
                 pdist = {State([0]*self.circuit.n_modes) : 1}
@@ -335,7 +361,7 @@ class Sampler:
         returns this.
         """
         # Store circuit unitary and input state
-        vals = [self.__circuit.U_full, self.input_state]
+        vals = [self.__circuit.U_full, self.input_state, self.backend.backend]
         # Loop through source parameters and add these as well
         for prop in ["brightness", "purity", "indistinguishability", 
                      "probability_threshold"]:

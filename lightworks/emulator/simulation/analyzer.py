@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .backend import Backend
+from .permanent import Permanent
 from ..utils import fock_basis
 from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
@@ -170,8 +170,8 @@ class Analyzer:
             for j, outs in enumerate(full_outputs):
                 # No loss case
                 if not self.__circuit_built.loss_modes:
-                    p = Backend.calculate(self.__circuit_built.U_full, ins.s, 
-                                          outs.s)
+                    p = Permanent.calculate(self.__circuit_built.U_full, ins.s, 
+                                            outs.s)
                     probs[i, j] += abs(p)**2
                 # Lossy case
                 else:
@@ -179,8 +179,8 @@ class Analyzer:
                     if ins.n_photons == outs.n_photons:
                         outs = (outs + 
                                 State([0]*self.__circuit_built.loss_modes))
-                        p = Backend.calculate(self.__circuit_built.U_full, 
-                                              ins.s, outs.s)
+                        p = Permanent.calculate(self.__circuit_built.U_full, 
+                                                ins.s, outs.s)
                         probs[i, j] += abs(p)**2
                     # Otherwise
                     else:
@@ -196,8 +196,8 @@ class Analyzer:
                             self.__circuit_built.loss_modes, n_loss)
                         for ls in loss_states:
                             fs = outs + State(ls)
-                            p = Backend.calculate(self.__circuit_built.U_full, 
-                                                  ins.s, fs.s)
+                            p = Permanent.calculate(
+                                self.__circuit_built.U_full, ins.s, fs.s)
                             probs[i, j] += abs(p)**2       
         return probs
     

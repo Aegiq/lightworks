@@ -6,8 +6,9 @@ Emulator Reference
 
     simulator
     sampler
-    quick_sampler
     analyzer
+    quick_sampler
+    backend
     source
     detector
     sampling_result

@@ -20,7 +20,8 @@ from ...sdk.circuit.circuit_compiler import CompiledCircuit
 class ProbabilityDistributionCalc:
     
     @staticmethod
-    def state_prob_calc(circuit: CompiledCircuit, inputs: dict) -> dict:
+    def state_prob_calc(circuit: CompiledCircuit, inputs: dict,
+                        backend: Backend) -> dict:
         """
         Calculate the output state probability distribution for cases where 
         inputs are state objects. This is the case when the source is perfect
@@ -42,23 +43,19 @@ class ProbabilityDistributionCalc:
         pdist = {}
         # Loop over each possible input
         for istate, prob in inputs.items():
-            # Add extra states for loss modes here when included
-            if circuit.loss_modes > 0:
-                istate = istate + State([0]*circuit.loss_modes)
-            # For a given input work out all possible outputs
-            out_states = fock_basis(len(istate), istate.n_photons)
-            for ostate in out_states:
-                # Skip any zero photon states
-                if sum(ostate[:circuit.n_modes]) == 0:
-                    continue
-                p = Backend.calculate(circuit.U_full, istate.s, ostate)
-                if abs(p)**2 > 0:
-                    # Only care about non-loss modes
-                    ostate = State(ostate[:circuit.n_modes])
-                    if ostate in pdist:
-                        pdist[ostate] += prob*abs(p)**2
+            # Calculate sub distribution
+            sub_dist = backend.full_probability_distribution(circuit, istate)
+            if not pdist:
+                if prob == 1:
+                    pdist = sub_dist
+                else:
+                    pdist = {s : p*prob for s, p in sub_dist.items()}
+            else:
+                for s, p in  sub_dist:
+                    if s in pdist:
+                        pdist += p*prob
                     else:
-                        pdist[ostate] = prob*abs(p)**2
+                        pdist = p*prob
         # Calculate zero photon state probability afterwards
         total_prob = sum(pdist.values())
         if total_prob < 1 and circuit.loss_modes > 0:
@@ -67,8 +64,8 @@ class ProbabilityDistributionCalc:
         return pdist
     
     @staticmethod
-    def annotated_state_prob_calc(circuit: CompiledCircuit, 
-                                  inputs: dict) -> dict:
+    def annotated_state_prob_calc(circuit: CompiledCircuit, inputs: dict, 
+                                  backend: Backend) -> dict:
         """
         Perform output state probability distribution calculation using complex
         annotated states, with imperfect purity and/or indistinguishability.
@@ -110,29 +107,9 @@ class ProbabilityDistributionCalc:
         # distribution
         unique_results = {}
         for istate in unique_inputs:
-            # Add extra states for loss modes here when included
-            if circuit.loss_modes > 0:
-                istate = istate + State([0]*circuit.loss_modes) 
-            pdist = {}
-            # For a given input work out all possible outputs
-            out_states = fock_basis(len(istate), istate.n_photons)
-            for ostate in out_states:
-                # Skip any zero photon states
-                if sum(ostate[:circuit.n_modes]) == 0:
-                    continue
-                p = Backend.calculate(circuit.U_full, istate.s, ostate)
-                if abs(p)**2 > 0:
-                    # Only care about non-loss modes
-                    ostate = State(ostate[:circuit.n_modes])
-                    if ostate in pdist:
-                        pdist[ostate] += abs(p)**2
-                    else:
-                        pdist[ostate] = abs(p)**2
-            # Work out zero photon component before saving to unique results
-            total_prob = sum(pdist.values())
-            if total_prob < 1 and circuit.loss_modes > 0:
-                pdist[State([0]*circuit.n_modes)] = 1 - total_prob
-            unique_results[istate[:circuit.n_modes]] = pdist
+            # Calculate sub distribution and store
+            unique_results[istate[:circuit.n_modes]] = (
+                backend.full_probability_distribution(circuit, istate))
         
         # Pre-calculate dictionary items to improve speed
         for r, pdist in unique_results.items():
