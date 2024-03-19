@@ -99,5 +99,5 @@ class TestCNOT:
         # We expect the state |11> (|0,0,1,0,1,0> in mode language) with 
         # reasonable fidelity, so we will assert this is measured for > 80% of
         # the total samples which met the herald condition
-        eff = results[State([0,0,1,0,1,0])] / sum(results.values())
+        eff = results[State([0,0,1,0,1,0])] / 20000
         assert eff > 0.8

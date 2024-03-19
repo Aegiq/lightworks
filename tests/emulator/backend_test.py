@@ -22,11 +22,10 @@ class TestBackend:
     Unit tests for ensuring backend object remains functioning correctly.
     """
     
-    def test_valid_backends(self):
+    @pytest.mark.parametrize("backend", ["permanent", "slos"])
+    def test_valid_backend(self, backend):
         """Checks all currently valid backends can be set."""
-        
-        for backend in ["permanent", "slos"]:
-            Backend(backend)
+        Backend(backend)
             
     def test_invalid_backends(self):
         """Checks an invalid backend raises a ValueError"""
@@ -85,13 +84,14 @@ class TestBackend:
         # Off-diagonal
         p = backend.probability(U, [0,1,0,0], [0,0,1,0])
         assert p == pytest.approx(0.25051188442720407, 1e-8)
-        
-    def test_full_probability_distribution(self):
+    
+    @pytest.mark.parametrize("backend_type", ["permanent", "slos"])
+    def test_full_probability_distribution(self, backend_type):
         """
         Check against a known result for the full probability distribution
-        while using the permanent backend.
+        while using the both permanent and slos backends.
         """
-        backend = Backend("permanent")
+        backend = Backend(backend_type)
         U = random_unitary(3, seed = 2)
         dist = backend.full_probability_distribution(Unitary(U)._build(), 
                                                      State([1,1,0]))
