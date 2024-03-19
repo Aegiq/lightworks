@@ -70,54 +70,49 @@ class TestSource:
         stats = source._build_statistics(State([0,0,2,1,0,1,0,0]))
         # Check length is as expected after thresholding
         assert len(stats) == 89
-        
-    def test_purity_modification(self):
+    
+    @pytest.mark.parametrize("value,error", 
+                             [(True, TypeError), ("0.7", TypeError), 
+                              (0.5, ValueError), (1.1, ValueError)])    
+    def test_purity_modification(self, value, error):
         """
         Checks that the purity cannot be assigned to an invalid value.
         """
         source = Source()
-        with pytest.raises(TypeError):
-            source.purity = True
-        with pytest.raises(ValueError):
-            source.purity = 0.5
-        with pytest.raises(ValueError):
-            source.purity = 1.1
+        with pytest.raises(error):
+            source.purity = value
             
-    def test_brightness_modification(self):
+    @pytest.mark.parametrize("value,error", 
+                             [(True, TypeError), ("0.5", TypeError), 
+                              (-0.1, ValueError), (1.1, ValueError)])
+    def test_brightness_modification(self, value, error):
         """
         Checks that the brightness cannot be assigned to an invalid value.
         """
         source = Source()
-        with pytest.raises(TypeError):
-            source.brightness = True
-        with pytest.raises(ValueError):
-            source.brightness = -0.1
-        with pytest.raises(ValueError):
-            source.brightness = 1.1
+        with pytest.raises(error):
+            source.brightness = value
             
-    def test_indistinguishability_modification(self):
+    @pytest.mark.parametrize("value,error", 
+                             [(True, TypeError), ("0.5", TypeError), 
+                              (-0.1, ValueError), (1.1, ValueError)])
+    def test_indistinguishability_modification(self, value, error):
         """
         Checks that the indistinguishability cannot be assigned to an invalid 
         value.
         """
         source = Source()
-        with pytest.raises(TypeError):
-            source.indistinguishability = True
-        with pytest.raises(ValueError):
-            source.indistinguishability = -0.1
-        with pytest.raises(ValueError):
-            source.indistinguishability = 1.1
+        with pytest.raises(error):
+            source.indistinguishability = value
             
-    def test_probability_threshold_modification(self):
+    @pytest.mark.parametrize("value,error", 
+                             [(True, TypeError), ("0.5", TypeError), 
+                              (-0.1, ValueError), (1.1, ValueError)])
+    def test_probability_threshold_modification(self, value, error):
         """
         Checks that the probability_threshold cannot be assigned to an invalid 
         value.
         """
         source = Source()
-        with pytest.raises(TypeError):
-            source.probability_threshold = True
-        with pytest.raises(ValueError):
-            source.probability_threshold = -0.1
-        with pytest.raises(ValueError):
-            source.probability_threshold = 1.1
-
+        with pytest.raises(error):
+            source.probability_threshold = value
