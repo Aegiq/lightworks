@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .probability_distribution import ProbabilityDistributionCalc as PDC
-from .backend import Backend
+from ..backend import Backend
 from ..utils import ModeMismatchError
 from ..results import SamplingResult
 from ..components import Source, Detector
