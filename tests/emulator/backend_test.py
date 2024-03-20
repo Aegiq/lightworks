@@ -14,8 +14,11 @@
 
 from lightworks import random_unitary, Unitary, State
 from lightworks.emulator import Backend
+from lightworks.emulator.backend.permanent import Permanent
+from lightworks.emulator.backend.slos import SLOS
 
 import pytest
+import numpy as np
 
 class TestBackend:
     """
@@ -126,3 +129,52 @@ class TestBackend:
         for s in p1:
             if round(p1[s], 8) != round(p2[s], 8):
                 pytest.fail("Methods do not produce equivalent distributions.")
+                
+class TestPermanent:
+    """
+    Specific functions for testing Permanent calculation remains functional
+    and consistent.
+    """
+    
+    def test_single_photon_return(self):
+        """
+        Confirm elements of unitary are returned by permanent in single photon
+        cases.
+        """
+        U = random_unitary(4)
+        # Diagonal
+        assert U[0,0] == Permanent.calculate(U, State([1,0,0,0]), 
+                                             State([1,0,0,0]))
+        # Off-diagonal
+        assert U[2,1] == Permanent.calculate(U, State([0,1,0,0]), 
+                                             State([0,0,1,0]))
+        
+    def test_known_result(self):
+        """
+        Calculate a permanent value and check it matches a previously 
+        calculated result.
+        """
+        U = random_unitary(6, seed = 23)
+        r = Permanent.calculate(U, State([1,0,1,0,1,0]), State([0,1,1,0,0,1]))
+        assert r == pytest.approx(-0.02042658999324299-0.02226528732909283j)
+        
+class TestSlos:
+    """
+    Specific tests for SLOS function to check for errors in calculation.
+    """
+    
+    def test_hom(self):
+        """Check hom result and ensure returned value is as expected."""
+        U = np.array([[1,1j],[1j,1]]) * 1/(2**0.5)
+        r = SLOS.calculate(U, [1,1])
+        assert r[(1,1)] == 0
+        assert r[(2,0)] == pytest.approx(0.7071067811865475j)
+        
+    def test_known_result(self):
+        """
+        Check produced output matches a previously calculated result.
+        """
+        U = random_unitary(6, seed = 23)
+        r = SLOS.calculate(U, State([1,0,1,0,1,0]))
+        assert (r[(1,1,1,0,0,0)] == 
+                pytest.approx(-0.0825807219472892+0.0727188703263498j))
