@@ -3,8 +3,8 @@ Utilities
 
 Lightworks also has a number of utilities which aim to make using the package easier, offering random matrix generation and conversion. Each utility function is detailed in a dedicated sub-section.
 
-random_unitary
---------------
+:func:`lightworks.random_unitary`
+---------------------------------
 
 Generates an NxN random unitary matrix using the SciPy unitary_group function. There is also an optional random seed which enables the same random matrix to be generated repeatedly.
 
@@ -19,8 +19,8 @@ Generates an NxN random unitary matrix using the SciPy unitary_group function. T
 .. note::
     Random seed values provided within Lightworks typically need to be integers.
 
-random_permutation
-------------------
+:func:`lightworks.random_permutation`
+-------------------------------------
 
 Generates an NxN permutation matrix, which is a unitary matrix with only values of 0 & 1. This is equivalent to swapping modes in a circuit. There is also an optional random seed which enables the same random matrix to be generated repeatedly.
 
@@ -32,8 +32,8 @@ Generates an NxN permutation matrix, which is a unitary matrix with only values 
     # Create 8x8 matrix with random seed to return the same matrix
     U = lw.random_permutation(8, seed = 4)
 
-transmission_to_db_loss
------------------------
+:func:`lightworks.transmission_to_db_loss`
+------------------------------------------
 
 Converts a decimal transmission value into a positive dB loss which can be used with the circuit loss elements.
 
@@ -44,8 +44,8 @@ Converts a decimal transmission value into a positive dB loss which can be used 
     print(loss)
     # Output: 1.5490195998574319
 
-db_loss_to_transmission
------------------------
+:func:`lightworks.db_loss_to_transmission`
+------------------------------------------
 
 Converts a positive dB loss into a decimal transmission value.
 
