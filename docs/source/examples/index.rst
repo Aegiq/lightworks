@@ -24,4 +24,5 @@ Qubit Examples
     :maxdepth: 1
 
     ralph_cnot
+    heralded_cnot
     3_qubit_GHZ_generation
