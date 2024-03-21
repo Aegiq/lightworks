@@ -5,6 +5,7 @@ SDK Reference
     :maxdepth: 1
 
     circuit
+    compiled_circuit
     state
     display
     parameter

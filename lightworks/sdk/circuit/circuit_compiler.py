@@ -31,7 +31,10 @@ from IPython import display
 class CompiledCircuit:
     """
     Used for building an arbitrary photonic circuit from a set of fundamental 
-    components. It is not intended to be called directly.
+    components, creating the unitary matrices which represent each component
+    and combining them together. This class is not intended to be directly 
+    called, and instead CompiledCircuits should be created through the _build
+    method of Circuit if it is required.
     
     Args:
     
