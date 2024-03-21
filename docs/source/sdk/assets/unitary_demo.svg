@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="322.4" height="310.0" viewBox="0 0 650 625">
+<defs>
+</defs>
+<rect x="100" y="25" width="450" height="575" fill="none" stroke="black" />
+<rect x="92" y="124.5" width="8" height="1" fill="black" />
+<rect x="92" y="249.5" width="8" height="1" fill="black" />
+<rect x="92" y="374.5" width="8" height="1" fill="black" />
+<rect x="92" y="499.5" width="8" height="1" fill="black" />
+<text x="80" y="127" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80, 127)">0</text>
+<text x="80" y="252" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80, 252)">1</text>
+<text x="80" y="377" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80, 377)">2</text>
+<text x="80" y="502" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80, 502)">3</text>
+<rect x="149.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="200" y="100.0" width="100" height="425" fill="#1a0f36" stroke="black" rx="5" ry="5" />
+<text x="250.0" y="312.5" font-size="35" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 250.0, 312.5)">U</text>
+<rect x="299.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="299.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="299.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="299.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="400" y="225.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="425.0" y="312.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 425.0, 312.5)">BS</text>
+<text x="425.0" y="425" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 425.0, 425)">r = 0.5</text>
+<rect x="449.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="449.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="121.0" width="150.1" height="8" fill="black" />
+<rect x="349.95" y="496.0" width="150.1" height="8" fill="black" />
+</svg>

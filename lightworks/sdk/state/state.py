@@ -36,8 +36,14 @@ class State:
     """
 
     def __init__(self, state: list) -> None:
-        self.__s = list(state)
-        self.__n_modes = len(state)
+        # If already list then assign to attribute
+        if isinstance(state, list):
+            self.__s = state
+        # Otherwise try to convert
+        else:
+            self.__s = list(state)
+        # Pre-calculate number of modes
+        self.__n_modes = len(self.__s)
         return
     
     @property

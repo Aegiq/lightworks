@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .backend import Backend
+from ..backend import Backend
 from ..utils import fock_basis
 from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
@@ -51,6 +51,7 @@ class Analyzer:
         self.in_heralds = {}
         self.out_heralds = {}
         self.post_selects = []
+        self.__backend = Backend("permanent")
         
         return
     
@@ -170,18 +171,16 @@ class Analyzer:
             for j, outs in enumerate(full_outputs):
                 # No loss case
                 if not self.__circuit_built.loss_modes:
-                    p = Backend.calculate(self.__circuit_built.U_full, ins.s, 
-                                          outs.s)
-                    probs[i, j] += abs(p)**2
+                    probs[i, j] += self.__backend.probability(
+                        self.__circuit_built.U_full, ins.s, outs.s)
                 # Lossy case
                 else:
                     # Photon number preserved
                     if ins.n_photons == outs.n_photons:
                         outs = (outs + 
                                 State([0]*self.__circuit_built.loss_modes))
-                        p = Backend.calculate(self.__circuit_built.U_full, 
-                                              ins.s, outs.s)
-                        probs[i, j] += abs(p)**2
+                        probs[i, j] += self.__backend.probability(
+                            self.__circuit_built.U_full, ins.s, outs.s)
                     # Otherwise
                     else:
                         # If n_out < n_in work out all loss mode combinations
@@ -196,9 +195,9 @@ class Analyzer:
                             self.__circuit_built.loss_modes, n_loss)
                         for ls in loss_states:
                             fs = outs + State(ls)
-                            p = Backend.calculate(self.__circuit_built.U_full, 
-                                                  ins.s, fs.s)
-                            probs[i, j] += abs(p)**2       
+                            probs[i, j] += self.__backend.probability(
+                                self.__circuit_built.U_full, ins.s, fs.s)     
+                            
         return probs
     
     def _build_state(self, state: State, herald: FunctionType) -> State:

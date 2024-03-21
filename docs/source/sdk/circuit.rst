@@ -343,10 +343,19 @@ get_all_params
 
 This method will collect and return a list of all parameters used as part of a ciruit.
 
+.. code-block:: Python
+
+    circuit.get_all_params()
+
 copy
 ^^^^
 
 Used to create an identical copy of a particular circuit. The ``freeze_parameters`` option can be used to decided whether any variables should remain assigned to parameters, or if they should just be assigned to the parameter value.
+
+.. code-block:: Python
+
+    circuit.copy()
+    circuit.copy(freeze_parameters = True)
 
 .. warning::
     If you decide not to freeze the parameters of a circuit before copying then both the original and copy of the circuit will be affected by any parameter changes.
@@ -356,12 +365,24 @@ unpack_groups
 
 Can be used to unpack any groups of components that have been added to a circuit into individual elements.
 
+.. code-block:: Python
+
+    circuit.unpack_groups()
+
 compress_mode_swaps
 ^^^^^^^^^^^^^^^^^^^
 
 Will this method is called it will look any adjacent mode swaps in a circuit and compress them into a single element. This can be useful for reducing the footprint of a circuit.
 
+.. code-block:: Python
+
+    circuit.compress_mode_swaps()
+
 remove_non_adjacent_bs
 ^^^^^^^^^^^^^^^^^^^^^^
 
 This method can be used to convert and beam splitters that act across non adjacent modes into a beam splitter on adjacent modes and a set of mode swaps across this circuit. This is useful as in mode realisations of an interferometer the direct interaction between non-adjacent modes is not possible.
+
+.. code-block:: Python
+
+    circuit.remove_non_adjacent_bs()

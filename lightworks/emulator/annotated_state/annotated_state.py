@@ -21,7 +21,6 @@ from ..utils import annotated_state_to_string
 from ..utils import AnnotatedStateError
 
 from typing import Any
-from copy import deepcopy
 
 class AnnotatedState:
     """
@@ -53,7 +52,7 @@ class AnnotatedState:
     
     @property
     def s(self) -> None:
-        return deepcopy(self.__s)
+        return [[j for j in i] for i in self.__s]
     
     @s.setter
     def s(self, value: Any) -> None:

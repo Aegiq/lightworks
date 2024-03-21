@@ -12,14 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .permanent import Permanent
-from ...sdk import State
-
-from numpy import ndarray
-
-class Backend:
-    """General backend for for calculation."""
-    @staticmethod
-    def calculate(U: ndarray, in_state: State, out_state: State) -> complex:
-        return Permanent.calculate(U, in_state, out_state)
-    
+from .backend import Backend

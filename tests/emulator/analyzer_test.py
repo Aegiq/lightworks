@@ -22,7 +22,7 @@ class TestAnalyzer:
     Unit tests to check results produced by Analyzer object in the emulator.
     """
     
-    def setup_class(self) -> None:
+    def setup_method(self) -> None:
         """Create a non-lossy and a lossy circuit for use."""
         self.circuit = Circuit(4)
         self.lossy_circuit = Circuit(4)
