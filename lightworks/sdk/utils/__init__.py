@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .matrix_utils import fidelity, check_unitary
-from .matrix_utils import random_unitary, random_permutation
+from .matrix_utils import check_unitary, random_unitary, random_permutation
 from .state_utils import fock_basis, state_to_string
 from .exceptions import *
 from .conversion import db_loss_to_transmission, transmission_to_db_loss

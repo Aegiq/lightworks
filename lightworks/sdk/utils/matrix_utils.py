@@ -21,33 +21,6 @@ import numpy as np
 from scipy.stats import unitary_group
 from typing import Any
 
-def fidelity(U_target: np.ndarray, U_calculated: np.ndarray) -> float:
-    """
-    Function to calculate the fidelity between target and calculated unitary
-    matrices. Note: It is important that these two matrices both either contain
-    probability amplitudes or normalised probabilities.
-    
-    Args:
-    
-        U_target (np.ndarray) : The target unitary matrix.
-        
-        U_calculated (np.ndarray) : The calculated unitary matrix from the 
-            simulation.
-    
-    Returns:
-    
-        float : The calculated fidelity between the two matrices.
-        
-    """
-    U_target, U_calculated = np.array(U_target), np.array(U_calculated)
-    N = U_target.shape[0]
-    # Find h.c. of calculated unitary to condense code
-    Udag = np.conj(np.transpose(U_calculated))
-    # Calculate fidelity using the unitary matrices
-    fidelity = (abs(np.trace(Udag @ U_target)) ** 2 / 
-                (N * np.trace(Udag @ U_calculated)))
-    return float(np.real(fidelity))
-
 def random_unitary(N: int, seed: int = None) -> np.ndarray:
     """
     Generate a random NxN unitary matrix. Seed can be used to produce the same
