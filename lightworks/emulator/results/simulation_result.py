@@ -378,7 +378,7 @@ class SimulationResult:
                 if self.result_type == "counts":
                     to_print += str(ostate) + " : " + str(p) + ", "
                 else:
-                    p = self._complex_round(p, rounding)
+                    p = np.round(p, rounding)
                     if abs(p.real) > 0 or abs(p.imag) > 0:
                         to_print += str(p) + "*" + str(ostate) + " + "
             to_print = to_print[:-2]    
@@ -438,16 +438,3 @@ class SimulationResult:
         # Create dataframe
         df = pd.DataFrame(data, index = in_strings, columns = out_strings)
         return df
-        
-    def _complex_round(self, value: float | complex, 
-                       round_points: int) -> float | complex:
-        """
-        Function to perform rounding of complex numbers to the given number of
-        decimal places. It is also compatible with real numbers and will 
-        return the rounded real value in this case.
-        """
-        if not isinstance(value, complex):
-            return round(value, round_points)
-        else:
-            return (round(value.real, round_points) + 
-                    round(value.imag, round_points) * 1j)

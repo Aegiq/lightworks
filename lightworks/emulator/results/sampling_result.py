@@ -262,16 +262,3 @@ class SamplingResult:
         # Create dataframe
         df = pd.DataFrame(data, index = out_strings, columns = in_strings)
         return df.transpose()
-        
-    def _complex_round(self, value: float | complex, 
-                       round_points: int) -> float | complex:
-        """
-        Function to perform rounding of complex numbers to the given number of
-        decimal places. It is also compatible with real numbers and will 
-        return the rounded real value in this case.
-        """
-        if not isinstance(value, complex):
-            return round(value, round_points)
-        else:
-            return (round(value.real, round_points) + 
-                    round(value.imag, round_points) * 1j)
