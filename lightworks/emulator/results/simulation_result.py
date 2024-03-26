@@ -356,7 +356,7 @@ class SimulationResult:
             plt.show()
             return 
         
-        return fig, ax
+        return (fig, ax)
     
     def print_outputs(self, rounding: int = 4) -> None:
         """

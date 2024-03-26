@@ -201,7 +201,7 @@ class SamplingResult:
             plt.show()
             return 
         else:
-            return fig, ax
+            return (fig, ax)
     
     def print_outputs(self, rounding: int = 4) -> None:
         """
