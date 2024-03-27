@@ -34,8 +34,7 @@ class SamplingResult:
                
     """
     
-    def __init__(self, results: dict, input: State, 
-                 **kwargs) -> None:
+    def __init__(self, results: dict, input: State, **kwargs) -> None:
         
         if not isinstance(input, State):
             raise ResultCreationError("Input state should have type State.")
@@ -203,16 +202,10 @@ class SamplingResult:
         else:
             return (fig, ax)
     
-    def print_outputs(self, rounding: int = 4) -> None:
+    def print_outputs(self) -> None:
         """
         Print the output results for each input into the system. This is 
         compatible with all possible result types.
-        
-        Args:
-        
-            rounding (int, optional) : Set the number of decimal places which 
-                each number will be rounded to, defaults to 4.
-                
         """
 
         to_print = str(self.input) + " -> "
