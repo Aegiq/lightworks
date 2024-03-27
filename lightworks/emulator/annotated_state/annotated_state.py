@@ -37,12 +37,12 @@ class AnnotatedState:
     
     """
     
+    __slots__ = ["__s"]
     def __init__(self, state: list) -> None:
         for s in state:
             if type(s) != list:
                 raise TypeError("Provided state labels should be lists.")
         self.__s = [sorted(s) for s in state]
-        self.__n_modes = len(state)
         return
     
     @property
@@ -61,7 +61,7 @@ class AnnotatedState:
     
     @property
     def n_modes(self) -> None:
-        return self.__n_modes
+        return len(self.__s)
     
     @n_modes.setter
     def n_modes(self, value: Any) -> None:
@@ -69,7 +69,7 @@ class AnnotatedState:
     
     def merge(self, merge_state: "AnnotatedState") -> "AnnotatedState":
         """Combine two states, summing the number of photons per mode."""
-        if self.__n_modes == merge_state.__n_modes:
+        if self.n_modes == merge_state.n_modes:
             return AnnotatedState([n1 + n2 for n1, n2 in zip(self.__s, 
                                                              merge_state.s)])
         else:
@@ -98,7 +98,7 @@ class AnnotatedState:
         return hash(self.__str__())
         
     def __len__(self) -> int:
-        return self.__n_modes
+        return self.n_modes
     
     def __setitem__(self, key: Any, value: Any) -> None:
         raise AnnotatedStateError(
