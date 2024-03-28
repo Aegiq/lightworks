@@ -35,6 +35,7 @@ class State:
     
     """
 
+    __slots__ = ["__s"]
     def __init__(self, state: list) -> None:
         # If already list then assign to attribute
         if isinstance(state, list):
@@ -42,8 +43,6 @@ class State:
         # Otherwise try to convert
         else:
             self.__s = list(state)
-        # Pre-calculate number of modes
-        self.__n_modes = len(self.__s)
         return
     
     @property
@@ -63,7 +62,7 @@ class State:
     @property
     def n_modes(self) -> int:
         """The total number of modes in the state."""
-        return self.__n_modes
+        return len(self.__s)
     
     @n_modes.setter
     def n_modes(self, value: Any) -> None:
@@ -71,7 +70,7 @@ class State:
     
     def merge(self, merge_state: "State") -> "State":
         """Combine two states, summing the number of photons per mode."""
-        if self.__n_modes == merge_state.n_modes:
+        if self.n_modes == merge_state.n_modes:
             return State([n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)])
         else:
             raise ValueError("Merged states must be the same length.")
@@ -98,7 +97,7 @@ class State:
         return hash(self.__str__())
         
     def __len__(self) -> int:
-        return self.__n_modes
+        return self.n_modes
     
     def __setitem__(self, key: Any, value: Any) -> None:
         raise StateError("State object does not support item assignment.")

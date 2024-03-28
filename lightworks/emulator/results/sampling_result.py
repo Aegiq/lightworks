@@ -34,8 +34,7 @@ class SamplingResult:
                
     """
     
-    def __init__(self, results: dict, input: State, 
-                 **kwargs) -> None:
+    def __init__(self, results: dict, input: State, **kwargs) -> None:
         
         if not isinstance(input, State):
             raise ResultCreationError("Input state should have type State.")
@@ -201,18 +200,12 @@ class SamplingResult:
             plt.show()
             return 
         else:
-            return fig, ax
+            return (fig, ax)
     
-    def print_outputs(self, rounding: int = 4) -> None:
+    def print_outputs(self) -> None:
         """
         Print the output results for each input into the system. This is 
         compatible with all possible result types.
-        
-        Args:
-        
-            rounding (int, optional) : Set the number of decimal places which 
-                each number will be rounded to, defaults to 4.
-                
         """
 
         to_print = str(self.input) + " -> "
@@ -262,16 +255,3 @@ class SamplingResult:
         # Create dataframe
         df = pd.DataFrame(data, index = out_strings, columns = in_strings)
         return df.transpose()
-        
-    def _complex_round(self, value: float | complex, 
-                       round_points: int) -> float | complex:
-        """
-        Function to perform rounding of complex numbers to the given number of
-        decimal places. It is also compatible with real numbers and will 
-        return the rounded real value in this case.
-        """
-        if not isinstance(value, complex):
-            return round(value, round_points)
-        else:
-            return (round(value.real, round_points) + 
-                    round(value.imag, round_points) * 1j)

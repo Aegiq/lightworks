@@ -384,7 +384,7 @@ class CompiledCircuit:
         return
     
     def display(self, display_loss: bool = False, 
-                mode_labels: list | None = None,
+                mode_labels: list | None = None, 
                 display_type: str = "svg") -> None:
         """
         Displays the current circuit.
