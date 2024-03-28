@@ -9,11 +9,6 @@ Lightworks is an open source Python SDK, designed for the encoding of linear opt
 
 Included within Lightworks is also an emulator, allowing users to evaluate the operation and performance of a particular configuration before hardware execution. There is a number of simulation objects, each offering a differing functionality, ranging from direct quantum state evolution to replicating the typical sampling process from a photonic system. The emulator also supports complex photonic specific noise modelling, providing a valuable insight into the effect of imperfections in photon generation, QPU programming, and detectors, on a target algorithm.
 
-Key features:
-- Circuit
-- State
-- Emulator
-
 ## Usage
 
 Python 3.10+ is required.
