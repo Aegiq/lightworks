@@ -75,6 +75,14 @@ class TestSamplingResult:
         r = SamplingResult(self.test_dict, self.test_input)
         r.plot()
         plt.close()
+        
+    def test_extra_attribute_assignment(self):
+        """
+        Check that miscellaneous additional kwargs can be provided in the 
+        initial function call and that these are assigned to attributes.
+        """
+        r = SamplingResult(self.test_dict, self.test_input, test_attr = 2.5)
+        assert r.test_attr == 2.5
             
 class TestSimulationResult:
     """Unit tests for SimulationResult object."""
@@ -141,3 +149,13 @@ class TestSimulationResult:
         plt.close()
         # Reset backend after test
         matplotlib.use(original_backend)
+        
+    def test_extra_attribute_assignment(self):
+        """
+        Check that miscellaneous additional kwargs can be provided in the 
+        initial function call and that these are assigned to attributes.
+        """
+        r = SimulationResult(self.test_array, "probability_amplitude", 
+                             inputs = self.test_inputs, 
+                             outputs = self.test_outputs, test_attr = 2.5)
+        assert r.test_attr == 2.5

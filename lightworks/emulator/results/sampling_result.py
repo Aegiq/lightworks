@@ -43,7 +43,7 @@ class SamplingResult:
         self.__outputs = list(results.keys())
         # Store any additional provided data from kwargs as attributes    
         for k in kwargs:
-            self.__dict__[k] = kwargs[k]
+            setattr(self, k, kwargs[k])
         
         return
     
