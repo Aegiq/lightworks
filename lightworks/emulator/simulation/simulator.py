@@ -121,7 +121,9 @@ class Simulator:
                 raise ModeMismatchError(
                     "One or more input states have an incorrect number of "
                     "modes, correct number of modes is "
-                    f"{self.circuit.n_modes}.") 
+                    f"{self.circuit.n_modes}.")
+            # Also validate state values
+            state._validate()
         return inputs
     
     def _process_outputs(self, inputs: list, 
@@ -155,6 +157,8 @@ class Simulator:
                         "One or more input states have an incorrect number of "
                         "modes, correct number of modes is "
                         f"{self.circuit.n_modes}.")
+                # Also validate state values
+                state._validate()
             # Ensure photon numbers are the same in all states - variation not 
             # currently supported
             ns = [s.n_photons for s in inputs + outputs]

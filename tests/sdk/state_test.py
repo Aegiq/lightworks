@@ -64,3 +64,24 @@ class TestState:
         assert State([1,0,2,1,1]).n_photons == 5
         assert State([0,0,0,0,0]).n_photons == 0
         assert State([]).n_photons == 0
+
+    @pytest.mark.parametrize("state", [[1,0,0,0],[1,1,1,1],[1,0,2,0],
+                                       [0,0,0,0]])
+    def test_pass_validation(self, state):
+        """
+        Checks that the _validate method of state does not raise an exception
+        when an valid configuration is provided.
+        """
+        s = State(state)
+        s._validate()
+    
+    @pytest.mark.parametrize("state", [[1,0,-1,0],[1,1,-1,0],[1,0,0.5,0],
+                                       [1.0,0,0,0]])
+    def test_fail_validation(self, state):
+        """
+        Checks that the _validate method of state raises an exception when an
+        invalid configuration is provided.
+        """
+        s = State(state)
+        with pytest.raises((ValueError, TypeError)):
+            s._validate()
