@@ -12,4 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .gates import H, X, Y, Z, S, T, CZ, CNOT
+"""
+Central location for importing and initializing all gates.
+"""
+
+from .single_qubit_gates import H_gate, X_gate, Y_gate, Z_gate, S_gate, T_gate
+from .two_qubit_gates import CZ_gate, CNOT_gate
+
+# Initialize all gates
+H = H_gate()
+X = X_gate()
+Y = Y_gate()
+Z = Z_gate()
+S = S_gate()
+T = T_gate()
+CZ = CZ_gate()
+CNOT = CNOT_gate()
