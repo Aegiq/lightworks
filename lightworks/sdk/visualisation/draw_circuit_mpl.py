@@ -89,7 +89,7 @@ class DrawCircuitMPL(DisplayComponentsMPL):
                 m1, m2 = modes
                 if m1 > m2:
                     m1, m2 = m2, m1
-                self._add_unitary(m1, m2)
+                self._add_unitary(m1, m2, params)
             elif c == "group":
                 m1, m2 = modes
                 if m1 > m2:

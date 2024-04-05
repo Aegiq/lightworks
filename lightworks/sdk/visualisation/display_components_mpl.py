@@ -222,7 +222,7 @@ class DisplayComponentsMPL:
             
         return
     
-    def _add_unitary(self, mode1: int, mode2: int) -> None:
+    def _add_unitary(self, mode1: int, mode2: int, label: str) -> None:
         """Add a unitary representation to the axis."""
         size_x = 1 # Unitary x size
         con_length = 0.5 # Input/output waveguide lengths
@@ -245,9 +245,12 @@ class DisplayComponentsMPL:
                                  facecolor = "#1a0f36", 
                                  edgecolor = "black")
         self.ax.add_patch(rect)
+        s = 10 if len(label) == 1 else 8
+        r = 90 if len(label) > 2 else 0
         self.ax.text(xloc + size_x/2, yloc + abs(mode2 - mode1)/2, 
-                     "U", horizontalalignment = "center", size= 8,
-                     verticalalignment = "center", color= "white")
+                     label, horizontalalignment = "center", size = s,
+                     verticalalignment = "center", color = "white",
+                     rotation = r)
         xloc += size_x
         # Add output waveguides
         for i in modes:

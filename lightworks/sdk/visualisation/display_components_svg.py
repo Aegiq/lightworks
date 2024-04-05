@@ -115,7 +115,7 @@ class SVGDrawSpec:
         
         return
     
-    def _add_unitary(self, mode1: int, mode2: int) -> None:
+    def _add_unitary(self, mode1: int, mode2: int, label: str) -> None:
         """Add a unitary matrix representation to the drawing."""
         size_x = 100 # Unitary x size
         con_length = 50 # Input/output waveguide lengths
@@ -135,8 +135,11 @@ class SVGDrawSpec:
         xloc += con_length
         # Add unitary shape and U label
         self.draw_spec += [("unitary", (xloc, yloc, size_x, size_y, offset/2))]
-        self.draw_spec += [("text", (f"U", xloc+size_x/2, 
-                                     yloc + (size_y-offset)/2, 0, 35, 
+        s = 25 if self.N > 2 else 20
+        s = 35 if len(label) == 1 else s
+        r = 270 if len(label) > 2 else 0
+        self.draw_spec += [("text", (label, xloc+size_x/2, 
+                                     yloc + (size_y-offset)/2, r, s, 
                                      "white", "centred"))]
         xloc += size_x
         # Add output waveguides and update mode positions
