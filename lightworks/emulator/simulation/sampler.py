@@ -94,6 +94,8 @@ class Sampler:
         if len(value) != self.circuit.n_modes:
             raise ModeMismatchError(
                 "Incorrect input length for provided circuit.")
+        # Also validate state values
+        value._validate()
         self.__input_state = value
         
     @property

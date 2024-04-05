@@ -262,6 +262,8 @@ class Analyzer:
                 raise ModeMismatchError(
                     "Input states are of the wrong dimension. Remember to "
                     "subtract heralded modes.")
+            # Also validate state values
+            state._validate()
             full_inputs += [self._build_state(state, self.in_heralds)]
         # Add extra states for loss modes here when included
         if self.__circuit_built.loss_modes > 0:

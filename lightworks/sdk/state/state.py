@@ -74,6 +74,18 @@ class State:
             return State([n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)])
         else:
             raise ValueError("Merged states must be the same length.")
+        
+    def _validate(self) -> None:
+        """
+        Function to perform some validation of a state, including checking that
+        the values are all integers and that no negative values are included.
+        """
+        for s in self.__s:
+            if not isinstance(s, int) or isinstance(s, bool):
+                raise TypeError(
+                    "State mode occupation numbers should be integers.")
+            if s < 0:
+                raise ValueError("Mode occupation numbers cannot be negative.")
 
     def __str__(self) -> str:
         return state_to_string(self.__s)

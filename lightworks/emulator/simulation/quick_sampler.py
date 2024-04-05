@@ -88,6 +88,8 @@ class QuickSampler:
             raise TypeError("A single input of type State should be provided.")
         if len(value) != self.circuit.n_modes:
             raise ModeMismatchError("Incorrect input length.")
+        # Also validate state values
+        value._validate()
         self.__input_state = value
         
     @property
