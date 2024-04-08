@@ -32,11 +32,11 @@ class CZ(Unitary):
     gate requires additional post-selection in which only one photon should be 
     measured across each of the pairs of modes which encode a qubit.
           ______
-     0 --|      | -- 0
-    c0 --|      | -- \ 1 photon
-    c1 --|  CZ  | -- /
-    t0 --|      | -- \ 1 photon
-    t1 --|      | -- /
+     0 --|      | -- 0 _
+    c0 --|      | --    | 1 photon
+    c1 --|  CZ  | --   _|
+    t0 --|      | --    | 1 photon
+    t1 --|      | --   _|
      0 --|______| -- 0 
     
     """
@@ -59,11 +59,11 @@ class CNOT(Circuit):
     gate requires additional post-selection in which only one photon should be 
     measured across each of the pairs of modes which encode a qubit.
           ________
-     0 --|        | -- 0
-    c0 --|        | -- \ 1 photon
-    c1 --|  CNOT  | -- /
-    t0 --|        | -- \ 1 photon
-    t1 --|        | -- /
+     0 --|        | -- 0 _
+    c0 --|        | --    | 1 photon
+    c1 --|  CNOT  | --   _|
+    t0 --|        | --    | 1 photon
+    t1 --|        | --   _|
      0 --|________| -- 0 
     
     """
@@ -93,10 +93,10 @@ class CZ_Heralded(Unitary):
           ______
      0 --|      | -- 0
      0 --|      | -- 1 
-    c0 --|      | -- \ 1 photon
-    c1 --|  CZ  | -- /
-    t0 --|      | -- \ 1 photon
-    t1 --|      | -- /
+    c0 --|      | -- c0
+    c1 --|  CZ  | -- c1
+    t0 --|      | -- t0
+    t1 --|      | -- t1
      1 --|      | -- 1
      0 --|______| -- 0 
     
@@ -143,10 +143,10 @@ class CNOT_Heralded(Circuit):
           ________
      0 --|        | -- 0
      0 --|        | -- 1 
-    c0 --|        | -- \ 1 photon
-    c1 --|  CNOT  | -- /
-    t0 --|        | -- \ 1 photon
-    t1 --|        | -- /
+    c0 --|        | -- c0
+    c1 --|  CNOT  | -- c1
+    t0 --|        | -- t0
+    t1 --|        | -- t1
      1 --|        | -- 1
      0 --|________| -- 0 
     
