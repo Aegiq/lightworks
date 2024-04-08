@@ -99,3 +99,48 @@ As mentioned, post-selection/heralding is required for the CNOT gate above to wo
     :align: center
 
 It can be seen from the output that the correct state is now measured, as :math:`\ket{001010}` is equivalent to :math:`\ket{11}` in qubit language. One important thing to notice is that the number of measured outputs is significantly less than the 10,000 inputs. This results from the 1/9 success probability of the gate, and the fact that the ``sampler_N_states`` method will generate 10,000 samples from an unconstrained system, and then filter any which don't meet the criteria. This is analogous to the process that would occur in real systems.
+
+Backend
+-------
+
+The Sampler also supports calculation with multiple different methods through the :doc:`../emulator_reference/backend` object. Currently, it is possible to switch between permanent and SLOS methods of calculation, with each calculation type used for determining the full output probability distribution.
+
+.. note::
+
+    The SLOS calculation method is still in development, but some initial performance gains should be seen with the initial version of this.
+
+To use a different calculation method with the sampler, a new Backend object should be created, specifying the calculation method that is to be used. This will always be in lower case. Once a Backend has been created, using the print function on it will then display the currently selected method.
+
+.. code-block:: Python
+
+    backend = emulator.Backend("slos")
+
+    print(backend)
+    # Output: slos
+
+This created Backend should then be passed to the Sampler on class initialization with the ``backend`` keyword. It is also possible to supply a string with the name of the calculation method for this argument, in which case a new Backend object will then be created. This will be assigned to the backend attribute of the sampler.
+
+.. code-block:: Python
+
+    # Create random unitary and define an input
+    circuit = lw.Unitary(lw.random_unitary(6, seed = 10))
+    input_state = lw.State([1,0,1,0,1,0])
+
+    # Then define Sampler
+    sampler = emulator.Sampler(circuit, input_state, backend = backend)
+    # Or alternatively
+    sampler = emulator.Sampler(circuit, input_state, backend = "slos")
+
+    # Can view and modify backend through this attribute
+    sampler.backend
+
+Once setup, the sampler can be used in the same way as shown above, with any of the sampling functions being called to determine the expected output from the system. Alternatively it is possible to directly view the calculated probability distribution by accessing the ``probability_distribution`` attribute.
+
+.. code-block:: Python
+
+    # Access probability distribution
+    pdist = sampler.probability_distribution
+
+    # View probability that the output matches the input
+    print(pdist[input_state])
+    # Output: 0.013298074625999835
