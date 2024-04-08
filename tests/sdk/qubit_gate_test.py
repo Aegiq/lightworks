@@ -14,7 +14,8 @@
 
 from lightworks import State
 from lightworks.emulator import Simulator
-from lightworks.sdk.qubit import H, X, Y, Z, S, T
+from lightworks.sdk.qubit import (H, X, Y, Z, S, T, CZ, CNOT, CZ_Heralded, 
+                                  CNOT_Heralded)
 
 import pytest
 import numpy as np
@@ -22,7 +23,7 @@ import numpy as np
 class TestSingleQubitGates:
     
     def test_hadamard(self):
-        """Checks that the output from the haramard gate is correct."""
+        """Checks that the output from the hadamard gate is correct."""
         sim = Simulator(H())
         # Input |1,0>
         results = sim.simulate(State([1,0]))
@@ -95,4 +96,80 @@ class TestSingleQubitGates:
 
 class TestTwoQubitGates:
     
-    pass
+    def test_CZ(self):
+        """
+        Checks that the output of the post-selected CZ gate is correct and that
+        the success probability is 1/9.
+        """
+        # Define all input combinations
+        states = [[0,1,0,1,0,0], [0,1,0,0,1,0], [0,0,1,1,0,0], [0,0,1,0,1,0]]
+        states = [State(s) for s in states]
+        # Calculate probability amplitudes
+        sim = Simulator(CZ())
+        results = sim.simulate(states, states)
+        # Check all results are identical except for |1,1> which has a -1
+        amp = results[states[0]:states[0]]
+        assert pytest.approx(amp, 1e-6) == results[states[1]:states[1]]
+        assert pytest.approx(amp, 1e-6) == results[states[2]:states[2]]
+        assert pytest.approx(amp, 1e-6) == -results[states[3]:states[3]]
+        # Confirm success probability is 1/9
+        assert pytest.approx(abs(amp)**2, 1e-6) == 1/9
+    
+    def test_CNOT(self):
+        """
+        Checks that the output of the post-selected CNOT gate is correct and 
+        that the success probability is 1/9.
+        """
+        # Define all input combinations
+        states = [[0,1,0,1,0,0], [0,1,0,0,1,0], [0,0,1,1,0,0], [0,0,1,0,1,0]]
+        states = [State(s) for s in states]
+        # Calculate probability amplitudes
+        sim = Simulator(CNOT())
+        results = sim.simulate(states, states)
+        # Check that swap occurs when control qubit is 1 but not otherwise
+        amp = results[states[0]:states[0]]
+        assert pytest.approx(amp, 1e-6) == results[states[1]:states[1]]
+        assert pytest.approx(amp, 1e-6) == results[states[2]:states[3]]
+        assert pytest.approx(amp, 1e-6) == results[states[3]:states[2]]
+        # Confirm success probability is 1/9
+        assert pytest.approx(abs(amp)**2, 1e-6) == 1/9
+    
+    def test_CZ_heralded(self):
+        """
+        Checks that the output of the heralded CZ gate is correct and that the 
+        success probability is 1/16.
+        """
+        # Define all input combinations
+        states = [[0,1,1,0,1,0,1,0], [0,1,1,0,0,1,1,0],
+                  [0,1,0,1,1,0,1,0], [0,1,0,1,0,1,1,0]]
+        states = [State(s) for s in states]
+        # Calculate probability amplitudes
+        sim = Simulator(CZ_Heralded())
+        results = sim.simulate(states, states)
+        # Check all results are identical except for |1,1> which has a -1
+        amp = results[states[0]:states[0]]
+        assert pytest.approx(amp, 1e-6) == results[states[1]:states[1]]
+        assert pytest.approx(amp, 1e-6) == results[states[2]:states[2]]
+        assert pytest.approx(amp, 1e-6) == -results[states[3]:states[3]]
+        # Confirm success probability is 1/16
+        assert pytest.approx(abs(amp)**2, 1e-6) == 1/16
+    
+    def test_CNOT_heralded(self):
+        """
+        Checks that the output of the heralded CNOT gate is correct and that 
+        the success probability is 1/16.
+        """
+        # Define all input combinations
+        states = [[0,1,1,0,1,0,1,0], [0,1,1,0,0,1,1,0],
+                  [0,1,0,1,1,0,1,0], [0,1,0,1,0,1,1,0]]
+        states = [State(s) for s in states]
+        # Calculate probability amplitudes
+        sim = Simulator(CNOT_Heralded())
+        results = sim.simulate(states, states)
+        # Check that swap occurs when control qubit is 1 but not otherwise
+        amp = results[states[0]:states[0]]
+        assert pytest.approx(amp, 1e-6) == results[states[1]:states[1]]
+        assert pytest.approx(amp, 1e-6) == results[states[2]:states[3]]
+        assert pytest.approx(amp, 1e-6) == results[states[3]:states[2]]
+        # Confirm success probability is 1/16
+        assert pytest.approx(abs(amp)**2, 1e-6) == 1/16
