@@ -83,7 +83,7 @@ The reflectivity of the beam splitter can be adjusted by specifying the ``reflec
                       \sin{\theta/2} & -\cos{\theta/2} \\
                   \end{bmatrix}
 
-Where :math:`\theta = \cos^{-1}(\sqrt{\text{reflectivity}})`. As an example, if we wanted to add a beam splitter across modes 1 & 2, with reflectivity of 0.4 and using the 'H' convention, the function call would be:
+Where :math:`\theta = 2\cos^{-1}(\sqrt{\text{reflectivity}})`. As an example, if we wanted to add a beam splitter across modes 1 & 2, with reflectivity of 0.4 and using the 'H' convention, the function call would be:
 
 .. code-block:: Python
 
