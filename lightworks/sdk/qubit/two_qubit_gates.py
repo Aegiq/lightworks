@@ -17,12 +17,12 @@ Contains a variety of two qubit components, designed for implementing required
 qubit processing functionality in lightworks.
 """
 
-from .single_qubit_gates import H_gate
+from .single_qubit_gates import H
 from ..circuit import Unitary, Circuit
 
 import numpy as np
 
-class CZ_gate(Unitary):
+class CZ(Unitary):
     """
     Post-selected CZ gate that acts across two dual-rail encoded qubits. This 
     gate occupies a total of 6 modes, where modes 0 & 5 are used for 0 photon
@@ -49,7 +49,7 @@ class CZ_gate(Unitary):
         
         super().__init__(unitary, "CZ")
         
-class CNOT_gate(Unitary):
+class CNOT(Circuit):
     """
     Post-selected CNOT gate that acts across two dual-rail encoded qubits. This 
     gate occupies a total of 6 modes, where modes 0 & 5 are used for 0 photon
@@ -68,12 +68,12 @@ class CNOT_gate(Unitary):
     """
     def __init__(self) -> None:
         
-        H_sub = H_gate().U
-        H = np.identity(6, dtype=complex)
-        H[3:5,3:5] = H_sub[:,:]
+        super().__init__(6)
         
-        CZ = CZ_gate().U
+        # Create CZ from combination of H and CZ
+        circ = Circuit(6)
+        circ.add(H(), 3)
+        circ.add(CZ(), 0)
+        circ.add(H(), 3)
         
-        unitary = H@CZ@H
-        
-        super().__init__(unitary, "CNOT")
+        self.add(circ, 0, group = True, name = "CNOT")

@@ -21,7 +21,7 @@ from ..circuit import Unitary
 
 import numpy as np
 
-class H_gate(Unitary):
+class H(Unitary):
     """
     Implements a hadamard across a pair of modes corresponding to a dual-rail 
     encoded qubit.
@@ -31,7 +31,7 @@ class H_gate(Unitary):
         unitary = np.array([[1,1],[1,-1]])/2**0.5
         super().__init__(unitary, "H")
         
-class X_gate(Unitary):
+class X(Unitary):
     """
     Implements an X gate across a pair of modes corresponding to a dual-rail 
     encoded qubit.
@@ -41,7 +41,7 @@ class X_gate(Unitary):
         unitary = np.array([[0,1],[1,0]])
         super().__init__(unitary, "X")
         
-class Y_gate(Unitary):
+class Y(Unitary):
     """
     Implements a Y gate across a pair of modes corresponding to a dual-rail 
     encoded qubit.
@@ -51,7 +51,7 @@ class Y_gate(Unitary):
         unitary = np.array([[0,-1j],[1j,0]])
         super().__init__(unitary, "Y")
         
-class Z_gate(Unitary):
+class Z(Unitary):
     """
     Implements a Z gate across a pair of modes corresponding to a dual-rail 
     encoded qubit.
@@ -61,7 +61,7 @@ class Z_gate(Unitary):
         unitary = np.array([[1,0],[0,-1]])
         super().__init__(unitary, "Z")
         
-class S_gate(Unitary):
+class S(Unitary):
     """
     Implements an S gate across a pair of modes corresponding to a dual-rail 
     encoded qubit.
@@ -71,7 +71,7 @@ class S_gate(Unitary):
         unitary = np.array([[1,0],[0,1j]])
         super().__init__(unitary, "S")
         
-class T_gate(Unitary):
+class T(Unitary):
     """
     Implements a T gate across a pair of modes corresponding to a dual-rail 
     encoded qubit.

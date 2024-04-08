@@ -12,4 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .gates import H, X, Y, Z, S, T, CZ, CNOT
+from .single_qubit_gates import H, X, Y, Z, S, T
+from .two_qubit_gates import CZ, CNOT
