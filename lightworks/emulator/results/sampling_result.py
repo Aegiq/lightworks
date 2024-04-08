@@ -79,7 +79,7 @@ class SamplingResult:
         return len(self.dictionary)
     
     def __iter__(self) -> iter:
-        """Iterable to allow to do 'for param in ParameterDict'."""
+        """Iterable to allow to do 'for output in SamplingResult'."""
         for p in self.dictionary:
             yield p
     
