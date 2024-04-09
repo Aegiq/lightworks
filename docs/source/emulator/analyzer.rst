@@ -81,7 +81,7 @@ The results from can then be plotted to view the transformation. The returned :d
     plot_array = np.zeros((len(inputs), len(inputs)))
     for i, istate in enumerate(inputs.values()):
         for j, ostate in enumerate(inputs.values()):
-            plot_array[i,j] = results[istate:ostate]
+            plot_array[i,j] = results[istate, ostate]
 
     in_labels = list(inputs.keys())
     out_labels = in_labels

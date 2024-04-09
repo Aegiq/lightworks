@@ -108,10 +108,10 @@ class TestTwoQubitGates:
         sim = Simulator(CZ())
         results = sim.simulate(states, states)
         # Check all results are identical except for |1,1> which has a -1
-        amp = results[states[0]:states[0]]
-        assert pytest.approx(amp, 1e-6) == results[states[1]:states[1]]
-        assert pytest.approx(amp, 1e-6) == results[states[2]:states[2]]
-        assert pytest.approx(amp, 1e-6) == -results[states[3]:states[3]]
+        amp = results[states[0], states[0]]
+        assert pytest.approx(amp, 1e-6) == results[states[1], states[1]]
+        assert pytest.approx(amp, 1e-6) == results[states[2], states[2]]
+        assert pytest.approx(amp, 1e-6) == -results[states[3], states[3]]
         # Confirm success probability is 1/9
         assert pytest.approx(abs(amp)**2, 1e-6) == 1/9
     
@@ -127,10 +127,10 @@ class TestTwoQubitGates:
         sim = Simulator(CNOT())
         results = sim.simulate(states, states)
         # Check that swap occurs when control qubit is 1 but not otherwise
-        amp = results[states[0]:states[0]]
-        assert pytest.approx(amp, 1e-6) == results[states[1]:states[1]]
-        assert pytest.approx(amp, 1e-6) == results[states[2]:states[3]]
-        assert pytest.approx(amp, 1e-6) == results[states[3]:states[2]]
+        amp = results[states[0], states[0]]
+        assert pytest.approx(amp, 1e-6) == results[states[1], states[1]]
+        assert pytest.approx(amp, 1e-6) == results[states[2], states[3]]
+        assert pytest.approx(amp, 1e-6) == results[states[3], states[2]]
         # Confirm success probability is 1/9
         assert pytest.approx(abs(amp)**2, 1e-6) == 1/9
     
@@ -147,10 +147,10 @@ class TestTwoQubitGates:
         sim = Simulator(CZ_Heralded())
         results = sim.simulate(states, states)
         # Check all results are identical except for |1,1> which has a -1
-        amp = results[states[0]:states[0]]
-        assert pytest.approx(amp, 1e-6) == results[states[1]:states[1]]
-        assert pytest.approx(amp, 1e-6) == results[states[2]:states[2]]
-        assert pytest.approx(amp, 1e-6) == -results[states[3]:states[3]]
+        amp = results[states[0], states[0]]
+        assert pytest.approx(amp, 1e-6) == results[states[1], states[1]]
+        assert pytest.approx(amp, 1e-6) == results[states[2], states[2]]
+        assert pytest.approx(amp, 1e-6) == -results[states[3], states[3]]
         # Confirm success probability is 1/16
         assert pytest.approx(abs(amp)**2, 1e-6) == 1/16
     
@@ -167,9 +167,9 @@ class TestTwoQubitGates:
         sim = Simulator(CNOT_Heralded())
         results = sim.simulate(states, states)
         # Check that swap occurs when control qubit is 1 but not otherwise
-        amp = results[states[0]:states[0]]
-        assert pytest.approx(amp, 1e-6) == results[states[1]:states[1]]
-        assert pytest.approx(amp, 1e-6) == results[states[2]:states[3]]
-        assert pytest.approx(amp, 1e-6) == results[states[3]:states[2]]
+        amp = results[states[0], states[0]]
+        assert pytest.approx(amp, 1e-6) == results[states[1], states[1]]
+        assert pytest.approx(amp, 1e-6) == results[states[2], states[3]]
+        assert pytest.approx(amp, 1e-6) == results[states[3], states[2]]
         # Confirm success probability is 1/16
         assert pytest.approx(abs(amp)**2, 1e-6) == 1/16
