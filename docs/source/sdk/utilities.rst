@@ -1,7 +1,7 @@
 Utilities
 =========
 
-Lightworks also has a number of utilities which aim to make using the package easier, offering random matrix generation and conversion. Each utility function is detailed in a dedicated sub-section.
+Lightworks also has a number of utilities which aim to make using the package easier, offering random matrix generation and quantity conversion. Each utility function is detailed in a dedicated subsection.
 
 :func:`lightworks.random_unitary`
 ---------------------------------
@@ -35,7 +35,7 @@ Generates an NxN permutation matrix, which is a unitary matrix with only values 
 :func:`lightworks.transmission_to_db_loss`
 ------------------------------------------
 
-Converts a decimal transmission value into a positive dB loss which can be used with the circuit loss elements.
+Converts a decimal transmission value into a positive dB loss, which can be used with the circuit loss elements.
 
 .. code-block:: Python
 
