@@ -31,7 +31,7 @@ When using Lightworks, throughout the documentation the following import will be
 
     import lightworks as lw
 
-Other than that, when using the emulator then this will be imported as:
+Then, when using the emulator this will be imported as:
 
 .. code-block:: Python
 
