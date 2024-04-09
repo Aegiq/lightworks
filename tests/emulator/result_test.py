@@ -114,19 +114,15 @@ class TestSimulationResult:
                                        State([0,1,0,1]): 0.2, 
                                        State([0,0,2,0]): 0.1}
         
-    def test_result_slicing(self):
+    def test_result_indexing(self):
         """
         Confirms that result retrieval works correctly for multi input case,
-        with slicing used to specify the input and output.
+        with both the input and output used to get a single value.
         """
         r = SimulationResult(self.test_array, "probability_amplitude", 
                              inputs = self.test_inputs, 
                              outputs = self.test_outputs)
-        assert r[State([1,1,0,0]):State([0,0,2,0])] == 0.1
-        # Also check open ended slicing
-        assert r[State([1,1,0,0]):] == {State([1,0,1,0]): 0.3, 
-                                        State([0,1,0,1]): 0.2, 
-                                        State([0,0,2,0]): 0.1}
+        assert r[State([1,1,0,0]), State([0,0,2,0])] == 0.1
             
     def test_multi_input_plot(self):
         """
