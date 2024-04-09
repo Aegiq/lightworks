@@ -30,7 +30,10 @@ The Simulator can then be created, this requires the created circuit from above.
 
     sim = emulator.Simulator(circuit)
 
-To retrieve probability amplitudes from the system the ``simulate`` method should then be used. At minimum, this requires the input(s) are specified and the target outputs cannot be specified. If the target outputs are not specified, then all possible outputs with photon number matching the input photon number will be calculated. This introduces the condition that all inputs and outputs provided by a user must have the same photon number, if this is not the case then two separate calls to simulate must be made.
+Simulation
+----------
+
+To retrieve probability amplitudes from the system the ``simulate`` method should then be used. At minimum, this requires the input(s) are specified, and optionally target outputs may also be specified. If the target outputs are not included, then all possible outputs with photon number matching the input photon number will be calculated. This introduces the condition that all inputs and outputs provided by a user must have the same photon number, if this is not the case then two separate calls to simulate must be made. When specifying a single input/output it is possible to provide these as States, but for multiple inputs and outputs then these are provided as lists. 
 
 To find the probability amplitude between then input :math:`\ket{1,1,0,0}` and output :math:`\ket{0,0,1,1}`, the code required would therefore be:
 
@@ -41,7 +44,17 @@ To find the probability amplitude between then input :math:`\ket{1,1,0,0}` and o
 
     results = sim.simulate(input_state, output_state)
 
-This will return a :doc:`../emulator_reference/simulation_result` object, the raw data of which can be accessed with the array attribute.
+This will return a :doc:`../emulator_reference/simulation_result` object. We can access data for specific input and outputs using the ``[]`` operator on the object. The behaviour of this slightly varies depending on whether the simulation used one or multiple inputs. In the single input case it is possible to do ``[output_state]`` to get the value for a particular output, whereas for multiple inputs ``[input_state]`` will return all possible outputs for an input and ``[input_state:output_state]`` will produce a singular value for the selected combination. As only one input was used above the following are therefore equivalent:
+
+.. code-block:: Python
+
+    print(results[output_state])
+    # Output: (0.037523401912278494-0.25889120714091474j)
+
+    print(results[input_state, output_state])
+    # Output: (0.037523401912278494-0.25889120714091474j)
+
+Alternatively, the raw data of the results can be accessed with the array attribute.
 
 .. code-block:: Python
 
