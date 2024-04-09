@@ -24,7 +24,7 @@ It has also been shown that linear optic systems can be used to probabilisticall
 When using photons as qubits, it is necessary to use one of the available properties of the photons for encoding the qubit state. There are a number of options for this encoding, including the spatial, temporal and polarisation degrees of freedom. Lightworks uses a spatial mode-based framework, so it is easiest to use the spatial dual rail encoding when examining photonic gates. In actual systems, there is also some benefit to using this type of encoding. As the name suggests, dual rail encoding consists of one photon across two spatial modes, with the :math:`\ket{0}` state being defined as the photon existing on one mode and the :math:`\ket{1}` state defined as the photon existing on the other mode. This is shown in the figure below. A superposition state is then when the photon exists in a superposition across the two spatial modes.
 
 .. figure:: assets/dual_rail_encoding.svg
-    :scale: 125%
+    :scale: 100%
     :align: center
 
     Example of dual-rail encoding with two photonic modes
