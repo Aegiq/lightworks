@@ -30,15 +30,7 @@ class CZ(Unitary):
     heralds, modes 1 & 2 correspond to the 0 & 1 states of the control qubit 
     and modes 3 & 4 correspond to the 0 & 1 states of the target qubit. This
     gate requires additional post-selection in which only one photon should be 
-    measured across each of the pairs of modes which encode a qubit.
-          ______
-     0 --|      | -- 0 _
-    c0 --|      | --    | 1 photon
-    c1 --|  CZ  | --   _|
-    t0 --|      | --    | 1 photon
-    t1 --|      | --   _|
-     0 --|______| -- 0 
-    
+    measured across each of the pairs of modes which encode a qubit.    
     """
     def __init__(self) -> None:
             
@@ -50,6 +42,23 @@ class CZ(Unitary):
         
         super().__init__(unitary, "CZ")
         
+    def show_layout(self):
+        """
+        Shows the mode layout of the selected gate, detailing the location of
+        the qubits and modes used for post-selection/heralding as well as 
+        photon numbers on these modes.
+        """
+        rep = """
+              ______
+         0 --|      |-- 0 _
+        c0 --|      |--    | 1 photon
+        c1 --|  CZ  |--   _|
+        t0 --|      |--    | 1 photon
+        t1 --|      |--   _|
+         0 --|______|-- 0 
+        """
+        print(rep)
+        
 class CNOT(Circuit):
     """
     Post-selected CNOT gate that acts across two dual-rail encoded qubits. This 
@@ -58,14 +67,6 @@ class CNOT(Circuit):
     and modes 3 & 4 correspond to the 0 & 1 states of the target qubit. This
     gate requires additional post-selection in which only one photon should be 
     measured across each of the pairs of modes which encode a qubit.
-          ________
-     0 --|        | -- 0 _
-    c0 --|        | --    | 1 photon
-    c1 --|  CNOT  | --   _|
-    t0 --|        | --    | 1 photon
-    t1 --|        | --   _|
-     0 --|________| -- 0 
-    
     """
     def __init__(self) -> None:
         
@@ -79,6 +80,23 @@ class CNOT(Circuit):
         
         self.add(circ, 0, group = True, name = "CNOT")
         
+    def show_layout(self):
+        """
+        Shows the mode layout of the selected gate, detailing the location of
+        the qubits and modes used for post-selection/heralding as well as 
+        photon numbers on these modes.
+        """
+        rep = """
+              ________
+         0 --|        |-- 0 _
+        c0 --|        |--    | 1 photon
+        c1 --|  CNOT  |--   _|
+        t0 --|        |--    | 1 photon
+        t1 --|        |--   _|
+         0 --|________|-- 0 
+        """
+        print(rep)
+        
 class CZ_Heralded(Unitary):
     """
     Heralded version of the CZ gate which acts across two dual-rail encoded 
@@ -90,16 +108,6 @@ class CZ_Heralded(Unitary):
     not require any post-selection on the output qubits, other than that they
     are not lost (i.e a total of 4 photons should be measured at the output
     of the system), allowing it to be cascaded with other two qubit gates.
-          ______
-     0 --|      | -- 0
-     0 --|      | -- 1 
-    c0 --|      | -- c0
-    c1 --|  CZ  | -- c1
-    t0 --|      | -- t0
-    t1 --|      | -- t1
-     1 --|      | -- 1
-     0 --|______| -- 0 
-    
     """
     def __init__(self) -> None:
         
@@ -129,6 +137,25 @@ class CZ_Heralded(Unitary):
         
         super().__init__(unitary, "CZ (Heralded)")
         
+    def show_layout(self):
+        """
+        Shows the mode layout of the selected gate, detailing the location of
+        the qubits and modes used for post-selection/heralding as well as 
+        photon numbers on these modes.
+        """
+        rep = """
+              ______
+         0 --|      |-- 0
+         1 --|      |-- 1 
+        c0 --|      |-- c0
+        c1 --|  CZ  |-- c1
+        t0 --|      |-- t0
+        t1 --|      |-- t1
+         1 --|      |-- 1
+         0 --|______|-- 0      
+        """
+        print(rep)
+        
 class CNOT_Heralded(Circuit):
     """
     Heralded version of the CNOT gate which acts across two dual-rail encoded 
@@ -140,16 +167,6 @@ class CNOT_Heralded(Circuit):
     not require any post-selection on the output qubits, other than that they
     are not lost (i.e a total of 4 photons should be measured at the output
     of the system), allowing it to be cascaded with other two qubit gates.
-          ________
-     0 --|        | -- 0
-     0 --|        | -- 1 
-    c0 --|        | -- c0
-    c1 --|  CNOT  | -- c1
-    t0 --|        | -- t0
-    t1 --|        | -- t1
-     1 --|        | -- 1
-     0 --|________| -- 0 
-    
     """
     def __init__(self) -> None:
         
@@ -162,3 +179,22 @@ class CNOT_Heralded(Circuit):
         circ.add(H(), 4)
         
         self.add(circ, 0, group = True, name = "CNOT (Heralded)")
+        
+    def show_layout(self):
+        """
+        Shows the mode layout of the selected gate, detailing the location of
+        the qubits and modes used for post-selection/heralding as well as 
+        photon numbers on these modes.
+        """
+        rep = """
+              ________
+         0 --|        |-- 0
+         1 --|        |-- 1 
+        c0 --|        |-- c0
+        c1 --|  CNOT  |-- c1
+        t0 --|        |-- t0
+        t1 --|        |-- t1
+         1 --|        |-- 1
+         0 --|________|-- 0    
+        """
+        print(rep)

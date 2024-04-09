@@ -20,7 +20,7 @@ To use Lightworks, it can be installed directly through pip using the command:
 This will also install all required module dependencies for the project.
 
 .. note::
-    Lightworks has been primarily designed for interaction through Jupyter notebooks, and this is where tools such as the circuit visualization will work best. Jupyter notebooks can be accessed through the Jupyter software directly or through an editor such as Visual Studio Code.
+    Lightworks has been primarily designed for interaction through Jupyter notebooks, and this is where tools such as the circuit visualization will work best. Jupyter notebooks can be accessed through the Jupyter software directly or through an IDE such as Visual Studio Code.
 
 Importing Lightworks
 --------------------
@@ -36,3 +36,6 @@ Other than that, when using the emulator then this will be imported as:
 .. code-block:: Python
 
     from lightworks import emulator
+
+.. note::
+    These imports are not explicitly included in the majority of this documentation. 

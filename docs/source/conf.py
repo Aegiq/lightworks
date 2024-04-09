@@ -49,7 +49,7 @@ html_title = "Lightworks Documentation"
 html_theme_options = {
     "light_css_variables": {
         "color-brand-primary": "#3e368d",
-        "color-brand-content": "#3e368d",
+        "color-brand-content": "#873bd4",
     },
     "dark_css_variables": {
         "color-brand-primary": "#9198cc",

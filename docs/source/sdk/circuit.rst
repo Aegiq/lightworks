@@ -72,12 +72,12 @@ The reflectivity of the beam splitter can be adjusted by specifying the ``reflec
 
     * - Convention
       - Unitary
-    * - Rx
+    * - .. centered:: Rx
       - .. math:: \begin{bmatrix}
                       \cos{\theta/2} & i\sin{\theta/2} \\
                       i\sin{\theta/2} & \cos{\theta/2} \\
                   \end{bmatrix}
-    * - H
+    * - .. centered:: H
       - .. math:: \begin{bmatrix}
                       \cos{\theta/2} & \sin{\theta/2} \\
                       \sin{\theta/2} & -\cos{\theta/2} \\

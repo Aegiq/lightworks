@@ -11,4 +11,5 @@ SDK Reference
     parameter
     parameter_dict
     unitary
+    qubit_gates
     utils

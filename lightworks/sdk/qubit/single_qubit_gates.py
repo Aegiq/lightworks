@@ -23,13 +23,25 @@ import numpy as np
 
 class H(Unitary):
     """
-    Implements a hadamard across a pair of modes corresponding to a dual-rail 
+    Implements a Hadamard across a pair of modes corresponding to a dual-rail 
     encoded qubit.
     """
     def __init__(self) -> None:
         
         unitary = np.array([[1,1],[1,-1]])/2**0.5
         super().__init__(unitary, "H")
+    
+    def show_layout(self):
+        """
+        Shows the mode layout of the selected gate.
+        """
+        rep = """
+              _____
+        q0 --|     |-- q0
+             |  H  |
+        q1 --|_____|-- q1 
+        """
+        print(rep)
         
 class X(Unitary):
     """
@@ -41,6 +53,18 @@ class X(Unitary):
         unitary = np.array([[0,1],[1,0]])
         super().__init__(unitary, "X")
         
+    def show_layout(self):
+        """
+        Shows the mode layout of the selected gate.
+        """
+        rep = """
+              _____
+        q0 --|     |-- q0
+             |  X  |
+        q1 --|_____|-- q1 
+        """
+        print(rep)
+        
 class Y(Unitary):
     """
     Implements a Y gate across a pair of modes corresponding to a dual-rail 
@@ -50,6 +74,18 @@ class Y(Unitary):
         
         unitary = np.array([[0,-1j],[1j,0]])
         super().__init__(unitary, "Y")
+        
+    def show_layout(self):
+        """
+        Shows the mode layout of the selected gate.
+        """
+        rep = """
+              _____
+        q0 --|     |-- q0
+             |  Y  |
+        q1 --|_____|-- q1 
+        """
+        print(rep)
         
 class Z(Unitary):
     """
@@ -61,6 +97,18 @@ class Z(Unitary):
         unitary = np.array([[1,0],[0,-1]])
         super().__init__(unitary, "Z")
         
+    def show_layout(self):
+        """
+        Shows the mode layout of the selected gate.
+        """
+        rep = """
+              _____
+        q0 --|     |-- q0
+             |  Z  |
+        q1 --|_____|-- q1 
+        """
+        print(rep)
+        
 class S(Unitary):
     """
     Implements an S gate across a pair of modes corresponding to a dual-rail 
@@ -71,6 +119,18 @@ class S(Unitary):
         unitary = np.array([[1,0],[0,1j]])
         super().__init__(unitary, "S")
         
+    def show_layout(self):
+        """
+        Shows the mode layout of the selected gate.
+        """
+        rep = """
+              _____
+        q0 --|     |-- q0
+             |  S  |
+        q1 --|_____|-- q1 
+        """
+        print(rep)
+        
 class T(Unitary):
     """
     Implements a T gate across a pair of modes corresponding to a dual-rail 
@@ -80,3 +140,15 @@ class T(Unitary):
         
         unitary = np.array([[1,0],[0,np.exp(1j*np.pi/4)]])
         super().__init__(unitary, "T")
+        
+    def show_layout(self):
+        """
+        Shows the mode layout of the selected gate.
+        """
+        rep = """
+              _____
+        q0 --|     |-- q0
+             |  T  |
+        q1 --|_____|-- q1 
+        """
+        print(rep)

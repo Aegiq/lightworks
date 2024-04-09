@@ -6,7 +6,7 @@ Lightworks |release| Documentation
 Introduction
 ------------
 
-Lightworks is an SDK designed to enable the encoding of jobs & algorithms for implementation on photonic quantum computing hardware. It features a set of components which allow for the configuration of a target QPU to be defined, with powerful parametrisation and visualization tools for easy display and modification of created systems. Also provided within Lightworks is the emulator, which is a local simulation framework for the testing of a provided configuration before hardware execution, with the ability to account for the typical hardware errors seen within a system.
+Lightworks is an open-source Python SDK, designed for the encoding of linear optic circuits for application in photonic quantum computing. It features a set of components which allow for the configuration of a target QPU to be defined, with powerful parametrisation and visualization tools for easy display and modification of created systems. Also provided within Lightworks is the emulator, which is a local simulation framework for the testing of a provided configuration before hardware execution, with the ability to account for the typical hardware errors seen within a system.
 
 Where To Begin
 --------------
