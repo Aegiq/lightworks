@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="446.4" height="310.0" viewBox="0 0 900 625">
+<defs>
+</defs>
+<rect x="100" y="25" width="700" height="575" fill="none" stroke="black" />
+<rect x="92" y="124.5" width="8" height="1" fill="black" />
+<rect x="92" y="249.5" width="8" height="1" fill="black" />
+<rect x="92" y="374.5" width="8" height="1" fill="black" />
+<rect x="92" y="499.5" width="8" height="1" fill="black" />
+<text x="80" y="127" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80, 127)">a0</text>
+<text x="80" y="252" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80, 252)">a1</text>
+<text x="80" y="377" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80, 377)">b0</text>
+<text x="80" y="502" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80, 502)">b1</text>
+<rect x="149.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="200" y="100.0" width="100" height="175" fill="#1a0f36" stroke="black" rx="5" ry="5" />
+<text x="250.0" y="187.5" font-size="35" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 250.0, 187.5)">X</text>
+<rect x="299.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="299.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="400" y="100.0" width="100" height="175" fill="#1a0f36" stroke="black" rx="5" ry="5" />
+<text x="450.0" y="187.5" font-size="35" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 450.0, 187.5)">Y</text>
+<rect x="499.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="499.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="549.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="549.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="600" y="100.0" width="100" height="175" fill="#1a0f36" stroke="black" rx="5" ry="5" />
+<text x="650.0" y="187.5" font-size="35" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 650.0, 187.5)">Z</text>
+<rect x="699.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="699.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="200" y="350.0" width="100" height="175" fill="#1a0f36" stroke="black" rx="5" ry="5" />
+<text x="250.0" y="437.5" font-size="35" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 250.0, 437.5)">H</text>
+<rect x="299.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="299.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="400" y="350.0" width="100" height="175" fill="#1a0f36" stroke="black" rx="5" ry="5" />
+<text x="450.0" y="437.5" font-size="35" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 450.0, 437.5)">S</text>
+<rect x="499.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="499.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="549.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="549.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="600" y="350.0" width="100" height="175" fill="#1a0f36" stroke="black" rx="5" ry="5" />
+<text x="650.0" y="437.5" font-size="35" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 650.0, 437.5)">T</text>
+<rect x="699.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="699.95" y="496.0" width="50.1" height="8" fill="black" />
+</svg>

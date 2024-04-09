@@ -23,7 +23,7 @@ import numpy as np
 
 class H(Unitary):
     """
-    Implements a hadamard across a pair of modes corresponding to a dual-rail 
+    Implements a Hadamard across a pair of modes corresponding to a dual-rail 
     encoded qubit.
     """
     def __init__(self) -> None:

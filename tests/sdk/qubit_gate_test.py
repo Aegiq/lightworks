@@ -23,7 +23,7 @@ import numpy as np
 class TestSingleQubitGates:
     
     def test_hadamard(self):
-        """Checks that the output from the hadamard gate is correct."""
+        """Checks that the output from the Hadamard gate is correct."""
         sim = Simulator(H())
         # Input |1,0>
         results = sim.simulate(State([1,0]))
