@@ -103,7 +103,7 @@ It can be seen from the output that the correct state is now measured, as :math:
 Backend
 -------
 
-The Sampler also supports calculation with multiple different methods through the :doc:`../emulator_reference/backend` object. Currently, it is possible to switch between permanent and SLOS methods of calculation, with each calculation type used for determining the full output probability distribution.
+The Sampler also supports calculation through multiple different methods with the :doc:`../emulator_reference/backend` object. Currently, it is possible to switch between permanent and SLOS methods of calculation, with each calculation type used for determining the full output probability distribution.
 
 .. note::
 
@@ -118,7 +118,7 @@ To use a different calculation method with the sampler, a new Backend object sho
     print(backend)
     # Output: slos
 
-This created Backend should then be passed to the Sampler on class initialization with the ``backend`` keyword. It is also possible to supply a string with the name of the calculation method for this argument, in which case a new Backend object will then be created. This will be assigned to the backend attribute of the sampler.
+This created Backend should then be passed to the Sampler on creation of the sampler object with the ``backend`` keyword. It is also possible to supply a string with the name of the calculation method for this argument, in which case a new Backend object will then be created. This will be assigned to the backend attribute of the sampler.
 
 .. code-block:: Python
 
