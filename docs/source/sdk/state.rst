@@ -12,7 +12,7 @@ To create a new State, a list of integers should be provided, with the integers 
 
     new_state = lw.State([1,0,2,0])
 
-The list used to represent the state is stored with the ``s`` attribute and can be retrieved using this, however the value of this attribute cannot be modified and an error will be raised if this is attempted.
+The list used to represent the state is stored with the ``s`` attribute and can be retrieved using this, however the value of this attribute cannot be modified, and an error will be raised if this is attempted.
 
 Usage
 -----

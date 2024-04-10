@@ -3,7 +3,7 @@ Getting Started
 
 Introduction
 ------------
-To get start we will build a circuit to simulate the Hong-Ou-Mandel (HOM) effect with a single 50:50 beam splitter, and demonstrate the typical process flow of the Lightworks.
+To get started we will build a circuit to simulate the Hong-Ou-Mandel (HOM) effect with a single 50:50 beam splitter, and demonstrate the typical process flow of Lightworks.
 
 HOM interference can be seen when two indistinguishable photons are incident on a 50:50 beam splitter. Classically, when this occurs, we would expect that 50% of the time the photons go to the same output and 50% of the time they go to a different output. Instead, we see that both photons always travel to the same output, as is shown below.
 
@@ -16,7 +16,7 @@ HOM interference can be seen when two indistinguishable photons are incident on 
 First Circuit
 -------------
 
-First we need to import the Lightworks and the emulator with the following:
+First we need to import Lightworks and the emulator with the following:
 
 .. code-block:: Python
 
@@ -29,7 +29,7 @@ We will configure a circuit to simulate by creating a new Circuit object. This C
 
     circuit = lw.Circuit(2)
 
-Next, we add the beam splitter to the circuit, this is achieved with the ``add_bs`` method. The default reflectivity of a beam splitter is 0.5 (50%), so we do not need to specify this. The value we specify in the method arguments is the first mode which we place the beam splitter on. By default, if we don't specify a second mode then it will be set to the first argument + 1, so below we could have equivalently used ``add_bs(0,1)``.
+Next, we add a beam splitter to the circuit, this is achieved with the ``add_bs`` method. The default reflectivity of a beam splitter is 0.5 (50%), so we do not need to specify this. The value we specify in the method arguments is the first mode that the beam splitter is placed on. By default, if a second mode isn't specified then it will be set to the first mode + 1, so below we could have equivalently used ``add_bs(0,1)``.
 
 .. code-block:: Python
 
@@ -38,7 +38,11 @@ Next, we add the beam splitter to the circuit, this is achieved with the ``add_b
 .. note::
     Like Python itself, indexing in Lightworks starts from 0, meaning this is always the first mode. So for example, in a 4 mode circuit, the modes would be referred to using the indices 0, 1, 2 & 3.
 
-Once we have a circuit, we can then view the created circuit using the display method. For the circuit above this will produce the following:
+Once a Circuit has been created, we can then view it using the display method. For the circuit above this will produce the following:
+
+.. code-block:: Python
+
+    circuit.display()
 
 .. image:: assets/getting_started_hom_circuit.svg
     :scale: 200%
@@ -81,7 +85,7 @@ Alternatively, we can use the ``show`` method to quickly create a plot of the me
     :scale: 100%
     :align: center
 
-As expected, in near equal numbers we measure the states :math:`\ket{2,0}` and :math:`\ket{0,2}`, with the variation only existing due to the probabilistic nature of the system.
+As expected, in near equal numbers we measure the states :math:`\ket{2,0}` and :math:`\ket{0,2}`, with only a small variation existing due to the probabilistic nature of the system.
 
 Distinguishable Photons
 ^^^^^^^^^^^^^^^^^^^^^^^

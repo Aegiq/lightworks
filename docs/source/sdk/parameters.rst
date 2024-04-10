@@ -6,7 +6,7 @@ As part of a Lightworks, a set of tools is included for the parametrisation of c
 Parameter
 ---------
 
-To create a new Parameter, at minimum an initial value needs to be assigned to the object. It also possible to assign a value to the ``label`` option, which will be used when displaying a circuit which utilises this parameter. Bounds can also be included but this is detailed more later.
+To create a new Parameter, at minimum an initial value needs to be assigned to the object. It is also possible to assign a value to the ``label`` option, which will be used when displaying a circuit which utilises this parameter. Bounds can also be included, but this is detailed more later.
 
 .. code-block:: Python
 
@@ -31,7 +31,7 @@ The Parameter value can then be modified and retrieved with the ``set`` and ``ge
 Bounds
 ^^^^^^
 
-With Parameters, it is also possible to set a lower and upper bound for numeric values, which will constrain a parameter and raise an error if it is attempted to be set outside of this range. This can be useful when a Parameter may only take on certain values. To set bounds for the system this can be achieved with the ``bounds`` argument of Parameter creation, the value should be a list of the form [lower bound, upper bound]. It is also possible to leave one or both of the bounds open by assigning the value to None.
+With Parameters, it is also possible to set a lower and upper bound for numeric values, which will constrain a parameter and raise an error if it is attempted to be set outside this range. This can be useful when a Parameter may only take on certain values. To set bounds for the system this can be achieved with the ``bounds`` argument of Parameter creation, the value should be a list of the form [lower bound, upper bound]. It is also possible to leave one or both of the bounds open by assigning the value to None.
 
 .. code-block:: Python
 
@@ -92,7 +92,7 @@ Parameters can then be added to the dictionary using the [] operator, where keys
     pd["p1"] = lw.Parameter(1)
     pd["p2"] = lw.Parameter(2)
 
-Once a Parameter has been added to the dictionary, it is possible to update the value without using the ``set`` method of the Parameter directly. Instead the following can be used.
+Once a Parameter has been added to the dictionary, it is possible to update the value without using the ``set`` method of the Parameter directly. Instead, the following can be used.
 
 .. code-block:: Python
 
@@ -123,7 +123,7 @@ The ParameterDict also supports some other functionality which is similar to a n
 Bounds
 ^^^^^^
 
-The ParameterDict also supports some additional functionality related to bounds. The ``has_bounds`` will check if any of the Parameters included have associated bounds, retuning either True or False. The bounds associated with all Parameters used in the dictionary can also be retrieved with ``get_bounds``, which will return a dictionary of Parameter keys and bounds. For any bounds which are set to None these will be replaced with +/- infinity (using inf from the Python math module).
+The ParameterDict also supports some additional functionality related to bounds. The ``has_bounds`` method will check if any of the Parameters included have associated bounds, retuning either True or False. The bounds associated with all Parameters used in the dictionary can also be retrieved with ``get_bounds``, which will return a dictionary of Parameter keys and bounds. For any bounds which are set to None these will be replaced with +/- infinity (using inf from the Python math module).
 
 .. code-block:: Python
 

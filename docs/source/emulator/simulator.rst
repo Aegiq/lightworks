@@ -47,7 +47,7 @@ To find the probability amplitude between then input :math:`\ket{1,1,0,0}` and o
 
     results = sim.simulate(input_state, output_state)
 
-This will return a :doc:`../emulator_reference/simulation_result` object. We can access data for specific input and outputs using the ``[]`` operator on the object. The behaviour of this slightly varies depending on whether the simulation used one or multiple inputs. In the single input case it is possible to do ``[output_state]`` to get the value for a particular output, whereas for multiple inputs ``[input_state]`` will return all possible outputs for an input and ``[input_state:output_state]`` will produce a singular value for the selected combination. As only one input was used above the following are therefore equivalent:
+This will return a :doc:`../emulator_reference/simulation_result` object. We can access data for specific input and outputs using the ``[]`` operator on the object. The behaviour of this slightly varies depending on whether the simulation used one or multiple inputs. In the single input case it is possible to do ``[output_state]`` to get the value for a particular output, whereas for multiple inputs ``[input_state]`` will return all possible outputs for an input and ``[input_state, output_state]`` will produce a singular value for the selected combination. As only one input was used above the following are therefore equivalent:
 
 .. code-block:: Python
 
