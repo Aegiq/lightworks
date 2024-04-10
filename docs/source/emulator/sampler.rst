@@ -1,9 +1,9 @@
 Sampler
 =======
 
-The :doc:`../emulator_reference/sampler` can be used to simulate the process of running jobs with an interferometer-based photonic system, in which the same input is placed into the system many times and the output distribution measured. As this output from the system is inherently probabilistic the output distribution will tend towards the true distribution as more samples are collected. The number of samples collected from the system will depend on resource constraints, but will never be infinite, meaning there will always be some small variation from the ideal distribution. 
+The :doc:`../emulator_reference/sampler` can be used to simulate the process of running jobs with an interferometer-based photonic system, in which the same input is placed into the system many times and the output distribution measured. As this output from the system is inherently probabilistic, the output distribution will tend towards the true distribution as more samples are collected. The number of samples collected from the system will depend on resource constraints, but will never be infinite, meaning there will always be some small variation from the ideal distribution. 
 
-As sampling is how the system is utilised, it is very useful to be able to understand how the process will look like for a given job. To demonstrate sampling we will show how the 2 qubit CNOT gate from (insert reference) can be tested with the emulator. The circuit to define this gate is shown below, it occupies 6 modes where the 4 central modes c0, c1, t0 & t1 are used for qubit encoding. 
+As sampling is predominately how a hardware system is utilised, it is very useful to be able to understand how the process will look like for a given job. To demonstrate sampling we will show how the 2 qubit CNOT gate from :cite:p:`ralph2002` can be tested with the emulator. The circuit to define this gate is shown below, it occupies 6 modes, where the 4 central modes c0, c1, t0 & t1 are used for qubit encoding. 
 
 .. code-block:: Python
 
@@ -54,7 +54,7 @@ It is possible to view the output probability distribution by accessing the ``pr
     
     results = sampler.sample_N_outputs(10000, seed = 1)
 
-The method also supports supplying a random seed for the creation of repeatable results. This returns a :doc:`../emulator_reference/sampling_result` object. This has a range of useful functionality, but primarily the ``plot`` method can be used to view the output counts from the sampling experiment. ``show = True`` can be used to directly display the created plot.
+This method also supports supplying a random seed for the creation of repeatable results. It returns a :doc:`../emulator_reference/sampling_result` object, which has a range of useful functionality, but primarily the ``plot`` method can be used to view the output counts from the sampling experiment. ``show = True`` is passed to directly display the created plot.
 
 .. code-block:: Python
 
@@ -88,8 +88,8 @@ As mentioned, post-selection/heralding is required for the CNOT gate above to wo
     herald = lambda s: not s[0] and not s[5] and sum(s[1:3]) == 1 and sum(s[3:5]) == 1
 
     # Sample from the system again
-    results = sampler.sample_N_outputs(10000, herald = herald, seed = 1,
-                                       min_detection = 2) # Not needed
+    results = sampler.sample_N_inputs(10000, herald = herald, seed = 1,
+                                      min_detection = 2) # Not needed
 
     # View results
     results.plot(show = True)
@@ -98,7 +98,7 @@ As mentioned, post-selection/heralding is required for the CNOT gate above to wo
     :scale: 100%
     :align: center
 
-It can be seen from the output that the correct state is now measured, as :math:`\ket{001010}` is equivalent to :math:`\ket{11}` in qubit language. One important thing to notice is that the number of measured outputs is significantly less than the 10,000 inputs. This results from the 1/9 success probability of the gate, and the fact that the ``sampler_N_states`` method will generate 10,000 samples from an unconstrained system, and then filter any which don't meet the criteria. This is analogous to the process that would occur in real systems.
+It can be seen from the output that the correct state is now measured, as :math:`\ket{001010}` is equivalent to :math:`\ket{11}` in qubit language. One important thing to notice is that the number of measured outputs is significantly less than the 10,000 inputs. This results from the 1/9 success probability of the gate, and the fact that the ``sample_N_inputs`` method will generate 10,000 samples from an unconstrained system, and then filter any which don't meet the criteria. This is analogous to the process that would occur in real systems.
 
 Backend
 -------
@@ -118,7 +118,7 @@ To use a different calculation method with the sampler, a new Backend object sho
     print(backend)
     # Output: slos
 
-This created Backend should then be passed to the Sampler on creation of the sampler object with the ``backend`` keyword. It is also possible to supply a string with the name of the calculation method for this argument, in which case a new Backend object will then be created. This will be assigned to the backend attribute of the sampler.
+This created Backend should then be passed to the Sampler on creation of a new object with the ``backend`` keyword. It is also possible to supply a string with the name of the calculation method for this argument, in which case a new Backend object will then be created. This will be assigned to the backend attribute of the sampler.
 
 .. code-block:: Python
 

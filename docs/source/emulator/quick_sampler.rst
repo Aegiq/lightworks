@@ -32,7 +32,7 @@ It is also possible to add a herald function to the QuickSampler. This could be 
     
     quick_sampler.herald = lambda s: s[0] == 0 and s[7] == 0
 
-The probability distribution can then be sampled from using either ``sample`` to get individual samples or ``sample_N_outputs`` to get N valid outputs from the system. The latter is used below, where the return is a :doc:`../emulator_reference/sampling_result` object, through which the built-in plotting can be used to quickly view the initial results.
+The probability distribution can then be sampled from, using either ``sample`` to get individual samples or ``sample_N_outputs`` to get N valid outputs from the system. The latter is used below, where the return is a :doc:`../emulator_reference/sampling_result` object, through which the built-in plotting can be used to quickly view the initial results.
 
 .. code-block:: Python
 
