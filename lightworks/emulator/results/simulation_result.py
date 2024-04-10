@@ -70,7 +70,7 @@ class SimulationResult:
             
         # Store any additional provided data from kwargs as attributes    
         for k in kwargs:
-            self.__dict__[k] = kwargs[k]
+            setattr(self, k, kwargs[k])
         
         return
     
@@ -104,7 +104,7 @@ class SimulationResult:
         """
         return self.__result_type
     
-    def __getitem__(self, item: State | slice) -> float | dict:
+    def __getitem__(self, item: State | tuple) -> float | dict:
         """Custom get item behaviour - used when object accessed with []."""
         if isinstance(item, State):
             # When only one input is used, automatically return output value
@@ -119,39 +119,45 @@ class SimulationResult:
                     return self.dictionary[item]
                 else:
                     raise KeyError("Provided input state not in data.")
-        elif isinstance(item, slice):
-            # Separate slice into two states
-            istate = item.start
-            ostate = item.stop
-            # For : slice return all data, unless a single input is present in 
-            # which case just return that
-            if istate is None and ostate is None:
-                if len(self.inputs) == 1:
-                    return self.dictionary[self.inputs[0]]
-                else:
-                    return self.dictionary
+        elif isinstance(item, tuple):
+            # Check only two values have been provided
+            if len(item) > 2:
+                raise ValueError(
+                    "Get item can only contain a maximum of two values.")
+            # Separate data into two states
+            istate = item[0]
+            ostate = item[1]
             # Check all aspects are valid
             if (not isinstance(istate, State) or 
                 not isinstance(ostate, (State, type(None)))):
                 raise ValueError(
-                    "Items used in slices should have type State.")
+                    "Get item values should have type State.")
             if istate in self.dictionary:
                 sub_r = self.dictionary[istate]
             else:
-                raise KeyError("Provided input state not in data.")
-            # If open ended slice used then return all results for input
+                raise KeyError("Requested input state not in data.")
+            # If None provided as second value then return all results for input
             if ostate is None:
                 return sub_r
             # Else return requested value
             elif ostate in sub_r:
                 return sub_r[ostate]
             else:
-                raise KeyError("Provided output State not in data.")
+                raise KeyError("Requested output state not in data.")
+        elif isinstance(item, slice):
+            raise DeprecationWarning(
+                "Retrieval of data through slicing is no longer supported.")
         else:
-            raise ValueError("Get item value must be a State or slice.")
+            raise ValueError(
+                "Get item value must be either one or two States.")
         
     def __str__(self) -> str:
         return str(self.dictionary)
+    
+    def __iter__(self) -> iter:
+        """Iterable to allow to do 'for input in SimulationResult'."""
+        for p in self.dictionary:
+            yield p
     
     def apply_threshold_mapping(self, invert: bool = False
                                 ) -> "SimulationResult":
@@ -356,7 +362,7 @@ class SimulationResult:
             plt.show()
             return 
         
-        return fig, ax
+        return (fig, ax)
     
     def print_outputs(self, rounding: int = 4) -> None:
         """
@@ -378,7 +384,7 @@ class SimulationResult:
                 if self.result_type == "counts":
                     to_print += str(ostate) + " : " + str(p) + ", "
                 else:
-                    p = self._complex_round(p, rounding)
+                    p = np.round(p, rounding)
                     if abs(p.real) > 0 or abs(p.imag) > 0:
                         to_print += str(p) + "*" + str(ostate) + " + "
             to_print = to_print[:-2]    
@@ -438,16 +444,3 @@ class SimulationResult:
         # Create dataframe
         df = pd.DataFrame(data, index = in_strings, columns = out_strings)
         return df
-        
-    def _complex_round(self, value: float | complex, 
-                       round_points: int) -> float | complex:
-        """
-        Function to perform rounding of complex numbers to the given number of
-        decimal places. It is also compatible with real numbers and will 
-        return the rounded real value in this case.
-        """
-        if not isinstance(value, complex):
-            return round(value, round_points)
-        else:
-            return (round(value.real, round_points) + 
-                    round(value.imag, round_points) * 1j)

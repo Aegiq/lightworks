@@ -1,14 +1,14 @@
 Circuit
 =======
 
-The :doc:`../sdk_reference/circuit` is one of the key components of the Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
+The :doc:`../sdk_reference/circuit` is one of the key components of Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
 
 .. note that somewhere here there will need to be a note on what loss is and how it is included.
 
 Building Circuits
 -----------------
 
-A circuit is initialized by calling the circuit object, and only requires the number of modes used in the circuit to be specified. For example, to create a circuit with 4 modes the required code would be:
+A circuit is initialized by calling the Circuit object, and only requires the number of modes used in the circuit to be specified. For example, to create a circuit with 4 modes the required code would be:
 
 .. code-block:: Python
 
@@ -48,7 +48,7 @@ We can then begin to add components to the circuit, the following are included a
       - ``add_barrier``
       - Modes
 
-Below, a sub-section is dedicated to each component, with more information about how each component can be used and their options.
+Below, a subsection is dedicated to each component, with more information about how each component can be used and their options.
 
 .. _beamsplitter:
 
@@ -64,7 +64,7 @@ To include a beam splitter in a circuit the ``add_bs`` method is used, at minimu
     circuit.add_bs(0)
     circuit.add_bs(0, 1)
 
-The reflectivity of the beam splitter can be adjusted by specifying the ``reflectivity`` option in the method. It should be provided as a decimal value, with the default value being 0.5. The beam splitter convention can also be adjusted if required, it defaults to Rx, with the available options being:
+The reflectivity of the beam splitter can be adjusted by specifying the ``reflectivity`` option in the method. It should be provided as a decimal value, with the default value being 0.5. The beam splitter convention can also be adjusted if required, it defaults to 'Rx', with the available options being:
 
 .. list-table:: Beam splitter conventions
     :widths: 40 60
@@ -72,18 +72,18 @@ The reflectivity of the beam splitter can be adjusted by specifying the ``reflec
 
     * - Convention
       - Unitary
-    * - Rx
+    * - .. centered:: Rx
       - .. math:: \begin{bmatrix}
                       \cos{\theta/2} & i\sin{\theta/2} \\
                       i\sin{\theta/2} & \cos{\theta/2} \\
                   \end{bmatrix}
-    * - H
+    * - .. centered:: H
       - .. math:: \begin{bmatrix}
                       \cos{\theta/2} & \sin{\theta/2} \\
                       \sin{\theta/2} & -\cos{\theta/2} \\
                   \end{bmatrix}
 
-Where :math:`\theta = \cos^{-1}(\sqrt{\text{reflectivity}})`. As an example, if we wanted to add a beam splitter across modes 1 & 2, with reflectivity of 0.4 and using the 'H' convention, the function call would be:
+Where :math:`\theta = 2\cos^{-1}(\sqrt{\text{reflectivity}})`. As an example, if we wanted to add a beam splitter across modes 1 & 2, with reflectivity of 0.4 and using the 'H' convention, the function call would be:
 
 .. code-block:: Python
 
@@ -118,13 +118,13 @@ A phase shifter acts to apply a phase to a single mode of the circuit. They are 
 Mode Swaps
 ^^^^^^^^^^
 
-The mode swaps component can be used to very quickly rearrange the mode configuration of a circuit, without worrying about having to determine the exact sequence of swaps that would be required. To specify the mode swaps to be implemented a dictionary should be provided to the ``add_mode_swaps`` method, where the keys of the dictionary describe the initial modes and the values describe the final mode positions. If we were aiming to swaps modes 0 & 2 of a circuit, this might look like:
+The mode swaps component can be used to quickly rearrange the mode configuration of a circuit, without worrying about having to determine the exact sequence of swaps that would be required. To specify the mode swaps to be implemented a dictionary should be provided to the ``add_mode_swaps`` method, where the keys of the dictionary describe the initial modes and the values describe the final mode positions. If we were aiming to swaps modes 0 & 2 of a circuit, this might look like:
 
 .. code-block:: Python
 
     circuit.add_mode_swaps({0:2, 2:0})
 
-It is also possible to implement more complex configurations though. For example, in a 4 mode circuit the following reconfiguration may be implemented:
+It is also possible to implement more complex configurations though. For example, in a 4 mode circuit the following reconfiguration could be implemented:
 
 .. code-block:: Python
 
@@ -140,9 +140,9 @@ This would map 0 :math:`\rightarrow` 2, 2 :math:`\rightarrow` 3, 3 :math:`\right
 Loss Element
 ^^^^^^^^^^^^
 
-A loss element is used to implement a dedicated source of loss to a mode of a photonic circuit. They are added through the ``add_loss``, which requires the mode to implement the loss on and the value of the loss in dB. It is important to note that adding loss elements to a circuit will introduce additional invisible modes to the circuit. This will increase runtime when simulating a circuit, so users should endeavour to minimize additional loss elements where possible. 
+A loss element is used to implement a dedicated source of loss to a mode of a photonic circuit. They are added through the ``add_loss`` method, which requires the mode to implement the loss on and the value of the loss in dB. It is important to note that adding loss elements to a circuit will introduce additional invisible modes to the circuit. This will increase runtime when simulating a circuit, so users should endeavour to minimize additional loss elements where possible. 
 
-To add a loss component on mode 1 of a circuit, with value of 3dB, the method call should look like:
+To add a loss component on mode 1 of a circuit, with a value of 3dB, the method call should look like:
 
 .. code-block:: Python
 
@@ -153,7 +153,7 @@ To add a loss component on mode 1 of a circuit, with value of 3dB, the method ca
 Barriers
 ^^^^^^^^^^^
 
-The ``add_barrier`` method only affects how circuits are displayed by the visualization functions, and does not alter the actual functionality of the circuit. It is useful as it allows for different aspects of a circuit to be spatially separated allow for a user to see which components correspond to a particular functionality they are trying to implement. 
+The ``add_barrier`` method only affects how circuits are displayed by the visualization functions, and does not alter the actual functionality of the circuit. It is useful as it allows for different aspects of a circuit to be spatially separated, enabling a user to see which components correspond to a particular functionality they are trying to implement. 
 
 When adding a barrier, a list of the modes which it should be applied to is provided, alternatively if no arguments are provided to the function then it will be applied across all modes of the circuit.
 
@@ -168,7 +168,7 @@ When adding a barrier, a list of the modes which it should be applied to is prov
 Visualization
 -------------
 
-Once a circuit has been created, the created configuration can be viewed with the ``display`` method. To demonstrate this, we will create a new circuit which uses all of the components above.
+Once a circuit has been created, the configuration can be viewed with the ``display`` method. To demonstrate this, we will create a new circuit which uses all of the components above.
 
 .. code-block:: Python
 
@@ -232,7 +232,7 @@ When then viewing this circuit with ``display``, we will see that by default the
     :scale: 100%
     :align: center
 
-To instead view the circuit with the actual parameter values we use ``show_parameter_values = True`` in the display method.
+To instead view the circuit with the actual parameter values, we use ``show_parameter_values = True`` in the display method.
 
 .. code-block:: Python
 
@@ -263,7 +263,7 @@ Combining Circuits
 
 Circuits also support addition, meaning it is possible to create sub-circuits with specific functionality and then combine them as required. There are two ways to do this.
 
-The first is through the use of the ``+`` operator. This is simpler, but only supports the addition of equally size circuits. An example of this is shown below, in which a circuit with a number of beam splitters is created and another with a number of phase shifters, these are then combined.
+The first is through the use of the ``+`` operator. This is simpler, but only supports the addition of equally sized circuits. An example of this is shown below, in which a circuit with a number of beam splitters is created and another with a number of phase shifters, these are then combined.
 
 .. code-block:: Python
 
@@ -311,7 +311,7 @@ It can also be seen how unlike when using ``+`` the ``add`` method does not retu
 .. note:: 
     The starting mode of the smaller circuit + the number of modes in the smaller circuit must be less than or equal to the number of modes in the larger circuit. For example, when adding a 4 mode circuit to a 6 mode circuit, then the 4 mode circuit could start on mode 0, 1 or 2. 
 
-When using ``add``, it is also possible to choose to group all of the elements being to the smaller circuit into a single component. This has no functional effect on the circuit but can be useful when viewing the created circuit. A name can also be provided which is shown in the display. In this case we will choose to label the circuit as phases. 
+When using ``add``, it is also possible to choose to group all elements being added to the larger circuit into a single component. This has no functional effect on the circuit but can be useful when viewing the created circuit. A name can also be provided which is shown in the display. In this case we will choose to label the circuit as 'phases'. 
 
 .. code-block:: Python
 
@@ -341,7 +341,7 @@ Also included within the circuit, is a number of additional methods which enable
 get_all_params
 ^^^^^^^^^^^^^^
 
-This method will collect and return a list of all parameters used as part of a ciruit.
+This method will collect and return a list of all parameters used as part of a circuit.
 
 .. code-block:: Python
 
@@ -372,7 +372,7 @@ Can be used to unpack any groups of components that have been added to a circuit
 compress_mode_swaps
 ^^^^^^^^^^^^^^^^^^^
 
-Will this method is called it will look any adjacent mode swaps in a circuit and compress them into a single element. This can be useful for reducing the footprint of a circuit.
+When this method is called it will look at any adjacent mode swaps in a circuit and compress them into a single element. This can be useful for reducing the footprint of a circuit.
 
 .. code-block:: Python
 
@@ -381,7 +381,7 @@ Will this method is called it will look any adjacent mode swaps in a circuit and
 remove_non_adjacent_bs
 ^^^^^^^^^^^^^^^^^^^^^^
 
-This method can be used to convert and beam splitters that act across non adjacent modes into a beam splitter on adjacent modes and a set of mode swaps across this circuit. This is useful as in mode realisations of an interferometer the direct interaction between non-adjacent modes is not possible.
+This method can be used to convert any beam splitters that act across non-adjacent modes into a beam splitter on adjacent modes and a set of mode swaps across the circuit. This is useful as in photonic integrated circuit realizations of an interferometer the direct interaction between non-adjacent modes is not possible.
 
 .. code-block:: Python
 

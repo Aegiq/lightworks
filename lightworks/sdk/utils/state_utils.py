@@ -28,7 +28,7 @@ def fock_basis(N: int, n: int, statistic_type: str) -> list:
     else:
         raise ValueError("statistic_type should be 'bosonic' or 'fermionic'.")
     
-def _fermionic_basis(N,n):
+def _fermionic_basis(N: int, n: int) -> list:
     """This returns the possible states of n fermions in N modes as vectors."""
     if n == 0:
         return [[0]*N]
@@ -38,7 +38,7 @@ def _fermionic_basis(N,n):
     arrays_with_one = [[1]+arr for arr in _fermionic_basis(N - 1, n - 1)]
     return arrays_with_zero + arrays_with_one
 
-def _sums(length, total_sum):
+def _sums(length: int, total_sum: int):
     if length == 1:
         yield [total_sum,]
     else:

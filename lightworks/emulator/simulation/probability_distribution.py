@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from ..backend import Backend
-from ..utils import fock_basis
 from ...sdk import State
 from ...sdk.circuit.circuit_compiler import CompiledCircuit
 

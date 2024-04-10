@@ -1,7 +1,7 @@
 Analyzer
 ========
 
-The :doc:`../emulator_reference/analyzer` object provides a set of tools to enable a better understanding of the functionality of a circuit under a set of post-selection criteria. This provision of this criteria before computation enables the Analyzer to filter down the possible output states from a given target input, reducing the number of states that it needs to calculate the permanent for.
+The :doc:`../emulator_reference/analyzer` object provides a set of tools to enable a better understanding of the functionality of a circuit under a set of post-selection criteria. The provision of this criteria before computation enables the Analyzer to filter down the possible output states from a given target input, reducing the number of states that it needs to calculate the permanent for.
 
 To test the Analyzer, we will use the CNOT gate from :cite:p:`ralph2002`, as this is a useful demonstration of all analyzer features. For successful operation, it requires that at the output there are no output photons measured on the upper and lower modes, and also that only one photon exists across each of the two modes used to define each qubit.
 
@@ -61,7 +61,7 @@ Once the required conditions have been defined, then the Analyzer can be utilise
 
 .. code-block:: Python
 
-    # List inputs in both qubit and mode language
+    # Store inputs in both qubit and mode language
     inputs = {"00" : lw.State([1,0,1,0]),
               "01" : lw.State([1,0,0,1]),
               "10" : lw.State([0,1,1,0]),
@@ -71,7 +71,7 @@ Once the required conditions have been defined, then the Analyzer can be utilise
     # Run Analyzer
     results = analyzer.analyze(states)
 
-The results from can then be plotted to view the transformation. The returned :doc:`../emulator_reference/simulation_result` object contains a plotting method, but in this case it is useful to convert from mode to qubit language.
+The results from this can then be plotted to view the transformation. The returned :doc:`../emulator_reference/simulation_result` object contains a plotting method, but in this case it is useful to convert from mode to qubit language and plot manually.
 
 .. code-block:: Python
 
@@ -81,7 +81,7 @@ The results from can then be plotted to view the transformation. The returned :d
     plot_array = np.zeros((len(inputs), len(inputs)))
     for i, istate in enumerate(inputs.values()):
         for j, ostate in enumerate(inputs.values()):
-            plot_array[i,j] = results[istate:ostate]
+            plot_array[i,j] = results[istate, ostate]
 
     in_labels = list(inputs.keys())
     out_labels = in_labels
@@ -99,7 +99,7 @@ The results from can then be plotted to view the transformation. The returned :d
     :scale: 75%
     :align: center
 
-As can be seen from the output above, the CNOT gate operates as expected, with the target qubit flipping when the control qubit is set to 1. From the analyzer it is also possible to calculate the success rate of the system under the provided condition set. In this case we find:
+As can be seen from the output above, the CNOT gate operates as expected, with the target qubit flipping when the control qubit is set to 1. From the Analyzer it is also possible to calculate the success rate of the system under the provided condition set. In this case we find:
 
 .. code-block:: Python
 

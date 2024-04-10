@@ -12,6 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .matrix_utils import fidelity, check_unitary
 from .state_utils import fock_basis, annotated_state_to_string
 from .exceptions import *

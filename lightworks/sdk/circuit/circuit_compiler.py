@@ -384,7 +384,7 @@ class CompiledCircuit:
         return
     
     def display(self, display_loss: bool = False, 
-                mode_labels: list | None = None,
+                mode_labels: list | None = None, 
                 display_type: str = "svg") -> None:
         """
         Displays the current circuit.
@@ -468,7 +468,7 @@ class CompiledUnitary(CompiledCircuit):
             implemented.
     
     """
-    def __init__(self, unitary: np.ndarray) -> None:
+    def __init__(self, unitary: np.ndarray, label: str = "U") -> None:
         
         # Check type of supplied unitary
         if not isinstance(unitary, (np.ndarray, list)):
@@ -478,6 +478,10 @@ class CompiledUnitary(CompiledCircuit):
         # Ensure unitary is valid
         if not check_unitary(unitary):
             raise ValueError("Matrix is not unitary.")
+        if not isinstance(label, str):
+            raise TypeError("Label for unitary should be a string.")
+        
+        # Also check label
         # Assign attributes of unitary
         self.U = unitary
         self.U_full = unitary
@@ -485,6 +489,6 @@ class CompiledUnitary(CompiledCircuit):
         self._loss_included = False
         self._loss_modes = 0
         # Will need to add unitary to build spec
-        self._display_spec = [("unitary", [0, self.n_modes-1], None)]
+        self._display_spec = [("unitary", [0, self.n_modes-1], label)]
         
         return

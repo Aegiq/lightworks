@@ -38,8 +38,7 @@ class Permanent:
              (np.sqrt(factor_m*factor_n)))    
         return p
 
-def partition(U: np.ndarray, in_state: State, 
-                out_state: State) -> np.ndarray:
+def partition(U: np.ndarray, in_state: State, out_state: State) -> np.ndarray:
     """
     Converts the unitary matrix into a larger matrix used for in the 
     permanent calculation.

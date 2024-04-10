@@ -32,7 +32,7 @@ class Unitary(Circuit):
             implemented.
     
     """
-    def __init__(self, unitary: np.ndarray) -> None:
+    def __init__(self, unitary: np.ndarray, label: str = "U") -> None:
         
         # Check type of supplied unitary
         if not isinstance(unitary, (np.ndarray, list)):
@@ -43,7 +43,11 @@ class Unitary(Circuit):
         if not check_unitary(unitary):
             raise ValueError("Provided matrix is not unitary.")
         
+        # Also check label is a string
+        if not isinstance(label, str):
+            raise TypeError("Label for unitary should be a string.")
+        
         super().__init__(int(unitary.shape[0]))
-        self._Circuit__circuit_spec = [["unitary", (0, unitary)]]
+        self._Circuit__circuit_spec = [["unitary", (0, unitary, label)]]
         
         return

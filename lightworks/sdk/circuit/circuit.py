@@ -108,8 +108,8 @@ class Circuit:
         """Returns display spec for the circuit."""
         return self._get_display_spec()
         
-    def add(self, circuit: Union["Circuit", "Unitary"],                        # type: ignore - ignores Pylance warning raised by undefined unitary component
-            mode: int = 0, group: bool = False, name: str = "Circuit") -> None:
+    def add(self, circuit: Union["Circuit", "Unitary"], mode: int = 0,         # type: ignore - ignores Pylance warning raised by undefined unitary component
+            group: bool = False, name: str = "Circuit") -> None:
         """
         Can be used to add either another Circuit or a Unitary component to the
         existing circuit. This can either have the same size or be smaller than
@@ -405,7 +405,7 @@ class Circuit:
             elif cs == "mode_swaps":
                 circuit.add_mode_swaps(got_params[0])
             elif cs == "unitary":
-                unitary = CompiledUnitary(params[1])
+                unitary = CompiledUnitary(params[1], params[2])
                 circuit.add(unitary, params[0])
             else:
                 raise CircuitCompilationError(
@@ -506,7 +506,7 @@ class Circuit:
             elif cs == "unitary":
                 nm = params[1].shape[0]
                 display_spec.append(("unitary", [cparams[0], cparams[0]+nm-1], 
-                                   None))
+                                     params[2]))
             elif cs == "group":
                 display_spec.append(("group", [params[2], params[3]], 
                                    (params[1])))
