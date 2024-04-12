@@ -401,7 +401,7 @@ class Circuit:
             elif cs == "loss":
                 circuit.add_loss(*got_params)
             elif cs == "barrier":
-                circuit.add_barrier(got_params[0])
+                pass
             elif cs == "mode_swaps":
                 circuit.add_mode_swaps(got_params[0])
             elif cs == "unitary":

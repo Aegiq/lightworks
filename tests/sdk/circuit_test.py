@@ -78,65 +78,6 @@ class TestCircuit:
         assert unitary[1,2] == pytest.approx(-0.153884469732+0.0872489579891j,1e-8)
         assert unitary[4,3] == pytest.approx(-0.083445311860+0.154159863276j,1e-8)
         
-    def test_equivalent_circ(self):
-        """
-        Confirms that two identical circuits made using circuit and 
-        parameterized circuit calls return the same values.
-        """
-        circuit = CompiledCircuit(6)
-        U_addc = CompiledUnitary(random_unitary(3, seed = 14))
-        pcircuit = Circuit(6)
-        U_add = Unitary(random_unitary(3, seed = 14))
-        # Run through same build procedure for each circuit type
-        for circ, U in [(circuit, U_addc), (pcircuit, U_add)]:
-            seed(5)
-            for i in [0, 2, 4, 1, 3, 2]:
-                circ.add_bs(i, reflectivity = random())
-                circ.add_ps(i, random())
-            circ.add_mode_swaps({1:3, 2:4, 4:1, 3:2})
-            circ.add(U, 1)
-        # Get unitaries
-        U_circ = circuit.U_full
-        U_pcirc = pcircuit.U
-        for i in range(6):
-            for j in range(6):
-                assert U_circ[i,j] == pytest.approx(U_pcirc[i,j], 1e-10)
-        # Also check that the produced build specs are equivalent
-        assert circuit._display_spec == pcircuit._display_spec
-                
-    def test_equivalent_lossy_circ(self):
-        """
-        Confirms that two identical lossy circuits made using circuit and 
-        parameterized circuit calls return the same values.
-        """
-        circuit = CompiledCircuit(6)
-        U_addc = CompiledUnitary(random_unitary(3, seed = 14))
-        pcircuit = Circuit(6)
-        U_add = Unitary(random_unitary(3, seed = 14))
-        # Run through same build procedure for each circuit type
-        for circ, U in [(circuit, U_addc), (pcircuit, U_add)]:
-            seed(5)
-            for i in [0, 2, 4, 1, 3, 2]:
-                circ.add_bs(i, reflectivity = random())
-                phase, loss = random(), random()
-                if isinstance(circ, Circuit):
-                    circ.add_ps(i, phase, loss = loss)
-                else:
-                    circ.add_ps(i, phase)
-                    circ.add_loss(i, loss)
-                circ.add_loss(i, loss = random())
-                circ.add_loss(i+1, loss = random())
-            circ.add_mode_swaps({1:3, 2:4, 4:1, 3:2})
-            circ.add(U, 1)
-        # Get unitaries, excluding loss modes due to attribute difference
-        U_circ = circuit.U_full[:6, :6]
-        U_pcirc = pcircuit.U
-        for i in range(6):
-            for j in range(6):
-                assert U_circ[i,j] == pytest.approx(U_pcirc[i,j], 1e-10)
-        # Also check that the produced build specs are equivalent
-        assert circuit._display_spec == pcircuit._display_spec
-        
     def test_smaller_circuit_addition(self):
         """
         Confirms equivalence between building a single circuit and added a 

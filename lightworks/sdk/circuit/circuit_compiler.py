@@ -65,7 +65,6 @@ class CompiledCircuit:
         self.U = np.identity(n_modes, dtype = complex)
         self.U_full = np.identity(n_modes, dtype = complex)
         self._loss_modes = 0
-        self._display_spec = []
         
         return
     
@@ -100,7 +99,6 @@ class CompiledCircuit:
             newCirc.U = newU
             newCirc.U_full = newU_full
             newCirc._loss_modes = l1 + l2
-            newCirc._display_spec = self._display_spec + value._display_spec
             return newCirc
         else:
             raise TypeError("Addition only supported between two circuits.")
@@ -170,26 +168,10 @@ class CompiledCircuit:
             new_U_full[self.n_modes:, mode:mode+nm] = Uc_full[nm:, :nm]
         else:
             new_U_full = new_U.copy()
-        # Modify build spec of circuit to add so it is the same size
-        if not group:
-            new_display_spec = []
-            for spec in circuit._display_spec:
-                c, cmodes, params = spec
-                if isinstance(cmodes, int):
-                    cmodes = cmodes + mode
-                elif isinstance(cmodes, list):
-                    cmodes = [mode + m for m in cmodes]
-                elif isinstance(cmodes, dict):
-                    cmodes = {mode+im:mode+om for im, om in cmodes.items()}
-                new_display_spec += [(c, cmodes, params)]
-        # Otherwise set build spec to be grouped object
-        else:
-            new_display_spec = [("group", [mode, mode+nm-1], (name))]
         # Assign modified attributes to circuit to add
         to_add = CompiledCircuit(self.n_modes)
         to_add.U = new_U
         to_add.U_full = new_U_full
-        to_add._display_spec = new_display_spec
         to_add._loss_included = circuit._loss_included
         to_add._loss_modes = circuit._loss_modes
         # Use built in addition function to combine the circuit
@@ -259,9 +241,6 @@ class CompiledCircuit:
         # Update unitaries
         self.U = U_bs @ self.U
         self.U_full = U_bs_full @ self.U_full
-        # Update build spec attribute
-        self._display_spec = self._display_spec + [("BS", [mode_1, mode_2], 
-                                                   (reflectivity))]
         return
     
     def add_ps(self, mode: int, phi: float) -> None:
@@ -284,8 +263,6 @@ class CompiledCircuit:
         self.U = U_ps @ self.U
         # Calculate U_full with loss
         self.U_full = U_ps_full @ self.U_full
-        # Update build spec attribute
-        self._display_spec = self._display_spec + [("PS", mode, (phi))]
         return
     
     def add_loss(self, mode: int, loss: float = 0) -> None:
@@ -320,29 +297,6 @@ class CompiledCircuit:
         else:
             U_full = self.U_full
         self.U_full = U_lc @ U_full
-        # Update build spec attributes
-        if loss > 0:
-            self._display_spec = self._display_spec + [("LC", mode, (loss))]
-        return
-    
-    def add_barrier(self, modes: list | None = None) -> None:
-        """
-        Adds a barrier to separate different parts a the circuit. This is 
-        applied to the specified modes.
-        
-        Args:
-        
-            modes (list | None) : The modes over which the barrier should be
-                applied to.
-                
-        """
-        if modes == None:
-            modes = [i for i in range(self.n_modes)]
-        if type(modes) != list:
-            raise TypeError("Modes to apply barrier to should be a list.")
-        for m in modes:
-            self._mode_in_range(m)
-        self._display_spec = self._display_spec + [("barrier", modes, None)]
         return
     
     def add_mode_swaps(self, swaps: dict) -> None:
@@ -378,41 +332,7 @@ class CompiledCircuit:
         # Combine with existing matrices
         self.U = U @ self.U
         self.U_full = U_full @ self.U_full
-        self._display_spec = self._display_spec + [("mode_swaps", swaps, 
-                                                    None)]
 
-        return
-    
-    def display(self, display_loss: bool = False, 
-                mode_labels: list | None = None, 
-                display_type: str = "svg") -> None:
-        """
-        Displays the current circuit.
-        
-        Args:
-        
-            display_loss (bool, optional) : Choose whether to display loss
-                components in the figure, defaults to False.
-                                            
-            mode_labels (list|None, optional) : Optionally provided a list of 
-                mode labels which will be used to name the mode something other
-                than numerical values. Can be set to None to use default 
-                values.
-                                                
-            display_type (str, optional) : Selects whether the drawsvg or 
-                matplotlib module should be used for displaying the circuit. 
-                Should either be 'svg' or 'mpl', defaults to 'svg'.
-                
-        """
-        
-        return_ = Display(self, display_loss = display_loss, 
-                          mode_labels = mode_labels,
-                          display_type = display_type)
-        if display_type == "mpl":
-            plt.show()
-        elif display_type == "svg":
-            display.display(return_)
-        
         return
     
     def _grow_unitary(self, U: np.ndarray, n: int) -> np.ndarray:
@@ -488,7 +408,5 @@ class CompiledUnitary(CompiledCircuit):
         self.n_modes = unitary.shape[0]
         self._loss_included = False
         self._loss_modes = 0
-        # Will need to add unitary to build spec
-        self._display_spec = [("unitary", [0, self.n_modes-1], label)]
         
         return
