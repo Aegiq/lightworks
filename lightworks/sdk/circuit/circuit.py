@@ -540,25 +540,25 @@ class Circuit:
         for c, params in circuit_spec:
             params = list(params)
             if c in ["bs"]:
-                params[0] = params[0] + 1 if params[0] >= mode else params[0]
-                params[1] = params[1] + 1 if params[1] >= mode else params[1]
+                params[0] += 1 if params[0] >= mode else 0
+                params[1] += 1 if params[1] >= mode else 0
             elif c == "barrier":
                 params = [p+1 if p >= mode else p for p in params[0]]
                 params = tuple([params])
             elif c == "mode_swaps":
                 swaps = {}
                 for k, v in params[0].items():
-                    k = k + 1 if k >= mode else k
-                    v = v + 1 if v >= mode else v
+                    k += 1 if k >= mode else 0
+                    v += 1 if v >= mode else 0
                     swaps[k] = v
                 params[0] = swaps
             elif c == "group":
                 params[0] = self._add_empty_mode(params[0], mode,
                                                  skip_mode_addition = True)
-                params[2] = params[2] + 1 if params[2] >= mode else params[2]
-                params[3] = params[3] + 1 if params[3] >= mode else params[3]
+                params[2] += 1 if params[2] >= mode else 0
+                params[3] += 1 if params[3] >= mode else 0
             else:
-                params[0] = params[0] + 1 if params[0] >= mode else params[0]
+                params[0] += 1 if params[0] >= mode else 0
             new_circuit_spec.append([c, tuple(params)])
         return new_circuit_spec
         
