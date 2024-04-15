@@ -74,7 +74,7 @@ class CompiledCircuit:
             if self.n_modes != value.n_modes:
                 raise ModeRangeError(
                     "Mismatch in number of circuit modes, used add method to "
-                    "add a circuits of a different size.")
+                    "add circuits of a different size.")
             nm = self.n_modes
             newU = value.U @ self.U 
             loss = self._loss_included or value._loss_included
