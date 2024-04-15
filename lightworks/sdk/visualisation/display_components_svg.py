@@ -260,6 +260,25 @@ class SVGDrawSpec:
             
         return
     
+    def _add_heralds(self, heralds: dict, start_loc: float, 
+                     end_loc: float) -> None:
+        """Adds display of all heralds to circuit."""
+        size = 25
+        # Input heralds
+        for mode, num in heralds["input"].items():
+            xloc = start_loc
+            yloc = (mode+1)*self.dy
+            self.draw_spec += [("herald", (xloc, yloc, size))]
+            self.draw_spec += [("text", (str(num), xloc, yloc+2.5, 0, 30, 
+                                         "white", "centred"))]
+        # Output heralds
+        for mode, num in heralds["output"].items():
+            xloc = end_loc
+            yloc = (mode+1)*self.dy
+            self.draw_spec += [("herald", (xloc, yloc, size))]
+            self.draw_spec += [("text", (str(num), xloc, yloc+2.5, 0, 30, 
+                                         "white", "centred"))]
+    
 class DisplayComponentsSVG:
     
     def _draw_wg(self, x: float, y: float, length: float) -> None:
@@ -319,7 +338,7 @@ class DisplayComponentsSVG:
         self.d.append(t)
         return
     
-    def _draw_mode_swaps(self, x, ys, size_x):
+    def _draw_mode_swaps(self, x: float, ys: list, size_x: float):
         
         for y0, y1 in ys:
             w = self.wg_width/2
@@ -345,4 +364,10 @@ class DisplayComponentsSVG:
         r = draw.Rectangle(x, y-offset_y, size_x, size_y, fill = "#1a0f36", 
                            stroke = "black", rx = 5, ry = 5)
         self.d.append(r)
+        return
+    
+    def _draw_herald(self, x: float, y: float, size: float):
+        
+        c = draw.Circle(x, y, size, fill = "#3e368d", stroke = "black")
+        self.d.append(c)
         return

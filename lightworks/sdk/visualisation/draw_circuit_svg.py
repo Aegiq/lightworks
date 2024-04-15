@@ -48,7 +48,7 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
         self.N = self.circuit.n_modes
         self.draw_spec = []
         self.dy = 125
-        init_length = 100        
+        init_length = 100
         # Add the mode labels
         if mode_labels is None:
             mode_labels = range(self.N)
@@ -64,6 +64,11 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
         self._init_length = init_length
         # Create list of locations for each mode
         self.locations = [init_length+50]*self.N
+        # Add extra waveguides when using heralds
+        if self.circuit.heralds["input"] or self.circuit.heralds["output"]:
+            for m in range(self.N):
+                self._add_wg(self.locations[m], (m+1)*self.dy, 50)
+                self.locations[m] += 50
         # Loop over each element in the build spec and add
         for spec in self.circuit._display_spec:
             c, modes = spec[0:2]
@@ -94,10 +99,15 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
                 self._add_grouped_circuit(m1, m2, params)
         
         maxloc = max(self.locations)
+        if self.circuit.heralds["input"] or self.circuit.heralds["output"]:
+            maxloc += 50
         for i, loc in enumerate(self.locations):
             if loc < maxloc:
                 self._add_wg(loc, (i+1)*self.dy, maxloc-loc)
                 self.locations[i] = maxloc
+        
+        # Add heralding display
+        self._add_heralds(self.circuit.heralds, self._init_length+50, maxloc)
                 
         for i in range(self.N):
             self.locations[i] += 50
@@ -149,6 +159,8 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
                 self._draw_unitary(*data)
             elif c == "group":
                 self._draw_grouped_circuit(*data)
+            elif c == "herald":
+                self._draw_herald(*data)
             else:
                 raise DisplayError("Element in draw spec not recognised.")
                 
