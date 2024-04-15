@@ -78,9 +78,10 @@ class TestAnalyzer:
         
     def test_analyzer_complex(self):
         """Check analyzer result when using post-selection and heralding."""
+        # Add heralding mode
+        self.circuit.add_herald(0, 3)
         analyzer = Analyzer(self.circuit)
         # Just heralding
-        analyzer.set_herald(3, 0)
         results = analyzer.analyze(State([1,0,1]))
         p = results[State([0,1,1])]
         assert pytest.approx(p, 1e-8) == 0.091713377373246
@@ -97,9 +98,10 @@ class TestAnalyzer:
         Check analyzer result when using post-selection and heralding with a 
         lossy circuit.
         """
+        # Add heralding mode
+        self.lossy_circuit.add_herald(0, 3)
         analyzer = Analyzer(self.lossy_circuit)
         # Just heralding
-        analyzer.set_herald(3, 0)
         results = analyzer.analyze(State([1,0,1]))
         p = results[State([0,1,0])]
         assert pytest.approx(p, 1e-8) == 0.062204471804458

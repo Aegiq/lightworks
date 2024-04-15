@@ -54,25 +54,30 @@ class Circuit:
                 raise TypeError("Number of modes should be an integer.")
         self.__n_modes = n_modes
         self.__circuit_spec = []
+        self.__in_heralds = {}
+        self.__out_heralds = {}
         self.__show_parameter_values = False
         
         return
     
     def __add__(self, value: "Circuit") -> "Circuit":
         """Defines custom addition behaviour for two circuits."""
-        if isinstance(value, Circuit):
-            if self.__n_modes != value.__n_modes:
-                raise ModeRangeError(
-                    "Two circuits to add must have the same number of modes.")
-            # Create new circuits and combine circuits specs to create new one
-            new_circ = Circuit(self.__n_modes)
-            new_circ.__circuit_spec = (self.__circuit_spec + 
-                                       value.__circuit_spec)
-            return new_circ
-        else:
+        if not isinstance(value, Circuit):
             raise TypeError(
                 "Addition only supported between two Circuit objects.")
-        
+        if self.__n_modes != value.__n_modes:
+            raise ModeRangeError(
+                "Two circuits to add must have the same number of modes.")
+        if self.heralds["input"] or value.heralds["input"]:
+            raise NotImplementedError(
+                "Support for heralds when combining circuits not yet "
+                "implemented.")
+        # Create new circuits and combine circuits specs to create new one
+        new_circ = Circuit(self.__n_modes)
+        new_circ.__circuit_spec = (self.__circuit_spec + 
+                                    value.__circuit_spec)
+        return new_circ
+                    
     @property
     def U(self) -> np.ndarray:
         """
@@ -93,7 +98,7 @@ class Circuit:
     
     @property
     def n_modes(self) -> int:
-        """Returns number of modes in the circuit."""
+        """The number of modes in the circuit."""
         return self.__n_modes
     
     @n_modes.setter
@@ -104,8 +109,16 @@ class Circuit:
         raise AttributeError("Number of circuit modes cannot be modified.")
     
     @property
+    def heralds(self) -> dict:
+        """
+        A dictionary which details the set heralds on the inputs and outputs of
+        the circuit.
+        """
+        return {"input" : self.__in_heralds, "output" : self.__out_heralds}
+    
+    @property
     def _display_spec(self) -> list:
-        """Returns display spec for the circuit."""
+        """The display spec for the circuit."""
         return self._get_display_spec()
         
     def add(self, circuit: Union["Circuit", "Unitary"], mode: int = 0,         # type: ignore - ignores Pylance warning raised by undefined unitary component
@@ -123,25 +136,27 @@ class Circuit:
             mode (int, optional) : The first mode on which the circuit should 
                 be placed. If not specified it defaults to zero.
         """
-        if isinstance(circuit, Circuit):
-            self._mode_in_range(mode)
-            if mode + circuit.__n_modes > self.__n_modes:
-                raise ModeRangeError("Circuit to add is outside of mode range")
-            if group:
-                spec = unpack_circuit_spec(circuit.__circuit_spec)
-            else:
-                spec = circuit.__circuit_spec
-            add_cs = self._add_mode_to_circuit_spec(spec, mode)
-            if not group:
-                self.__circuit_spec = self.__circuit_spec + add_cs
-            else:
-                self.__circuit_spec.append(["group", (add_cs, name, mode, 
-                                                      mode + 
-                                                      circuit.__n_modes - 1)])
-        else:
+        if not isinstance(circuit, Circuit):
             raise TypeError(
                 "Add method only supported for Circuit or Unitary objects.")
-        
+        if self.heralds["input"] or circuit.heralds["input"]:
+            raise NotImplementedError(
+                "Support for heralds when combining circuits not yet "
+                "implemented.")
+        self._mode_in_range(mode)
+        if mode + circuit.__n_modes > self.__n_modes:
+            raise ModeRangeError("Circuit to add is outside of mode range")
+        if group:
+            spec = unpack_circuit_spec(circuit.__circuit_spec)
+        else:
+            spec = circuit.__circuit_spec
+        add_cs = self._add_mode_to_circuit_spec(spec, mode)
+        if not group:
+            self.__circuit_spec = self.__circuit_spec + add_cs
+        else:
+            self.__circuit_spec.append(["group", (add_cs, name, mode, 
+                                                  mode + circuit.__n_modes - 1)
+                                        ])
         return
     
     def add_bs(self, mode_1: int, mode_2: int = None, 
@@ -268,6 +283,25 @@ class Circuit:
             self._mode_in_range(m)
         self.__circuit_spec.append(["mode_swaps", (swaps, None)])
         
+    def add_herald(self, n_photons: int, input_mode: int, 
+                   output_mode: int = None) -> None:
+        """
+        Add a herald across a selected input/output of the circuit. If only one
+        mode is specified then this will be used for both the input and output. 
+        """
+        if output_mode is None:
+            output_mode = input_mode
+        self._mode_in_range(input_mode)
+        self._mode_in_range(output_mode)
+        # Check if herald already used on input or output
+        if input_mode in self.__in_heralds:
+            raise ValueError("Heralding already set for chosen input mode.")
+        if output_mode in self.__out_heralds:
+            raise ValueError("Heralding already set for chosen output mode.")
+        # If not then update dictionaries
+        self.__in_heralds[input_mode] = n_photons
+        self.__out_heralds[output_mode] = n_photons
+        
     def display(self, show_parameter_values: bool = False, 
                 display_loss: bool = False, 
                 mode_labels: list | None = None,
@@ -370,6 +404,25 @@ class Circuit:
         spec = deepcopy(self.__circuit_spec)
         new_spec = convert_non_adj_beamsplitters(spec)
         self.__circuit_spec = new_spec
+        
+    def show_heralds(self):
+        """
+        Prints out all currently used herald modes and photon numbers in a 
+        circuit. This can be used to identify any issues.
+        """
+        print("\t Mode \t Photons")
+        print("-"*25)
+        for i, (m, n) in enumerate(self.__in_heralds.items()):
+            if i == 0:
+                print(f"Input \t {m} \t {n}")
+            else:
+                print(f"\t {m} \t {n}")
+        print("-"*25)
+        for i, (m, n) in enumerate(self.__out_heralds.items()):
+            if i == 0:
+                print(f"Output \t {m} \t {n}")
+            else:
+                print(f"\t {m} \t {n}")
     
     def _build(self) -> CompiledCircuit:
         """

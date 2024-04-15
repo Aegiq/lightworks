@@ -48,8 +48,6 @@ class Analyzer:
         # Assign key parameters to attributes
         self.circuit = circuit
         # Create empty list/dict to store other quantities
-        self.in_heralds = {}
-        self.out_heralds = {}
         self.post_selects = []
         self.__backend = Backend("permanent")
         
@@ -69,26 +67,6 @@ class Analyzer:
             raise TypeError(
                 "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
-    
-    def set_herald(self, in_mode: int, n_photons: int = 0, 
-                   out_mode: int | None = None) -> None:
-        """
-        Set heralded modes for the circuit
-        """
-        if out_mode is None:
-            out_mode = in_mode
-        if type(in_mode) != int or type(out_mode) != int:
-            raise TypeError("Mode numbers should be integers.")
-        if in_mode >= self.circuit.n_modes or out_mode >= self.circuit.n_modes:
-            raise ValueError("Mode outside of circuit range.")
-        if in_mode in self.in_heralds:
-            raise ValueError("Heralding already set for given input mode.")
-        if out_mode in self.out_heralds:
-            raise ValueError("Heralding already set for given output mode.")
-        self.in_heralds[in_mode] = n_photons
-        self.out_heralds[out_mode] = n_photons
-        
-        return
     
     def set_post_selection(self, function: FunctionType) -> None:
         """
@@ -126,8 +104,9 @@ class Analyzer:
             
         """
         self.__circuit_built = self.circuit._build()
-        n_modes = self.__circuit_built.n_modes - len(self.in_heralds)
-        if self.in_heralds != self.out_heralds:
+        n_modes = (self.__circuit_built.n_modes - 
+                   len(self.circuit.heralds["input"]))
+        if self.circuit.heralds["input"] != self.circuit.heralds["output"]:
             raise RuntimeError(
                 "Mismatch in number of heralds on the input/output modes, it "
                 "is likely this results from a herald being added twice or "
@@ -200,7 +179,7 @@ class Analyzer:
                             
         return probs
     
-    def _build_state(self, state: State, herald: FunctionType) -> State:
+    def _build_state(self, state: State, herald: dict) -> State:
         """
         Add heralded modes to a provided state
         """
@@ -249,7 +228,8 @@ class Analyzer:
         Takes the provided inputs, perform error checking on them and adds any 
         heralded photons that are required, returning full states..
         """
-        n_modes = self.__circuit_built.n_modes - len(self.in_heralds)
+        n_modes = (self.__circuit_built.n_modes - 
+                   len(self.circuit.heralds["input"]))
         # Ensure all photon numbers are the same   
         ns = [s.n_photons for s in inputs]
         if min(ns) != max(ns):
@@ -264,7 +244,9 @@ class Analyzer:
                     "subtract heralded modes.")
             # Also validate state values
             state._validate()
-            full_inputs += [self._build_state(state, self.in_heralds)]
+            full_inputs += [self._build_state(state, 
+                                              self.circuit.heralds["input"])
+                            ]
         # Add extra states for loss modes here when included
         if self.__circuit_built.loss_modes > 0:
             full_inputs = [s + State([0]*self.__circuit_built.loss_modes) 
@@ -290,7 +272,7 @@ class Analyzer:
         filtered_outputs = []
         full_outputs = []
         for state in outputs:
-            fo  = self._build_state(state, self.out_heralds)
+            fo  = self._build_state(state, self.circuit.heralds["output"])
             # Check output meets all post selection rules
             for funcs in self.post_selects:
                 if not funcs(fo):
