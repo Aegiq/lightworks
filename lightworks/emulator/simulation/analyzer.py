@@ -32,7 +32,7 @@ class Analyzer:
     
     Args:
     
-        circuit : The circuit to simulate.
+        circuit (Circuit) : The circuit to simulate.
         
     Attribute:
     
