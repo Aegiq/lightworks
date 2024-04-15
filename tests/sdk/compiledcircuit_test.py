@@ -160,47 +160,6 @@ class TestCompiledCircuit:
         U2 = round(c1.U_full, 8)
         assert (U1 == U2).all()
                 
-    def test_smaller_circuit_addition_grouped(self):
-        """
-        Confirms equivalence between building a single circuit and added a 
-        larger circuit to a smaller one with the add method, while using the 
-        group method.
-        """
-        # Comparison circuit
-        circ_comp = CompiledCircuit(6)
-        # First part
-        for i, m in enumerate([0,2,4,1,3,2]):
-            circ_comp.add_bs(m)
-            circ_comp.add_ps(m, i)
-        # Second part
-        for i in range(4):
-            for i, m in enumerate([3,1,3,2,1]):
-                circ_comp.add_ps(m+1, i)
-                circ_comp.add_bs(m)
-                circ_comp.add_ps(m, i)
-                circ_comp.add_loss(m, loss = 0.1)
-            circ_comp.add_mode_swaps({1:2, 2:3, 3:1})
-        # Addition circuit
-        c1 = CompiledCircuit(6)
-        for i, m in enumerate([0,2,4,1,3,2]):
-            c1.add_bs(m)
-            c1.add_ps(m, i)
-        c2 = CompiledCircuit(4)
-        for i, m in enumerate([2,0,2,1,0]):
-            c2.add_ps(m+1, i)
-            c2.add_bs(m)
-            c2.add_ps(m, i)
-            c2.add_loss(m, loss = 0.1)
-        c2.add_mode_swaps({0:1, 1:2, 2:0})
-        # Test combinations of True and False for group option
-        c2.add(c2, 0, group = True)
-        c2.add(c2, 0, group = False)
-        c1.add(c2, 1, group = True)
-        # Check unitary equivalence
-        U1 = round(circ_comp.U_full, 8)
-        U2 = round(c1.U_full, 8)
-        assert (U1 == U2).all()
-                
     def test_mode_modification(self):
         """
         Checks that the number of modes attribute cannot be modified as this is

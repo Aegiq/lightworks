@@ -60,7 +60,7 @@ class CompiledCircuit:
                 n_modes = int(n_modes)
             else:
                 raise TypeError("Number of modes should be an integer.")
-        self.n_modes = n_modes
+        self._n_modes = n_modes
         self._loss_included = False
         self.U = np.identity(n_modes, dtype = complex)
         self.U_full = np.identity(n_modes, dtype = complex)
@@ -103,25 +103,21 @@ class CompiledCircuit:
         else:
             raise TypeError("Addition only supported between two circuits.")
         
-    def __setattr__(self, __name: str, __value: Any) -> None:
-        # Prevent n_modes attribute being changed after creation
-        if __name == "n_modes":
-            if not hasattr(self, "n_modes"):
-                self.__dict__[__name] = __value
-            else:
-                raise AttributeError(
-                    "Number of modes should not be modified after Circuit "
-                    "creation.")
-        else:
-            super().__setattr__(__name, __value)
-            
+    @property
+    def n_modes(self) -> int:
+        return self._n_modes
+
+    @n_modes.setter
+    def n_modes(self, value: Any) -> None:
+        raise AttributeError(
+            "Number of modes should not be modified after Circuit creation.")
+        
     @property
     def loss_modes(self):
         """Returns number of loss modes used in the circuit."""
         return self._loss_modes
         
-    def add(self, circuit: "CompiledCircuit", mode: int, group: bool = False, 
-            name: str = "Circuit") -> None:
+    def add(self, circuit: "CompiledCircuit", mode: int) -> None:
         """
         Add a circuit which is of a different size (but smaller than) the 
         original circuit.
@@ -178,7 +174,7 @@ class CompiledCircuit:
         new_circuit = self + to_add
         # Copy created attributes from new circuit
         for k in self.__dict__.keys():
-            self.__dict__[k] = new_circuit.__dict__[k]
+            setattr(self, k, getattr(new_circuit, k))
             
         return
     
@@ -405,7 +401,7 @@ class CompiledUnitary(CompiledCircuit):
         # Assign attributes of unitary
         self.U = unitary
         self.U_full = unitary
-        self.n_modes = unitary.shape[0]
+        self._n_modes = unitary.shape[0]
         self._loss_included = False
         self._loss_modes = 0
         
