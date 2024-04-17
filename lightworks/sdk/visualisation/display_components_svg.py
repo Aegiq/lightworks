@@ -226,7 +226,8 @@ class SVGDrawSpec:
         
         return
     
-    def _add_grouped_circuit(self, mode1: int, mode2: int, name: str) -> None:
+    def _add_grouped_circuit(self, mode1: int, mode2: int, name: str,
+                             heralds: dict) -> None:
         """Add a grouped_circuit representation to the drawing."""
         size_x = 100 # Drawing x size
         con_length = 50 # Input/output waveguide lengths
@@ -237,7 +238,7 @@ class SVGDrawSpec:
         xloc = max(self.locations[mode1:mode2+1])
         # Add initial connectors for any modes which haven't reach xloc yet:
         for i, loc in enumerate(self.locations[mode1:mode2+1]):
-            if loc < xloc:
+            if loc < xloc and i+mode1 not in self.circuit._internal_modes:
                 self._add_wg(loc, yloc + i*self.dy, xloc - loc)
         # Add input waveguides
         modes = range(min(mode1, mode2), max(mode1, mode2)+1, 1)
@@ -257,6 +258,14 @@ class SVGDrawSpec:
         for i in modes:
             self._add_wg(xloc, (i+1)*self.dy, con_length)
             self.locations[i] = xloc + con_length
+            
+        # TODO: Include any heralds for the group
+        # Modify provided heralds by mode offset
+        shifted_heralds = {
+            "input" : {m+mode1:n for m, n in heralds["input"].items()},
+            "output" : {m+mode1:n for m, n in heralds["output"].items()}
+            }
+        self._add_heralds(shifted_heralds, xloc-size_x-50, xloc+50)
             
         return
     

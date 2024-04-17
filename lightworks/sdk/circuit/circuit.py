@@ -57,6 +57,7 @@ class Circuit:
         self.__in_heralds = {}
         self.__out_heralds = {}
         self.__show_parameter_values = False
+        self.__internal_modes = []
         
         return
     
@@ -114,12 +115,17 @@ class Circuit:
         A dictionary which details the set heralds on the inputs and outputs of
         the circuit.
         """
+        # NOTE: Need to think about which heralds are displayed/stored here
         return {"input" : self.__in_heralds, "output" : self.__out_heralds}
     
     @property
     def _display_spec(self) -> list:
         """The display spec for the circuit."""
         return self._get_display_spec()
+    
+    @property
+    def _internal_modes(self) -> list:
+        return self.__internal_modes
         
     def add(self, circuit: Union["Circuit", "Unitary"], mode: int = 0,         # type: ignore - ignores Pylance warning raised by undefined unitary component
             group: bool = False, name: str = "Circuit") -> None:
@@ -139,23 +145,41 @@ class Circuit:
         if not isinstance(circuit, Circuit):
             raise TypeError(
                 "Add method only supported for Circuit or Unitary objects.")
-        if self.heralds["input"] or circuit.heralds["input"]:
-            raise NotImplementedError(
-                "Support for heralds when combining circuits not yet "
-                "implemented.")
         self._mode_in_range(mode)
-        if mode + circuit.__n_modes > self.__n_modes:
+        if circuit.heralds["input"]:
+            group = True
+        n_heralds = len(circuit.heralds["input"])
+        if mode + circuit.__n_modes - n_heralds > self.__n_modes:
             raise ModeRangeError("Circuit to add is outside of mode range")
         if group:
             spec = unpack_circuit_spec(circuit.__circuit_spec)
         else:
             spec = circuit.__circuit_spec
+        for i, m in enumerate(circuit.heralds["input"]):
+            self.__circuit_spec = self._add_empty_mode(self.__circuit_spec, 
+                                                       mode + m)
+            self.__internal_modes.append(mode+m)
+            # TODO: Will need to move herald back to empty mode if in mode and
+            # out mode are the same - below may or may not work
+            out_herald = list(circuit.heralds["output"].keys())[i]
+            if m != out_herald:
+                swaps = {m : out_herald}
+                if out_herald < m:
+                    for i in range(m-out_herald):
+                        swaps[out_herald+i] = out_herald+i+1
+                else:
+                    for i in range(out_herald - m):
+                        swaps[out_herald-i] = out_herald-i-1
+                spec.append(["mode_swaps", (swaps, None)])
+        new_heralds = {"input" : circuit.heralds["input"],
+                       "output" : circuit.heralds["input"]}
         add_cs = self._add_mode_to_circuit_spec(spec, mode)
         if not group:
             self.__circuit_spec = self.__circuit_spec + add_cs
         else:
             self.__circuit_spec.append(["group", (add_cs, name, mode, 
-                                                  mode + circuit.__n_modes - 1)
+                                                  mode + circuit.__n_modes - 1,
+                                                  new_heralds)
                                         ])
         return
     
@@ -184,8 +208,11 @@ class Circuit:
                 splitter, should be either "Rx" (the default value) or "H".
                 
         """
+        mode_1 = self._map_mode(mode_1)
         self._mode_in_range(mode_1)
-        if mode_2 is None: mode_2 = mode_1 + 1
+        if mode_2 is None: 
+            mode_2 = mode_1 + 1
+        mode_2 = self._map_mode(mode_2)
         if mode_1 == mode_2:
             raise ModeRangeError(
                 "Beam splitter must act across two different modes.")
@@ -219,6 +246,7 @@ class Circuit:
                 be positive and given in dB.
                                                    
         """
+        mode = self._map_mode(mode)
         self._mode_in_range(mode)
         self._check_loss(loss)
         self.__circuit_spec.append(["ps", (mode, phi)])
@@ -237,6 +265,7 @@ class Circuit:
                 this should be positive and given in dB.
                                                
         """
+        mode = self._map_mode(mode)
         self._mode_in_range(mode)
         self._check_loss(loss)
         self.__circuit_spec.append(["loss", (mode, loss)])
@@ -253,7 +282,9 @@ class Circuit:
                 
         """
         if modes == None:
-            modes = [i for i in range(self.__n_modes)]
+            modes = [i for i in 
+                     range(self.__n_modes-len(self.__internal_modes))]
+        modes = [self._map_mode(i) for i in modes]
         for m in modes:
             self._mode_in_range(m)
         self.__circuit_spec.append(["barrier", tuple([modes])])
@@ -272,6 +303,9 @@ class Circuit:
                 locations that they are to be swapped to. 
                            
         """
+        # Remap swap dict
+        swaps = {self._map_mode(mi) : self._map_mode(mo) 
+                 for mi, mo in swaps.items()}
         # Perform some error checking steps
         in_modes = sorted(list(swaps.keys()))
         out_modes = sorted(list(swaps.values()))
@@ -291,6 +325,8 @@ class Circuit:
         """
         if output_mode is None:
             output_mode = input_mode
+        input_mode = self._map_mode(input_mode)
+        output_mode = self._map_mode(output_mode)
         self._mode_in_range(input_mode)
         self._mode_in_range(output_mode)
         # Check if herald already used on input or output
@@ -410,6 +446,7 @@ class Circuit:
         Prints out all currently used herald modes and photon numbers in a 
         circuit. This can be used to identify any issues.
         """
+        # TODO: Account for mode remapping here
         print("\t Mode \t Photons")
         print("-"*25)
         for i, (m, n) in enumerate(self.__in_heralds.items()):
@@ -442,7 +479,7 @@ class Circuit:
         """
         Contains full process for convert a circuit into a compiled one.
         """
-        circuit = CompiledCircuit(self.__n_modes)
+        circuit = CompiledCircuit(self.n_modes)
         
         for cs, params in unpack_circuit_spec(self.__circuit_spec):
             got_params = [p.get() if isinstance(p, Parameter) else p 
@@ -487,6 +524,15 @@ class Circuit:
             raise ModeRangeError(
                 "Selected mode(s) is not within the range of the created "
                 "circuit.")
+            
+    def _map_mode(self, mode: int) -> int:
+        """
+        Maps a provided mode to the corresponding internal mode
+        """
+        for i in self.__internal_modes:
+            if mode >= i:
+                mode += 1
+        return mode
         
     def _check_loss(self, loss: float) -> bool:
         """
@@ -560,6 +606,17 @@ class Circuit:
             else:
                 params[0] += 1 if params[0] >= mode else 0
             new_circuit_spec.append([c, tuple(params)])
+        # Also modify heralds
+        new_in_heralds = {}
+        for m, n in self.__in_heralds.items():
+            m += 1 if m >= mode else 0
+            new_in_heralds[m] = n
+        self.__in_heralds = new_in_heralds
+        new_out_heralds = {}
+        for m, n in self.__out_heralds.items():
+            m += 1 if m >= mode else 0
+            new_out_heralds[m] = n
+        self.__out_heralds = new_out_heralds
         return new_circuit_spec
         
     def _get_display_spec(self) -> list:
@@ -597,7 +654,7 @@ class Circuit:
                                      params[2]))
             elif cs == "group":
                 display_spec.append(("group", [params[2], params[3]], 
-                                   (params[1])))
+                                   (params[1], params[4])))
             else:
                 raise DisplayError("Component in circuit spec not recognised.")
             
