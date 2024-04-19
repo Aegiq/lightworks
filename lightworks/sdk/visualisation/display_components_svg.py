@@ -82,12 +82,13 @@ class SVGDrawSpec:
         xloc = max(self.locations[mode1:mode2+1])
         # Add initial connectors for any modes which haven't reach xloc yet:
         for i, loc in enumerate(self.locations[mode1:mode2+1]):
-            if loc < xloc:
+            if loc < xloc and i+mode1 not in self.circuit._internal_modes:
                 self._add_wg(loc, yloc + i*self.dy, xloc - loc)
         # Add input waveguides for all included modes
         modes = range(min(mode1, mode2), max(mode1, mode2) + 1, 1)
         for i in modes:
-            self._add_wg(xloc, (i+1)*self.dy, con_length)
+            if i not in self.circuit._internal_modes:
+                self._add_wg(xloc, (i+1)*self.dy, con_length)
         xloc += con_length
         # Add beam splitter section
         dy = - 50 if abs(mode2-mode1)%2 == 0 else 0
@@ -104,17 +105,20 @@ class SVGDrawSpec:
         # across the beam splitter
         if mode2 - mode1 > 1:
             for i in range(mode1+1, mode2):
-                self._add_wg(xloc, (i+1)*self.dy, size_x)
+                if i not in self.circuit._internal_modes:
+                    self._add_wg(xloc, (i+1)*self.dy, size_x)
         xloc += size_x
         # Add output waveguides
         for i in modes:
-            self._add_wg(xloc, (i+1)*self.dy, con_length)
+            if i not in self.circuit._internal_modes:
+                self._add_wg(xloc, (i+1)*self.dy, con_length)
         # Update mode locations
         for i in modes:
             self.locations[i] = xloc + con_length
         
         return
     
+    # TODO: Ensure this is compatible with internal modes
     def _add_unitary(self, mode1: int, mode2: int, label: str) -> None:
         """Add a unitary matrix representation to the drawing."""
         size_x = 100 # Unitary x size
@@ -176,6 +180,7 @@ class SVGDrawSpec:
         
         return
     
+    # TODO: Ensure this is compatible with internal modes
     def _add_barrier(self, modes: list) -> None:
         """
         Add a barrier which will separate different parts of the circuit. This
@@ -190,6 +195,7 @@ class SVGDrawSpec:
         
         return
     
+    # TODO: Ensure this is compatible with internal modes
     def _add_mode_swaps(self, swaps: dict) -> None:
         """Add mode swaps between provided modes to the drawing."""
         con_length = 25 # input/output waveguide length
@@ -231,6 +237,7 @@ class SVGDrawSpec:
         """Add a grouped_circuit representation to the drawing."""
         size_x = 100 # Drawing x size
         con_length = 50 # Input/output waveguide lengths
+        extra_length = 50 if heralds["input"] or heralds["output"] else 0
         offset = 50 # Offset of square from modes
         size_y = offset + abs(mode2 - mode1)*self.dy # Find total size
         # Get x and y positions
@@ -243,8 +250,11 @@ class SVGDrawSpec:
         # Add input waveguides
         modes = range(min(mode1, mode2), max(mode1, mode2)+1, 1)
         for i in modes:
-            self._add_wg(xloc, (i+1)*self.dy, con_length)
-        xloc += con_length
+            if i not in self.circuit._internal_modes:
+                self._add_wg(xloc, (i+1)*self.dy, con_length + extra_length)
+            elif i - mode1 in heralds["input"]:
+                self._add_wg(xloc + extra_length, (i+1)*self.dy, con_length)
+        xloc += con_length + extra_length
         # Add unitary shape and U label
         self.draw_spec += [("group", (xloc, yloc, size_x, size_y, offset/2))]
         s = 25 if self.N > 2 else 20
@@ -256,8 +266,11 @@ class SVGDrawSpec:
         xloc += size_x
         # Add output waveguides and update mode positions
         for i in modes:
-            self._add_wg(xloc, (i+1)*self.dy, con_length)
-            self.locations[i] = xloc + con_length
+            if i not in self.circuit._internal_modes:
+                self._add_wg(xloc, (i+1)*self.dy, con_length + extra_length)
+            elif i - mode1 in heralds["output"]:
+                self._add_wg(xloc, (i+1)*self.dy, con_length)
+            self.locations[i] = xloc + con_length + extra_length
             
         # TODO: Include any heralds for the group
         # Modify provided heralds by mode offset

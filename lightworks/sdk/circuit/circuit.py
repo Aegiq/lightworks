@@ -173,6 +173,8 @@ class Circuit:
                 spec.append(["mode_swaps", (swaps, None)])
         new_heralds = {"input" : circuit.heralds["input"],
                        "output" : circuit.heralds["input"]}
+        # TODO: Currently this doesn't take into account the existing internal 
+        # modes in a circuit. This will need to be changed!!!
         add_cs = self._add_mode_to_circuit_spec(spec, mode)
         if not group:
             self.__circuit_spec = self.__circuit_spec + add_cs
@@ -573,15 +575,30 @@ class Circuit:
             new_circuit_spec.append([c, tuple(params)])
         return new_circuit_spec
     
-    def _add_empty_mode(self, circuit_spec: list, mode: int, **kwargs) -> list:
+    def _add_empty_mode(self, circuit_spec: list, mode: int) -> list:
         """
         Adds an empty mode at the selected location to a provided circuit spec.
         """
-        if not "skip_mode_addition" in kwargs:
-            self.__n_modes += 1
-        else:
-            if not kwargs["skip_mode_addition"]:
-                self.__n_modes += 1
+        self.__n_modes += 1
+        new_circuit_spec = self._iterate_mode_addition(circuit_spec, mode)
+        # Also modify heralds
+        new_in_heralds = {}
+        for m, n in self.__in_heralds.items():
+            m += 1 if m >= mode else 0
+            new_in_heralds[m] = n
+        self.__in_heralds = new_in_heralds
+        new_out_heralds = {}
+        for m, n in self.__out_heralds.items():
+            m += 1 if m >= mode else 0
+            new_out_heralds[m] = n
+        self.__out_heralds = new_out_heralds
+        # Add internal mode storage
+        self.__internal_modes = [m + 1 if m > mode else m 
+                                 for m in self.__internal_modes]
+        return new_circuit_spec
+    
+    def _iterate_mode_addition(self, circuit_spec: list, mode: int) -> list:
+        
         new_circuit_spec = []
         for c, params in circuit_spec:
             params = list(params)
@@ -599,24 +616,27 @@ class Circuit:
                     swaps[k] = v
                 params[0] = swaps
             elif c == "group":
-                params[0] = self._add_empty_mode(params[0], mode,
-                                                 skip_mode_addition = True)
+                params[0] = self._iterate_mode_addition(params[0], mode)
+                # Update herald values
+                #in_heralds, out_heralds = params[4]["input"], params[4]["output"]
+                #new_in_heralds = {}
+                #for m, n in in_heralds.items():
+                #    if m >= (mode-params[2]):
+                #        m += 1
+                #    new_in_heralds[m] = n
+                #new_out_heralds = {}
+                #for m, n in out_heralds.items():
+                #    if m >= (mode-params[2]):
+                #        m += 1
+                #    new_out_heralds[m] = n
+                #params[4] = {"input" : new_in_heralds, 
+                #             "output" : new_out_heralds}
+                # Shift unitary mode range
                 params[2] += 1 if params[2] >= mode else 0
                 params[3] += 1 if params[3] >= mode else 0
             else:
                 params[0] += 1 if params[0] >= mode else 0
             new_circuit_spec.append([c, tuple(params)])
-        # Also modify heralds
-        new_in_heralds = {}
-        for m, n in self.__in_heralds.items():
-            m += 1 if m >= mode else 0
-            new_in_heralds[m] = n
-        self.__in_heralds = new_in_heralds
-        new_out_heralds = {}
-        for m, n in self.__out_heralds.items():
-            m += 1 if m >= mode else 0
-            new_out_heralds[m] = n
-        self.__out_heralds = new_out_heralds
         return new_circuit_spec
         
     def _get_display_spec(self) -> list:
