@@ -162,7 +162,7 @@ class Circuit:
         circuit = circuit.copy()
         # Add any existing internal modes into the circuit to be added
         for i in self._internal_modes:
-            if 0 <= i - mode < circuit.n_modes - 1:
+            if 0 <= i - mode < circuit.n_modes - 2:
                 spec = circuit._add_empty_mode(spec, i - mode + 1)
         for i, m in enumerate(circuit.heralds["input"]):
             self.__circuit_spec = self._add_empty_mode(self.__circuit_spec, 
