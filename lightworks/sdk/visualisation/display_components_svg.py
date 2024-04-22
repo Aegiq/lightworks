@@ -130,12 +130,13 @@ class SVGDrawSpec:
         xloc = max(self.locations[mode1:mode2+1])
         # Add initial connectors for any modes which haven't reach xloc yet:
         for i, loc in enumerate(self.locations[mode1:mode2+1]):
-            if loc < xloc:
+            if loc < xloc and i + mode1 not in self.circuit._internal_modes:
                 self._add_wg(loc, yloc + i*self.dy, xloc - loc)
         # Add input waveguides
         modes = range(min(mode1, mode2), max(mode1, mode2)+1, 1)
         for i in modes:
-            self._add_wg(xloc, (i+1)*self.dy, con_length)
+            if i not in self.circuit._internal_modes:
+                self._add_wg(xloc, (i+1)*self.dy, con_length)
         xloc += con_length
         # Add unitary shape and U label
         self.draw_spec += [("unitary", (xloc, yloc, size_x, size_y, offset/2))]
@@ -148,7 +149,8 @@ class SVGDrawSpec:
         xloc += size_x
         # Add output waveguides and update mode positions
         for i in modes:
-            self._add_wg(xloc, (i+1)*self.dy, con_length)
+            if i not in self.circuit._internal_modes:
+                self._add_wg(xloc, (i+1)*self.dy, con_length)
             self.locations[i] = xloc + con_length
             
         return

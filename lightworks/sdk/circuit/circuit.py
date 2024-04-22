@@ -153,7 +153,7 @@ class Circuit:
         n_heralds = len(circuit.heralds["input"])
         if mode + circuit.__n_modes - n_heralds > self.__n_modes:
             raise ModeRangeError("Circuit to add is outside of mode range")
-        # TODO: Unpack circuit spec probably does not work properly currently
+        # Unpack an already grouped component
         if group:
             spec = unpack_circuit_spec(circuit.__circuit_spec)
         else:
@@ -162,8 +162,13 @@ class Circuit:
         circuit = circuit.copy()
         # Add any existing internal modes into the circuit to be added
         for i in self._internal_modes:
-            if 0 <= i - mode < circuit.n_modes - 2:
-                spec = circuit._add_empty_mode(spec, i - mode + 1)
+            if 0 <= i - mode < circuit.n_modes:
+                # NOTE: For some reason this distinction is required. Figure out why
+                if group:
+                    if i - mode < circuit.n_modes - 2:
+                        spec = circuit._add_empty_mode(spec, i - mode + 1)
+                else:
+                    spec = circuit._add_empty_mode(spec, i - mode)
         for i, m in enumerate(circuit.heralds["input"]):
             self.__circuit_spec = self._add_empty_mode(self.__circuit_spec, 
                                                        mode + m)
@@ -611,7 +616,7 @@ class Circuit:
             new_out_heralds[m] = n
         self.__out_heralds = new_out_heralds
         # Add internal mode storage
-        self.__internal_modes = [m + 1 if m > mode else m 
+        self.__internal_modes = [m + 1 if m >= mode else m 
                                  for m in self.__internal_modes]
         return new_circuit_spec
     
@@ -652,6 +657,13 @@ class Circuit:
                 # Shift unitary mode range
                 params[2] += 1 if params[2] >= mode else 0
                 params[3] += 1 if params[3] >= mode else 0
+            elif c == "unitary":
+                params[0] += 1 if params[0] >= mode else 0
+                # Expand unitary if required
+                if params[0] < mode < params[0] + params[1].shape[0]:
+                    add_mode = mode - params[0]
+                    # Update unitary value
+                    params[1] = self._add_mode_to_unitary(params[1], add_mode)
             else:
                 params[0] += 1 if params[0] >= mode else 0
             new_circuit_spec.append([c, tuple(params)])
@@ -733,3 +745,17 @@ class Circuit:
     def _get_circuit_spec(self) -> list:
         """Returns a copy of the circuit spec attribute."""
         return deepcopy(self.__circuit_spec)
+    
+    # NOTE: This can be moved elsewhere
+    def _add_mode_to_unitary(self, unitary: np.ndarray, 
+                             add_mode: int) -> np.ndarray:
+        """Adds a new mode to the provided unitary at the selected location."""
+        dim = unitary.shape[0] + 1
+        new_U = np.identity(dim, dtype = complex)
+        # Diagonals
+        new_U[:add_mode, :add_mode] = unitary[:add_mode, :add_mode]
+        new_U[add_mode+1:, add_mode+1:] = unitary[add_mode:, add_mode:]
+        # Off-diagonals
+        new_U[:add_mode, add_mode+1:] = unitary[:add_mode, add_mode:]
+        new_U[add_mode+1:, :add_mode] = unitary[add_mode:, :add_mode]
+        return new_U
