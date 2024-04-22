@@ -118,7 +118,6 @@ class SVGDrawSpec:
         
         return
     
-    # TODO: Ensure this is compatible with internal modes
     def _add_unitary(self, mode1: int, mode2: int, label: str) -> None:
         """Add a unitary matrix representation to the drawing."""
         size_x = 100 # Unitary x size
@@ -197,7 +196,6 @@ class SVGDrawSpec:
         
         return
     
-    # TODO: Ensure this is compatible with internal modes
     def _add_mode_swaps(self, swaps: dict) -> None:
         """Add mode swaps between provided modes to the drawing."""
         con_length = 25 # input/output waveguide length
@@ -212,24 +210,26 @@ class SVGDrawSpec:
         xloc = max(self.locations[min_mode:max_mode+1])
         ylocs = []
         for i, j in swaps.items():
-            ylocs.append(((i+1)*self.dy, (j+1)*self.dy))
+            if i not in self.circuit._internal_modes:
+                ylocs.append(((i+1)*self.dy, (j+1)*self.dy))
         # Add initial connectors for any modes which haven't reach xloc yet:
         for i, loc in enumerate(self.locations[min_mode:max_mode+1]):
-            if loc < xloc:
+            if loc < xloc and i + min_mode not in self.circuit._internal_modes:
                 self._add_wg(loc, (min_mode+i+1)*self.dy, xloc - loc)
         # Add input waveguides for all included modes
         modes = range(min_mode, max_mode+1, 1)
         for i in modes:
-            self._add_wg(xloc, (i+1)*self.dy, con_length)
+            if i not in self.circuit._internal_modes:
+                self._add_wg(xloc, (i+1)*self.dy, con_length)
         xloc += con_length
         # Add beam splitter section
         self.draw_spec += [("mode_swaps", (xloc, ylocs, size_x))]
         xloc += size_x
         # Add output waveguides
         for i in modes:
-            self._add_wg(xloc, (i+1)*self.dy, con_length)
-        # Update mode locations
-        for i in modes:
+            if i not in self.circuit._internal_modes:
+                self._add_wg(xloc, (i+1)*self.dy, con_length)
+            # Update mode locations
             self.locations[i] = xloc + con_length
         
         return

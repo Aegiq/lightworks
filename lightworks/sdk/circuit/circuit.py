@@ -554,7 +554,7 @@ class Circuit:
         """
         Maps a provided mode to the corresponding internal mode
         """
-        for i in self.__internal_modes:
+        for i in sorted(self.__internal_modes):
             if mode >= i:
                 mode += 1
         return mode
