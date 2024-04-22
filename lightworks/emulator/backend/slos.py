@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ...sdk import State
+from ...sdk.state import State
 
 import numpy as np
 from math import factorial

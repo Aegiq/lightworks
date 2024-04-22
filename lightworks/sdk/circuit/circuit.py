@@ -22,7 +22,7 @@ from .parameters import Parameter
 from ..utils import ModeRangeError, DisplayError
 from ..utils import CircuitCompilationError
 from ..utils import unpack_circuit_spec, compress_mode_swaps
-from ..utils import convert_non_adj_beamsplitters
+from ..utils import convert_non_adj_beamsplitters, add_mode_to_unitary
 from ..visualisation import Display
 
 from typing import Any, Union
@@ -663,7 +663,7 @@ class Circuit:
                 if params[0] < mode < params[0] + params[1].shape[0]:
                     add_mode = mode - params[0]
                     # Update unitary value
-                    params[1] = self._add_mode_to_unitary(params[1], add_mode)
+                    params[1] = add_mode_to_unitary(params[1], add_mode)
             else:
                 params[0] += 1 if params[0] >= mode else 0
             new_circuit_spec.append([c, tuple(params)])
@@ -745,17 +745,3 @@ class Circuit:
     def _get_circuit_spec(self) -> list:
         """Returns a copy of the circuit spec attribute."""
         return deepcopy(self.__circuit_spec)
-    
-    # NOTE: This can be moved elsewhere
-    def _add_mode_to_unitary(self, unitary: np.ndarray, 
-                             add_mode: int) -> np.ndarray:
-        """Adds a new mode to the provided unitary at the selected location."""
-        dim = unitary.shape[0] + 1
-        new_U = np.identity(dim, dtype = complex)
-        # Diagonals
-        new_U[:add_mode, :add_mode] = unitary[:add_mode, :add_mode]
-        new_U[add_mode+1:, add_mode+1:] = unitary[add_mode:, add_mode:]
-        # Off-diagonals
-        new_U[:add_mode, add_mode+1:] = unitary[:add_mode, add_mode:]
-        new_U[add_mode+1:, :add_mode] = unitary[add_mode:, :add_mode]
-        return new_U

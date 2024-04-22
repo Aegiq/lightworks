@@ -15,7 +15,7 @@
 from .permanent import Permanent
 from .slos import SLOS
 from ..utils import fock_basis, BackendError
-from ...sdk import State
+from ...sdk.state import State
 from ...sdk.circuit.circuit_compiler import CompiledCircuit
 
 from numpy import ndarray

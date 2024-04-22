@@ -16,7 +16,8 @@ from ..backend import Backend
 from ..utils import fock_basis
 from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
-from ...sdk import State, Circuit
+from ...sdk.state import State
+from ...sdk.circuit import Circuit
 
 import numpy as np
 from types import FunctionType

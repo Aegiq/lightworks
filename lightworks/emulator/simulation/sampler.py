@@ -17,7 +17,8 @@ from ..backend import Backend
 from ..utils import ModeMismatchError
 from ..results import SamplingResult
 from ..components import Source, Detector
-from ...sdk import State, Circuit
+from ...sdk.state import State
+from ...sdk.circuit import Circuit
 
 import numpy as np
 from random import random

@@ -42,17 +42,18 @@ Key objects:
 
 from .__version import __version__
 
-from .sdk import Circuit, Unitary
-from .sdk import Parameter, ParameterDict
-from .sdk import Display
-from .sdk import State
-from .sdk import random_unitary, random_permutation
-from .sdk import db_loss_to_transmission, transmission_to_db_loss
-from .sdk import Optimisation
+from .sdk.circuit import Circuit, Unitary
+from .sdk.circuit import Parameter, ParameterDict
+from .sdk.visualisation import Display
+from .sdk.state import State
+from .sdk.utils import random_unitary, random_permutation
+from .sdk.utils import db_loss_to_transmission, transmission_to_db_loss
+from .sdk.optimisation import Optimisation
 from .sdk import qubit
+
 from .sdk.utils.exceptions import *
 
 __all__ = ["Circuit", "Unitary", "Display", "State", "random_unitary", 
            "random_permutation", "db_loss_to_transmission", 
            "transmission_to_db_loss", "Parameter", "ParameterDict", 
-           "Optimisation"]
+           "Optimisation", "qubit"]

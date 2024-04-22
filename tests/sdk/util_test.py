@@ -14,7 +14,7 @@
 
 from lightworks import random_unitary, random_permutation, Circuit
 from lightworks import db_loss_to_transmission, transmission_to_db_loss
-from lightworks.sdk import check_unitary
+from lightworks.sdk.utils import check_unitary
 from lightworks.sdk.utils import permutation_mat_from_swaps_dict
 
 import pytest
