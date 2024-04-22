@@ -432,6 +432,12 @@ class Circuit:
         """
         Unpacks any component groups which may have been added to the circuit.
         """
+        self.__internal_modes = []
+        for c, s in self.__circuit_spec:
+            if c == "group":
+                mode = s[2]
+                for m1, m2 in zip(s[4]["input"], s[4]["output"]):
+                    self.add_herald(s[4]["input"][m1], m1 + mode, m2 + mode)
         self.__circuit_spec = unpack_circuit_spec(self.__circuit_spec)
         return
         
