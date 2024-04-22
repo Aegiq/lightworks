@@ -145,16 +145,25 @@ class Circuit:
         if not isinstance(circuit, Circuit):
             raise TypeError(
                 "Add method only supported for Circuit or Unitary objects.")
+        # Remap mode
+        mode = self._map_mode(mode)
         self._mode_in_range(mode)
         if circuit.heralds["input"]:
             group = True
         n_heralds = len(circuit.heralds["input"])
         if mode + circuit.__n_modes - n_heralds > self.__n_modes:
             raise ModeRangeError("Circuit to add is outside of mode range")
+        # TODO: Unpack circuit spec probably does not work properly currently
         if group:
             spec = unpack_circuit_spec(circuit.__circuit_spec)
         else:
             spec = circuit.__circuit_spec
+        # Make copy of circuit to avoid modification
+        circuit = circuit.copy()
+        # Add any existing internal modes into the circuit to be added
+        for i in self._internal_modes:
+            if 0 <= i - mode < circuit.n_modes - 1:
+                spec = circuit._add_empty_mode(spec, i - mode + 1)
         for i, m in enumerate(circuit.heralds["input"]):
             self.__circuit_spec = self._add_empty_mode(self.__circuit_spec, 
                                                        mode + m)
@@ -176,11 +185,12 @@ class Circuit:
         # TODO: Currently this doesn't take into account the existing internal 
         # modes in a circuit. This will need to be changed!!!
         add_cs = self._add_mode_to_circuit_spec(spec, mode)
+        # Will use the add empty mode function on spec above to achieve this
         if not group:
             self.__circuit_spec = self.__circuit_spec + add_cs
         else:
             self.__circuit_spec.append(["group", (add_cs, name, mode, 
-                                                  mode + circuit.__n_modes - 1,
+                                                  mode + circuit.n_modes - 1,
                                                   new_heralds)
                                         ])
         return
@@ -414,6 +424,8 @@ class Circuit:
         else:
             copied_spec = deepcopy(self.__circuit_spec)
             new_circ.__circuit_spec = self._freeze_params(copied_spec)
+        new_circ.__in_heralds = self.__in_heralds
+        new_circ.__out_heralds = self.__out_heralds
         return new_circ
     
     def unpack_groups(self) -> None:
@@ -618,19 +630,19 @@ class Circuit:
             elif c == "group":
                 params[0] = self._iterate_mode_addition(params[0], mode)
                 # Update herald values
-                #in_heralds, out_heralds = params[4]["input"], params[4]["output"]
-                #new_in_heralds = {}
-                #for m, n in in_heralds.items():
-                #    if m >= (mode-params[2]):
-                #        m += 1
-                #    new_in_heralds[m] = n
-                #new_out_heralds = {}
-                #for m, n in out_heralds.items():
-                #    if m >= (mode-params[2]):
-                #        m += 1
-                #    new_out_heralds[m] = n
-                #params[4] = {"input" : new_in_heralds, 
-                #             "output" : new_out_heralds}
+                in_heralds, out_heralds = params[4]["input"], params[4]["output"]
+                new_in_heralds = {}
+                for m, n in in_heralds.items():
+                    if m >= (mode-params[2]) and mode - params[2] >= 0:
+                        m += 1
+                    new_in_heralds[m] = n
+                new_out_heralds = {}
+                for m, n in out_heralds.items():
+                    if m >= (mode-params[2]) and mode - params[2] >= 0:
+                        m += 1
+                    new_out_heralds[m] = n
+                params[4] = {"input" : new_in_heralds, 
+                             "output" : new_out_heralds}
                 # Shift unitary mode range
                 params[2] += 1 if params[2] >= mode else 0
                 params[3] += 1 if params[3] >= mode else 0
