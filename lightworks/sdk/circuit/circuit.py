@@ -32,6 +32,7 @@ from IPython import display
 from copy import copy, deepcopy
 import numpy as np
 
+# TODO: Find out what happens when a heralded group is added to a circuit 
 
 class Circuit:
     """
@@ -153,7 +154,7 @@ class Circuit:
         n_heralds = len(circuit.heralds["input"])
         if mode + circuit.__n_modes - n_heralds > self.__n_modes:
             raise ModeRangeError("Circuit to add is outside of mode range")
-        # Unpack an already grouped component
+        # Unpack an already grouped component TODO: Account for heralds here
         if group:
             spec = unpack_circuit_spec(circuit.__circuit_spec)
         else:
@@ -164,7 +165,7 @@ class Circuit:
         for i in self._internal_modes:
             if 0 <= i - mode < circuit.n_modes:
                 # NOTE: For some reason this distinction is required. Figure out why
-                if group:
+                if circuit.heralds["input"]:
                     if i - mode < circuit.n_modes - 2:
                         spec = circuit._add_empty_mode(spec, i - mode + 1)
                 else:

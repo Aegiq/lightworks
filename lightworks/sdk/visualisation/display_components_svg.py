@@ -181,7 +181,6 @@ class SVGDrawSpec:
         
         return
     
-    # TODO: Ensure this is compatible with internal modes
     def _add_barrier(self, modes: list) -> None:
         """
         Add a barrier which will separate different parts of the circuit. This
