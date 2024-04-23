@@ -118,7 +118,7 @@ class Circuit:
         """
         # NOTE: Need to think about which heralds are displayed/stored here
         return {"input" : self.__in_heralds, "output" : self.__out_heralds}
-    
+        
     @property
     def _display_spec(self) -> list:
         """The display spec for the circuit."""
@@ -151,16 +151,18 @@ class Circuit:
         self._mode_in_range(mode)
         if circuit.heralds["input"]:
             group = True
-        n_heralds = len(circuit.heralds["input"])
-        if mode + circuit.__n_modes - n_heralds > self.__n_modes:
-            raise ModeRangeError("Circuit to add is outside of mode range")
-        # Unpack an already grouped component TODO: Account for heralds here
-        if group:
-            spec = unpack_circuit_spec(circuit.__circuit_spec)
-        else:
-            spec = circuit.__circuit_spec
         # Make copy of circuit to avoid modification
         circuit = circuit.copy()
+        # Unpack an already grouped component if placing within larger group
+        if group:
+            circuit.unpack_groups()
+            spec = circuit.__circuit_spec
+        else:
+            spec = circuit.__circuit_spec
+        # Check circuit size is valid
+        n_heralds = len(circuit.heralds["input"])
+        if mode + circuit.n_modes - n_heralds > self.n_modes:
+            raise ModeRangeError("Circuit to add is outside of mode range")
         # Add any existing internal modes into the circuit to be added
         for i in self._internal_modes:
             if 0 <= i - mode < circuit.n_modes:
@@ -170,22 +172,35 @@ class Circuit:
                         spec = circuit._add_empty_mode(spec, i - mode + 1)
                 else:
                     spec = circuit._add_empty_mode(spec, i - mode)
-        for i, m in enumerate(circuit.heralds["input"]):
+        provisional_swaps = {}
+        for i, m in enumerate(sorted(circuit.heralds["input"])):
             self.__circuit_spec = self._add_empty_mode(self.__circuit_spec, 
                                                        mode + m)
             self.__internal_modes.append(mode+m)
-            # TODO: Will need to move herald back to empty mode if in mode and
-            # out mode are the same - below may or may not work
-            out_herald = list(circuit.heralds["output"].keys())[i]
+            # Current limitation is that heralding should be on the same mode
+            # when adding, so use a mode swap to compensate for this.
+            herald_loc = list(circuit.heralds["input"].keys()).index(m)
+            out_herald = list(circuit.heralds["output"].keys())[herald_loc]
             if m != out_herald:
-                swaps = {m : out_herald}
-                if out_herald < m:
-                    for i in range(m-out_herald):
-                        swaps[out_herald+i] = out_herald+i+1
-                else:
-                    for i in range(out_herald - m):
-                        swaps[out_herald-i] = out_herald-i-1
-                spec.append(["mode_swaps", (swaps, None)])
+                provisional_swaps[out_herald] = m
+        # Convert provisional swaps into full list and add to circuit
+        current_mode = 0
+        swaps = {}
+        for i in range(circuit.n_modes):
+            if (i not in provisional_swaps.keys() and 
+                i not in provisional_swaps.values()):
+                if i != current_mode:
+                    swaps[i] = current_mode
+                current_mode += 1
+            elif i in provisional_swaps.keys():
+                swaps[i] = provisional_swaps[i]
+            else:
+                while current_mode in provisional_swaps.values():
+                    current_mode += 1
+                swaps[i] = current_mode
+                current_mode += 1        
+        spec.append(["mode_swaps", (swaps, None)])
+        # Then update herald
         new_heralds = {"input" : circuit.heralds["input"],
                        "output" : circuit.heralds["input"]}
         # TODO: Currently this doesn't take into account the existing internal 
