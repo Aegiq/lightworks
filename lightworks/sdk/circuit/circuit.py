@@ -181,14 +181,15 @@ class Circuit:
             # when adding, so use a mode swap to compensate for this.
             herald_loc = list(circuit.heralds["input"].keys()).index(m)
             out_herald = list(circuit.heralds["output"].keys())[herald_loc]
-            if m != out_herald:
-                provisional_swaps[out_herald] = m
+            provisional_swaps[out_herald] = m
         # Convert provisional swaps into full list and add to circuit
         current_mode = 0
         swaps = {}
         for i in range(circuit.n_modes):
             if (i not in provisional_swaps.keys() and 
                 i not in provisional_swaps.values()):
+                while current_mode in provisional_swaps.values():
+                    current_mode += 1
                 if i != current_mode:
                     swaps[i] = current_mode
                 current_mode += 1
@@ -199,7 +200,8 @@ class Circuit:
                     current_mode += 1
                 swaps[i] = current_mode
                 current_mode += 1        
-        spec.append(["mode_swaps", (swaps, None)])
+        if sorted(swaps.keys()) != sorted(swaps.values()):
+            spec.append(["mode_swaps", (swaps, None)])
         # Then update herald
         new_heralds = {"input" : circuit.heralds["input"],
                        "output" : circuit.heralds["input"]}
