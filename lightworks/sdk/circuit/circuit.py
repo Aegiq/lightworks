@@ -200,7 +200,7 @@ class Circuit:
                     current_mode += 1
                 swaps[i] = current_mode
                 current_mode += 1        
-        if sorted(swaps.keys()) != sorted(swaps.values()):
+        if list(swaps.keys()) != list(swaps.values()):
             spec.append(["mode_swaps", (swaps, None)])
         # Then update herald
         new_heralds = {"input" : circuit.heralds["input"],

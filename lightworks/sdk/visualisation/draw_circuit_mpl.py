@@ -84,6 +84,8 @@ class DrawCircuitMPL(DisplayComponentsMPL):
             elif c == "barrier":
                 self._add_barrier(modes)
             elif c == "mode_swaps":
+                if not modes:
+                    continue
                 self._add_mode_swaps(modes)
             elif c == "unitary":
                 m1, m2 = modes
