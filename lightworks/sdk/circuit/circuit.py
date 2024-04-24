@@ -174,15 +174,17 @@ class Circuit:
         n_heralds = len(circuit.heralds["input"])
         if mode + circuit.n_modes - n_heralds > self.n_modes:
             raise ModeRangeError("Circuit to add is outside of mode range")
-        # Add any existing internal modes into the circuit to be added
-        for i in self._internal_modes:
-            if 0 <= i - mode < circuit.n_modes:
-                # NOTE: For some reason this distinction is required. Figure out why
-                if circuit.heralds["input"]:
-                    if i - mode < circuit.n_modes - 2:
-                        spec = circuit._add_empty_mode(spec, i - mode + 1)
-                else:
-                    spec = circuit._add_empty_mode(spec, i - mode)
+        # Include any existing internal modes into the circuit to be added
+        for i in sorted(self.__internal_modes):
+            # Need to account for shifts when adding new heralds
+            target_mode = i - mode
+            for m in circuit.heralds["input"]:
+                if target_mode > m:
+                    target_mode += 1
+            if 0 <= target_mode < circuit.n_modes+1:
+                spec = circuit._add_empty_mode(spec, target_mode)
+        # Then add new modes for heralds from circuit and also add swaps to
+        # enforce that the input and output herald are on the same mode
         provisional_swaps = {}
         for i, m in enumerate(sorted(circuit.heralds["input"])):
             self.__circuit_spec = self._add_empty_mode(self.__circuit_spec, 
@@ -217,8 +219,7 @@ class Circuit:
         # Then update herald
         new_heralds = {"input" : circuit.heralds["input"],
                        "output" : circuit.heralds["input"]}
-        # TODO: Currently this doesn't take into account the existing internal 
-        # modes in a circuit. This will need to be changed!!!
+        # And shift all components in circuit by required amount
         add_cs = self._add_mode_to_circuit_spec(spec, mode)
         # Will use the add empty mode function on spec above to achieve this
         if not group:
