@@ -87,7 +87,7 @@ class TestUtils:
         seed(999)
         assert random() == pytest.approx(0.7813468849570298, 1e-8)
         
-    @pytest.mark.parametrize("mode", [0, 3, 6])
+    @pytest.mark.parametrize("mode", [0, 3, 5, 6])
     def test_add_mode_to_unitary_value(self, mode):
         """
         Checks that add_mode_to_unitary function works correctly for a variety
@@ -100,7 +100,7 @@ class TestUtils:
         # Also confirm one off-diagonal value
         assert new_U[mode, mode-1] == 0.0
 
-    @pytest.mark.parametrize("mode", [0, 3, 6])
+    @pytest.mark.parametrize("mode", [0, 3, 5, 6])
     def test_add_mode_to_unitary_diagonal(self, mode):
         """
         Checks that add_mode_to_unitary function works correctly for a variety
@@ -112,7 +112,7 @@ class TestUtils:
         assert (new_U[:mode, :mode] == U[:mode, :mode]).all()
         assert (new_U[mode+1:, mode+1:] == U[mode:, mode:]).all()
         
-    @pytest.mark.parametrize("mode", [0, 3, 6])
+    @pytest.mark.parametrize("mode", [0, 3, 5, 6])
     def test_add_mode_to_unitary_off_diagonal(self, mode):
         """
         Checks that add_mode_to_unitary function works correctly for a variety

@@ -114,10 +114,28 @@ class Circuit:
     def heralds(self) -> dict:
         """
         A dictionary which details the set heralds on the inputs and outputs of
-        the circuit.
+        the circuit. Note this does not include any heralds added to the 
+        circuit.
         """
-        # NOTE: Need to think about which heralds are displayed/stored here
-        return {"input" : self.__in_heralds, "output" : self.__out_heralds}
+        return {"input" : copy(self.__in_heralds), 
+                "output" : copy(self.__out_heralds)}
+    
+    @property
+    def full_heralds(self):
+        """
+        desc
+        """
+        inputs = {k:v for k, v in self.__in_heralds.items()}
+        outputs = {k:v for k, v in self.__out_heralds.items()}
+        for c, s in self.__circuit_spec:
+            if c == "group":
+                mode = s[2]
+                heralds = s[4]
+                for m, n in heralds["input"].items():
+                    inputs[m+mode] = n
+                for m, n in heralds["output"].items():
+                    outputs[m+mode] = n
+        return {"input" : inputs, "output" : outputs}
         
     @property
     def _display_spec(self) -> list:
@@ -371,6 +389,10 @@ class Circuit:
         Add a herald across a selected input/output of the circuit. If only one
         mode is specified then this will be used for both the input and output. 
         """
+        if not isinstance(n_photons, int) or isinstance(n_photons, bool):
+            raise TypeError(
+                "Number of photons for herald should be an integer.")
+        n_photons = int(n_photons)
         if output_mode is None:
             output_mode = input_mode
         input_mode = self._map_mode(input_mode)
