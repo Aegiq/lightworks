@@ -129,7 +129,7 @@ class Circuit:
         return self.__internal_modes
         
     def add(self, circuit: Union["Circuit", "Unitary"], mode: int = 0,         # type: ignore - ignores Pylance warning raised by undefined unitary component
-            group: bool = False, name: str = "Circuit") -> None:
+            group: bool = False, name: str | None = None) -> None:
         """
         Can be used to add either another Circuit or a Unitary component to the
         existing circuit. This can either have the same size or be smaller than
@@ -149,16 +149,27 @@ class Circuit:
         # Remap mode
         mode = self._map_mode(mode)
         self._mode_in_range(mode)
-        if circuit.heralds["input"]:
-            group = True
         # Make copy of circuit to avoid modification
-        circuit = circuit.copy()
-        # Unpack an already grouped component if placing within larger group
+        circuit_copy = circuit.copy()
+        # Use unpack groups and check if heralds are used
+        circuit_copy.unpack_groups()
+        spec = circuit_copy.__circuit_spec
+        # Force grouping if heralding included
+        if circuit_copy.heralds["input"]:
+            group = True
+        # When name not provided set this
+        if name is None:
+            spec = circuit.__circuit_spec
+            # Special case where name is retrieved from previous group
+            if len(spec) == 1 and spec[0][0] == "group":
+                name = spec[0][1][1]
+            # Otherwise default to circuit
+            else:
+                name = "Circuit"
+        # When grouping use unpacked circuit
         if group:
-            circuit.unpack_groups()
-            spec = circuit.__circuit_spec
-        else:
-            spec = circuit.__circuit_spec
+            circuit = circuit_copy
+        spec = circuit.__circuit_spec
         # Check circuit size is valid
         n_heralds = len(circuit.heralds["input"])
         if mode + circuit.n_modes - n_heralds > self.n_modes:
@@ -199,7 +210,8 @@ class Circuit:
                 while current_mode in provisional_swaps.values():
                     current_mode += 1
                 swaps[i] = current_mode
-                current_mode += 1        
+                current_mode += 1
+        # Remove for cases where swaps do not actually act on any modes      
         if list(swaps.keys()) != list(swaps.values()):
             spec.append(["mode_swaps", (swaps, None)])
         # Then update herald
@@ -447,8 +459,8 @@ class Circuit:
         else:
             copied_spec = deepcopy(self.__circuit_spec)
             new_circ.__circuit_spec = self._freeze_params(copied_spec)
-        new_circ.__in_heralds = self.__in_heralds
-        new_circ.__out_heralds = self.__out_heralds
+        new_circ.__in_heralds = copy(self.__in_heralds)
+        new_circ.__out_heralds = copy(self.__out_heralds)
         return new_circ
     
     def unpack_groups(self) -> None:
