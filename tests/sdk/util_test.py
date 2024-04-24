@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lightworks import random_unitary, random_permutation, Circuit
+from lightworks import random_unitary, random_permutation
 from lightworks import db_loss_to_transmission, transmission_to_db_loss
-from lightworks.sdk.utils import check_unitary
+from lightworks.sdk.utils import check_unitary, add_mode_to_unitary
 from lightworks.sdk.utils import permutation_mat_from_swaps_dict
 
 import pytest
-from numpy import identity, round
+from numpy import identity
 from random import random, seed
 
-class TestUtil:
+class TestUtils:
     """
     Unit tests to check functionality of various utilities included with the
     SDK.
@@ -86,3 +86,40 @@ class TestUtil:
         unit tests failing."""
         seed(999)
         assert random() == pytest.approx(0.7813468849570298, 1e-8)
+        
+    @pytest.mark.parametrize("mode", [0, 3, 6])
+    def test_add_mode_to_unitary_value(self, mode):
+        """
+        Checks that add_mode_to_unitary function works correctly for a variety
+        of positions, producinh .
+        """
+        U = random_unitary(6)
+        new_U = add_mode_to_unitary(U, mode)
+        # Check diagonal value on new mode
+        assert new_U[mode, mode] == 1.0
+        # Also confirm one off-diagonal value
+        assert new_U[mode, mode-1] == 0.0
+
+    @pytest.mark.parametrize("mode", [0, 3, 6])
+    def test_add_mode_to_unitary_diagonal(self, mode):
+        """
+        Checks that add_mode_to_unitary function works correctly for a variety
+        of positions.
+        """
+        U = random_unitary(6)
+        new_U = add_mode_to_unitary(U, mode)
+        # Confirm preservation of unitary on diagonal
+        assert (new_U[:mode, :mode] == U[:mode, :mode]).all()
+        assert (new_U[mode+1:, mode+1:] == U[mode:, mode:]).all()
+        
+    @pytest.mark.parametrize("mode", [0, 3, 6])
+    def test_add_mode_to_unitary_off_diagonal(self, mode):
+        """
+        Checks that add_mode_to_unitary function works correctly for a variety
+        of positions.
+        """
+        U = random_unitary(6)
+        new_U = add_mode_to_unitary(U, mode)
+        # Confirm preservation on unitary off diagonal
+        assert (new_U[mode+1:, :mode] == U[mode:, :mode]).all()
+        assert (new_U[:mode, mode+1:] == U[:mode, mode:]).all()
