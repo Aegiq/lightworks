@@ -199,7 +199,7 @@ class Circuit:
             for m in circuit.heralds["input"]:
                 if target_mode > m:
                     target_mode += 1
-            if 0 <= target_mode < circuit.n_modes+1:
+            if 0 <= target_mode < circuit.n_modes:
                 spec = circuit._add_empty_mode(spec, target_mode)
         # Then add new modes for heralds from circuit and also add swaps to
         # enforce that the input and output herald are on the same mode
