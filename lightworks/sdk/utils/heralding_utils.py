@@ -29,9 +29,14 @@ def add_heralds_to_state(state: State | list, heralds: dict) -> list:
         list : The updated state with heralded modes included.
     
     """
+    # Auto-return original state if no heralding used
+    if not heralds:
+        return state
     n_modes = len(state) + len(heralds)
-    count = 0
+    # Otherwise create new state
     new_state = [0]*n_modes
+    # Then iterate through modes using values from state or herald
+    count = 0
     for i in range(n_modes):
         if i in heralds:
             new_state[i] = heralds[i]

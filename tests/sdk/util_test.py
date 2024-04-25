@@ -16,10 +16,11 @@ from lightworks import random_unitary, random_permutation
 from lightworks import db_loss_to_transmission, transmission_to_db_loss
 from lightworks.sdk.utils import check_unitary, add_mode_to_unitary
 from lightworks.sdk.utils import permutation_mat_from_swaps_dict
+from lightworks.sdk.utils import add_heralds_to_state
 
 import pytest
 from numpy import identity
-from random import random, seed
+from random import random, seed, randint
 
 class TestUtils:
     """
@@ -123,3 +124,40 @@ class TestUtils:
         # Confirm preservation on unitary off diagonal
         assert (new_U[mode+1:, :mode] == U[mode:, :mode]).all()
         assert (new_U[:mode, mode+1:] == U[:mode, mode:]).all()
+        
+    def test_add_heralds_to_state(self):
+        """
+        Tests that add heralds to state generates the correct mode structure.
+        """
+        s = [1,2,3,4,5]
+        heralds = {1:6, 6:7}
+        s_new = add_heralds_to_state(s, heralds)
+        assert s_new == [1,6,2,3,4,5,7]
+        
+    def test_add_heralds_to_state_unordered(self):
+        """
+        Tests that add heralds to state generates the correct mode structure,
+        when the heralding dict is not ordered.
+        """
+        s = [1,2,3,4,5]
+        heralds = {6:7, 1:6}
+        s_new = add_heralds_to_state(s, heralds)
+        assert s_new == [1,6,2,3,4,5,7]
+    
+    def test_add_heralds_to_state_empty_herald(self):
+        """
+        Tests that the original state is returned when no heralds are used.
+        """
+        s = [randint(0, 5) for i in range(10)]
+        s_new = add_heralds_to_state(s, {})
+        assert s == s_new
+        
+    def test_add_heralds_to_state_no_modification(self):
+        """
+        Checks that add heralds to state does not modify the original state.
+        """
+        s = [randint(0, 5) for i in range(10)]
+        s_copy = [i for i in s]
+        s_new = add_heralds_to_state(s, {6:7, 1:6})
+        assert s == s_copy
+        
