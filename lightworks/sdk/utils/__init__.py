@@ -21,3 +21,4 @@ from .permutation_conversion import permutation_mat_from_swaps_dict
 from .circuit_utils import unpack_circuit_spec
 from .circuit_utils import convert_non_adj_beamsplitters
 from .circuit_utils import compress_mode_swaps
+from .heralding_utils import add_heralds_to_state

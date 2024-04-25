@@ -18,6 +18,7 @@ from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
 from ...sdk.state import State
 from ...sdk.circuit import Circuit
+from ...sdk.utils import add_heralds_to_state
 
 import numpy as np
 from types import FunctionType
@@ -152,20 +153,19 @@ class Analyzer:
                 # No loss case
                 if not self.__circuit_built.loss_modes:
                     probs[i, j] += self.__backend.probability(
-                        self.__circuit_built.U_full, ins.s, outs.s)
+                        self.__circuit_built.U_full, ins.s, outs)
                 # Lossy case
                 else:
                     # Photon number preserved
-                    if ins.n_photons == outs.n_photons:
-                        outs = (outs + 
-                                State([0]*self.__circuit_built.loss_modes))
+                    if ins.n_photons == sum(outs):
+                        outs = outs + [0]*self.__circuit_built.loss_modes
                         probs[i, j] += self.__backend.probability(
-                            self.__circuit_built.U_full, ins.s, outs.s)
+                            self.__circuit_built.U_full, ins.s, outs)
                     # Otherwise
                     else:
                         # If n_out < n_in work out all loss mode combinations
                         # and find probability of each
-                        n_loss = ins.n_photons - outs.n_photons
+                        n_loss = ins.n_photons - sum(outs)
                         if n_loss < 0:
                             raise PhotonNumberError(
                                 "Output photon number larger than input "
@@ -174,26 +174,11 @@ class Analyzer:
                         loss_states = fock_basis(
                             self.__circuit_built.loss_modes, n_loss)
                         for ls in loss_states:
-                            fs = outs + State(ls)
+                            fs = outs + ls
                             probs[i, j] += self.__backend.probability(
-                                self.__circuit_built.U_full, ins.s, fs.s)     
+                                self.__circuit_built.U_full, ins.s, fs)     
                             
         return probs
-    
-    def _build_state(self, state: State, herald: dict) -> State:
-        """
-        Add heralded modes to a provided state
-        """
-        count = 0
-        new_state = [0]*self.__circuit_built.n_modes
-        for i in range(self.__circuit_built.n_modes):
-            if i in herald:
-                new_state[i] = herald[i]
-            else:
-                new_state[i] = state[count]
-                count += 1
-        
-        return State(new_state)
     
     def _calculate_error_rate(self, probabilities: np.ndarray, inputs: list, 
                               outputs: list, expected: dict) -> float:
@@ -245,9 +230,8 @@ class Analyzer:
                     "subtract heralded modes.")
             # Also validate state values
             state._validate()
-            full_inputs += [self._build_state(state, 
-                                              self.circuit.heralds["input"])
-                            ]
+            full_inputs += [State(add_heralds_to_state(state, 
+                                      self.circuit.full_heralds["input"]))]
         # Add extra states for loss modes here when included
         if self.__circuit_built.loss_modes > 0:
             full_inputs = [s + State([0]*self.__circuit_built.loss_modes) 
@@ -273,7 +257,8 @@ class Analyzer:
         filtered_outputs = []
         full_outputs = []
         for state in outputs:
-            fo  = self._build_state(state, self.circuit.heralds["output"])
+            fo  = add_heralds_to_state(
+                      state, self.circuit.full_heralds["output"])
             # Check output meets all post selection rules
             for funcs in self.post_selects:
                 if not funcs(fo):
