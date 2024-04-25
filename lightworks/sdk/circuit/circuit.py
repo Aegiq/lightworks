@@ -32,7 +32,6 @@ from IPython import display
 from copy import copy, deepcopy
 import numpy as np
 
-# TODO: Find out what happens when a heralded group is added to a circuit 
 
 class Circuit:
     """
@@ -192,6 +191,7 @@ class Circuit:
         n_heralds = len(circuit.heralds["input"])
         if mode + circuit.n_modes - n_heralds > self.n_modes:
             raise ModeRangeError("Circuit to add is outside of mode range")
+        
         # Include any existing internal modes into the circuit to be added
         for i in sorted(self.__internal_modes):
             # Need to account for shifts when adding new heralds
@@ -216,20 +216,17 @@ class Circuit:
         # Convert provisional swaps into full list and add to circuit
         current_mode = 0
         swaps = {}
+        # Loop over all modes in circuit to find swaps
         for i in range(circuit.n_modes):
-            if (i not in provisional_swaps.keys() and 
-                i not in provisional_swaps.values()):
+            # If used as a key then take value from provisional swaps
+            if i in provisional_swaps.keys():
+                swaps[i] = provisional_swaps[i]
+            # Otherwise then map mode to lowest mode possible
+            else:
                 while current_mode in provisional_swaps.values():
                     current_mode += 1
                 if i != current_mode:
                     swaps[i] = current_mode
-                current_mode += 1
-            elif i in provisional_swaps.keys():
-                swaps[i] = provisional_swaps[i]
-            else:
-                while current_mode in provisional_swaps.values():
-                    current_mode += 1
-                swaps[i] = current_mode
                 current_mode += 1
         # Remove for cases where swaps do not actually act on any modes      
         if list(swaps.keys()) != list(swaps.values()):
@@ -239,7 +236,8 @@ class Circuit:
                        "output" : circuit.heralds["input"]}
         # And shift all components in circuit by required amount
         add_cs = self._add_mode_to_circuit_spec(spec, mode)
-        # Will use the add empty mode function on spec above to achieve this
+        
+        # Then add circuit spec, adjusting how this is included
         if not group:
             self.__circuit_spec = self.__circuit_spec + add_cs
         else:
