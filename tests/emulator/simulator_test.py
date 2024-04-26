@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from lightworks import State, Unitary, random_unitary, Circuit, Parameter
-from lightworks.emulator import PhotonNumberError
+from lightworks.emulator import PhotonNumberError, ModeMismatchError
 from lightworks.emulator import Simulator
 
 import pytest
@@ -185,3 +185,54 @@ class TestSimulator:
         with pytest.raises(PhotonNumberError):
             sim.simulate([State([1,0,1,0]), State([0,1,0,1])],
                          [State([1,0,1,0]), State([0,1,0,0])])
+            
+    def test_incorrect_input_length(self):
+        """
+        Confirms an error is raised when an input which does not match the 
+        required circuit modes is supplied.
+        """
+        # Create circuit and simulator object
+        circuit = Unitary(random_unitary(4))
+        sim = Simulator(circuit)
+        # Attempt to simulate with input which is too short
+        with pytest.raises(ModeMismatchError):
+            sim.simulate(State([1,0,1]))
+        # And then which is too long
+        with pytest.raises(ModeMismatchError):
+            sim.simulate(State([1,0,1,0,1]))
+            
+    def test_incorrect_input_length_herald(self):
+        """
+        Confirms an error is raised when an input which does not match the 
+        required circuit modes is supplied, when heralding is used in the 
+        original circuit.
+        """
+        # Create circuit and simulator object
+        circuit = Unitary(random_unitary(4))
+        circuit.add_herald(1, 0, 2)
+        sim = Simulator(circuit)
+        # Attempt to simulate with input which is too short
+        with pytest.raises(ModeMismatchError):
+            sim.simulate(State([1,0]))
+        # And then which is too long
+        with pytest.raises(ModeMismatchError):
+            sim.simulate(State([1,0,1,0]))
+            
+    def test_incorrect_input_length_herald_grouped(self):
+        """
+        Confirms an error is raised when an input which does not match the 
+        required circuit modes is supplied, when heralding is used in a 
+        sub-circuit of the original circuit.
+        """
+        # Create circuit and simulator object
+        circuit = Unitary(random_unitary(4))
+        sub_circuit = Unitary(random_unitary(4))
+        sub_circuit.add_herald(1, 0, 2)
+        circuit.add(sub_circuit, 1)
+        sim = Simulator(circuit)
+        # Attempt to simulate with input which is too short
+        with pytest.raises(ModeMismatchError):
+            sim.simulate(State([1,0,1]))
+        # And then which is too long
+        with pytest.raises(ModeMismatchError):
+            sim.simulate(State([1,0,1,0,0]))
