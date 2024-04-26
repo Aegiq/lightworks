@@ -66,7 +66,7 @@ class Circuit:
         if not isinstance(value, Circuit):
             raise TypeError(
                 "Addition only supported between two Circuit objects.")
-        if self.__n_modes != value.__n_modes:
+        if self.n_modes != value.n_modes:
             raise ModeRangeError(
                 "Two circuits to add must have the same number of modes.")
         if self.heralds["input"] or value.heralds["input"]:
@@ -74,7 +74,7 @@ class Circuit:
                 "Support for heralds when combining circuits not yet "
                 "implemented.")
         # Create new circuits and combine circuits specs to create new one
-        new_circ = Circuit(self.__n_modes)
+        new_circ = Circuit(self.n_modes)
         new_circ.__circuit_spec = (self.__circuit_spec + 
                                     value.__circuit_spec)
         return new_circ
@@ -86,7 +86,7 @@ class Circuit:
         will include the effect of any loss within a circuit. It is calculated 
         using the parameter values at the time that the attribute is called.
         """
-        return self._build().U_full[:self.__n_modes, :self.__n_modes]
+        return self._build().U_full[:self.n_modes, :self.n_modes]
     
     @property
     def U_full(self) -> np.ndarray:
@@ -108,6 +108,14 @@ class Circuit:
         Prevents modification of n_modes attribute after circuit creation.
         """
         raise AttributeError("Number of circuit modes cannot be modified.")
+    
+    @property
+    def input_modes(self):
+        """
+        The number of input modes that should be specified, accounting for the 
+        heralds used in the circuit.
+        """
+        return self.n_modes - len(self.heralds["input"])
     
     @property
     def heralds(self) -> dict:
@@ -346,7 +354,7 @@ class Circuit:
         """
         if modes == None:
             modes = [i for i in 
-                     range(self.__n_modes-len(self.__internal_modes))]
+                     range(self.n_modes-len(self.__internal_modes))]
         modes = [self._map_mode(i) for i in modes]
         for m in modes:
             self._mode_in_range(m)
@@ -593,7 +601,7 @@ class Circuit:
                 mode = int(mode)
             else:
                 raise TypeError("Mode number should be an integer.")
-        if 0 <= mode < self.__n_modes:
+        if 0 <= mode < self.n_modes:
             return True
         else:
             raise ModeRangeError(

@@ -107,8 +107,7 @@ class Analyzer:
             
         """
         self.__circuit_built = self.circuit._build()
-        n_modes = (self.__circuit_built.n_modes - 
-                   len(self.circuit.heralds["input"]))
+        n_modes = self.circuit.input_modes
         if self.circuit.heralds["input"] != self.circuit.heralds["output"]:
             raise RuntimeError(
                 "Mismatch in number of heralds on the input/output modes, it "
@@ -215,8 +214,7 @@ class Analyzer:
         Takes the provided inputs, perform error checking on them and adds any 
         heralded photons that are required, returning full states..
         """
-        n_modes = (self.__circuit_built.n_modes - 
-                   len(self.circuit.heralds["input"]))
+        n_modes = self.circuit.input_modes
         # Ensure all photon numbers are the same   
         ns = [s.n_photons for s in inputs]
         if min(ns) != max(ns):

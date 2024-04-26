@@ -18,7 +18,7 @@ from lightworks.sdk.circuit.circuit_compiler import CompiledCircuit
 from lightworks.sdk.circuit.circuit_compiler import CompiledUnitary
 
 import pytest
-from random import random, seed
+from random import random, seed, randint
 from numpy import round
 
 class TestCircuit:
@@ -575,6 +575,55 @@ class TestCircuit:
         # Get relevant elements from spec
         assert spec[0][1][0:2] == (0, 2)
         assert spec[1][1][0:2] == (5, 7)
+        
+    def test_input_modes(self):
+        """
+        Checks input modes attribute returns n_modes value when no heralds are 
+        used.
+        """
+        circuit = Circuit(randint(4, 10))
+        assert circuit.input_modes == circuit.n_modes 
+        
+    def test_input_modes_heralds(self):
+        """
+        Checks input modes attribute returns less then n_modes value when 
+        heralds are included.
+        """
+        n = randint(6, 10)
+        circuit = Circuit(n)
+        circuit.add_herald(1, 1, 4)
+        circuit.add_herald(2, 3, 3)
+        assert circuit.input_modes == n - 2 
+        
+    def test_input_modes_heralds_sub_circuit(self):
+        """
+        Checks input modes attribute returns original n_modes value when 
+        heralds are included as part of a sub-circuit and then added to the 
+        larger circuit.
+        """
+        n = randint(9, 10)
+        circuit = Circuit(n)
+        sub_circuit = Circuit(4)
+        sub_circuit.add_herald(1, 0, 0)
+        sub_circuit.add_herald(0, 3, 1)
+        circuit.add(sub_circuit, 2)
+        assert circuit.input_modes == n
+        
+    def test_input_modes_heralds_sub_circuit_original_heralds(self):
+        """
+        Checks input modes attribute returns original n_modes value when 
+        heralds are included as part of a sub-circuit and then added to the 
+        larger circuit, with the larger circuit also containing heralds.
+        """
+        n = randint(9, 10)
+        circuit = Circuit(n)
+        circuit.add_herald(1, 1, 4)
+        circuit.add_herald(2, 3, 3)
+        sub_circuit = Circuit(4)
+        sub_circuit.add_herald(1, 0, 0)
+        sub_circuit.add_herald(0, 3, 1)
+        circuit.add(sub_circuit, 2)
+        assert circuit.input_modes == n - 2
         
 class TestUnitary:
     """
