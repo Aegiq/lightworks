@@ -102,7 +102,7 @@ class TestTwoQubitGates:
         the success probability is 1/9.
         """
         # Define all input combinations
-        states = [[0,1,0,1,0,0], [0,1,0,0,1,0], [0,0,1,1,0,0], [0,0,1,0,1,0]]
+        states = [[1,0,1,0], [1,0,0,1], [0,1,1,0], [0,1,0,1]]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
         sim = Simulator(CZ())
@@ -121,7 +121,7 @@ class TestTwoQubitGates:
         that the success probability is 1/9.
         """
         # Define all input combinations
-        states = [[0,1,0,1,0,0], [0,1,0,0,1,0], [0,0,1,1,0,0], [0,0,1,0,1,0]]
+        states = [[1,0,1,0], [1,0,0,1], [0,1,1,0], [0,1,0,1]]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
         sim = Simulator(CNOT())
@@ -140,8 +140,7 @@ class TestTwoQubitGates:
         success probability is 1/16.
         """
         # Define all input combinations
-        states = [[0,1,1,0,1,0,1,0], [0,1,1,0,0,1,1,0],
-                  [0,1,0,1,1,0,1,0], [0,1,0,1,0,1,1,0]]
+        states = [[1,0,1,0], [1,0,0,1], [0,1,1,0], [0,1,0,1]]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
         sim = Simulator(CZ_Heralded())
@@ -160,8 +159,7 @@ class TestTwoQubitGates:
         the success probability is 1/16.
         """
         # Define all input combinations
-        states = [[0,1,1,0,1,0,1,0], [0,1,1,0,0,1,1,0],
-                  [0,1,0,1,1,0,1,0], [0,1,0,1,0,1,1,0]]
+        states = [[1,0,1,0], [1,0,0,1], [0,1,1,0], [0,1,0,1]]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
         sim = Simulator(CNOT_Heralded())

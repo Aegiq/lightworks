@@ -221,6 +221,7 @@ class Analyzer:
             raise PhotonNumberError(
                 "Mismatch in photon numbers between inputs")
         full_inputs = []
+        in_heralds = self.circuit.heralds["input"]
         # Check dimensions of input and add heralded photons
         for state in inputs:
             if len(state) != n_modes:
@@ -229,8 +230,7 @@ class Analyzer:
                     "subtract heralded modes.")
             # Also validate state values
             state._validate()
-            full_inputs += [State(add_heralds_to_state(state, 
-                                      self.circuit.heralds["input"]))]
+            full_inputs += [State(add_heralds_to_state(state, in_heralds))]
         # Add extra states for loss modes here when included
         if self.__circuit_built.loss_modes > 0:
             full_inputs = [s + State([0]*self.__circuit_built.loss_modes) 
@@ -255,6 +255,7 @@ class Analyzer:
         # Filter outputs according to post selection and add heralded photons
         filtered_outputs = []
         full_outputs = []
+        out_heralds = self.circuit.heralds["output"]
         for state in outputs:
             # Check output meets all post selection rules
             for funcs in self.post_selects:
@@ -262,7 +263,7 @@ class Analyzer:
                     break
             else:
                 fo  = add_heralds_to_state(
-                          state, self.circuit.heralds["output"])
+                          state, out_heralds)
                 filtered_outputs += [State(state)]
                 full_outputs += [fo]
         # Check some valid outputs found

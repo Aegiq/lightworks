@@ -23,7 +23,7 @@ from ..utils import permutation_mat_from_swaps_dict
 
 import numpy as np
 
-class CZ(Unitary):
+class CZ(Circuit):
     """
     Post-selected CZ gate that acts across two dual-rail encoded qubits. This 
     gate occupies a total of 6 modes, where modes 0 & 5 are used for 0 photon
@@ -34,13 +34,17 @@ class CZ(Unitary):
     """
     def __init__(self) -> None:
             
-        u_bs = np.array([[-1,2**0.5],[2**0.5,1]])/3**0.5
-        unitary = np.identity(6, dtype = complex)
+        U_bs = np.array([[-1,2**0.5],[2**0.5,1]])/3**0.5
+        U = np.identity(6, dtype = complex)
         for i in range(0,6,2):
-            unitary[i:i+2,i:i+2] = u_bs[:,:]
-        unitary[3,:] = -unitary[3,:]
+            U[i:i+2,i:i+2] = U_bs[:,:]
+        U[3,:] = -U[3,:]
+        unitary = Unitary(U, label = "CZ")
+        unitary.add_herald(0, 0, 0)
+        unitary.add_herald(0, 5, 5)
         
-        super().__init__(unitary, "CZ")
+        super().__init__(4)
+        self.add(unitary, 0, group = True, name = "CZ")
         
     def show_layout(self):
         """
@@ -70,13 +74,13 @@ class CNOT(Circuit):
     """
     def __init__(self) -> None:
         
-        super().__init__(6)
+        super().__init__(4)
         
         # Create CNOT from combination of H and CZ
-        circ = Circuit(6)
-        circ.add(H(), 3)
+        circ = Circuit(4)
+        circ.add(H(), 2)
         circ.add(CZ(), 0)
-        circ.add(H(), 3)
+        circ.add(H(), 2)
         
         self.add(circ, 0, group = True, name = "CNOT")
         
@@ -97,7 +101,7 @@ class CNOT(Circuit):
         """
         print(rep)
         
-class CZ_Heralded(Unitary):
+class CZ_Heralded(Circuit):
     """
     Heralded version of the CZ gate which acts across two dual-rail encoded 
     qubits, using two NS gates with ancillary photons to herald the success of 
@@ -111,15 +115,15 @@ class CZ_Heralded(Unitary):
     """
     def __init__(self) -> None:
         
-        unitary = np.identity(8, dtype = complex)
+        U = np.identity(8, dtype = complex)
         
         U_ns = np.array([[1-2**0.5, 2**-0.25, (3/(2**0.5) - 2)**0.5],
                          [2**-0.25, 0.5, 0.5 - 2**-0.5],
                          [(3/(2**0.5) - 2)**0.5, 0.5 - 2**-0.5, 2**0.5 - 0.5]])
-        unitary[1:4, 1:4] = np.flip(U_ns, axis=(0,1))[:,:]
-        unitary[4:7, 4:7] = U_ns[:,:]
+        U[1:4, 1:4] = np.flip(U_ns, axis=(0,1))[:,:]
+        U[4:7, 4:7] = U_ns[:,:]
         # Apply pi phase shifts on mode 3
-        unitary[:,3] = -unitary[:,3]
+        U[:,3] = -U[:,3]
         
         # Define beam splitter action
         U_bs = np.identity(8, dtype=complex)
@@ -133,9 +137,16 @@ class CZ_Heralded(Unitary):
         U_perm1 = permutation_mat_from_swaps_dict(swaps, 8)
         U_perm2 = np.conj(U_perm1.T)
         
-        unitary = U_perm2 @ U_bs @ unitary @ U_bs @ U_perm1
+        U = U_perm2 @ U_bs @ U @ U_bs @ U_perm1
         
-        super().__init__(unitary, "CZ (Heralded)")
+        unitary = Unitary(U)
+        unitary.add_herald(0, 0, 0)
+        unitary.add_herald(1, 1, 1)
+        unitary.add_herald(1, 6, 6)
+        unitary.add_herald(0, 7, 7)
+        
+        super().__init__(4)
+        self.add(unitary, 0, group = True, name = "CZ")
         
     def show_layout(self):
         """
@@ -170,13 +181,13 @@ class CNOT_Heralded(Circuit):
     """
     def __init__(self) -> None:
         
-        super().__init__(8)
+        super().__init__(4)
         
         # Create CNOT from combination of H and CZ
-        circ = Circuit(8)
-        circ.add(H(), 4)
+        circ = Circuit(4)
+        circ.add(H(), 2)
         circ.add(CZ_Heralded(), 0)
-        circ.add(H(), 4)
+        circ.add(H(), 2)
         
         self.add(circ, 0, group = True, name = "CNOT (Heralded)")
         

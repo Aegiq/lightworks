@@ -18,6 +18,7 @@ from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
 from ...sdk.state import State
 from ...sdk.circuit import Circuit
+from ...sdk.utils import add_heralds_to_state
 
 import numpy as np
 
@@ -88,20 +89,19 @@ class Simulator:
         inputs = self._process_inputs(inputs)
         # And then either generate or process outputs
         inputs, outputs = self._process_outputs(inputs, outputs)
-        # Add extra states for loss modes here when included
-        if circuit.loss_modes > 0:
-            inputs = [s + State([0]*circuit.loss_modes) for s in inputs]
-            outputs = [s + State([0]*circuit.loss_modes) for s in outputs]
+        in_heralds = self.circuit.heralds["input"]
+        out_heralds = self.circuit.heralds["output"]
         # Calculate permanent for the given inputs and outputs and return 
         # values
         amplitudes = np.zeros((len(inputs), len(outputs)), dtype = complex)
         for i, ins in enumerate(inputs):
+            in_state = add_heralds_to_state(ins, in_heralds)
+            in_state += [0]*circuit.loss_modes
             for j, outs in enumerate(outputs):
+                out_state = add_heralds_to_state(outs, out_heralds)
+                out_state += [0]*circuit.loss_modes
                 amplitudes[i, j] = self.__backend.probability_amplitude(
-                    circuit.U_full, ins.s, outs.s)
-        if circuit.loss_modes > 0:
-            inputs = [s[:circuit.n_modes] for s in inputs]
-            outputs = [s[:circuit.n_modes] for s in outputs]
+                    circuit.U_full, in_state, out_state)
         # Return results and corresponding states as dictionary
         results = {"amplitudes" : amplitudes, "inputs" : inputs, 
                    "outputs" : outputs}
@@ -111,6 +111,7 @@ class Simulator:
     
     def _process_inputs(self, inputs: list) -> list:
         """Performs all required processing/checking on the input states."""
+        input_modes = self.circuit.input_modes
         # Check each input
         for state in inputs:
             # Ensure correct type
@@ -118,11 +119,11 @@ class Simulator:
                 raise TypeError(
                     "inputs should be a State or list of State objects.")  
             # Dimension check
-            if len(state) != self.circuit.n_modes:
+            if len(state) != input_modes:
                 raise ModeMismatchError(
                     "One or more input states have an incorrect number of "
                     "modes, correct number of modes is "
-                    f"{self.circuit.n_modes}.")
+                    f"{input_modes}.")
             # Also validate state values
             state._validate()
         return inputs
@@ -133,6 +134,7 @@ class Simulator:
         Processes the provided outputs or generates them if no inputs were 
         provided. Returns both the inputs and outputs.
         """
+        input_modes = self.circuit.input_modes
         # If outputs not specified then determine all combinations
         if outputs is None:
             ns = [s.n_photons for s in inputs]
@@ -140,7 +142,7 @@ class Simulator:
                 raise PhotonNumberError(
                     "Mismatch in total photon number between inputs, this is "
                     "not currently supported by the Simulator.")
-            outputs = fock_basis(self.circuit.n_modes, max(ns))
+            outputs = fock_basis(input_modes, max(ns))
             outputs = [State(s) for s in outputs]
         # Otherwise check provided outputs
         else:
@@ -153,11 +155,11 @@ class Simulator:
                     raise TypeError(
                         "outputs should be a State or list of State objects.")  
                 # Dimension check
-                if len(state) != self.circuit.n_modes:
+                if len(state) != input_modes:
                     raise ModeMismatchError(
                         "One or more input states have an incorrect number of "
                         "modes, correct number of modes is "
-                        f"{self.circuit.n_modes}.")
+                        f"{input_modes}.")
                 # Also validate state values
                 state._validate()
             # Ensure photon numbers are the same in all states - variation not 
