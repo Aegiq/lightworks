@@ -31,7 +31,7 @@ def add_heralds_to_state(state: State | list, heralds: dict) -> list:
     """
     # Auto-return original state if no heralding used
     if not heralds:
-        return state
+        return state.s if isinstance(state, State) else state
     n_modes = len(state) + len(heralds)
     # Otherwise create new state
     new_state = [0]*n_modes
