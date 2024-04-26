@@ -115,6 +115,31 @@ class TestAnalyzer:
         # Check performance metric
         assert pytest.approx(results.performance, 1e-8) == 0.6893563871958014
         
+    def test_analyzer_complex_lossy_added_circuit(self):
+        """
+        Check analyzer result when using post-selection and heralding with a 
+        lossy circuit which has been added to another circuit.
+        """
+        # Add heralding mode
+        self.lossy_circuit.add_herald(0, 3)
+        new_circ = Circuit(self.lossy_circuit.n_modes - 
+                           len(self.lossy_circuit.heralds["input"]))
+        new_circ.add(self.lossy_circuit)
+        analyzer = Analyzer(new_circ)
+        # Just heralding
+        results = analyzer.analyze(State([1,0,1]))
+        p = results[State([0,1,0])]
+        assert pytest.approx(p, 1e-8) == 0.062204471804458
+        # Heralding + post-selection
+        analyzer.set_post_selection(lambda s: s[0] == 0)
+        results = analyzer.analyze(State([1,0,1]))
+        p = results[State([0,0,1])]
+        assert pytest.approx(p, 1e-8) == 0.0202286624257920
+        p = results[State([0,0,0])]
+        assert pytest.approx(p, 1e-8) == 0.6051457174354371
+        # Check performance metric
+        assert pytest.approx(results.performance, 1e-8) == 0.6893563871958014
+        
     def test_analyzer_error_rate(self):
         """Check the calculated error rate is correct for a given situation."""
         analyzer = Analyzer(self.circuit)
