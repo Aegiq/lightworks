@@ -74,7 +74,8 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
         # Create list of locations for each mode
         self.locations = [init_length+50]*self.N
         # Add extra waveguides when using heralds
-        if self.circuit.heralds["input"] or self.circuit.heralds["output"]:
+        if (self.circuit._external_heralds["input"] or 
+            self.circuit._external_heralds["output"]):
             for m in range(self.N):
                 if m not in self.circuit._internal_modes:
                     self._add_wg(self.locations[m], (m+1)*self.dy, 50)
@@ -112,7 +113,8 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
                 self._add_grouped_circuit(m1, m2, name, heralds)
         
         maxloc = max(self.locations)
-        if self.circuit.heralds["input"] or self.circuit.heralds["output"]:
+        if (self.circuit._external_heralds["input"] or 
+            self.circuit._external_heralds["output"]):
             maxloc += 50
         for i, loc in enumerate(self.locations):
             if loc < maxloc and i not in self.circuit._internal_modes:
@@ -120,7 +122,8 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
                 self.locations[i] = maxloc
         
         # Add heralding display
-        self._add_heralds(self.circuit.heralds, self._init_length+50, maxloc)
+        self._add_heralds(self.circuit._external_heralds, self._init_length+50,
+                          maxloc)
                 
         for i in range(self.N):
             self.locations[i] += 50

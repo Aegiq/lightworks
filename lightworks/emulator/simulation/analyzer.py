@@ -231,7 +231,7 @@ class Analyzer:
             # Also validate state values
             state._validate()
             full_inputs += [State(add_heralds_to_state(state, 
-                                      self.circuit.full_heralds["input"]))]
+                                      self.circuit.heralds["input"]))]
         # Add extra states for loss modes here when included
         if self.__circuit_built.loss_modes > 0:
             full_inputs = [s + State([0]*self.__circuit_built.loss_modes) 
@@ -257,8 +257,7 @@ class Analyzer:
         filtered_outputs = []
         full_outputs = []
         for state in outputs:
-            fo  = add_heralds_to_state(
-                      state, self.circuit.full_heralds["output"])
+            fo  = add_heralds_to_state(state, self.circuit.heralds["output"])
             # Check output meets all post selection rules
             for funcs in self.post_selects:
                 if not funcs(fo):

@@ -116,14 +116,7 @@ class Circuit:
         the circuit. Note this does not include any heralds added to the 
         circuit.
         """
-        return {"input" : copy(self.__in_heralds), 
-                "output" : copy(self.__out_heralds)}
-    
-    @property
-    def full_heralds(self):
-        """
-        desc
-        """
+        # Collect all data, including heralds from groups
         inputs = {k:v for k, v in self.__in_heralds.items()}
         outputs = {k:v for k, v in self.__out_heralds.items()}
         for c, s in self.__circuit_spec:
@@ -134,6 +127,7 @@ class Circuit:
                     inputs[m+mode] = n
                 for m, n in heralds["output"].items():
                     outputs[m+mode] = n
+        # Then return
         return {"input" : inputs, "output" : outputs}
         
     @property
@@ -144,6 +138,11 @@ class Circuit:
     @property
     def _internal_modes(self) -> list:
         return self.__internal_modes
+    
+    @property
+    def _external_heralds(self) -> dict:
+        return {"input" : copy(self.__in_heralds), 
+                "output" : copy(self.__out_heralds)}
         
     def add(self, circuit: Union["Circuit", "Unitary"], mode: int = 0,         # type: ignore - ignores Pylance warning raised by undefined unitary component
             group: bool = False, name: str | None = None) -> None:

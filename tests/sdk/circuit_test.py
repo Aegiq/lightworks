@@ -448,10 +448,30 @@ class TestCircuit:
         # Check circuit size is increased
         assert circuit.n_modes == 6
         # Confirm heralds are on modes 1 and 4
-        assert 1 in circuit.full_heralds["input"]
-        assert 1 in circuit.full_heralds["output"]
-        assert 4 in circuit.full_heralds["input"]
-        assert 4 in circuit.full_heralds["output"]
+        assert 1 in circuit.heralds["input"]
+        assert 1 in circuit.heralds["output"]
+        assert 4 in circuit.heralds["input"]
+        assert 4 in circuit.heralds["output"]
+        
+    def test_heralded_circuit_addition_herald_modification(self):
+        """
+        Checks that heralds in an existing circuit are modified correctly when 
+        a heralded sub-circuit is added.
+        """
+        # Place beam splitters across 0 & 1 and 2 & 3
+        circuit = Circuit(4)
+        circuit.add_herald(0, 0, 1)
+        circuit.add_herald(2, 2, 3)
+        # Create heralded sub-circuit and add
+        sub_circ = Circuit(4)
+        sub_circ.add_herald(1, 0, 0)
+        sub_circ.add_herald(1, 3, 3)
+        circuit.add(sub_circ, 1)
+        # Check heralds are in correct locations
+        assert 0 in circuit._external_heralds["input"]
+        assert 2 in circuit._external_heralds["output"]
+        assert 3 in circuit._external_heralds["input"]
+        assert 5 in circuit._external_heralds["output"]
         
     def test_heralded_circuit_addition_circ_modification(self):
         """
