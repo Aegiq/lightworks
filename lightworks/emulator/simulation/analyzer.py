@@ -72,7 +72,8 @@ class Analyzer:
     
     def set_post_selection(self, function: FunctionType) -> None:
         """
-        Add post selection functions, these should apply to non-heralded modes.
+        Add post selection functions, these should only act across the 
+        non-heralded modes of the circuit.
         """
         # NOTE: If multiple lambda functions are created and passed to this 
         # using a loop this may create issues related to how lambda functions
@@ -257,12 +258,13 @@ class Analyzer:
         filtered_outputs = []
         full_outputs = []
         for state in outputs:
-            fo  = add_heralds_to_state(state, self.circuit.heralds["output"])
             # Check output meets all post selection rules
             for funcs in self.post_selects:
-                if not funcs(fo):
+                if not funcs(state):
                     break
             else:
+                fo  = add_heralds_to_state(
+                          state, self.circuit.heralds["output"])
                 filtered_outputs += [State(state)]
                 full_outputs += [fo]
         # Check some valid outputs found
