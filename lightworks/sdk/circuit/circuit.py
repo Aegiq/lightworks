@@ -235,10 +235,10 @@ class Circuit:
                 if i != current_mode:
                     swaps[i] = current_mode
                 current_mode += 1
-        # Remove for cases where swaps do not actually act on any modes      
+        # Skip for cases where swaps do not alter mode structure    
         if list(swaps.keys()) != list(swaps.values()):
             spec.append(["mode_swaps", (swaps, None)])
-        # Then update herald
+        # Update heralds to enforce input and output are on the same mode
         new_heralds = {"input" : circuit.heralds["input"],
                        "output" : circuit.heralds["input"]}
         # And shift all components in circuit by required amount
@@ -392,7 +392,18 @@ class Circuit:
                    output_mode: int = None) -> None:
         """
         Add a herald across a selected input/output of the circuit. If only one
-        mode is specified then this will be used for both the input and output. 
+        mode is specified then this will be used for both the input and output.
+        
+        Args:
+        
+            n_photons (int) : The number of photons to use for the heralding.
+            
+            input_mode (int) : The input mode to use for the herald.
+            
+            output_mode (int | None, optional) : The output mode for the 
+                herald, if this is not specified it will be set to the value of
+                the input mode.
+        
         """
         if not isinstance(n_photons, int) or isinstance(n_photons, bool):
             raise TypeError(
