@@ -241,9 +241,6 @@ class SimulationResult:
         r =  SimulationResult(array, result_type = self.result_type,
                               inputs = self.inputs, 
                               outputs = list(unique_outputs))
-        for k, v in self.__dict__.items():
-            if k not in ['result_type', 'array', 'inputs', 'outputs', 'r']:
-                r.__dict__[k] = v
         return r
     
     def plot(self, conv_to_probability: bool = False, show: bool = False,
