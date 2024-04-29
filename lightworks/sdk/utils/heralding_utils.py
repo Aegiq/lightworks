@@ -14,6 +14,8 @@
 
 from ..state import State
 
+from copy import copy
+
 def add_heralds_to_state(state: State | list, heralds: dict) -> list:
     """
     Takes a provided input state and includes any heralding photons/modes.
@@ -31,7 +33,7 @@ def add_heralds_to_state(state: State | list, heralds: dict) -> list:
     """
     # Auto-return original state if no heralding used
     if not heralds:
-        return state.s if isinstance(state, State) else state
+        return state.s if isinstance(state, State) else copy(state)
     n_modes = len(state) + len(heralds)
     # Otherwise create new state
     new_state = [0]*n_modes
