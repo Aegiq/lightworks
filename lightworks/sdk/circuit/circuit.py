@@ -23,6 +23,7 @@ from ..utils import ModeRangeError, DisplayError
 from ..utils import CircuitCompilationError
 from ..utils import unpack_circuit_spec, compress_mode_swaps
 from ..utils import convert_non_adj_beamsplitters, add_mode_to_unitary
+from ..utils import add_modes_to_circuit_spec
 from ..visualisation import Display
 
 from typing import Any, Union
@@ -242,7 +243,7 @@ class Circuit:
         new_heralds = {"input" : circuit.heralds["input"],
                        "output" : circuit.heralds["input"]}
         # And shift all components in circuit by required amount
-        add_cs = self._add_mode_to_circuit_spec(spec, mode)
+        add_cs = add_modes_to_circuit_spec(spec, mode)
         
         # Then add circuit spec, adjusting how this is included
         if not group:
@@ -534,26 +535,6 @@ class Circuit:
         spec = deepcopy(self.__circuit_spec)
         new_spec = convert_non_adj_beamsplitters(spec)
         self.__circuit_spec = new_spec
-        
-    def show_heralds(self):
-        """
-        Prints out all currently used herald modes and photon numbers in a 
-        circuit. This can be used to identify any issues.
-        """
-        # TODO: Account for mode remapping here
-        print("\t Mode \t Photons")
-        print("-"*25)
-        for i, (m, n) in enumerate(self.__in_heralds.items()):
-            if i == 0:
-                print(f"Input \t {m} \t {n}")
-            else:
-                print(f"\t {m} \t {n}")
-        print("-"*25)
-        for i, (m, n) in enumerate(self.__out_heralds.items()):
-            if i == 0:
-                print(f"Output \t {m} \t {n}")
-            else:
-                print(f"\t {m} \t {n}")
     
     def _build(self) -> CompiledCircuit:
         """
@@ -644,31 +625,6 @@ class Circuit:
             raise ValueError("Provided loss values should be greater than 0.")
         else:
             return True
-        
-    def _add_mode_to_circuit_spec(self, circuit_spec: list, mode: int) -> list:
-        """
-        Takes an existing circuit spec and adds a given number of modes to each
-        of the elements.
-        """
-        new_circuit_spec = []
-        for c, params in circuit_spec:
-            params = list(params)
-            if c in ["bs"]:
-                params[0] += mode
-                params[1] += mode
-            elif c == "barrier":
-                params = [p+mode for p in params[0]]
-                params = tuple([params])
-            elif c == "mode_swaps":
-                params[0] = {k+mode:v+mode for k,v in params[0].items()}
-            elif c == "group":
-                params[0] = self._add_mode_to_circuit_spec(params[0], mode)
-                params[2] += mode
-                params[3] += mode
-            else:
-                params[0] += mode
-            new_circuit_spec.append([c, tuple(params)])
-        return new_circuit_spec
     
     def _add_empty_mode(self, circuit_spec: list, mode: int) -> list:
         """

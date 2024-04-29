@@ -43,6 +43,42 @@ def unpack_circuit_spec(circuit_spec: list) -> list:
     
     return new_spec
 
+def add_modes_to_circuit_spec(circuit_spec: list, mode: int) -> list:
+    """
+    Takes an existing circuit spec and adds a given number of modes to each
+    of the elements.
+    
+    Args:
+    
+        circuit_spec (list) : The circuit spec which is to be modified.
+        
+        mode (int) : The number of modes to shift each of the elements by.
+        
+    Returns:
+    
+        list : The modified version of the circuit spec.
+    
+    """
+    new_circuit_spec = []
+    for c, params in circuit_spec:
+        params = list(params)
+        if c in ["bs"]:
+            params[0] += mode
+            params[1] += mode
+        elif c == "barrier":
+            params = [p+mode for p in params[0]]
+            params = tuple([params])
+        elif c == "mode_swaps":
+            params[0] = {k+mode:v+mode for k,v in params[0].items()}
+        elif c == "group":
+            params[0] = add_modes_to_circuit_spec(params[0], mode)
+            params[2] += mode
+            params[3] += mode
+        else:
+            params[0] += mode
+        new_circuit_spec.append([c, tuple(params)])
+    return new_circuit_spec
+
 def convert_non_adj_beamsplitters(spec: list) -> list:
     """
     Takes a given circuit spec and removes all beam splitters acting on 
