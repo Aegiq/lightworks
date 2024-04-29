@@ -594,6 +594,9 @@ class Circuit:
             else:
                 raise CircuitCompilationError(
                     "Component in circuit spec not recognised.")
+        heralds = self.heralds
+        for i, o in zip(heralds["input"], heralds["output"]):
+            circuit.add_herald(heralds["input"][i], i, o)
         
         return circuit
     

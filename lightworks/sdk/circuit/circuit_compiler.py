@@ -26,6 +26,7 @@ from typing import Any
 import numpy as np
 import matplotlib.pyplot as plt
 from IPython import display
+from copy import copy
 
 
 class CompiledCircuit:
@@ -65,6 +66,8 @@ class CompiledCircuit:
         self.U = np.identity(n_modes, dtype = complex)
         self.U_full = np.identity(n_modes, dtype = complex)
         self._loss_modes = 0
+        self._in_heralds = {}
+        self._out_heralds = {}
         
         return
     
@@ -116,6 +119,11 @@ class CompiledCircuit:
     def loss_modes(self):
         """Returns number of loss modes used in the circuit."""
         return self._loss_modes
+    
+    @property
+    def heralds(self) -> dict:
+        return {"input" : copy(self._in_heralds), 
+                "output" : copy(self._out_heralds)}
         
     def add(self, circuit: "CompiledCircuit", mode: int) -> None:
         """
@@ -330,6 +338,40 @@ class CompiledCircuit:
         self.U_full = U_full @ self.U_full
 
         return
+    
+    def add_herald(self, n_photons: int, input_mode: int, 
+                   output_mode: int = None) -> None:
+        """
+        Add a herald across a selected input/output of the circuit. If only one
+        mode is specified then this will be used for both the input and output.
+        
+        Args:
+        
+            n_photons (int) : The number of photons to use for the heralding.
+            
+            input_mode (int) : The input mode to use for the herald.
+            
+            output_mode (int | None, optional) : The output mode for the 
+                herald, if this is not specified it will be set to the value of
+                the input mode.
+        
+        """
+        if not isinstance(n_photons, int) or isinstance(n_photons, bool):
+            raise TypeError(
+                "Number of photons for herald should be an integer.")
+        n_photons = int(n_photons)
+        if output_mode is None:
+            output_mode = input_mode
+        self._mode_in_range(input_mode)
+        self._mode_in_range(output_mode)
+        # Check if herald already used on input or output
+        if input_mode in self._in_heralds:
+            raise ValueError("Heralding already set for chosen input mode.")
+        if output_mode in self._out_heralds:
+            raise ValueError("Heralding already set for chosen output mode.")
+        # If not then update dictionaries
+        self._in_heralds[input_mode] = n_photons
+        self._out_heralds[output_mode] = n_photons
     
     def _grow_unitary(self, U: np.ndarray, n: int) -> np.ndarray:
         """Function to grow a unitary by a given n modes"""
