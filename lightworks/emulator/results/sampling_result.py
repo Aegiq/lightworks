@@ -151,13 +151,7 @@ class SamplingResult:
         
     def _recombine_mapped_result(self, mapped_result: dict):
         """Creates a new Result object from mapped data."""
-        r = SamplingResult(mapped_result, self.input)
-        for k, v in self.__dict__.items():
-            if k not in ['input', 'outputs', 'dictionary', 
-                         '_SamplingResult__input', '_SamplingResult__outputs', 
-                         '_SamplingResult__dict']:
-                r.__dict__[k] = v
-        return r
+        return SamplingResult(mapped_result, self.input)
         
     def plot(self, show: bool = False, 
              state_labels: dict = {}) -> tuple | None:
