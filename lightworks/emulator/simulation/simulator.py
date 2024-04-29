@@ -148,7 +148,7 @@ class Simulator:
         else:
             if type(outputs) is State:
                 outputs = [outputs]
-            # Check type and for fermionic statistics
+            # Check type and dimension is correct
             for state in outputs:
                 # Ensure correct type
                 if not isinstance(state, State):

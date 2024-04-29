@@ -279,13 +279,6 @@ class QuickSampler:
             pcon += p
             cdist[s] = pcon
         return cdist
-    
-    def _fermionic_checks(self, in_state):
-        """Perform additional checks when doing fermionic sampling."""
-        if max(in_state) > 1:
-            raise ValueError(
-                "Max number of photons per mode must be 1 when using "
-                "fermionic statistics.")
         
     def _check_random_seed(self, seed: Any) -> int | None:
         """Process a supplied random seed."""

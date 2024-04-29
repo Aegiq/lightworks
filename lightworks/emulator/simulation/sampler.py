@@ -381,20 +381,6 @@ class Sampler:
             pcon += p
             cdist[s] = pcon/total
         return cdist
-    
-    def _fermionic_checks(self, in_state: State, source: Source) -> None:
-        """Perform additional checks when doing fermionic sampling."""
-        if max(in_state) > 1:
-            raise ValueError(
-                "Max number of photons per mode must be 1 when using " 
-                "fermionic statistics.")
-        if source.purity < 1:
-            raise ValueError(
-                "Fermionic sampling does not support non-ideal purity.")
-        if source.indistinguishability < 1:
-            raise ValueError(
-                "Fermionic sampling does not support indistinguishability "
-                "modification.")
         
     def _check_random_seed(self, seed: Any) -> int | None:
         """Process a supplied random seed."""
