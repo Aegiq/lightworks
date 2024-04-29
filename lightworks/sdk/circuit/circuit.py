@@ -57,6 +57,8 @@ class Circuit:
         self.__circuit_spec = []
         self.__in_heralds = {}
         self.__out_heralds = {}
+        self.__external_in_heralds = {}
+        self.__external_out_heralds = {}
         self.__show_parameter_values = False
         self.__internal_modes = []
         
@@ -122,22 +124,10 @@ class Circuit:
     def heralds(self) -> dict:
         """
         A dictionary which details the set heralds on the inputs and outputs of
-        the circuit. Note this does not include any heralds added to the 
-        circuit.
+        the circuit.
         """
-        # Collect all data, including heralds from groups
-        inputs = {k:v for k, v in self.__in_heralds.items()}
-        outputs = {k:v for k, v in self.__out_heralds.items()}
-        for c, s in self.__circuit_spec:
-            if c == "group":
-                mode = s[2]
-                heralds = s[4]
-                for m, n in heralds["input"].items():
-                    inputs[m+mode] = n
-                for m, n in heralds["output"].items():
-                    outputs[m+mode] = n
-        # Then return
-        return {"input" : inputs, "output" : outputs}
+        return {"input" : copy(self.__in_heralds), 
+                "output" : copy(self.__out_heralds)}
         
     @property
     def _display_spec(self) -> list:
@@ -150,8 +140,12 @@ class Circuit:
     
     @property
     def _external_heralds(self) -> dict:
-        return {"input" : copy(self.__in_heralds), 
-                "output" : copy(self.__out_heralds)}
+        """
+        Stores details of heralds which are on the outside of a circuit (i.e.
+        were not added as part of a group).
+        """
+        return {"input" : copy(self.__external_in_heralds), 
+                "output" : copy(self.__external_out_heralds)}
         
     def add(self, circuit: Union["Circuit", "Unitary"], mode: int = 0,         # type: ignore - ignores Pylance warning raised by undefined unitary component
             group: bool = False, name: str | None = None) -> None:
@@ -242,6 +236,10 @@ class Circuit:
         # Update heralds to enforce input and output are on the same mode
         new_heralds = {"input" : circuit.heralds["input"],
                        "output" : circuit.heralds["input"]}
+        # Also add all included heralds to the heralds dict
+        for m in new_heralds["input"]:
+            self.__in_heralds[m+mode] = new_heralds["input"][m]
+            self.__out_heralds[m+mode] = new_heralds["input"][m]
         # And shift all components in circuit by required amount
         add_cs = add_modes_to_circuit_spec(spec, mode)
         
@@ -424,6 +422,8 @@ class Circuit:
         # If not then update dictionaries
         self.__in_heralds[input_mode] = n_photons
         self.__out_heralds[output_mode] = n_photons
+        self.__external_in_heralds[input_mode] = n_photons
+        self.__external_out_heralds[output_mode] = n_photons
         
     def display(self, show_parameter_values: bool = False, 
                 display_loss: bool = False, 
@@ -501,6 +501,8 @@ class Circuit:
             new_circ.__circuit_spec = self._freeze_params(copied_spec)
         new_circ.__in_heralds = copy(self.__in_heralds)
         new_circ.__out_heralds = copy(self.__out_heralds)
+        new_circ.__external_in_heralds = copy(self.__external_in_heralds)
+        new_circ.__external_out_heralds = copy(self.__external_out_heralds)
         return new_circ
     
     def unpack_groups(self) -> None:
@@ -508,11 +510,8 @@ class Circuit:
         Unpacks any component groups which may have been added to the circuit.
         """
         self.__internal_modes = []
-        for c, s in self.__circuit_spec:
-            if c == "group":
-                mode = s[2]
-                for m1, m2 in zip(s[4]["input"], s[4]["output"]):
-                    self.add_herald(s[4]["input"][m1], m1 + mode, m2 + mode)
+        self.__external_in_heralds = self.__in_heralds
+        self.__external_out_heralds = self.__out_heralds
         self.__circuit_spec = unpack_circuit_spec(self.__circuit_spec)
         return
         
@@ -632,17 +631,15 @@ class Circuit:
         """
         self.__n_modes += 1
         new_circuit_spec = add_empty_mode_to_circuit_spec(circuit_spec, mode)
-        # Also modify heralds
-        new_in_heralds = {}
-        for m, n in self.__in_heralds.items():
-            m += 1 if m >= mode else 0
-            new_in_heralds[m] = n
-        self.__in_heralds = new_in_heralds
-        new_out_heralds = {}
-        for m, n in self.__out_heralds.items():
-            m += 1 if m >= mode else 0
-            new_out_heralds[m] = n
-        self.__out_heralds = new_out_heralds
+        # Also modify heralds as required
+        to_modify = ["__in_heralds", "__out_heralds", 
+                     "__external_in_heralds", "__external_out_heralds"]
+        for tm in to_modify:
+            new_heralds = {}
+            for m, n in getattr(self, "_Circuit" + tm).items():
+                m += 1 if m >= mode else 0
+                new_heralds[m] = n
+            setattr(self, "_Circuit" + tm, new_heralds)
         # Add internal mode storage
         self.__internal_modes = [m + 1 if m >= mode else m 
                                  for m in self.__internal_modes]
