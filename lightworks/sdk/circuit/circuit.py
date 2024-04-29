@@ -22,8 +22,8 @@ from .parameters import Parameter
 from ..utils import ModeRangeError, DisplayError
 from ..utils import CircuitCompilationError
 from ..utils import unpack_circuit_spec, compress_mode_swaps
-from ..utils import convert_non_adj_beamsplitters, add_mode_to_unitary
-from ..utils import add_modes_to_circuit_spec
+from ..utils import convert_non_adj_beamsplitters
+from ..utils import add_modes_to_circuit_spec, add_empty_mode_to_circuit_spec
 from ..visualisation import Display
 
 from typing import Any, Union
@@ -631,7 +631,7 @@ class Circuit:
         Adds an empty mode at the selected location to a provided circuit spec.
         """
         self.__n_modes += 1
-        new_circuit_spec = self._iterate_mode_addition(circuit_spec, mode)
+        new_circuit_spec = add_empty_mode_to_circuit_spec(circuit_spec, mode)
         # Also modify heralds
         new_in_heralds = {}
         for m, n in self.__in_heralds.items():
@@ -646,55 +646,6 @@ class Circuit:
         # Add internal mode storage
         self.__internal_modes = [m + 1 if m >= mode else m 
                                  for m in self.__internal_modes]
-        return new_circuit_spec
-    
-    def _iterate_mode_addition(self, circuit_spec: list, mode: int) -> list:
-        
-        new_circuit_spec = []
-        for c, params in circuit_spec:
-            params = list(params)
-            if c in ["bs"]:
-                params[0] += 1 if params[0] >= mode else 0
-                params[1] += 1 if params[1] >= mode else 0
-            elif c == "barrier":
-                params = [p+1 if p >= mode else p for p in params[0]]
-                params = tuple([params])
-            elif c == "mode_swaps":
-                swaps = {}
-                for k, v in params[0].items():
-                    k += 1 if k >= mode else 0
-                    v += 1 if v >= mode else 0
-                    swaps[k] = v
-                params[0] = swaps
-            elif c == "group":
-                params[0] = self._iterate_mode_addition(params[0], mode)
-                # Update herald values
-                in_heralds, out_heralds = params[4]["input"], params[4]["output"]
-                new_in_heralds = {}
-                for m, n in in_heralds.items():
-                    if m >= (mode-params[2]) and mode - params[2] >= 0:
-                        m += 1
-                    new_in_heralds[m] = n
-                new_out_heralds = {}
-                for m, n in out_heralds.items():
-                    if m >= (mode-params[2]) and mode - params[2] >= 0:
-                        m += 1
-                    new_out_heralds[m] = n
-                params[4] = {"input" : new_in_heralds, 
-                             "output" : new_out_heralds}
-                # Shift unitary mode range
-                params[2] += 1 if params[2] >= mode else 0
-                params[3] += 1 if params[3] >= mode else 0
-            elif c == "unitary":
-                params[0] += 1 if params[0] >= mode else 0
-                # Expand unitary if required
-                if params[0] < mode < params[0] + params[1].shape[0]:
-                    add_mode = mode - params[0]
-                    # Update unitary value
-                    params[1] = add_mode_to_unitary(params[1], add_mode)
-            else:
-                params[0] += 1 if params[0] >= mode else 0
-            new_circuit_spec.append([c, tuple(params)])
         return new_circuit_spec
         
     def _get_display_spec(self) -> list:
