@@ -13,3 +13,6 @@
 # limitations under the License.
 
 from .gates import H, X, Y, Z, S, T, CZ, CNOT, CZ_Heralded, CNOT_Heralded
+
+__all__ = ["H", "X", "Y", "Z", "S", "T", "CZ", "CNOT", "CZ_Heralded", 
+           "CNOT_Heralded"]

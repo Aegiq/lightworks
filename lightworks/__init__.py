@@ -42,6 +42,9 @@ Key objects:
 
 from .__version import __version__
 
+from . import qubit
+from . import emulator
+
 from .sdk.circuit import Circuit, Unitary
 from .sdk.circuit import Parameter, ParameterDict
 from .sdk.visualisation import Display
