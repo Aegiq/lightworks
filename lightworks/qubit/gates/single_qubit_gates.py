@@ -17,7 +17,7 @@ Contains a variety of qubit components, designed for implementing required
 qubit processing functionality in lightworks.
 """
 
-from ..circuit import Unitary
+from ...sdk.circuit import Unitary
 
 import numpy as np
 

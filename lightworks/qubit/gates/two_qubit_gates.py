@@ -18,8 +18,8 @@ qubit processing functionality in lightworks.
 """
 
 from .single_qubit_gates import H
-from ..circuit import Unitary, Circuit
-from ..utils import permutation_mat_from_swaps_dict
+from ...sdk.circuit import Unitary, Circuit
+from ...sdk.utils import permutation_mat_from_swaps_dict
 
 import numpy as np
 

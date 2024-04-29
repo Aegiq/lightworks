@@ -14,8 +14,8 @@
 
 from lightworks import State
 from lightworks.emulator import Simulator
-from lightworks.sdk.qubit import (H, X, Y, Z, S, T, CZ, CNOT, CZ_Heralded, 
-                                  CNOT_Heralded)
+from lightworks.qubit import (H, X, Y, Z, S, T, CZ, CNOT, CZ_Heralded, 
+                              CNOT_Heralded)
 
 import pytest
 import numpy as np
