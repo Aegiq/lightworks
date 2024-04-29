@@ -16,6 +16,8 @@
 Contains a number of different utility functions for modifying circuits.
 """
 
+from .matrix_utils import add_mode_to_unitary
+
 def unpack_circuit_spec(circuit_spec: list) -> list:
     """
     Unpacks and removes any grouped components from a circuit.
@@ -76,6 +78,68 @@ def add_modes_to_circuit_spec(circuit_spec: list, mode: int) -> list:
             params[3] += mode
         else:
             params[0] += mode
+        new_circuit_spec.append([c, tuple(params)])
+    return new_circuit_spec
+
+def add_empty_mode_to_circuit_spec(circuit_spec: list, mode: int) -> list:
+    """
+    Takes a provided circuit spec and adds an empty mode at the set location.
+    
+    Args:
+    
+        circuit_spec (list) : The circuit spec which is to be modified.
+        
+        mode (int) : The location at which an empty mode should be included.
+        
+    Returns:
+    
+        list : The modified version of the circuit spec. 
+    
+    """
+    new_circuit_spec = []
+    for c, params in circuit_spec:
+        params = list(params)
+        if c in ["bs"]:
+            params[0] += 1 if params[0] >= mode else 0
+            params[1] += 1 if params[1] >= mode else 0
+        elif c == "barrier":
+            params = [p+1 if p >= mode else p for p in params[0]]
+            params = tuple([params])
+        elif c == "mode_swaps":
+            swaps = {}
+            for k, v in params[0].items():
+                k += 1 if k >= mode else 0
+                v += 1 if v >= mode else 0
+                swaps[k] = v
+            params[0] = swaps
+        elif c == "group":
+            params[0] = add_empty_mode_to_circuit_spec(params[0], mode)
+            # Update herald values
+            in_heralds, out_heralds = params[4]["input"], params[4]["output"]
+            new_in_heralds = {}
+            for m, n in in_heralds.items():
+                if m >= (mode-params[2]) and mode - params[2] >= 0:
+                    m += 1
+                new_in_heralds[m] = n
+            new_out_heralds = {}
+            for m, n in out_heralds.items():
+                if m >= (mode-params[2]) and mode - params[2] >= 0:
+                    m += 1
+                new_out_heralds[m] = n
+            params[4] = {"input" : new_in_heralds, 
+                            "output" : new_out_heralds}
+            # Shift unitary mode range
+            params[2] += 1 if params[2] >= mode else 0
+            params[3] += 1 if params[3] >= mode else 0
+        elif c == "unitary":
+            params[0] += 1 if params[0] >= mode else 0
+            # Expand unitary if required
+            if params[0] < mode < params[0] + params[1].shape[0]:
+                add_mode = mode - params[0]
+                # Update unitary value
+                params[1] = add_mode_to_unitary(params[1], add_mode)
+        else:
+            params[0] += 1 if params[0] >= mode else 0
         new_circuit_spec.append([c, tuple(params)])
     return new_circuit_spec
 
