@@ -146,8 +146,11 @@ class Backend:
                 backend.
                 
         """
-        
-        if self.backend == "permanent":    
+        # Return empty distribution when 0 photons in input
+        if input_state.n_photons == 0:
+            pdist = {State([0]*circuit.n_modes) : 1}
+        # Otherwise vary distribution calculation method
+        elif self.backend == "permanent":    
             # Add extra states for loss modes here when included
             if circuit.loss_modes > 0:
                 input_state = input_state + State([0]*circuit.loss_modes) 
