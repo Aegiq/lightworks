@@ -24,7 +24,7 @@ def add_heralds_to_state(state: State | list, heralds: dict) -> list:
     
         state (State | list) : The initial state with heralding modes excluded.
         
-        heralds (dict) : A dictionary of the required
+        heralds (dict) : A dictionary of the required heralds to include.
     
     Returns:
     
@@ -46,3 +46,30 @@ def add_heralds_to_state(state: State | list, heralds: dict) -> list:
             new_state[i] = state[count]
             count += 1
     return new_state
+
+def remove_heralds_from_state(state: State | list, herald_modes: list) -> list:
+    """
+    Removes all heralded modes from a provided state.
+    
+    Args:
+    
+        state (State, list) : The state to remove heralds from.
+        
+        herald_modes (list) : A list of the modes used for heralding.
+        
+    Returns:
+    
+        list : The updated state with heralded modes removed.
+        
+    """
+    # Remove modes in reverse order so mode locations do not change
+    to_remove = reversed(sorted(herald_modes))
+    # Get list version of state
+    if isinstance(state, State):
+        new_s = state.s
+    else: # Or if already state then create copy
+        new_s = copy(state)
+    # Then sequentially pop modes
+    for m in to_remove:
+        new_s.pop(m)
+    return new_s

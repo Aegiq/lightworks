@@ -19,6 +19,7 @@ from ..results import SamplingResult
 from ..components import Source, Detector
 from ...sdk.state import State
 from ...sdk.circuit import Circuit
+from ...sdk.utils import add_heralds_to_state, remove_heralds_from_state
 
 import numpy as np
 from random import random
@@ -92,7 +93,7 @@ class Sampler:
     def input_state(self, value: State) -> None:
         if type(value) != State:
             raise TypeError("A single input of type State should be provided.")
-        if len(value) != self.circuit.n_modes:
+        if len(value) != self.circuit.input_modes:
             raise ModeMismatchError(
                 "Incorrect input length for provided circuit.")
         # Also validate state values
@@ -155,23 +156,30 @@ class Sampler:
         """
         if self._check_parameter_updates():
             # Check circuit and input modes match
-            if self.circuit.n_modes != len(self.input_state):
+            if self.circuit.input_modes != len(self.input_state):
                 raise ValueError(
                     "Mismatch in number of modes between input and circuit.")
-            # Check inputs are valid depending on the statistics 
-            all_inputs = self.source._build_statistics(self.input_state)
+            # Add heralds to the included input
+            input_state = add_heralds_to_state(
+                self.input_state, self.circuit.heralds["input"])
+            input_state = State(input_state)
+            # Then build with source
+            all_inputs = self.source._build_statistics(input_state)
             if isinstance(next(iter(all_inputs)), State):
-                pdist = PDC.state_prob_calc(self.circuit._build(), all_inputs,
-                                            self.backend)
+                pdist = PDC.state_prob_calc(
+                    self.circuit._build(), all_inputs, self.backend)
             else:
-                pdist = PDC.annotated_state_prob_calc(self.circuit._build(), 
-                                                      all_inputs,
-                                                      self.backend)
+                pdist = PDC.annotated_state_prob_calc(
+                    self.circuit._build(), all_inputs, self.backend)
             # Special case to catch an empty distribution
             if not pdist:
                 pdist = {State([0]*self.circuit.n_modes) : 1}
             # Assign calculated distribution to attribute
             self.__probability_distribution = pdist
+            herald_modes = list(self.circuit.heralds["output"].keys())
+            self.__full_to_heralded = {
+                s: State(remove_heralds_from_state(s, herald_modes)) 
+                for s in pdist}
             self.__calculation_values = self._gen_calculation_values()
             # Also pre-calculate continuous distribution
             self.__continuous_distribution = self._convert_to_continuous(pdist)
@@ -205,7 +213,7 @@ class Sampler:
         # Return this as the found state - only return modes of interest
         return self.detector._get_output(state)
     
-    def sample_N_inputs(self, N: int, herald: FunctionType = None, 
+    def sample_N_inputs(self, N: int, post_select: FunctionType = None, 
                         min_detection: int = 0, 
                         seed: int|None = None) -> SamplingResult:
         """
@@ -220,11 +228,11 @@ class Sampler:
         
             N (int) : The number of samples to take from the circuit.
         
-            herald (function, optional) : A function which applies a provided
-                set of heralding checks to a state.
+            post_select (function, optional) : A function which applies a 
+                provided set of post-selection criteria to a state.
                                       
             min_detection (int, optional) : Post-select on a given minimum 
-                total number of photons, this should include any heralded 
+                total number of photons, this should not include any heralded 
                 photons.
                                           
             seed (int|None, optional) : Option to provide a random seed to 
@@ -238,12 +246,13 @@ class Sampler:
                     
         """
         # Create always true herald if one isn't provided
-        if herald is None:
-            herald = lambda s: True
-        if type(min_detection) != int:
+        if post_select is None:
+            def post_select(s): return True
+        if (not isinstance(min_detection, int) or 
+            isinstance(min_detection, bool)):
             raise TypeError("Post-selection value should be an integer.")
-        if type(herald) != FunctionType:
-            raise TypeError("Provided herald value should be a function.")
+        if not isinstance(post_select, FunctionType):
+            raise TypeError("Provided post_select value should be a function.")
         pdist = self.probability_distribution
         vals = np.zeros(len(pdist), dtype=object)
         for i, k in enumerate(pdist.keys()):
@@ -252,16 +261,38 @@ class Sampler:
         np.random.seed(self._check_random_seed(seed))
         samples = np.random.choice(vals, p = list(pdist.values()), size = N)
         filtered_samples = []
+        # Get heralds and pre-calculate items
+        heralds = self.circuit.heralds["output"]
+        if heralds:
+            if max(heralds.values()) > 1 and not self.detector.photon_counting:
+                raise ValueError(
+                    "Non photon number resolving detectors cannot be used when"
+                    "a heralded mode has more than 1 photon.")
+        herald_modes = list(heralds.keys())
+        herald_items = list(heralds.items())
+        # Process output states
         for state in samples:
-            # Process output state
             state = self.detector._get_output(state)
-            if herald(state) and state.n_photons >= min_detection:
-                filtered_samples.append(state)
+            # Checks herald requirements are met
+            for m, n in herald_items:
+                if state[m] != n:
+                    break
+            # If met then remove heralded modes and store
+            else:
+                if heralds:
+                    if state not in self.__full_to_heralded:
+                        self.__full_to_heralded[state] = State(
+                            remove_heralds_from_state(state, herald_modes))
+                    hs = self.__full_to_heralded[state]
+                else:
+                    hs = state
+                if (post_select(hs) and hs.n_photons >= min_detection):
+                    filtered_samples.append(hs)
         results = dict(Counter(filtered_samples))
         results = SamplingResult(results, self.input_state)
         return results
     
-    def sample_N_outputs(self, N: int, herald: FunctionType = None, 
+    def sample_N_outputs(self, N: int, post_select: FunctionType = None, 
                          min_detection: int = 0, 
                          seed: int|None = None) -> SamplingResult:
         """
@@ -274,11 +305,11 @@ class Sampler:
         
             N (int) : The number of samples that are to be returned.
             
-            herald (function, optional) : A function which applies a provided
-                set of heralding checks to a state.
+            post_select (function, optional) : A function which applies a 
+                provided set of post-selection criteria to a state.
                                       
             min_detection (int, optional) : Post-select on a given minimum 
-                total number of photons, this should include any heralded 
+                total number of photons, this should not include any heralded 
                 photons.
                                   
             seed (int|None, optional) : Option to provide a random seed to 
@@ -291,31 +322,54 @@ class Sampler:
                 states and the number of counts for each one.
                                          
         """
-        # Create always true herald if one isn't provided
-        if herald is None:
-            herald = lambda s: True
-        if type(min_detection) != int:
+        # Create always true post_select if one isn't provided
+        if post_select is None:
+            def post_select(s): return True
+        if (not isinstance(min_detection, int) or 
+            isinstance(min_detection, bool)):
             raise TypeError("Post-selection value should be an integer.")
-        if type(herald) != FunctionType:
-            raise TypeError("Provided herald value should be a function.")
+        if not isinstance(post_select, FunctionType):
+            raise TypeError("Provided post_select value should be a function.")
         pdist = self.probability_distribution
         # Check no detector dark counts included
         if self.detector.p_dark != 0:
             raise ValueError("Not supported when using detector dark counts")
-        # Apply threshold affect + and post selection criteria
-        if not self.detector.photon_counting:
-            new_dist = {}
-            for s, p in pdist.items():
-                new_s = State([min(i,1) for i in s])
-                if new_s.n_photons >= min_detection and herald(new_s):
+        # Get heralds and pre-calculate items
+        heralds = self.circuit.heralds["output"]
+        if heralds:
+            if max(heralds.values()) > 1 and not self.detector.photon_counting:
+                raise ValueError(
+                    "Non photon number resolving detectors cannot be used when"
+                    "a heralded mode has more than 1 photon.")
+        herald_modes = list(heralds.keys())
+        herald_items = list(heralds.items())
+        # Convert distribution using provided data
+        new_dist = {}
+        for s, p in pdist.items():
+            # Apply threshold detection
+            if not self.detector.photon_counting:
+                s = State([min(i,1) for i in s])
+            # Check heralds
+            for m, n in herald_items:
+                if s[m] != n:
+                    break
+            else:
+                # Then remove herald modes
+                if heralds:
+                    if s not in self.__full_to_heralded:
+                        self.__full_to_heralded[s] = State(
+                            remove_heralds_from_state(s, herald_modes))
+                    new_s = self.__full_to_heralded[s]
+                else:
+                    new_s = s
+                # Check state meets min detection and post-selection criteria
+                # across remaining modes
+                if new_s.n_photons >= min_detection and post_select(new_s):
                     if new_s in new_dist:
                         new_dist[new_s] += p
                     else:
                         new_dist[new_s] = p
-            pdist = new_dist
-        else:
-            pdist = {s:p for s, p in pdist.items() 
-                     if s.n_photons >= min_detection and herald(s)}
+        pdist = new_dist
         # Check some states are found
         if not pdist:
             raise ValueError(
@@ -374,7 +428,8 @@ class Sampler:
     def _convert_to_continuous(self, dist: dict) -> dict:
         """
         Convert a probability distribution to continuous for sampling, with 
-        normalisation also being applied."""
+        normalisation also being applied.
+        """
         cdist, pcon = {}, 0
         total = sum(dist.values())
         for s, p in dist.items():
