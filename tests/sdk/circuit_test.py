@@ -625,6 +625,23 @@ class TestCircuit:
         circuit.add(sub_circuit, 2)
         assert circuit.input_modes == n - 2
         
+    @pytest.mark.parametrize("initial_modes,final_modes",[[(0,),(0,2)], 
+                                                          [(2,),(5,6)],
+                                                          [(2,3),(5,6)],
+                                                          [(0,2),(0,5)]])
+    def test_bs_correct_modes(self, initial_modes, final_modes):
+        """
+        Checks that when a circuit has internal modes then the beam splitter is
+        applied correctly across the other modes. 
+        """
+        circuit = Circuit(7)
+        circuit._Circuit__internal_modes = [1, 3, 4]
+        # Add bs on modes
+        circuit.add_bs(*initial_modes)
+        # Then check modes are converted to correct values
+        assert circuit._Circuit__circuit_spec[0][1][0] == final_modes[0]
+        assert circuit._Circuit__circuit_spec[0][1][1] == final_modes[1]
+        
 class TestUnitary:
     """
     Unit tests to confirm correct functioning of the Unitary class when various 
