@@ -278,10 +278,10 @@ class Circuit:
                 splitter, should be either "Rx" (the default value) or "H".
                 
         """
-        mode_1 = self._map_mode(mode_1)
-        self._mode_in_range(mode_1)
         if mode_2 is None: 
             mode_2 = mode_1 + 1
+        mode_1 = self._map_mode(mode_1)
+        self._mode_in_range(mode_1)
         mode_2 = self._map_mode(mode_2)
         if mode_1 == mode_2:
             raise ModeRangeError(
