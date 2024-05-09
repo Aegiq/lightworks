@@ -16,7 +16,9 @@ from ..backend import Backend
 from ..utils import fock_basis
 from ..utils import ModeMismatchError, PhotonNumberError
 from ..results import SimulationResult
-from ...sdk import State, Circuit
+from ...sdk.state import State
+from ...sdk.circuit import Circuit
+from ...sdk.utils import add_heralds_to_state
 
 import numpy as np
 from types import FunctionType
@@ -32,7 +34,7 @@ class Analyzer:
     
     Args:
     
-        circuit : The circuit to simulate.
+        circuit (Circuit) : The circuit to simulate.
         
     Attribute:
     
@@ -48,8 +50,6 @@ class Analyzer:
         # Assign key parameters to attributes
         self.circuit = circuit
         # Create empty list/dict to store other quantities
-        self.in_heralds = {}
-        self.out_heralds = {}
         self.post_selects = []
         self.__backend = Backend("permanent")
         
@@ -70,29 +70,10 @@ class Analyzer:
                 "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
     
-    def set_herald(self, in_mode: int, n_photons: int = 0, 
-                   out_mode: int | None = None) -> None:
-        """
-        Set heralded modes for the circuit
-        """
-        if out_mode is None:
-            out_mode = in_mode
-        if type(in_mode) != int or type(out_mode) != int:
-            raise TypeError("Mode numbers should be integers.")
-        if in_mode >= self.circuit.n_modes or out_mode >= self.circuit.n_modes:
-            raise ValueError("Mode outside of circuit range.")
-        if in_mode in self.in_heralds:
-            raise ValueError("Heralding already set for given input mode.")
-        if out_mode in self.out_heralds:
-            raise ValueError("Heralding already set for given output mode.")
-        self.in_heralds[in_mode] = n_photons
-        self.out_heralds[out_mode] = n_photons
-        
-        return
-    
     def set_post_selection(self, function: FunctionType) -> None:
         """
-        Add post selection functions, these should apply to non-heralded modes.
+        Add post selection functions, these should only act across the 
+        non-heralded modes of the circuit.
         """
         # NOTE: If multiple lambda functions are created and passed to this 
         # using a loop this may create issues related to how lambda functions
@@ -126,8 +107,8 @@ class Analyzer:
             
         """
         self.__circuit_built = self.circuit._build()
-        n_modes = self.__circuit_built.n_modes - len(self.in_heralds)
-        if self.in_heralds != self.out_heralds:
+        n_modes = self.circuit.input_modes
+        if self.circuit.heralds["input"] != self.circuit.heralds["output"]:
             raise RuntimeError(
                 "Mismatch in number of heralds on the input/output modes, it "
                 "is likely this results from a herald being added twice or "
@@ -172,20 +153,19 @@ class Analyzer:
                 # No loss case
                 if not self.__circuit_built.loss_modes:
                     probs[i, j] += self.__backend.probability(
-                        self.__circuit_built.U_full, ins.s, outs.s)
+                        self.__circuit_built.U_full, ins.s, outs)
                 # Lossy case
                 else:
                     # Photon number preserved
-                    if ins.n_photons == outs.n_photons:
-                        outs = (outs + 
-                                State([0]*self.__circuit_built.loss_modes))
+                    if ins.n_photons == sum(outs):
+                        outs = outs + [0]*self.__circuit_built.loss_modes
                         probs[i, j] += self.__backend.probability(
-                            self.__circuit_built.U_full, ins.s, outs.s)
+                            self.__circuit_built.U_full, ins.s, outs)
                     # Otherwise
                     else:
                         # If n_out < n_in work out all loss mode combinations
                         # and find probability of each
-                        n_loss = ins.n_photons - outs.n_photons
+                        n_loss = ins.n_photons - sum(outs)
                         if n_loss < 0:
                             raise PhotonNumberError(
                                 "Output photon number larger than input "
@@ -194,26 +174,11 @@ class Analyzer:
                         loss_states = fock_basis(
                             self.__circuit_built.loss_modes, n_loss)
                         for ls in loss_states:
-                            fs = outs + State(ls)
+                            fs = outs + ls
                             probs[i, j] += self.__backend.probability(
-                                self.__circuit_built.U_full, ins.s, fs.s)     
+                                self.__circuit_built.U_full, ins.s, fs)     
                             
         return probs
-    
-    def _build_state(self, state: State, herald: FunctionType) -> State:
-        """
-        Add heralded modes to a provided state
-        """
-        count = 0
-        new_state = [0]*self.__circuit_built.n_modes
-        for i in range(self.__circuit_built.n_modes):
-            if i in herald:
-                new_state[i] = herald[i]
-            else:
-                new_state[i] = state[count]
-                count += 1
-        
-        return State(new_state)
     
     def _calculate_error_rate(self, probabilities: np.ndarray, inputs: list, 
                               outputs: list, expected: dict) -> float:
@@ -249,13 +214,14 @@ class Analyzer:
         Takes the provided inputs, perform error checking on them and adds any 
         heralded photons that are required, returning full states..
         """
-        n_modes = self.__circuit_built.n_modes - len(self.in_heralds)
+        n_modes = self.circuit.input_modes
         # Ensure all photon numbers are the same   
         ns = [s.n_photons for s in inputs]
         if min(ns) != max(ns):
             raise PhotonNumberError(
                 "Mismatch in photon numbers between inputs")
         full_inputs = []
+        in_heralds = self.circuit.heralds["input"]
         # Check dimensions of input and add heralded photons
         for state in inputs:
             if len(state) != n_modes:
@@ -264,7 +230,7 @@ class Analyzer:
                     "subtract heralded modes.")
             # Also validate state values
             state._validate()
-            full_inputs += [self._build_state(state, self.in_heralds)]
+            full_inputs += [State(add_heralds_to_state(state, in_heralds))]
         # Add extra states for loss modes here when included
         if self.__circuit_built.loss_modes > 0:
             full_inputs = [s + State([0]*self.__circuit_built.loss_modes) 
@@ -289,13 +255,15 @@ class Analyzer:
         # Filter outputs according to post selection and add heralded photons
         filtered_outputs = []
         full_outputs = []
+        out_heralds = self.circuit.heralds["output"]
         for state in outputs:
-            fo  = self._build_state(state, self.out_heralds)
             # Check output meets all post selection rules
             for funcs in self.post_selects:
-                if not funcs(fo):
+                if not funcs(state):
                     break
             else:
+                fo  = add_heralds_to_state(
+                          state, out_heralds)
                 filtered_outputs += [State(state)]
                 full_outputs += [fo]
         # Check some valid outputs found

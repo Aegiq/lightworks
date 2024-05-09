@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from lightworks import State, Unitary, random_unitary, Circuit, Parameter
-from lightworks.emulator import PhotonNumberError
+from lightworks.emulator import PhotonNumberError, ModeMismatchError
 from lightworks.emulator import Simulator
 
 import pytest
@@ -185,3 +185,131 @@ class TestSimulator:
         with pytest.raises(PhotonNumberError):
             sim.simulate([State([1,0,1,0]), State([0,1,0,1])],
                          [State([1,0,1,0]), State([0,1,0,0])])
+            
+    def test_incorrect_input_length(self):
+        """
+        Confirms an error is raised when an input which does not match the 
+        required circuit modes is supplied.
+        """
+        # Create circuit and simulator object
+        circuit = Unitary(random_unitary(4))
+        sim = Simulator(circuit)
+        # Attempt to simulate with input which is too short
+        with pytest.raises(ModeMismatchError):
+            sim.simulate(State([1,0,1]))
+        # And then which is too long
+        with pytest.raises(ModeMismatchError):
+            sim.simulate(State([1,0,1,0,1]))
+            
+    def test_incorrect_input_length_herald(self):
+        """
+        Confirms an error is raised when an input which does not match the 
+        required circuit modes is supplied, when heralding is used in the 
+        original circuit.
+        """
+        # Create circuit and simulator object
+        circuit = Unitary(random_unitary(4))
+        circuit.add_herald(1, 0, 2)
+        sim = Simulator(circuit)
+        # Attempt to simulate with input which is too short
+        with pytest.raises(ModeMismatchError):
+            sim.simulate(State([1,0]))
+        # And then which is too long
+        with pytest.raises(ModeMismatchError):
+            sim.simulate(State([1,0,1,0]))
+            
+    def test_incorrect_input_length_herald_grouped(self):
+        """
+        Confirms an error is raised when an input which does not match the 
+        required circuit modes is supplied, when heralding is used in a 
+        sub-circuit of the original circuit.
+        """
+        # Create circuit and simulator object
+        circuit = Unitary(random_unitary(4))
+        sub_circuit = Unitary(random_unitary(4))
+        sub_circuit.add_herald(1, 0, 2)
+        circuit.add(sub_circuit, 1)
+        sim = Simulator(circuit)
+        # Attempt to simulate with input which is too short
+        with pytest.raises(ModeMismatchError):
+            sim.simulate(State([1,0,1]))
+        # And then which is too long
+        with pytest.raises(ModeMismatchError):
+            sim.simulate(State([1,0,1,0,0]))
+            
+    def test_herald_not_herald_equivalance(self):
+        """
+        Checks that the results from the Simulator are equivalent when using a
+        heralded circuit and getting the same outputs from a non-heralded 
+        circuit. 
+        """
+        # Create heralded and versions of same circuit
+        U = random_unitary(6)
+        circuit = Unitary(U)
+        circuit_herald = Unitary(U)
+        circuit_herald.add_herald(0, 2, 2)
+        circuit_herald.add_herald(1, 1, 3)
+        # Simulate both with equivalent inputs
+        sim = Simulator(circuit)
+        results = sim.simulate(State([0,1,0,1,1,0]))
+        sim_h = Simulator(circuit_herald)
+        results_h = sim_h.simulate(State([0,1,1,0]))
+        # Then check equivalence of results for all outputs
+        for output in results_h.outputs:
+            full_state = output[0:2] + State([0,1]) + output[2:]
+            assert pytest.approx(results_h[output]) == results[full_state] 
+            
+    def test_herald_not_herald_equivalance_lossy(self):
+        """
+        Checks that the results from the Simulator are equivalent when using a
+        heralded circuit and getting the same outputs from a non-heralded 
+        circuit, while including loss modes.
+        """
+        # Create heralded and versions of same circuit
+        U = random_unitary(6)
+        circuit = Unitary(U)
+        for i in range(6):
+            circuit.add_loss(i, i+1)
+        circuit_herald = Unitary(U)
+        for i in range(6):
+            circuit_herald.add_loss(i, i+1)
+        circuit_herald.add_herald(0, 2, 2)
+        circuit_herald.add_herald(1, 1, 3)
+        # Simulate both with equivalent inputs
+        sim = Simulator(circuit)
+        results = sim.simulate(State([0,1,0,1,1,0]))
+        sim_h = Simulator(circuit_herald)
+        results_h = sim_h.simulate(State([0,1,1,0]))
+        # Then check equivalence of results for all outputs
+        for output in results_h.outputs:
+            full_state = output[0:2] + State([0,1]) + output[2:]
+            assert pytest.approx(results_h[output]) == results[full_state] 
+            
+    def test_herald_not_herald_equivalance_grouped(self):
+        """
+        Checks that the results from the Simulator are equivalent when using a
+        heralded circuit and getting the same outputs from a non-heralded 
+        circuit, while the heralded circuit contains heralds within a grouped
+        sub-circuit.
+        """
+        # Create heralded and versions of same circuit
+        U = random_unitary(6)
+        circuit = Unitary(U)
+        for i in range(6):
+            circuit.add_loss(i, i+1)
+        sub_circuit = Unitary(U)
+        for i in range(6):
+            sub_circuit.add_loss(i, i+1)
+        sub_circuit.add_herald(0, 2, 2)
+        sub_circuit.add_herald(1, 1, 3)
+        circuit_herald = Circuit(4)
+        circuit_herald.add(sub_circuit)
+        # Simulate both with equivalent inputs
+        sim = Simulator(circuit)
+        results = sim.simulate(State([0,1,0,1,1,0]))
+        sim_h = Simulator(circuit_herald)
+        results_h = sim_h.simulate(State([0,1,1,0]))
+        # Then check equivalence of results for all outputs
+        for output in results_h.outputs:
+            full_state = output[0:2] + State([0,1]) + output[2:]
+            assert pytest.approx(results_h[output]) == results[full_state] 

@@ -79,7 +79,7 @@ class TestQuickSampler:
         unitary = Unitary(random_unitary(4, seed = 43))
         sampler = QuickSampler(unitary, State([1,0,1,0]), 
                                photon_counting = False, 
-                               herald = lambda s: s[0] == 0)
+                               post_select = lambda s: s[0] == 0)
         p = sampler.probability_distribution[State([0,1,1,0])]
         assert p == pytest.approx(0.3156177858, 1e-8)
         
@@ -91,7 +91,7 @@ class TestQuickSampler:
         unitary = Unitary(random_unitary(4, seed = 43))
         sampler = QuickSampler(unitary, State([0,2,0,0]), 
                                photon_counting = False, 
-                               herald = lambda s: s[0] == 0)
+                               post_select = lambda s: s[0] == 0)
         p = sampler.probability_distribution[State([0,1,1,0])]
         assert p == pytest.approx(0.071330233065, 1e-8)
             
@@ -110,7 +110,7 @@ class TestQuickSampler:
         circuit.add_ps(1, 0.5, loss = 0.5)
         sampler = QuickSampler(circuit, State([1,0,1,0]), 
                                photon_counting = False, 
-                               herald = lambda s: s[0] == 0)
+                               post_select = lambda s: s[0] == 0)
         p = sampler.probability_distribution[State([0,1,1,0])]
         assert p == pytest.approx(0.386272843449, 1e-8)
         
@@ -168,16 +168,16 @@ class TestQuickSampler:
         p2 = sampler.probability_distribution
         assert p1 != p2
         
-    def test_herald_update_with_sampler(self):
+    def test_post_select_update_with_sampler(self):
         """
-        Confirms that changing the herald function changes the produced 
+        Confirms that changing the post_select function changes the produced 
         results.
         """
         circuit = Unitary(random_unitary(4))
         sampler = QuickSampler(circuit, State([1,0,1,0]), 
-                               herald = lambda s: s[0] == 1)
+                               post_select = lambda s: s[0] == 1)
         p1 = sampler.probability_distribution
-        sampler.herald = lambda s: s[1] == 1
+        sampler.post_select = lambda s: s[1] == 1
         p2 = sampler.probability_distribution
         assert p1 != p2
     
@@ -205,15 +205,15 @@ class TestQuickSampler:
         with pytest.raises(ModeMismatchError):
             sampler.input_state = State([1,2,3])
             
-    def test_herald_assignment(self):
+    def test_post_select_assignment(self):
         """
-        Confirms that the herald attribute cannot be replaced with a 
+        Confirms that the post_select attribute cannot be replaced with a 
         non-function value.
         """
         circuit = Unitary(random_unitary(4))
         sampler = QuickSampler(circuit, State([1,0,1,0]))
         with pytest.raises(TypeError):
-            sampler.herald = True
+            sampler.post_select = True
             
     def test_photon_counting_assignment(self):
         """
@@ -224,3 +224,70 @@ class TestQuickSampler:
         sampler = QuickSampler(circuit, State([1,0,1,0]))
         with pytest.raises(TypeError):
             sampler.photon_counting = 1
+            
+    def test_herald_equivalent(self):
+        """
+        Checks that results are equivalent if a herald is used vs 
+        post-selection on a non-heralded circuit.
+        """
+        # First calculate distribution without heralding
+        circuit = Unitary(random_unitary(6))
+        sampler = QuickSampler(circuit, State([1,1,0,0,0,1]),
+                               post_select = lambda s: s[3] == 1 and s[2] == 0)
+        p1 = sampler.probability_distribution
+        # Then find with heralding
+        circuit.add_herald(1, 0, 3)
+        circuit.add_herald(0, 2)
+        sampler = QuickSampler(circuit, State([1,0,0,1]))
+        p2 = sampler.probability_distribution
+        for s in p2:
+            full_state = s[0:2] + State([0,1]) + s[2:]
+            assert pytest.approx(p2[s]) == p1[full_state]
+            
+    def test_herald_equivalent_lossy(self):
+        """
+        Checks that results are equivalent if a herald is used vs 
+        post-selection on a non-heralded circuit when lossy modes are 
+        introduced.
+        """
+        # First calculate distribution without heralding
+        circuit = Unitary(random_unitary(6))
+        for i in range(6):
+            circuit.add_loss(i, i+1)
+        sampler = QuickSampler(circuit, State([1,1,0,0,0,1]),
+                               post_select = lambda s: s[3] == 1 and s[2] == 0)
+        p1 = sampler.probability_distribution
+        # Then find with heralding
+        circuit.add_herald(1, 0, 3)
+        circuit.add_herald(0, 2)
+        sampler = QuickSampler(circuit, State([1,0,0,1]))
+        p2 = sampler.probability_distribution
+        for s in p2:
+            full_state = s[0:2] + State([0,1]) + s[2:]
+            assert pytest.approx(p2[s]) == p1[full_state]
+        
+    def test_herald_equivalent_grouped(self):
+        """
+        Checks that results are equivalent if a herald is used vs 
+        post-selection on a non-heralded circuit when the heralds are featured
+        as part of a grouped sub-circuit.
+        """
+        # First calculate distribution without heralding
+        circuit = Unitary(random_unitary(6))
+        for i in range(6):
+            circuit.add_loss(i, i+1)
+        sampler = QuickSampler(circuit, State([1,1,0,0,0,1]),
+                               post_select = lambda s: s[3] == 1 and s[2] == 0)
+        p1 = sampler.probability_distribution
+        # Then find with heralding
+        circuit.add_herald(1, 0, 3)
+        circuit.add_herald(0, 2)
+        # Create empty circuit and add original circuit to this
+        new_circuit = Circuit(4)
+        new_circuit.add(circuit, 0)
+        circuit = new_circuit
+        sampler = QuickSampler(circuit, State([1,0,0,1]))
+        p2 = sampler.probability_distribution
+        for s in p2:
+            full_state = s[0:2] + State([0,1]) + s[2:]
+            assert pytest.approx(p2[s]) == p1[full_state]

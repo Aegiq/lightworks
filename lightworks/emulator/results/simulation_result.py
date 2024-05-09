@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from ..utils import ResultCreationError
-from ...sdk import State
+from ...sdk.state import State
 
 import numpy as np
 import matplotlib.pyplot as plt

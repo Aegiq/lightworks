@@ -11,3 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from .gates import H, X, Y, Z, S, T, CZ, CNOT, CZ_Heralded, CNOT_Heralded
+
+__all__ = ["H", "X", "Y", "Z", "S", "T", "CZ", "CNOT", "CZ_Heralded", 
+           "CNOT_Heralded"]

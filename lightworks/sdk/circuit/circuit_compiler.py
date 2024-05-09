@@ -26,6 +26,7 @@ from typing import Any
 import numpy as np
 import matplotlib.pyplot as plt
 from IPython import display
+from copy import copy
 
 
 class CompiledCircuit:
@@ -60,12 +61,13 @@ class CompiledCircuit:
                 n_modes = int(n_modes)
             else:
                 raise TypeError("Number of modes should be an integer.")
-        self.n_modes = n_modes
+        self._n_modes = n_modes
         self._loss_included = False
         self.U = np.identity(n_modes, dtype = complex)
         self.U_full = np.identity(n_modes, dtype = complex)
         self._loss_modes = 0
-        self._display_spec = []
+        self._in_heralds = {}
+        self._out_heralds = {}
         
         return
     
@@ -75,7 +77,7 @@ class CompiledCircuit:
             if self.n_modes != value.n_modes:
                 raise ModeRangeError(
                     "Mismatch in number of circuit modes, used add method to "
-                    "add a circuits of a different size.")
+                    "add circuits of a different size.")
             nm = self.n_modes
             newU = value.U @ self.U 
             loss = self._loss_included or value._loss_included
@@ -100,30 +102,30 @@ class CompiledCircuit:
             newCirc.U = newU
             newCirc.U_full = newU_full
             newCirc._loss_modes = l1 + l2
-            newCirc._display_spec = self._display_spec + value._display_spec
             return newCirc
         else:
             raise TypeError("Addition only supported between two circuits.")
         
-    def __setattr__(self, __name: str, __value: Any) -> None:
-        # Prevent n_modes attribute being changed after creation
-        if __name == "n_modes":
-            if not hasattr(self, "n_modes"):
-                self.__dict__[__name] = __value
-            else:
-                raise AttributeError(
-                    "Number of modes should not be modified after Circuit "
-                    "creation.")
-        else:
-            super().__setattr__(__name, __value)
-            
+    @property
+    def n_modes(self) -> int:
+        return self._n_modes
+
+    @n_modes.setter
+    def n_modes(self, value: Any) -> None:
+        raise AttributeError(
+            "Number of modes should not be modified after Circuit creation.")
+        
     @property
     def loss_modes(self):
         """Returns number of loss modes used in the circuit."""
         return self._loss_modes
+    
+    @property
+    def heralds(self) -> dict:
+        return {"input" : copy(self._in_heralds), 
+                "output" : copy(self._out_heralds)}
         
-    def add(self, circuit: "CompiledCircuit", mode: int, group: bool = False, 
-            name: str = "Circuit") -> None:
+    def add(self, circuit: "CompiledCircuit", mode: int) -> None:
         """
         Add a circuit which is of a different size (but smaller than) the 
         original circuit.
@@ -170,33 +172,17 @@ class CompiledCircuit:
             new_U_full[self.n_modes:, mode:mode+nm] = Uc_full[nm:, :nm]
         else:
             new_U_full = new_U.copy()
-        # Modify build spec of circuit to add so it is the same size
-        if not group:
-            new_display_spec = []
-            for spec in circuit._display_spec:
-                c, cmodes, params = spec
-                if isinstance(cmodes, int):
-                    cmodes = cmodes + mode
-                elif isinstance(cmodes, list):
-                    cmodes = [mode + m for m in cmodes]
-                elif isinstance(cmodes, dict):
-                    cmodes = {mode+im:mode+om for im, om in cmodes.items()}
-                new_display_spec += [(c, cmodes, params)]
-        # Otherwise set build spec to be grouped object
-        else:
-            new_display_spec = [("group", [mode, mode+nm-1], (name))]
         # Assign modified attributes to circuit to add
         to_add = CompiledCircuit(self.n_modes)
         to_add.U = new_U
         to_add.U_full = new_U_full
-        to_add._display_spec = new_display_spec
         to_add._loss_included = circuit._loss_included
         to_add._loss_modes = circuit._loss_modes
         # Use built in addition function to combine the circuit
         new_circuit = self + to_add
         # Copy created attributes from new circuit
         for k in self.__dict__.keys():
-            self.__dict__[k] = new_circuit.__dict__[k]
+            setattr(self, k, getattr(new_circuit, k))
             
         return
     
@@ -259,9 +245,6 @@ class CompiledCircuit:
         # Update unitaries
         self.U = U_bs @ self.U
         self.U_full = U_bs_full @ self.U_full
-        # Update build spec attribute
-        self._display_spec = self._display_spec + [("BS", [mode_1, mode_2], 
-                                                   (reflectivity))]
         return
     
     def add_ps(self, mode: int, phi: float) -> None:
@@ -284,8 +267,6 @@ class CompiledCircuit:
         self.U = U_ps @ self.U
         # Calculate U_full with loss
         self.U_full = U_ps_full @ self.U_full
-        # Update build spec attribute
-        self._display_spec = self._display_spec + [("PS", mode, (phi))]
         return
     
     def add_loss(self, mode: int, loss: float = 0) -> None:
@@ -320,29 +301,6 @@ class CompiledCircuit:
         else:
             U_full = self.U_full
         self.U_full = U_lc @ U_full
-        # Update build spec attributes
-        if loss > 0:
-            self._display_spec = self._display_spec + [("LC", mode, (loss))]
-        return
-    
-    def add_barrier(self, modes: list | None = None) -> None:
-        """
-        Adds a barrier to separate different parts a the circuit. This is 
-        applied to the specified modes.
-        
-        Args:
-        
-            modes (list | None) : The modes over which the barrier should be
-                applied to.
-                
-        """
-        if modes == None:
-            modes = [i for i in range(self.n_modes)]
-        if type(modes) != list:
-            raise TypeError("Modes to apply barrier to should be a list.")
-        for m in modes:
-            self._mode_in_range(m)
-        self._display_spec = self._display_spec + [("barrier", modes, None)]
         return
     
     def add_mode_swaps(self, swaps: dict) -> None:
@@ -378,42 +336,42 @@ class CompiledCircuit:
         # Combine with existing matrices
         self.U = U @ self.U
         self.U_full = U_full @ self.U_full
-        self._display_spec = self._display_spec + [("mode_swaps", swaps, 
-                                                    None)]
 
         return
     
-    def display(self, display_loss: bool = False, 
-                mode_labels: list | None = None, 
-                display_type: str = "svg") -> None:
+    def add_herald(self, n_photons: int, input_mode: int, 
+                   output_mode: int = None) -> None:
         """
-        Displays the current circuit.
+        Add a herald across a selected input/output of the circuit. If only one
+        mode is specified then this will be used for both the input and output.
         
         Args:
         
-            display_loss (bool, optional) : Choose whether to display loss
-                components in the figure, defaults to False.
-                                            
-            mode_labels (list|None, optional) : Optionally provided a list of 
-                mode labels which will be used to name the mode something other
-                than numerical values. Can be set to None to use default 
-                values.
-                                                
-            display_type (str, optional) : Selects whether the drawsvg or 
-                matplotlib module should be used for displaying the circuit. 
-                Should either be 'svg' or 'mpl', defaults to 'svg'.
-                
+            n_photons (int) : The number of photons to use for the heralding.
+            
+            input_mode (int) : The input mode to use for the herald.
+            
+            output_mode (int | None, optional) : The output mode for the 
+                herald, if this is not specified it will be set to the value of
+                the input mode.
+        
         """
-        
-        return_ = Display(self, display_loss = display_loss, 
-                          mode_labels = mode_labels,
-                          display_type = display_type)
-        if display_type == "mpl":
-            plt.show()
-        elif display_type == "svg":
-            display.display(return_)
-        
-        return
+        if not isinstance(n_photons, int) or isinstance(n_photons, bool):
+            raise TypeError(
+                "Number of photons for herald should be an integer.")
+        n_photons = int(n_photons)
+        if output_mode is None:
+            output_mode = input_mode
+        self._mode_in_range(input_mode)
+        self._mode_in_range(output_mode)
+        # Check if herald already used on input or output
+        if input_mode in self._in_heralds:
+            raise ValueError("Heralding already set for chosen input mode.")
+        if output_mode in self._out_heralds:
+            raise ValueError("Heralding already set for chosen output mode.")
+        # If not then update dictionaries
+        self._in_heralds[input_mode] = n_photons
+        self._out_heralds[output_mode] = n_photons
     
     def _grow_unitary(self, U: np.ndarray, n: int) -> np.ndarray:
         """Function to grow a unitary by a given n modes"""
@@ -485,10 +443,8 @@ class CompiledUnitary(CompiledCircuit):
         # Assign attributes of unitary
         self.U = unitary
         self.U_full = unitary
-        self.n_modes = unitary.shape[0]
+        self._n_modes = unitary.shape[0]
         self._loss_included = False
         self._loss_modes = 0
-        # Will need to add unitary to build spec
-        self._display_spec = [("unitary", [0, self.n_modes-1], label)]
         
         return

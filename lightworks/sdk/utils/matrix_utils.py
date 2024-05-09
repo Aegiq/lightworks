@@ -128,3 +128,30 @@ def check_unitary(U: np.ndarray, precision: float = 1e-10) -> bool:
                 unitary = False
     # Return whether matrix is unitary or not
     return unitary
+
+def add_mode_to_unitary(unitary: np.ndarray, add_mode: int) -> np.ndarray:
+    """
+    Adds a new mode (through inclusion of an extra row/column) to the provided 
+    unitary at the selected location.
+    
+    Args:
+    
+        unitary (np.ndarray) : The unitary to add a mode to.
+        
+        add_mode (int) : The location at which a new mode should be added to 
+            the circuit.
+            
+    Returns:
+    
+        np.ndarray : The converted unitary matr
+    
+    """
+    dim = unitary.shape[0] + 1
+    new_U = np.identity(dim, dtype = complex)
+    # Diagonals
+    new_U[:add_mode, :add_mode] = unitary[:add_mode, :add_mode]
+    new_U[add_mode+1:, add_mode+1:] = unitary[add_mode:, add_mode:]
+    # Off-diagonals
+    new_U[:add_mode, add_mode+1:] = unitary[:add_mode, add_mode:]
+    new_U[add_mode+1:, :add_mode] = unitary[add_mode:, :add_mode]
+    return new_U

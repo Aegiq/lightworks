@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from ..backend import Backend
-from ...sdk import State
+from ...sdk.state import State
 from ...sdk.circuit.circuit_compiler import CompiledCircuit
 
 class ProbabilityDistributionCalc:

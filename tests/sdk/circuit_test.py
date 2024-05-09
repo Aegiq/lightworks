@@ -18,7 +18,7 @@ from lightworks.sdk.circuit.circuit_compiler import CompiledCircuit
 from lightworks.sdk.circuit.circuit_compiler import CompiledUnitary
 
 import pytest
-from random import random, seed
+from random import random, seed, randint
 from numpy import round
 
 class TestCircuit:
@@ -77,65 +77,6 @@ class TestCircuit:
         assert unitary[0,0] == pytest.approx(0.2743757510982+0.6727464244294j,1e-8)
         assert unitary[1,2] == pytest.approx(-0.153884469732+0.0872489579891j,1e-8)
         assert unitary[4,3] == pytest.approx(-0.083445311860+0.154159863276j,1e-8)
-        
-    def test_equivalent_circ(self):
-        """
-        Confirms that two identical circuits made using circuit and 
-        parameterized circuit calls return the same values.
-        """
-        circuit = CompiledCircuit(6)
-        U_addc = CompiledUnitary(random_unitary(3, seed = 14))
-        pcircuit = Circuit(6)
-        U_add = Unitary(random_unitary(3, seed = 14))
-        # Run through same build procedure for each circuit type
-        for circ, U in [(circuit, U_addc), (pcircuit, U_add)]:
-            seed(5)
-            for i in [0, 2, 4, 1, 3, 2]:
-                circ.add_bs(i, reflectivity = random())
-                circ.add_ps(i, random())
-            circ.add_mode_swaps({1:3, 2:4, 4:1, 3:2})
-            circ.add(U, 1)
-        # Get unitaries
-        U_circ = circuit.U_full
-        U_pcirc = pcircuit.U
-        for i in range(6):
-            for j in range(6):
-                assert U_circ[i,j] == pytest.approx(U_pcirc[i,j], 1e-10)
-        # Also check that the produced build specs are equivalent
-        assert circuit._display_spec == pcircuit._display_spec
-                
-    def test_equivalent_lossy_circ(self):
-        """
-        Confirms that two identical lossy circuits made using circuit and 
-        parameterized circuit calls return the same values.
-        """
-        circuit = CompiledCircuit(6)
-        U_addc = CompiledUnitary(random_unitary(3, seed = 14))
-        pcircuit = Circuit(6)
-        U_add = Unitary(random_unitary(3, seed = 14))
-        # Run through same build procedure for each circuit type
-        for circ, U in [(circuit, U_addc), (pcircuit, U_add)]:
-            seed(5)
-            for i in [0, 2, 4, 1, 3, 2]:
-                circ.add_bs(i, reflectivity = random())
-                phase, loss = random(), random()
-                if isinstance(circ, Circuit):
-                    circ.add_ps(i, phase, loss = loss)
-                else:
-                    circ.add_ps(i, phase)
-                    circ.add_loss(i, loss)
-                circ.add_loss(i, loss = random())
-                circ.add_loss(i+1, loss = random())
-            circ.add_mode_swaps({1:3, 2:4, 4:1, 3:2})
-            circ.add(U, 1)
-        # Get unitaries, excluding loss modes due to attribute difference
-        U_circ = circuit.U_full[:6, :6]
-        U_pcirc = pcircuit.U
-        for i in range(6):
-            for j in range(6):
-                assert U_circ[i,j] == pytest.approx(U_pcirc[i,j], 1e-10)
-        # Also check that the produced build specs are equivalent
-        assert circuit._display_spec == pcircuit._display_spec
         
     def test_smaller_circuit_addition(self):
         """
@@ -443,6 +384,246 @@ class TestCircuit:
         circuit.add_bs(0, loss = param)
         circuit.add_ps(2, 1, loss = param)
         circuit.add_loss(2, param)
+        
+    def test_add_herald(self):
+        """
+        Confirms that heralding being added to a circuit works as expected and 
+        is reflected in the heralds attribute.
+        """
+        circuit = Circuit(4)
+        circuit.add_herald(1, 0, 2)
+        # Check heralds added
+        assert 0 in circuit.heralds["input"]
+        assert 2 in circuit.heralds["output"]
+        # Check photon number is correct
+        assert circuit.heralds["input"][0] == 1
+        assert circuit.heralds["output"][2] == 1
+        
+    def test_add_herald_single_value(self):
+        """
+        Confirms that heralding being added to a circuit works as expected and 
+        is reflected in the heralds attribute, when only a single mode is set
+        """
+        circuit = Circuit(4)
+        circuit.add_herald(2, 1)
+        # Check heralds added
+        assert 1 in circuit.heralds["input"]
+        assert 1 in circuit.heralds["output"]
+        # Check photon number is correct
+        assert circuit.heralds["input"][1] == 2
+        assert circuit.heralds["output"][1] == 2
+        
+    @pytest.mark.parametrize("value", [2.5, "2", True])
+    def test_add_herald_invalid_photon_number(self, value):
+        """
+        Checks error is raised when a non-integer photon number is provided to 
+        add_herald.
+        """
+        circuit = Circuit(4)
+        with pytest.raises(TypeError):
+            circuit.add_herald(value)
+    
+    @pytest.mark.parametrize("modes", [[1],[2],[1,2]])
+    def test_add_herald_duplicate(self, modes):
+        """
+        Checks error is raised when duplicate mode is added to herald.
+        """
+        circuit = Circuit(4)
+        circuit.add_herald(1, 1, 2)
+        with pytest.raises(ValueError):
+            circuit.add_herald(1, *modes)
+            
+    def test_heralded_circuit_addition(self):
+        """
+        Checks that the heralds end up on the correct modes when a heralded 
+        circuit is added to a larger circuit.
+        """
+        circuit = Circuit(4)
+        # Create heralded sub-circuit to add
+        sub_circ = Circuit(4)
+        sub_circ.add_herald(1, 0, 0)
+        sub_circ.add_herald(1, 3, 3)
+        # Then add to larger circuit
+        circuit.add(sub_circ, 1)
+        # Check circuit size is increased
+        assert circuit.n_modes == 6
+        # Confirm heralds are on modes 1 and 4
+        assert 1 in circuit.heralds["input"]
+        assert 1 in circuit.heralds["output"]
+        assert 4 in circuit.heralds["input"]
+        assert 4 in circuit.heralds["output"]
+        
+    def test_heralded_circuit_addition_herald_modification(self):
+        """
+        Checks that heralds in an existing circuit are modified correctly when 
+        a heralded sub-circuit is added.
+        """
+        # Place beam splitters across 0 & 1 and 2 & 3
+        circuit = Circuit(4)
+        circuit.add_herald(0, 0, 1)
+        circuit.add_herald(2, 2, 3)
+        # Create heralded sub-circuit and add
+        sub_circ = Circuit(4)
+        sub_circ.add_herald(1, 0, 0)
+        sub_circ.add_herald(1, 3, 3)
+        circuit.add(sub_circ, 1)
+        # Check heralds are in correct locations
+        assert 0 in circuit._external_heralds["input"]
+        assert 2 in circuit._external_heralds["output"]
+        assert 3 in circuit._external_heralds["input"]
+        assert 5 in circuit._external_heralds["output"]
+        
+    def test_heralded_circuit_addition_circ_modification(self):
+        """
+        Checks that components in an existing circuit are modified correctly 
+        when a heralded sub-circuit is added.
+        """
+        # Place beam splitters across 0 & 1 and 2 & 3
+        circuit = Circuit(4)
+        circuit.add_bs(0)
+        circuit.add_bs(2)
+        # Create heralded sub-circuit and add
+        sub_circ = Circuit(4)
+        sub_circ.add_herald(1, 0, 0)
+        sub_circ.add_herald(1, 3, 3)
+        circuit.add(sub_circ, 1)
+        # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
+        spec = circuit._Circuit__circuit_spec
+        # Get relevant elements from spec
+        assert spec[0][1][0:2] == (0, 2)
+        assert spec[1][1][0:2] == (3, 5)
+        
+    def test_heralded_circuit_addition_circ_modification_2(self):
+        """
+        Checks that components in an existing circuit are modified correctly 
+        when a heralded sub-circuit is added in a different location.
+        """
+        # Place beam splitters across 0 & 1 and 2 & 3
+        circuit = Circuit(4)
+        circuit.add_bs(0)
+        circuit.add_bs(2)
+        # Create heralded sub-circuit and add
+        sub_circ = Circuit(4)
+        sub_circ.add_herald(1, 0, 0)
+        sub_circ.add_herald(1, 3, 3)
+        circuit.add(sub_circ, 0)
+        # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
+        spec = circuit._Circuit__circuit_spec
+        # Get relevant elements from spec
+        assert spec[0][1][0:2] == (1, 2)
+        assert spec[1][1][0:2] == (4, 5)
+        
+    def test_heralded_circuit_addition_circ_modification_3(self):
+        """
+        Checks that components in an existing circuit are modified correctly 
+        when a heralded sub-circuit is added with a different configuration.
+        """
+        # Place beam splitters across 0 & 1 and 2 & 3
+        circuit = Circuit(4)
+        circuit.add_bs(0)
+        circuit.add_bs(2)
+        # Create heralded sub-circuit and add
+        sub_circ = Circuit(4)
+        sub_circ.add_herald(1, 0, 1)
+        sub_circ.add_herald(1, 1, 0)
+        circuit.add(sub_circ, 1)
+        # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
+        spec = circuit._Circuit__circuit_spec
+        # Get relevant elements from spec
+        assert spec[0][1][0:2] == (0, 3)
+        assert spec[1][1][0:2] == (4, 5)
+        
+    def test_heralded_circuit_addition_circ_modification_all_herald(self):
+        """
+        Checks that components in an existing circuit are modified correctly 
+        when a heralded sub-circuit is added with all modes heralded.
+        """
+        # Place beam splitters across 0 & 1 and 2 & 3
+        circuit = Circuit(4)
+        circuit.add_bs(0)
+        circuit.add_bs(2)
+        # Create heralded sub-circuit and add
+        sub_circ = Circuit(4)
+        sub_circ.add_herald(1, 0, 0)
+        sub_circ.add_herald(1, 1, 1)
+        sub_circ.add_herald(1, 2, 2)
+        sub_circ.add_herald(1, 3, 3)
+        circuit.add(sub_circ, 1)
+        # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
+        spec = circuit._Circuit__circuit_spec
+        # Get relevant elements from spec
+        assert spec[0][1][0:2] == (0, 5)
+        assert spec[1][1][0:2] == (6, 7)
+        
+    def test_heralded_two_circuit_addition_circ_modification(self):
+        """
+        Checks that components in an existing circuit are modified correctly 
+        when two heralded sub-circuits are added.
+        """
+        # Place beam splitters across 0 & 1 and 2 & 3
+        circuit = Circuit(4)
+        circuit.add_bs(0)
+        circuit.add_bs(2)
+        # Create heralded sub-circuit and add
+        sub_circ = Circuit(4)
+        sub_circ.add_herald(1, 0, 1)
+        sub_circ.add_herald(1, 2, 0)
+        circuit.add(sub_circ, 2)
+        circuit.add(sub_circ, 1)
+        # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
+        spec = circuit._Circuit__circuit_spec
+        # Get relevant elements from spec
+        assert spec[0][1][0:2] == (0, 2)
+        assert spec[1][1][0:2] == (5, 7)
+        
+    def test_input_modes(self):
+        """
+        Checks input modes attribute returns n_modes value when no heralds are 
+        used.
+        """
+        circuit = Circuit(randint(4, 10))
+        assert circuit.input_modes == circuit.n_modes 
+        
+    def test_input_modes_heralds(self):
+        """
+        Checks input modes attribute returns less then n_modes value when 
+        heralds are included.
+        """
+        n = randint(6, 10)
+        circuit = Circuit(n)
+        circuit.add_herald(1, 1, 4)
+        circuit.add_herald(2, 3, 3)
+        assert circuit.input_modes == n - 2 
+        
+    def test_input_modes_heralds_sub_circuit(self):
+        """
+        Checks input modes attribute returns original n_modes value when 
+        heralds are included as part of a sub-circuit and then added to the 
+        larger circuit.
+        """
+        n = randint(9, 10)
+        circuit = Circuit(n)
+        sub_circuit = Circuit(4)
+        sub_circuit.add_herald(1, 0, 0)
+        sub_circuit.add_herald(0, 3, 1)
+        circuit.add(sub_circuit, 2)
+        assert circuit.input_modes == n
+        
+    def test_input_modes_heralds_sub_circuit_original_heralds(self):
+        """
+        Checks input modes attribute returns original n_modes value when 
+        heralds are included as part of a sub-circuit and then added to the 
+        larger circuit, with the larger circuit also containing heralds.
+        """
+        n = randint(9, 10)
+        circuit = Circuit(n)
+        circuit.add_herald(1, 1, 4)
+        circuit.add_herald(2, 3, 3)
+        sub_circuit = Circuit(4)
+        sub_circuit.add_herald(1, 0, 0)
+        sub_circuit.add_herald(0, 3, 1)
+        circuit.add(sub_circuit, 2)
+        assert circuit.input_modes == n - 2
         
 class TestUnitary:
     """
