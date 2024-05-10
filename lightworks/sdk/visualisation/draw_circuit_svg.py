@@ -48,6 +48,18 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
         self.N = self.circuit.n_modes
         self.draw_spec = []
         self.dy = 125
+        self.dy_smaller = 75
+        self.y_locations = []
+        # Set mode y locations
+        yloc = self.dy
+        for i in range(self.N):
+            self.y_locations.append(yloc)
+            if i+1 in self.circuit._internal_modes:
+                yloc += self.dy_smaller
+            elif i in self.circuit._internal_modes:
+                yloc += self.dy_smaller
+            else:
+                yloc += self.dy
         init_length = 100
         # Add the mode labels
         if mode_labels is None:
@@ -67,26 +79,28 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
         max_len = max([len(m) for m in mode_labels])
         if max_len > 4: init_length += (max_len-4)*17.5
         for m, label in enumerate(mode_labels):
-            self.draw_spec += [("text", (label, init_length-20, 
-                                         (m+1)*self.dy + 2, 0, 25, "black", 
-                                         "right"))]
+            self.draw_spec += [("text", 
+                                (label, init_length-20, 
+                                 self.y_locations[m] + 2, 0, 25, "black", 
+                                 "right"))
+                               ]
         self._init_length = init_length
         # Create list of locations for each mode
-        self.locations = [init_length+50]*self.N
+        self.x_locations = [init_length+50]*self.N
         # Add extra waveguides when using heralds
         if (self.circuit._external_heralds["input"] or 
             self.circuit._external_heralds["output"]):
             for m in range(self.N):
                 if m not in self.circuit._internal_modes:
-                    self._add_wg(self.locations[m], (m+1)*self.dy, 50)
-                    self.locations[m] += 50
+                    self._add_wg(self.x_locations[m], self.y_locations[m], 50)
+                    self.x_locations[m] += 50
         # Loop over each element in the build spec and add
         for spec in self.circuit._display_spec:
             c, modes = spec[0:2]
             params = spec[2]
             if c == "PS":
                 self._add_ps(modes, params)
-            elif c == "BS":
+            elif c == "BS": # TODO
                 m1, m2 = modes
                 ref = params
                 if m1 > m2:
@@ -94,39 +108,39 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
                 self._add_bs(m1, m2, ref)
             elif c == "LC" and self.display_loss:
                 self._add_loss(modes, params)
-            elif c == "barrier":
+            elif c == "barrier": 
                 self._add_barrier(modes)
-            elif c == "mode_swaps":
+            elif c == "mode_swaps": # TODO
                 if not modes:
                     continue
                 self._add_mode_swaps(modes)
-            elif c == "unitary":
+            elif c == "unitary": # TODO
                 m1, m2 = modes
                 if m1 > m2:
                     m1, m2 = m2, m1
                 self._add_unitary(m1, m2, params)
-            elif c == "group":
+            elif c == "group": # TODO
                 m1, m2 = modes
                 if m1 > m2:
                     m1, m2 = m2, m1
                 name, heralds = params
                 self._add_grouped_circuit(m1, m2, name, heralds)
         
-        maxloc = max(self.locations)
+        maxloc = max(self.x_locations)
         if (self.circuit._external_heralds["input"] or 
             self.circuit._external_heralds["output"]):
             maxloc += 50
-        for i, loc in enumerate(self.locations):
+        for i, loc in enumerate(self.x_locations):
             if loc < maxloc and i not in self.circuit._internal_modes:
-                self._add_wg(loc, (i+1)*self.dy, maxloc-loc)
-                self.locations[i] = maxloc
+                self._add_wg(loc, self.y_locations[i], maxloc-loc)
+                self.x_locations[i] = maxloc
         
         # Add heralding display
         self._add_heralds(self.circuit._external_heralds, self._init_length+50,
                           maxloc)
                 
         for i in range(self.N):
-            self.locations[i] += 50
+            self.x_locations[i] += 50
         
         return
         
@@ -141,21 +155,21 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
         """
         extra_lower = 0
         # Create a new drawing of the correct size
-        self.d = draw.Drawing(max(self.locations) + 100, 
-                              (self.N+1)*self.dy + extra_lower)
+        self.d = draw.Drawing(max(self.x_locations) + 100, 
+                              max(self.y_locations) + self.dy + extra_lower)
         
-        # Add frame around circuit
         border = 100
-        dx = max(self.locations) - self._init_length
-        dy = (self.N-1)*self.dy + border*2 + extra_lower
+        # Add frame around circuit
+        dx = max(self.x_locations) - self._init_length
+        dy = max(self.y_locations) - self.dy + 2*border + extra_lower
         self.d.append(draw.Rectangle(self._init_length, self.dy-border, dx, dy,
                                      fill = 'none', stroke = "black"))
         # Add ticks to left side of frame
         length, width = 8, 1
         for i in range(self.N):
             self.d.append(draw.Rectangle(self._init_length-length, 
-                                         (i+1)*self.dy-width/2, length, width,
-                                         fill = "black"))
+                                         self.y_locations[i]-width/2, length, 
+                                         width, fill = "black"))
         
         # Loop over each element in the drawing spec and add
         for c, data in self.draw_spec:
@@ -181,7 +195,7 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
                 raise DisplayError("Element in draw spec not recognised.")
                 
         # Adjust size of figure to meet target scale
-        target_scale = min(50+self.N*65, 900)
+        target_scale = min(50+(self.N-len(self.circuit._internal_modes))*65, 900)
         #target_scale = max(target_scale, 200)
         self.d.set_pixel_scale(1)
         w,h = self.d.calc_render_size()
