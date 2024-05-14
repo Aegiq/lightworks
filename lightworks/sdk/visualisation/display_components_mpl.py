@@ -299,3 +299,28 @@ class DisplayComponentsMPL:
             self.locations[i] = xloc + con_length
             
         return
+    
+    def _add_heralds(self, heralds: dict, start_loc: float, 
+                     end_loc: float) -> None:
+        """Adds display of all heralds to circuit."""
+        size = 0.25
+        # Input heralds
+        for mode, num in heralds["input"].items():
+            xloc = start_loc
+            yloc = mode
+            circle = patches.Circle((xloc, yloc), size, facecolor = "#3e368d", 
+                                    edgecolor = "black")
+            self.ax.add_patch(circle)
+            self.ax.text(xloc, yloc+0.01, str(num), color = "white", size = 8, 
+                         horizontalalignment = "center", 
+                         verticalalignment = "center")
+        # Output heralds
+        for mode, num in heralds["output"].items():
+            xloc = end_loc
+            yloc = mode
+            circle = patches.Circle((xloc, yloc), size, facecolor = "#3e368d", 
+                                    edgecolor = "black")
+            self.ax.add_patch(circle)
+            self.ax.text(xloc, yloc+0.01, str(num), color = "white", size = 8, 
+                         horizontalalignment = "center", 
+                         verticalalignment = "center")

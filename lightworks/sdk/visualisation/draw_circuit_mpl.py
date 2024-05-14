@@ -45,6 +45,7 @@ class DrawCircuitMPL(DisplayComponentsMPL):
         self.circuit = circuit
         self.display_loss = display_loss
         self.mode_labels = mode_labels
+        self.N = self.circuit.n_modes
         
     def draw(self) -> tuple[plt.figure, plt.axes]:
         
@@ -67,6 +68,12 @@ class DrawCircuitMPL(DisplayComponentsMPL):
             self._add_wg(0, i-self.wg_width/2, init_length)
         # Create a list to store the positions of each mode
         self.locations = [init_length]*N
+        # Add extra waveguides when using heralds
+        if self.circuit._external_heralds["input"]:
+            for i in range(self.N):
+                if i not in self.circuit._internal_modes:
+                    self._add_wg(self.locations[i], i, 0.5)
+                    self.locations[i] += 0.5
         # Loop over build spec and add each component
         for spec in self.circuit._display_spec:
             c, modes = spec[0:2]
@@ -99,12 +106,19 @@ class DrawCircuitMPL(DisplayComponentsMPL):
                 self._add_grouped_circuit(m1, m2, params)
         # Add any final lengths as required
         final_loc = max(self.locations)
+        # Extend final waveguide if herald included
+        if (self.circuit._external_heralds["output"]):
+            final_loc += 0.5
         for i, loc in enumerate(self.locations):    
             if loc < final_loc:
                 length = final_loc - loc
-                rect = patches.Rectangle((loc, i-self.wg_width/2), length, 
-                                         self.wg_width, facecolor = "black")
-                self.ax.add_patch(rect)
+                self._add_wg(loc, i, length)
+                self.locations[i] += length
+                
+        # Add heralding display
+        self._add_heralds(self.circuit._external_heralds, init_length,
+                          final_loc)
+                
         # Set axes limits using locations and mode numbers
         self.ax.set_xlim(0, max(self.locations) + 0.5)
         self.ax.set_yticks(range(0, N))

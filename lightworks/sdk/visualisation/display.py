@@ -54,10 +54,6 @@ def Display(circuit: "Circuit", display_loss: bool = False,                    #
     """
     
     if display_type == "mpl":
-        if circuit.heralds["input"]:
-            raise NotImplementedError(
-                "MPL display method does not currently support inclusion of "
-                "heralds.")
         disp = DrawCircuitMPL(circuit, display_loss, mode_labels)
         fig, ax = disp.draw()
         return (fig, ax)
