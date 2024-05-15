@@ -85,7 +85,6 @@ class TestDisplay:
         except:
             pytest.fail("Exception occurred during display operation.")
     
-    @pytest.mark.skip()
     def test_circuit_display_function_mpl(self):
         """
         Checks that a circuit passed to the display function is able to be

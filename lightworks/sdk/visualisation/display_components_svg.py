@@ -84,11 +84,11 @@ class SVGDrawSpec:
         xloc = max(self.x_locations[mode1:mode2+1])
         # Add initial connectors for any modes which haven't reach xloc yet:
         for i, loc in enumerate(self.x_locations[mode1:mode2+1]):
-            if loc < xloc and i+mode1 not in self.circuit._internal_modes:
+            if loc < xloc and i+mode1 not in self.herald_modes:
                 self._add_wg(loc, self.y_locations[mode1+i], xloc - loc)
         # Add input waveguides for all included modes
         for i in range(mode1, mode2 + 1):
-            if i not in self.circuit._internal_modes:
+            if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length)
         xloc += con_length
         # Add beam splitter section
@@ -96,7 +96,7 @@ class SVGDrawSpec:
         # TODO: Need to tweak how the beam splitter location is decided
         mode_between = 0
         for i in range(mode1 + 1, mode2 + 1, 1):
-            if i not in self.circuit._internal_modes:
+            if i not in self.herald_modes:
                 mode_between += 1
         dy = - 50 if mode_between%2 == 0 else 0
         self.draw_spec += [("text", ("BS", xloc+size_x/2, 
@@ -109,17 +109,14 @@ class SVGDrawSpec:
                                      "centred"))]
         # For any modes in between the beam splitter modes add a waveguide 
         # across the beam splitter
-        if mode2 - mode1 > 1:
-            for i in range(mode1+1, mode2):
-                if i not in self.circuit._internal_modes:
-                    self._add_wg(xloc, self.y_locations[i], size_x)
+        for i in range(mode1+1, mode2):
+            if i not in self.herald_modes:
+                self._add_wg(xloc, self.y_locations[i], size_x)
         xloc += size_x
-        # Add output waveguides
+        # Add output waveguides and update mode locations
         for i in range(mode1, mode2 + 1):
-            if i not in self.circuit._internal_modes:
+            if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length)
-        # Update mode locations
-        for i in range(mode1, mode2 + 1):
             self.x_locations[i] = xloc + con_length
         
         return
@@ -135,12 +132,12 @@ class SVGDrawSpec:
         xloc = max(self.x_locations[mode1:mode2+1])
         # Add initial connectors for any modes which haven't reach xloc yet:
         for i, loc in enumerate(self.x_locations[mode1:mode2+1]):
-            if loc < xloc and i + mode1 not in self.circuit._internal_modes:
+            if loc < xloc and i + mode1 not in self.herald_modes:
                 self._add_wg(loc, self.y_locations[mode1 + i], xloc - loc)
         # Add input waveguides
         modes = range(min(mode1, mode2), max(mode1, mode2)+1, 1)
         for i in modes:
-            if i not in self.circuit._internal_modes:
+            if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length)
         xloc += con_length
         # Add unitary shape and U label
@@ -154,7 +151,7 @@ class SVGDrawSpec:
         xloc += size_x
         # Add output waveguides and update mode positions
         for i in modes:
-            if i not in self.circuit._internal_modes:
+            if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length)
             self.x_locations[i] = xloc + con_length
             
@@ -215,26 +212,25 @@ class SVGDrawSpec:
         xloc = max(self.x_locations[min_mode:max_mode+1])
         ylocs = []
         for i, j in swaps.items():
-            if i not in self.circuit._internal_modes:
+            if i not in self.herald_modes:
                 ylocs.append((self.y_locations[i], self.y_locations[j]))
         # Add initial connectors for any modes which haven't reach xloc yet:
         for i, loc in enumerate(self.x_locations[min_mode:max_mode+1]):
-            if loc < xloc and i + min_mode not in self.circuit._internal_modes:
+            if loc < xloc and i + min_mode not in self.herald_modes:
                 self._add_wg(loc, self.y_locations[min_mode+i], xloc - loc)
         # Add input waveguides for all included modes
         modes = range(min_mode, max_mode+1, 1)
         for i in modes:
-            if i not in self.circuit._internal_modes:
+            if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length)
         xloc += con_length
         # Add beam splitter section
         self.draw_spec += [("mode_swaps", (xloc, ylocs, size_x))]
         xloc += size_x
-        # Add output waveguides
+        # Add output waveguides update mode locations
         for i in modes:
-            if i not in self.circuit._internal_modes:
+            if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length)
-            # Update mode locations
             self.x_locations[i] = xloc + con_length
         
         return
@@ -252,12 +248,12 @@ class SVGDrawSpec:
         xloc = max(self.x_locations[mode1:mode2+1])
         # Add initial connectors for any modes which haven't reach xloc yet:
         for i, loc in enumerate(self.x_locations[mode1:mode2+1]):
-            if loc < xloc and i+mode1 not in self.circuit._internal_modes:
+            if loc < xloc and i+mode1 not in self.herald_modes:
                 self._add_wg(loc, self.y_locations[mode1 + i], xloc - loc)
         # Add input waveguides
         modes = range(min(mode1, mode2), max(mode1, mode2)+1, 1)
         for i in modes:
-            if i not in self.circuit._internal_modes:
+            if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length + extra_length)
             elif i - mode1 in heralds["input"]:
                 self._add_wg(xloc + extra_length, self.y_locations[i], con_length)
@@ -273,7 +269,7 @@ class SVGDrawSpec:
         xloc += size_x
         # Add output waveguides and update mode positions
         for i in modes:
-            if i not in self.circuit._internal_modes:
+            if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length + extra_length)
             elif i - mode1 in heralds["output"]:
                 self._add_wg(xloc, self.y_locations[i], con_length)
@@ -284,7 +280,8 @@ class SVGDrawSpec:
             "input" : {m+mode1:n for m, n in heralds["input"].items()},
             "output" : {m+mode1:n for m, n in heralds["output"].items()}
             }
-        self._add_heralds(shifted_heralds, xloc-size_x-50, xloc+50)
+        self._add_heralds(shifted_heralds, xloc-size_x-con_length, 
+                          xloc+con_length)
             
         return
     

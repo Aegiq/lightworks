@@ -114,6 +114,9 @@ def add_empty_mode_to_circuit_spec(circuit_spec: list, mode: int) -> list:
             params[0] = swaps
         elif c == "group":
             params[0] = add_empty_mode_to_circuit_spec(params[0], mode)
+            # Shift unitary mode range
+            params[2] += 1 if params[2] >= mode else 0
+            params[3] += 1 if params[3] >= mode else 0
             # Update herald values
             in_heralds, out_heralds = params[4]["input"], params[4]["output"]
             new_in_heralds = {}
@@ -128,9 +131,6 @@ def add_empty_mode_to_circuit_spec(circuit_spec: list, mode: int) -> list:
                 new_out_heralds[m] = n
             params[4] = {"input" : new_in_heralds, 
                             "output" : new_out_heralds}
-            # Shift unitary mode range
-            params[2] += 1 if params[2] >= mode else 0
-            params[3] += 1 if params[3] >= mode else 0
         elif c == "unitary":
             params[0] += 1 if params[0] >= mode else 0
             # Expand unitary if required
