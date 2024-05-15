@@ -62,7 +62,19 @@ class DrawCircuitMPL(DisplayComponentsMPL):
         # Manually adjust figure height
         h = max(N, 4)
         self.fig.set_figheight(h)
-        self.ax.set_ylim(N, -1)
+        dy = 1
+        dy_smaller = 0.6
+        self.y_locations = []
+        # Set mode y locations
+        yloc = 0
+        for i in range(self.N):
+            self.y_locations.append(yloc)
+            if i+1 in self.herald_modes:
+                yloc += dy_smaller
+            elif i in self.herald_modes:
+                yloc += dy_smaller
+            else:
+                yloc += dy
         # Set a starting length and add a waveguide for each mode
         init_length = 0.5
         if False:
@@ -73,7 +85,7 @@ class DrawCircuitMPL(DisplayComponentsMPL):
         if self.circuit._external_heralds["input"]:
             for i in range(self.N):
                 if i not in self.herald_modes:
-                    self._add_wg(self.locations[i], i, 0.5)
+                    self._add_wg(self.locations[i], self.y_locations[i], 0.5)
                     self.locations[i] += 0.5
         # Loop over build spec and add each component
         for spec in self.circuit._display_spec:
@@ -114,7 +126,7 @@ class DrawCircuitMPL(DisplayComponentsMPL):
         for i, loc in enumerate(self.locations):    
             if loc < final_loc and i not in self.herald_modes:
                 length = final_loc - loc
-                self._add_wg(loc, i, length)
+                self._add_wg(loc, self.y_locations[i], length)
                 self.locations[i] += length
                 
         # Add heralding display
@@ -123,7 +135,8 @@ class DrawCircuitMPL(DisplayComponentsMPL):
                 
         # Set axes limits using locations and mode numbers
         self.ax.set_xlim(0, max(self.locations) + 0.5)
-        self.ax.set_yticks(range(0, N))
+        self.ax.set_ylim(max(self.y_locations) + 1, -1)
+        self.ax.set_yticks(self.y_locations)
         if self.mode_labels is not None:
             exp_len = N - len(self.herald_modes)
             if len(self.mode_labels) != exp_len:
