@@ -91,12 +91,13 @@ class DisplayComponentsMPL:
         xloc = max(self.locations[mode1:mode2+1])
         # Add initial connectors for any modes which haven't reach xloc yet:
         for i, loc in enumerate(self.locations[mode1:mode2+1]):
-            if loc < xloc:
+            if loc < xloc and i+mode1 not in self.herald_modes:
                 self._add_wg(loc, yloc + i, xloc - loc)
         # Add input waveguides for all included modes
         modes = range(min(mode1, mode2), max(mode1, mode2) + 1, 1)
         for i in modes:
-            self._add_wg(xloc, i, con_length)
+            if i not in self.herald_modes:
+                self._add_wg(xloc, i, con_length)
         xloc += con_length
         # Add beam splitter rectangle shape
         rect = patches.Rectangle((xloc, yloc-offset/2), size_x, size_y, 
@@ -115,15 +116,14 @@ class DisplayComponentsMPL:
                      verticalalignment = "center")
         # For any modes in between the beam splitter modes add a waveguide 
         # across the beam splitter
-        if mode2 - mode1 > 1:
-            for i in range(mode1+1, mode2):
+        for i in range(mode1+1, mode2):
+            if i not in self.herald_modes:
                 self._add_wg(xloc, i, size_x)
         xloc += size_x
-        # Add output waveguides
+        # Add output waveguides and update mode locations
         for i in modes:
-            self._add_wg(xloc, i, con_length)
-        # Update mode locations
-        for i in modes:
+            if i not in self.herald_modes:
+                self._add_wg(xloc, i, con_length)
             self.locations[i] = xloc + con_length
             
         return
@@ -188,15 +188,17 @@ class DisplayComponentsMPL:
         xloc = max(self.locations[min_mode:max_mode+1])
         ylocs = []
         for i, j in swaps.items():
-            ylocs.append((i, j))
+            if i not in self.herald_modes:
+                ylocs.append((i, j))
         # Add initial connectors for any modes which haven't reach xloc yet:
         for i, loc in enumerate(self.locations[min_mode:max_mode+1]):
-            if loc < xloc:
+            if loc < xloc and i + min_mode not in self.herald_modes:
                 self._add_wg(loc, min_mode + i, xloc - loc)
         # Add input waveguides for all included modes
         modes = range(min_mode, max_mode + 1, 1)
         for i in modes:
-            self._add_wg(xloc, i, con_length)
+            if i not in self.herald_modes:
+                self._add_wg(xloc, i, con_length)
         xloc += con_length
         for y0, y1 in ylocs:
             w = self.wg_width/2
@@ -213,11 +215,10 @@ class DisplayComponentsMPL:
             poly = patches.Polygon(points, facecolor = "black")
             self.ax.add_patch(poly)
         xloc += size_x
-        # Add output waveguides
+        # Add output waveguides update mode locations
         for i in modes:
-            self._add_wg(xloc, i, con_length)
-        # Update mode locations
-        for i in modes:
+            if i not in self.herald_modes:
+                self._add_wg(xloc, i, con_length)
             self.locations[i] = xloc + con_length
             
         return
@@ -233,12 +234,13 @@ class DisplayComponentsMPL:
         xloc = max(self.locations[mode1:mode2+1])
         # Add initial connectors for any modes which haven't reach xloc yet:
         for i, loc in enumerate(self.locations[mode1:mode2+1]):
-            if loc < xloc:
+            if loc < xloc and i + mode1 not in self.herald_modes:
                 self._add_wg(loc, yloc + i, xloc - loc)
         # Add input waveguides
         modes = range(min(mode1, mode2), max(mode1, mode2)+1, 1)
         for i in modes:
-            self._add_wg(xloc, i, con_length)
+            if i not in self.herald_modes:
+                self._add_wg(xloc, i, con_length)
         xloc += con_length
         # Add unitary shape and label
         rect = patches.Rectangle((xloc, yloc-offset/2), size_x, size_y, 
@@ -252,19 +254,20 @@ class DisplayComponentsMPL:
                      verticalalignment = "center", color = "white",
                      rotation = r)
         xloc += size_x
-        # Add output waveguides
+        # Add output waveguides and update mode positions
         for i in modes:
-            self._add_wg(xloc, i, con_length)
-        # Update mode positions
-        for i in modes:
+            if i not in self.herald_modes:
+                self._add_wg(xloc, i, con_length)
             self.locations[i] = xloc + con_length
             
         return
     
-    def _add_grouped_circuit(self, mode1: int, mode2: int, name: str) -> None:
+    def _add_grouped_circuit(self, mode1: int, mode2: int, name: str,
+                             heralds: dict) -> None:
         """Add a grouped circuit drawing to the axis."""
         size_x = 1 # x size
         con_length = 0.5 # Input/output waveguide lengths
+        extra_length = 0.5 if heralds["input"] or heralds["output"] else 0
         offset = 0.5 # Offset of square from modes
         size_y = offset + abs(mode2 - mode1) # Find total unitary size
         # Get x and y positions
@@ -272,13 +275,16 @@ class DisplayComponentsMPL:
         xloc = max(self.locations[mode1:mode2+1])
         # Add initial connectors for any modes which haven't reach xloc yet:
         for i, loc in enumerate(self.locations[mode1:mode2+1]):
-            if loc < xloc:
+            if loc < xloc and i+mode1 not in self.herald_modes:
                 self._add_wg(loc, yloc + i, xloc - loc)
         # Add input waveguides
         modes = range(min(mode1, mode2), max(mode1, mode2)+1, 1)
         for i in modes:
-            self._add_wg(xloc, i, con_length)
-        xloc += con_length
+            if i not in self.herald_modes:
+                self._add_wg(xloc, i, con_length + extra_length)
+            elif i - mode1 in heralds["input"]:
+                self._add_wg(xloc + extra_length, i, con_length)
+        xloc += con_length + extra_length
         # Add circuit shape and label
         rect = patches.Rectangle((xloc, yloc-offset/2), size_x, size_y, 
                                  facecolor = "#1a0f36", 
@@ -291,19 +297,28 @@ class DisplayComponentsMPL:
                      verticalalignment = "center", color = "white", 
                      rotation = r)
         xloc += size_x
-        # Add output waveguides
+        # Add output waveguides and update mode positions
         for i in modes:
-            self._add_wg(xloc, i, con_length)
-        # Update mode positions
-        for i in modes:
-            self.locations[i] = xloc + con_length
+            if i not in self.herald_modes:
+                self._add_wg(xloc, i, con_length + extra_length)
+            elif i - mode1 in heralds["output"]:
+                self._add_wg(xloc, i, con_length)
+            self.locations[i] = xloc + con_length + extra_length
+            
+        # Modify provided heralds by mode offset and then add at locations
+        shifted_heralds = {
+            "input" : {m+mode1:n for m, n in heralds["input"].items()},
+            "output" : {m+mode1:n for m, n in heralds["output"].items()}
+            }
+        self._add_heralds(shifted_heralds, xloc-size_x-con_length, 
+                          xloc+con_length)
             
         return
     
     def _add_heralds(self, heralds: dict, start_loc: float, 
                      end_loc: float) -> None:
         """Adds display of all heralds to circuit."""
-        size = 0.25
+        size = 0.2
         # Input heralds
         for mode, num in heralds["input"].items():
             xloc = start_loc

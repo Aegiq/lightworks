@@ -46,6 +46,7 @@ class DrawCircuitMPL(DisplayComponentsMPL):
         self.display_loss = display_loss
         self.mode_labels = mode_labels
         self.N = self.circuit.n_modes
+        self.herald_modes = self.circuit._internal_modes
         
     def draw(self) -> tuple[plt.figure, plt.axes]:
         
@@ -71,7 +72,7 @@ class DrawCircuitMPL(DisplayComponentsMPL):
         # Add extra waveguides when using heralds
         if self.circuit._external_heralds["input"]:
             for i in range(self.N):
-                if i not in self.circuit._internal_modes:
+                if i not in self.herald_modes:
                     self._add_wg(self.locations[i], i, 0.5)
                     self.locations[i] += 0.5
         # Loop over build spec and add each component
@@ -103,14 +104,15 @@ class DrawCircuitMPL(DisplayComponentsMPL):
                 m1, m2 = modes
                 if m1 > m2:
                     m1, m2 = m2, m1
-                self._add_grouped_circuit(m1, m2, params)
+                name, heralds = params
+                self._add_grouped_circuit(m1, m2, name, heralds)
         # Add any final lengths as required
         final_loc = max(self.locations)
         # Extend final waveguide if herald included
         if (self.circuit._external_heralds["output"]):
             final_loc += 0.5
         for i, loc in enumerate(self.locations):    
-            if loc < final_loc:
+            if loc < final_loc and i not in self.herald_modes:
                 length = final_loc - loc
                 self._add_wg(loc, i, length)
                 self.locations[i] += length
