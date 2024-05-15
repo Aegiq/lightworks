@@ -42,7 +42,7 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
         
         self.circuit = circuit
         self.display_loss = display_loss
-        self.mode_labels = mode_labels
+        self.herald_modes = self.circuit._internal_modes
         # Set a waveguide width and get mode number
         self.wg_width = 8
         self.N = self.circuit.n_modes
@@ -54,22 +54,22 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
         yloc = self.dy
         for i in range(self.N):
             self.y_locations.append(yloc)
-            if i+1 in self.circuit._internal_modes:
+            if i+1 in self.herald_modes:
                 yloc += self.dy_smaller
-            elif i in self.circuit._internal_modes:
+            elif i in self.herald_modes:
                 yloc += self.dy_smaller
             else:
                 yloc += self.dy
         init_length = 100
         # Add the mode labels
         if mode_labels is None:
-            mode_labels = range(self.N - len(self.circuit._internal_modes))
+            mode_labels = range(self.N - len(self.herald_modes))
         # Convert all labels to strings
         mode_labels = [str(m) for m in mode_labels]
         full_mode_labels = []
         count = 0
         for i in range(self.circuit.n_modes):
-            if i not in self.circuit._internal_modes:
+            if i not in self.herald_modes:
                 full_mode_labels.append(mode_labels[count])
                 count += 1
             else:
@@ -90,7 +90,7 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
         # Add extra waveguides when using heralds
         if self.circuit._external_heralds["input"]:
             for m in range(self.N):
-                if m not in self.circuit._internal_modes:
+                if m not in self.herald_modes:
                     self._add_wg(self.x_locations[m], self.y_locations[m], 50)
                     self.x_locations[m] += 50
         # Loop over each element in the build spec and add
@@ -130,7 +130,7 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
         if self.circuit._external_heralds["output"]:
             maxloc += 50
         for i, loc in enumerate(self.x_locations):
-            if loc < maxloc and i not in self.circuit._internal_modes:
+            if loc < maxloc and i not in self.herald_modes:
                 self._add_wg(loc, self.y_locations[i], maxloc-loc)
                 self.x_locations[i] = maxloc
         
@@ -194,7 +194,7 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
                 raise DisplayError("Element in draw spec not recognised.")
                 
         # Adjust size of figure to meet target scale
-        target_scale = min(50+(self.N-len(self.circuit._internal_modes))*65, 900)
+        target_scale = min(50+(self.N-len(self.herald_modes))*65, 900)
         #target_scale = max(target_scale, 200)
         self.d.set_pixel_scale(1)
         w,h = self.d.calc_render_size()
