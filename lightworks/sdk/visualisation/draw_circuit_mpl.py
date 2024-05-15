@@ -125,11 +125,25 @@ class DrawCircuitMPL(DisplayComponentsMPL):
         self.ax.set_xlim(0, max(self.locations) + 0.5)
         self.ax.set_yticks(range(0, N))
         if self.mode_labels is not None:
-            if len(self.mode_labels) != N:
+            exp_len = N - len(self.herald_modes)
+            if len(self.mode_labels) != exp_len:
                 raise DisplayError(
                     "Length of provided mode labels list should be equal to "
-                    "the number of modes.")
-            self.ax.set_yticklabels(self.mode_labels)
+                    f"the number of useable modes ({exp_len}).")
+            mode_labels = self.mode_labels
+        else:
+            mode_labels = range(N - len(self.herald_modes))
+        mode_labels = [str(m) for m in mode_labels]
+        # Include heralded modes in mode labels
+        full_mode_labels = []
+        count = 0
+        for i in range(N):
+            if i not in self.herald_modes:
+                full_mode_labels.append(mode_labels[count])
+                count += 1
+            else:
+                full_mode_labels.append("-")
+        self.ax.set_yticklabels(full_mode_labels)
         self.ax.set_xticks([])
 
         return self.fig, self.ax
