@@ -333,6 +333,56 @@ When using ``add``, it is also possible to choose to group all elements being ad
     :scale: 100%
     :align: center
 
+Heralding Integration
+---------------------
+
+In photonic quantum computing, ancillary photons/modes are often used to realize particular entangled states, particularly in qubit paradigms. The Lightworks Circuit supports the addition of these ancillary photons with the ``add_herald`` method, enabling heralding to be completed on a circuit without having to factor these modes being factored into the inputs and outputs of a circuit. This is supported for all simulation objects in the emulator.
+
+As an example of this, in the following a herald is added on mode 2 of the circuit, requiring that 1 photon is input and output on this mode of the circuit. When the input and output mode are the same, only the input needs to be specified, but when they differ these both need to be specified. For example, ``add_herald(1, 2)`` and ``add_herald(1, 2, 2)`` are equivalent.
+
+.. code-block:: Python
+
+    circuit = lw.Circuit(4)
+    circuit.add_bs(0)
+    circuit.add_bs(1)
+    circuit.add_bs(2)
+
+    circuit.add_herald(1, 2)
+
+    circuit.display()
+
+.. image:: assets/circuit_herald_demo.svg
+    :scale: 100%
+    :align: center
+
+It is also possible to include heralds as part of smaller circuits and then add them to a larger circuit. This enables small functional building blocks to be constructed and combined to create a larger transformation. When a sub-circuit has heralds added to it, this mode is not connected to the existing mode of the larger circuit, this means that for the example above, the sub-circuit would effectively have 3 modes. The effect of this can be seen below, in which the circuit above is added to a larger circuit. 
+
+.. code-block:: Python
+
+    main_circuit = lw.Circuit(4)
+    main_circuit.add(circuit, 1)
+
+    main_circuit.display()
+
+.. image:: assets/circuit_herald_demo2.svg
+    :scale: 100%
+    :align: center
+
+If a beam splitter is then added across modes 2 & 3, this will then effectively ignore the mode with the heralded photon.
+
+.. code-block:: Python
+
+    main_circuit.add_bs(2, 3)
+
+    main_circuit.display()
+
+.. image:: assets/circuit_herald_demo3.svg
+    :scale: 100%
+    :align: center
+
+.. note::
+    Despite the display only showing 4 modes, the circuit will now have 5 modes total. This will lead to an increase in job execution time, particularly if lots of heralded photons are used.
+
 Other Functionality
 -------------------
 
