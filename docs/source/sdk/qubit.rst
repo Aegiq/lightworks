@@ -80,60 +80,64 @@ These gates are functionally Circuits, and so can also be added and combined wit
 Two Qubit Gates
 ---------------
 
-All of the two qubit gates included require post-selection and/or heralding to function correctly, as well as some additional modes. The exact layout of the modes and requirements can be found in the docstrings for the chosen gate, but are also summarised in the table below. In this table, the qubit modes are also specified, where c0 and c1 are the 0 & 1 states of the control qubit respectively and t0 & t1 are the 0 & 1 states of the target qubit. Unless otherwise specified, no photons should be input on the remaining modes of the gate.
+All of the two qubit gates included require post-selection and/or heralding to function correctly, as well as some additional modes. The exact layout of the modes and requirements can be found in the docstrings for the chosen gate, but are also summarised in the table below. In this table, the qubit modes are also specified, where c0 and c1 are the 0 & 1 states of the control qubit respectively and t0 & t1 are the 0 & 1 states of the target qubit. The qubit gates utilise heralds within the circuit so these do not need to be accounted for as part of the simulation objects. In some cases, some additional post-selection is required however, this is noted below.
 
 .. list-table:: Two Qubit Gates
-    :widths: 20, 20, 60
+    :widths: 15, 15, 15, 55
     :header-rows: 1
     :align: center
 
     * - Gate
       - Qubit Modes
+      - Success Probability
       - Post-selection/Heralding
     * - CZ
-      - | c0 : 1
-        | c1 : 2
-        | t0 : 3
-        | t1 : 4
-      - Requires heralding through measurement of 0 photons on modes 0 & 5. Also need to post-select on only measuring one photon across each of the qubit modes.
+      - | c0 : 0
+        | c1 : 1
+        | t0 : 2
+        | t1 : 3
+      - 1/9
+      - Requires heralding and need to post-select on only measuring one photon across each of the qubit modes.
     * - CNOT
-      - | c0 : 1
-        | c1 : 2
-        | t0 : 3
-        | t1 : 4
-      - Requires heralding through measurement of 0 photons on modes 0 & 5. Also need to post-select on only measuring one photon across each of the qubit modes.
+      - | c0 : 0
+        | c1 : 1
+        | t0 : 2
+        | t1 : 3
+      - 1/9
+      - Requires heralding and need to post-select on only measuring one photon across each of the qubit modes.
     * - CZ_Heralded
-      - | c0 : 2
-        | c1 : 3
-        | t0 : 4
-        | t1 : 5
-      - Requires ancillary photons which should be input on modes 1 & 6 and then heralding on one photon being measured on both modes 1 & 6. Also need to herald through measurement of 0 photons on modes 0 & 7. 
+      - | c0 : 0
+        | c1 : 1
+        | t0 : 2
+        | t1 : 3
+      - 1/16
+      - Requires heralding but not post-selection.
     * - CNOT_Heralded
-      - | c0 : 2
-        | c1 : 3
-        | t0 : 4
-        | t1 : 5
-      - Requires ancillary photons which should be input on modes 1 & 6 and then heralding on one photon being measured on both modes 1 & 6. Also need to herald through measurement of 0 photons on modes 0 & 7.
+      - | c0 : 0
+        | c1 : 1
+        | t0 : 2
+        | t1 : 3
+      - 1/16
+      - Requires heralding but not post-selection.
 
-The two qubit gates can then be created in the same way as the single qubit gates. We can directly use these gates with all of the simulation objects provided within the emulator. As an example, below the heralded CNOT gate is tested with the sampler. The input :math:`\ket{1,0}` (which translates to :math:`\ket{0,1,0,1,1,0,1,0}` in mode language) is chosen.
+The two qubit gates can then be created in the same way as the single qubit gates. We can directly use these gates with all of the simulation objects provided within the emulator. As an example, below the heralded CNOT gate is tested with the sampler. The input :math:`\ket{1,0}` (which translates to :math:`\ket{0,1,1,0}` in mode language) is chosen.
 
 .. code-block:: Python
 
-    # Define cnot, input and required herald function
+    # Define cnot and input
     cnot = lw.qubit.CNOT_Heralded()
-    #                            c0 c1 t0 t1
-    input_state = lw.State([0,1, 0, 1, 1, 0, 1,0])
-    herald = lambda s: s[0] == 0 and s[1] == 1 and s[6] == 1 and s[7] == 0
+    #                       c0 c1 t0 t1
+    input_state = lw.State([0, 1, 1, 0])
 
     sampler = emulator.Sampler(cnot, input_state)
     # Then sample 10,000 times
-    results = sampler.sample_N_inputs(10000, herald = herald, seed = 8)
+    results = sampler.sample_N_inputs(10000, seed = 8)
 
     # View measured counts
     print(results)
-    # {State(|0,1,0,1,0,1,1,0>): 615}
+    # {State(|0,1,0,1>): 615}
 
-As expected, with the correct heralding we only measure the output state :math:`\ket{0,1,0,1,0,1,1,0}`, which corresponds to the qubit state :math:`\ket{1,1}`, demonstrating that the CNOT works as expected. Despite inputting to the system 10,000 times we only measure 615 outputs that meet the heralding conditions, this is because the heralded CNOT only has a success probability of 1/16 (= 0.0625, 615/10000 = 0.0615).
+As expected, with the correct heralding we only measure the output state :math:`\ket{0,1,0,1}`, which corresponds to the qubit state :math:`\ket{1,1}`, demonstrating that the CNOT works as expected. Despite inputting to the system 10,000 times we only measure 615 outputs that meet the heralding conditions, this is because the heralded CNOT only has a success probability of 1/16 (= 0.0625, 615/10000 = 0.0615).
 
 .. warning::
     Care needs to be taken when cascading two qubit gates to ensure that any post-selection and heralding criteria can still be maintained and information on this is not lost.
