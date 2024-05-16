@@ -174,7 +174,7 @@ class DisplayComponentsMPL:
         for m in modes:
             loc = self.locations[m]
             if loc < max_loc:
-                self._add_wg(loc, m, max_loc - loc)
+                self._add_wg(loc, self.y_locations[m], max_loc - loc)
             self.locations[m] = max_loc
         
         return
