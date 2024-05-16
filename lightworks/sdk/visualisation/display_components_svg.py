@@ -193,7 +193,7 @@ class SVGDrawSpec:
         for m in modes:
             loc = self.x_locations[m]
             if loc < max_loc:
-                self._add_wg(loc, (m+1)*self.dy, max_loc - loc)
+                self._add_wg(loc, self.y_locations[m], max_loc - loc)
             self.x_locations[m] = max_loc
         
         return
