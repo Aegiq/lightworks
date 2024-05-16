@@ -33,7 +33,7 @@ class DisplayComponentsMPL:
         size = 0.5
         con_length = 0.5
         # Get x and y locs of target modes
-        xloc = self.locations[mode]
+        xloc = self.x_locations[mode]
         yloc = self.y_locations[mode]
         # Add input waveguides
         self._add_wg(xloc, yloc, con_length)
@@ -76,7 +76,7 @@ class DisplayComponentsMPL:
         # Add output waveguides
         self._add_wg(xloc, yloc, con_length)
         # Update mode locations list
-        self.locations[mode] = xloc + con_length
+        self.x_locations[mode] = xloc + con_length
         
         return
     
@@ -89,9 +89,9 @@ class DisplayComponentsMPL:
                               self.y_locations[mode1]) # Find y size
         # Get x and y locations
         yloc = self.y_locations[min(mode1, mode2)]
-        xloc = max(self.locations[mode1:mode2+1])
+        xloc = max(self.x_locations[mode1:mode2+1])
         # Add initial connectors for any modes which haven't reach xloc yet:
-        for i, loc in enumerate(self.locations[mode1:mode2+1]):
+        for i, loc in enumerate(self.x_locations[mode1:mode2+1]):
             if loc < xloc and i+mode1 not in self.herald_modes:
                 self._add_wg(loc, self.y_locations[i+mode1], xloc - loc)
         # Add input waveguides for all included modes
@@ -125,7 +125,7 @@ class DisplayComponentsMPL:
         for i in modes:
             if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length)
-            self.locations[i] = xloc + con_length
+            self.x_locations[i] = xloc + con_length
             
         return
     
@@ -135,7 +135,7 @@ class DisplayComponentsMPL:
         size = 0.5
         con_length = 0.5
         # Get x and y locations
-        xloc = self.locations[mode]
+        xloc = self.x_locations[mode]
         yloc = self.y_locations[mode]
         # Add an input waveguide
         self._add_wg(xloc, yloc, con_length)
@@ -159,7 +159,7 @@ class DisplayComponentsMPL:
         # Add output waveguide
         self._add_wg(xloc, yloc, con_length)
         # Update mode position
-        self.locations[mode] = xloc + con_length
+        self.x_locations[mode] = xloc + con_length
         
         return
     
@@ -170,12 +170,12 @@ class DisplayComponentsMPL:
         """
         max_loc = 0
         for m in modes:
-            max_loc = max(max_loc, self.locations[m])
+            max_loc = max(max_loc, self.x_locations[m])
         for m in modes:
-            loc = self.locations[m]
+            loc = self.x_locations[m]
             if loc < max_loc:
                 self._add_wg(loc, self.y_locations[m], max_loc - loc)
-            self.locations[m] = max_loc
+            self.x_locations[m] = max_loc
         
         return
     
@@ -186,13 +186,13 @@ class DisplayComponentsMPL:
         min_mode = min(swaps)
         max_mode = max(swaps)
         # Get x and y locations
-        xloc = max(self.locations[min_mode:max_mode+1])
+        xloc = max(self.x_locations[min_mode:max_mode+1])
         ylocs = []
         for i, j in swaps.items():
             if i not in self.herald_modes:
                 ylocs.append((self.y_locations[i], self.y_locations[j]))
         # Add initial connectors for any modes which haven't reach xloc yet:
-        for i, loc in enumerate(self.locations[min_mode:max_mode+1]):
+        for i, loc in enumerate(self.x_locations[min_mode:max_mode+1]):
             if loc < xloc and i + min_mode not in self.herald_modes:
                 self._add_wg(loc, self.y_locations[min_mode + i], xloc - loc)
         # Add input waveguides for all included modes
@@ -220,7 +220,7 @@ class DisplayComponentsMPL:
         for i in modes:
             if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length)
-            self.locations[i] = xloc + con_length
+            self.x_locations[i] = xloc + con_length
             
         return
     
@@ -233,9 +233,9 @@ class DisplayComponentsMPL:
                               self.y_locations[mode1]) # Find total unitary size
         # Get x and y positions
         yloc = self.y_locations[min(mode1, mode2)]
-        xloc = max(self.locations[mode1:mode2+1])
+        xloc = max(self.x_locations[mode1:mode2+1])
         # Add initial connectors for any modes which haven't reach xloc yet:
-        for i, loc in enumerate(self.locations[mode1:mode2+1]):
+        for i, loc in enumerate(self.x_locations[mode1:mode2+1]):
             if loc < xloc and i + mode1 not in self.herald_modes:
                 self._add_wg(loc, self.y_locations[i+mode1], xloc - loc)
         # Add input waveguides
@@ -260,7 +260,7 @@ class DisplayComponentsMPL:
         for i in modes:
             if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length)
-            self.locations[i] = xloc + con_length
+            self.x_locations[i] = xloc + con_length
             
         return
     
@@ -275,9 +275,9 @@ class DisplayComponentsMPL:
                               self.y_locations[mode1]) # Find total unitary size
         # Get x and y positions
         yloc = self.y_locations[min(mode1, mode2)]
-        xloc = max(self.locations[mode1:mode2+1])
+        xloc = max(self.x_locations[mode1:mode2+1])
         # Add initial connectors for any modes which haven't reach xloc yet:
-        for i, loc in enumerate(self.locations[mode1:mode2+1]):
+        for i, loc in enumerate(self.x_locations[mode1:mode2+1]):
             if loc < xloc and i+mode1 not in self.herald_modes:
                 self._add_wg(loc, self.y_locations[i+mode1], xloc - loc)
         # Add input waveguides
@@ -309,7 +309,7 @@ class DisplayComponentsMPL:
                              con_length + extra_length)
             elif i - mode1 in heralds["output"]:
                 self._add_wg(xloc, self.y_locations[i], con_length)
-            self.locations[i] = xloc + con_length + extra_length
+            self.x_locations[i] = xloc + con_length + extra_length
             
         # Modify provided heralds by mode offset and then add at locations
         shifted_heralds = {

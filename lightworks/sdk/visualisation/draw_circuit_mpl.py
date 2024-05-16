@@ -80,13 +80,13 @@ class DrawCircuitMPL(DisplayComponentsMPL):
         if False:
             self._add_wg(0, i-self.wg_width/2, init_length)
         # Create a list to store the positions of each mode
-        self.locations = [init_length]*N
+        self.x_locations = [init_length]*N
         # Add extra waveguides when using heralds
         if self.circuit._external_heralds["input"]:
             for i in range(self.N):
                 if i not in self.herald_modes:
-                    self._add_wg(self.locations[i], self.y_locations[i], 0.5)
-                    self.locations[i] += 0.5
+                    self._add_wg(self.x_locations[i], self.y_locations[i], 0.5)
+                    self.x_locations[i] += 0.5
         # Loop over build spec and add each component
         for spec in self.circuit._display_spec:
             c, modes = spec[0:2]
@@ -119,22 +119,22 @@ class DrawCircuitMPL(DisplayComponentsMPL):
                 name, heralds = params
                 self._add_grouped_circuit(m1, m2, name, heralds)
         # Add any final lengths as required
-        final_loc = max(self.locations)
+        final_loc = max(self.x_locations)
         # Extend final waveguide if herald included
         if (self.circuit._external_heralds["output"]):
             final_loc += 0.5
-        for i, loc in enumerate(self.locations):    
+        for i, loc in enumerate(self.x_locations):    
             if loc < final_loc and i not in self.herald_modes:
                 length = final_loc - loc
                 self._add_wg(loc, self.y_locations[i], length)
-                self.locations[i] += length
+                self.x_locations[i] += length
                 
         # Add heralding display
         self._add_heralds(self.circuit._external_heralds, init_length,
                           final_loc)
                 
         # Set axes limits using locations and mode numbers
-        self.ax.set_xlim(0, max(self.locations) + 0.5)
+        self.ax.set_xlim(0, max(self.x_locations) + 0.5)
         self.ax.set_ylim(max(self.y_locations) + 1, -1)
         self.ax.set_yticks(self.y_locations)
         if self.mode_labels is not None:
