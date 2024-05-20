@@ -29,7 +29,7 @@ setup(
         "zoopt>=0.4.2", 
         "pyarrow", 
         "ipython"
-        ],
+    ],
     classifiers = [
         "License :: OSI Approved :: Apache Software License",
         "Natural Language :: English",
@@ -38,5 +38,5 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Operating System :: OS Independent"
-        ]
+    ]
 )
