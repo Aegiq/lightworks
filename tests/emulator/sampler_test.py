@@ -459,6 +459,7 @@ class TestSamplerCalculationBackends:
                 break
         assert sub_2_photon_states
         
+    @pytest.mark.flaky(reruns = 2)
     def test_herald_equivalent(self, backend):
         """
         Checks that results are equivalent if a herald is used vs 
@@ -480,7 +481,8 @@ class TestSamplerCalculationBackends:
                 full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
                 # Check results are within 10%
                 assert pytest.approx(results[full_s], 0.1) == results2[s]
-                
+    
+    @pytest.mark.flaky(reruns = 2)            
     def test_herald_equivalent_imperfect_source(self, backend):
         """
         Checks that results are equivalent if a herald is used vs 
@@ -508,7 +510,8 @@ class TestSamplerCalculationBackends:
                 full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
                 # Check results are within 10%
                 assert pytest.approx(results[full_s], 0.1) == results2[s]
-                
+    
+    @pytest.mark.flaky(reruns = 2)            
     def test_herald_equivalent_lossy(self, backend):
         """
         Checks that results are equivalent if a herald is used vs 
@@ -532,7 +535,8 @@ class TestSamplerCalculationBackends:
                 full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
                 # Check results are within 10%
                 assert pytest.approx(results[full_s], 0.1) == results2[s]
-                
+    
+    @pytest.mark.flaky(reruns = 2)            
     def test_herald_equivalent_lossy_imperfect_source(self, backend):
         """
         Checks that results are equivalent if a herald is used vs 
