@@ -14,3 +14,4 @@ sphinx-copybutton
 sphinxcontrib-bibtex
 pytest
 pytest-rerunfailures
+pytest-cov

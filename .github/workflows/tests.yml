@@ -39,4 +39,13 @@ jobs:
       # Run with pytest
       - name: Test with pytest
         run: |
-            python -m pytest
+            pytest --junitxml=report.xml --cov --cov-report=term-missing:skip-covered --cov-report xml:coverage.xml
+
+      # Add comment to PR with coverage report
+      - name: Pytest coverage comment
+        if: ${{ matrix.python-version == '3.11' }}
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          junitxml-path: ./report.xml
+          pytest-xml-coverage-path: ./coverage.xml
+          remove-link-from-badge: true
