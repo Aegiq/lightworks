@@ -381,7 +381,7 @@ If a beam splitter is then added across modes 2 & 3, this will then effectively 
     :align: center
 
 .. note::
-    Despite the display only showing 4 modes, the circuit will now have 5 modes total. This will lead to an increase in job execution time, particularly if lots of heralded photons are used.
+    Despite the display showing 4 numbered modes, the circuit will now have 5 modes total. This will lead to an increase in job execution time, particularly if lots of heralded photons are used.
 
 Other Functionality
 -------------------

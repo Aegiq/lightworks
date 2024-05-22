@@ -28,6 +28,8 @@ The emulator is included as a sub-module within Lightworks, designed to enable t
       - Sample counts
       - Only non-pnr detectors
 
+All simulation objects support the inclusion of heralds through the circuit object, which allows these modes to be excluded from specification of input/outputs within the emulator.
+
 Before using the emulator, a :doc:`theory` section is included which details some of they key concepts behind simulation of indistinguishable photons in linear optic systems.
 
 Contents
