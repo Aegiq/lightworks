@@ -13,4 +13,4 @@ testpaths = [
 ]
 
 [tool.coverage.run]
-omit = ["tests/*", "docs/*"]
+omit = ["tests/*", "docs/*", "lightworks/sdk/optimisation/*]

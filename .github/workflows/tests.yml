@@ -43,7 +43,9 @@ jobs:
 
       # Add comment with coverage report
       - name: Pytest coverage comment
+        if: ${{matrix.python-version == '3.11'}}
         uses: MishaKav/pytest-coverage-comment@main
         with:
           junitxml-path: ./report.xml
           pytest-xml-coverage-path: ./coverage.xml
+          remove-link-from-badge: true
