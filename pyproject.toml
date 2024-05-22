@@ -11,3 +11,6 @@ addopts = "-ra"
 testpaths = [
     "tests",
 ]
+
+[tool.coverage.run]
+omit = ["tests/*", "docs/*"]

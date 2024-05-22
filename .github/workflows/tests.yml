@@ -39,4 +39,11 @@ jobs:
       # Run with pytest
       - name: Test with pytest
         run: |
-            python -m pytest
+            pytest --junitxml=report.xml --cov --cov-report=term-missing:skip-covered --cov-report xml:coverage.xml
+
+      # Add comment with coverage report
+      - name: Pytest coverage comment
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          junitxml-path: ./report.xml
+          pytest-xml-coverage-path: ./coverage.xml
