@@ -153,5 +153,5 @@ class TestSimulationResult:
         """
         r = SimulationResult(self.test_array, "probability_amplitude", 
                              inputs = self.test_inputs, 
-                             outputs = self.test_outputs, test_attr = 2.5)
-        assert r.test_attr == 2.5
+                             outputs = self.test_outputs, performance = 2.5)
+        assert r.performance == 2.5

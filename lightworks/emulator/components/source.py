@@ -20,7 +20,8 @@ photons.
 """
 
 from ..annotated_state import AnnotatedState
-from ...sdk import State
+from ...sdk.state import State
+
 from numbers import Number
 
 class Source:

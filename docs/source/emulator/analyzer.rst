@@ -3,7 +3,7 @@ Analyzer
 
 The :doc:`../emulator_reference/analyzer` object provides a set of tools to enable a better understanding of the functionality of a circuit under a set of post-selection criteria. The provision of this criteria before computation enables the Analyzer to filter down the possible output states from a given target input, reducing the number of states that it needs to calculate the permanent for.
 
-To test the Analyzer, we will use the CNOT gate from :cite:p:`ralph2002`, as this is a useful demonstration of all analyzer features. For successful operation, it requires that at the output there are no output photons measured on the upper and lower modes, and also that only one photon exists across each of the two modes used to define each qubit.
+To test the Analyzer, we will use the CNOT gate from :cite:p:`ralph2002`, as this is a useful demonstration of all analyzer features. For successful operation, it requires that at the output there are no output photons measured on the upper and lower modes, and also that only one photon exists across each of the two modes used to define each qubit. For the former condition, we will integrate these into the circuit with the ``add_herald`` method. This means we don't need to consider these modes when specifying inputs and outputs of the Analyzer. The latter condition is included later as part of the setup of the Analyzer.
 
 To begin, the circuit is first defined:
 
@@ -23,6 +23,10 @@ To begin, the circuit is first defined:
         cnot_circuit.add_bs(m, reflectivity = 0.5)
         cnot_circuit.add_ps(m+1, p)
 
+    # Then add required heralds
+    cnot_circuit.add_herald(0, 0)
+    cnot_circuit.add_herald(0, 5)
+
     cnot_circuit.display(mode_labels = ["a0", "c0", "c1", "t0", "t1", "a1"])
 
 .. image:: assets/cnot_circuit.svg
@@ -35,12 +39,7 @@ A new Analyzer object can then be created, with initially only the circuit being
 
     analyzer = emulator.Analyzer(cnot_circuit)
 
-We then need to add the conditions for success of the gate. As mentioned, the upper and lower modes of the circuit (a0 and a1) are reserved as ancillary modes and should have no photons at the input and output. We can then therefore use the ``set_herald`` method to condition this, stating the mode which we wish to herald from and the number of photons to herald. When defining the mode, this is technically the input mode used for heralding, and it is possible to set a different output mode, however when not specified it is assumed the input and output mode are the same.  
-
-.. code-block:: Python
-
-    analyzer.set_herald(0, 0)
-    analyzer.set_herald(5, 0)
+We then need to add the conditions for success of the gate. As mentioned, the upper and lower modes of the circuit (a0 and a1) are reserved as ancillary modes and should have no photons at the input and output. This is captured in addition of heralds to the original circuit.
 
 .. note::
     When heralds are applied the modes that the heralds are on are removed from the inputs and outputs used within the system. So for example, after adding the heralds above the inputs and outputs would only be specified across modes 1, 2, 3 & 4.
@@ -49,10 +48,10 @@ The other condition for success of the CNOT gate is that one photon is measured 
 
 .. code-block:: Python
 
-    analyzer.set_post_selection(lambda s: s[1] + s[2] == 1)
-    analyzer.set_post_selection(lambda s: s[3] + s[4] == 1)
+    analyzer.set_post_selection(lambda s: s[0] + s[1] == 1)
+    analyzer.set_post_selection(lambda s: s[2] + s[3] == 1)
 
-In principle these functions could also be combined into a single function if desired.
+As the heralded modes are removed from the results, the post-selection function needs to be set so it works on the remaining modes. In principle these functions could also be combined into a single function if desired. 
 
 .. warning::
     If multiple lambda functions are created and passed to ``set_post_selection`` using a loop this may create issues related to how lambda functions use out of scope variables. For more info see `here <https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result>`_.

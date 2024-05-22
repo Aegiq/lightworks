@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-Dedicated unitary component for implement unitary matrices on a circuit.
+Dedicated unitary component for implementing unitary matrices on a circuit.
 """
 
 from .circuit import Circuit

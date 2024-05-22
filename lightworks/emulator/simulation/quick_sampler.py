@@ -15,7 +15,9 @@
 from ..backend import Backend
 from ..utils import fock_basis, ModeMismatchError
 from ..results import SamplingResult
-from ...sdk import State, Circuit
+from ...sdk.state import State
+from ...sdk.circuit import Circuit
+from ...sdk.utils import add_heralds_to_state
 
 import numpy as np
 from random import random
@@ -44,19 +46,20 @@ class QuickSampler:
         photon_counting (bool, optional) : Toggle whether or not photon number
             resolving detectors are used.
         
-        herald (function, optional) : A function which applies a provided set 
-            of heralding checks to a state.
+        post_select (function, optional) : A function which applies a set of
+            post-selection criteria to the output state. This will be checked
+            on th
 
     """
     
     def __init__(self, circuit: Circuit, input_state: State, 
                  photon_counting: bool = True,
-                 herald: FunctionType | None = None) -> None:
+                 post_select: FunctionType | None = None) -> None:
         
         # Assign parameters to attributes
         self.circuit = circuit
         self.input_state = input_state
-        self.herald = herald
+        self.post_select = post_select
         self.photon_counting = photon_counting
         self.__backend = Backend("permanent")
         
@@ -86,24 +89,24 @@ class QuickSampler:
     def input_state(self, value: State) -> None:
         if type(value) != State:
             raise TypeError("A single input of type State should be provided.")
-        if len(value) != self.circuit.n_modes:
+        if len(value) != self.circuit.input_modes:
             raise ModeMismatchError("Incorrect input length.")
         # Also validate state values
         value._validate()
         self.__input_state = value
         
     @property
-    def herald(self) -> FunctionType:
-        """A function to be used to post-selection of outputs."""
-        return self.__herald
+    def post_select(self) -> FunctionType:
+        """A function to be used for post-selection of outputs."""
+        return self.__post_select
     
-    @herald.setter
-    def herald(self, value: FunctionType | None) -> None:
+    @post_select.setter
+    def post_select(self, value: FunctionType | None) -> None:
         if value is None:
             value = lambda s: True
         if type(value) != FunctionType:
-            raise TypeError("Provided herald value should be a function.")
-        self.__herald = value
+            raise TypeError("Provided post_select value should be a function.")
+        self.__post_select = value
         
     @property
     def photon_counting(self) -> bool:
@@ -125,7 +128,7 @@ class QuickSampler:
         """
         if self._check_parameter_updates():
             # Check circuit and input modes match
-            if self.circuit.n_modes != len(self.input_state):
+            if self.circuit.input_modes != len(self.input_state):
                 raise ValueError(
                     "Mismatch in number of modes between input and circuit.")
             # For given input work out all possible outputs
@@ -133,7 +136,7 @@ class QuickSampler:
                                     self.input_state.n_photons)
             if not self.photon_counting:
                 out_states = [s for s in out_states if max(s) == 1]
-            out_states = [s for s in out_states if self.herald(s)]
+            out_states = [s for s in out_states if self.post_select(s)]
             if not out_states:
                 raise ValueError(
                     "Heralding function removed all possible outputs.")
@@ -232,7 +235,7 @@ class QuickSampler:
         returns this.
         """
         # Store circuit unitary and input state
-        vals = [self.__circuit.U_full, self.input_state, self.herald, 
+        vals = [self.__circuit.U_full, self.input_state, self.post_select, 
                 self.photon_counting]
         return vals
     
@@ -243,14 +246,19 @@ class QuickSampler:
         """
         # Build circuit to avoid unnecessary recalculation of quantities
         built_circuit = self.circuit._build()
+        # Include circuit heralds to input
+        in_state = add_heralds_to_state(self.input_state, 
+                                        self.circuit.heralds["input"])
         # Add extra states on input for loss modes here when included
-        in_state = self.input_state + State([0]*built_circuit.loss_modes)
+        in_state += [0]*built_circuit.loss_modes
         pdist = {}
+        out_heralds = self.circuit.heralds["output"]
         # Loop through possible outputs and calculate probability of each
         for ostate in outputs:
-            p = self.__backend.probability(
-                built_circuit.U_full, in_state.s, 
-                ostate + [0]*built_circuit.loss_modes)
+            full_ostate = add_heralds_to_state(ostate, out_heralds)
+            full_ostate += [0]*built_circuit.loss_modes
+            p = self.__backend.probability(built_circuit.U_full, in_state, 
+                                           full_ostate)
             # Add output to distribution
             if p > 0:
                 pdist[State(ostate)] = p
@@ -271,13 +279,6 @@ class QuickSampler:
             pcon += p
             cdist[s] = pcon
         return cdist
-    
-    def _fermionic_checks(self, in_state):
-        """Perform additional checks when doing fermionic sampling."""
-        if max(in_state) > 1:
-            raise ValueError(
-                "Max number of photons per mode must be 1 when using "
-                "fermionic statistics.")
         
     def _check_random_seed(self, seed: Any) -> int | None:
         """Process a supplied random seed."""

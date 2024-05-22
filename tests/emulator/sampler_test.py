@@ -458,3 +458,111 @@ class TestSamplerCalculationBackends:
                 sub_2_photon_states = True
                 break
         assert sub_2_photon_states
+        
+    @pytest.mark.flaky(reruns = 2)
+    def test_herald_equivalent(self, backend):
+        """
+        Checks that results are equivalent if a herald is used vs 
+        post-selection on a non-heralded circuit.
+        """
+        circuit = Unitary(random_unitary(6))
+        # Sampler without built-in heralds
+        sampler = Sampler(circuit, State([1,1,0,1,0,0]), backend = backend)
+        results = sampler.sample_N_outputs(
+            50000, post_select = lambda s: s[1] == 1 and s[3] == 0)
+        # Then add and re-sample
+        circuit.add_herald(1, 0, 1)
+        circuit.add_herald(0, 2, 3)
+        sampler = Sampler(circuit, State([1,1,0,0]), backend = backend)
+        results2 = sampler.sample_N_outputs(50000)
+        # Check all results with outputs greater than 2000
+        for s, c in results2.items():
+            if c > 2000:
+                full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
+                # Check results are within 10%
+                assert pytest.approx(results[full_s], 0.1) == results2[s]
+    
+    @pytest.mark.flaky(reruns = 2)            
+    def test_herald_equivalent_imperfect_source(self, backend):
+        """
+        Checks that results are equivalent if a herald is used vs 
+        post-selection on a non-heralded circuit, while also including an
+        imperfect photon source.
+        """
+        circuit = Unitary(random_unitary(6))
+        # Define source to use
+        source = Source(purity = 0.9, brightness = 0.9, 
+                        indistinguishability = 0.9)
+        # Sampler without built-in heralds
+        sampler = Sampler(circuit, State([1,1,0,1,0,0]), backend = backend,
+                          source = source)
+        results = sampler.sample_N_outputs(
+            50000, post_select = lambda s: s[1] == 1 and s[3] == 0)
+        # Then add and re-sample
+        circuit.add_herald(1, 0, 1)
+        circuit.add_herald(0, 2, 3)
+        sampler = Sampler(circuit, State([1,1,0,0]), backend = backend, 
+                          source = source)
+        results2 = sampler.sample_N_outputs(50000)
+        # Check all results with outputs greater than 2000
+        for s, c in results2.items():
+            if c > 2000:
+                full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
+                # Check results are within 10%
+                assert pytest.approx(results[full_s], 0.1) == results2[s]
+    
+    @pytest.mark.flaky(reruns = 2)            
+    def test_herald_equivalent_lossy(self, backend):
+        """
+        Checks that results are equivalent if a herald is used vs 
+        post-selection on a non-heralded lossy circuit.
+        """
+        circuit = Unitary(random_unitary(6))
+        for i in range(6):
+            circuit.add_loss(i, i+1)
+        # Sampler without built-in heralds
+        sampler = Sampler(circuit, State([1,1,0,1,0,0]), backend = backend)
+        results = sampler.sample_N_outputs(
+            50000, post_select = lambda s: s[1] == 1 and s[3] == 0)
+        # Then add and re-sample
+        circuit.add_herald(1, 0, 1)
+        circuit.add_herald(0, 2, 3)
+        sampler = Sampler(circuit, State([1,1,0,0]), backend = backend)
+        results2 = sampler.sample_N_outputs(50000)
+        # Check all results with outputs greater than 2000
+        for s, c in results2.items():
+            if c > 2000:
+                full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
+                # Check results are within 10%
+                assert pytest.approx(results[full_s], 0.1) == results2[s]
+    
+    @pytest.mark.flaky(reruns = 2)            
+    def test_herald_equivalent_lossy_imperfect_source(self, backend):
+        """
+        Checks that results are equivalent if a herald is used vs 
+        post-selection on a non-heralded lossy circuit, while also including an
+        imperfect photon source.
+        """
+        circuit = Unitary(random_unitary(6))
+        for i in range(6):
+            circuit.add_loss(i, i+1)
+        # Define source to use
+        source = Source(purity = 0.9, brightness = 0.9, 
+                        indistinguishability = 0.9)
+        # Sampler without built-in heralds
+        sampler = Sampler(circuit, State([1,1,0,1,0,0]), backend = backend, 
+                          source = source)
+        results = sampler.sample_N_outputs(
+            50000, post_select = lambda s: s[1] == 1 and s[3] == 0)
+        # Then add and re-sample
+        circuit.add_herald(1, 0, 1)
+        circuit.add_herald(0, 2, 3)
+        sampler = Sampler(circuit, State([1,1,0,0]), backend = backend, 
+                          source = source)
+        results2 = sampler.sample_N_outputs(50000)
+        # Check all results with outputs greater than 2000
+        for s, c in results2.items():
+            if c > 2000:
+                full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
+                # Check results are within 10%
+                assert pytest.approx(results[full_s], 0.1) == results2[s]
