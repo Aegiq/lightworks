@@ -167,12 +167,12 @@ class TestSimulationResult:
         # Single input
         self.test_single_inputs = [State([1,1,0,0])]
         self.test_single_outputs = [State([1,0,1,0]), State([0,1,0,1]), 
-                             State([0,0,2,0])]
+                                    State([1,0,3,0])]
         self.test_single_array = array([[0.3, 0.2, 0.1]])
         # Multiple inputs
         self.test_multi_inputs = [State([1,1,0,0]), State([0,0,1,1])]
         self.test_multi_outputs = [State([1,0,1,0]), State([0,1,0,1]), 
-                             State([0,0,2,0])]
+                                   State([1,0,3,0])]
         self.test_multi_array = array([[0.3, 0.2, 0.1], [0.2, 0.4, 0.5]])
     
     def test_single_array_result_creation(self):
@@ -211,7 +211,7 @@ class TestSimulationResult:
                              outputs = self.test_multi_outputs)
         assert r[State([1,1,0,0])] == {State([1,0,1,0]): 0.3, 
                                        State([0,1,0,1]): 0.2, 
-                                       State([0,0,2,0]): 0.1}
+                                       State([1,0,3,0]): 0.1}
         
     def test_result_indexing(self):
         """
@@ -221,9 +221,13 @@ class TestSimulationResult:
         r = SimulationResult(self.test_multi_array, "probability_amplitude", 
                              inputs = self.test_multi_inputs, 
                              outputs = self.test_multi_outputs)
-        assert r[State([1,1,0,0]), State([0,0,2,0])] == 0.1
-            
-    def test_multi_input_plot(self):
+        assert r[State([1,1,0,0]), State([1,0,3,0])] == 0.1
+        
+    @pytest.mark.parametrize("conv_to_probability,rtype", 
+                             [[True, "probability_amplitude"], 
+                              [False, "probability_amplitude"],
+                              [True, "probability"], [False, "probability"]])  
+    def test_multi_input_plot(self, conv_to_probability, rtype):
         """
         Confirm plotting is able to work without errors for multi input case.
         """
@@ -233,32 +237,30 @@ class TestSimulationResult:
         # https://stackoverflow.com/questions/71443540/intermittent-pytest-failures-complaining-about-missing-tcl-files-even-though-the
         original_backend = matplotlib.get_backend()
         matplotlib.use('Agg')
-        r = SimulationResult(self.test_multi_array, "probability_amplitude", 
+        r = SimulationResult(self.test_multi_array, rtype, 
                              inputs = self.test_multi_inputs, 
                              outputs = self.test_multi_outputs)
-        # Test initial plot
-        r.plot()
-        plt.close()
-        # Test plot with conv_to_probability_option
-        r.plot(conv_to_probability=True)
+        # Test plot
+        r.plot(conv_to_probability = conv_to_probability)
         plt.close()
         # Reset backend after test
         matplotlib.use(original_backend)
-        
-    def test_single_input_plot(self):
+    
+    @pytest.mark.parametrize("conv_to_probability,rtype", 
+                             [[True, "probability_amplitude"], 
+                              [False, "probability_amplitude"],
+                              [True, "probability"], [False, "probability"]])
+    def test_single_input_plot(self, conv_to_probability, rtype):
         """
         Confirm plotting is able to work without errors for single input case.
         """
         original_backend = matplotlib.get_backend()
         matplotlib.use('Agg')
-        r = SimulationResult(self.test_single_array, "probability_amplitude", 
+        r = SimulationResult(self.test_single_array, rtype, 
                              inputs = self.test_single_inputs, 
                              outputs = self.test_single_outputs)
-        # Test initial plot
-        r.plot()
-        plt.close()
-        # Test plot with conv_to_probability_option
-        r.plot(conv_to_probability=True)
+        # Test plot
+        r.plot(conv_to_probability = conv_to_probability)
         plt.close()
         # Reset backend after test
         matplotlib.use(original_backend)
@@ -291,41 +293,83 @@ class TestSimulationResult:
                              inputs = self.test_multi_inputs, 
                              outputs = self.test_multi_outputs)
         r.print_outputs()
-        
-    def test_single_display_as_dataframe(self):
+    
+    @pytest.mark.parametrize("conv_to_probability", [True, False])
+    def test_single_display_as_dataframe(self, conv_to_probability):
         """
         Confirms display as dataframe runs without raising an exception.
         """
         r = SimulationResult(self.test_single_array, "probability_amplitude", 
                              inputs = self.test_single_inputs, 
                              outputs = self.test_single_outputs)
-        r.display_as_dataframe()
+        r.display_as_dataframe(conv_to_probability = conv_to_probability)
         
-    def test_multi_display_as_dataframe(self):
+    @pytest.mark.parametrize("conv_to_probability", [True, False])
+    def test_multi_display_as_dataframe(self, conv_to_probability):
         """
         Confirms display as dataframe runs without raising an exception.
         """
         r = SimulationResult(self.test_multi_array, "probability_amplitude", 
                              inputs = self.test_multi_inputs, 
                              outputs = self.test_multi_outputs)
-        r.display_as_dataframe()
+        r.display_as_dataframe(conv_to_probability = conv_to_probability)
         
-    def test_single_display_as_dataframe_conv_to_probability(self):
+    def test_single_input_parity_mapping(self):
         """
-        Confirms display as dataframe runs without raising an exception, while
-        the conv_to_probability option is used.
+        Tests result is correct when the parity mapping is applied in the 
+        single input case.
         """
-        r = SimulationResult(self.test_single_array, "probability_amplitude", 
+        r = SimulationResult(self.test_single_array, "probability", 
                              inputs = self.test_single_inputs, 
                              outputs = self.test_single_outputs)
-        r.display_as_dataframe(conv_to_probability = True)
+        new_r = r.apply_parity_mapping()
+        assert new_r.dictionary == {
+                   State([1,1,0,0]) : {
+                       State([1,0,1,0]) : 0.4, State([0,1,0,1]) : 0.2}
+                   }
         
-    def test_multi_display_as_dataframe_conv_to_probability(self):
+    def test_multi_input_parity_mapping(self):
         """
-        Confirms display as dataframe runs without raising an exception, while
-        the conv_to_probability option is used.
+        Tests result is correct when the parity mapping is applied in the 
+        multi input case.
         """
-        r = SimulationResult(self.test_multi_array, "probability_amplitude", 
+        r = SimulationResult(self.test_multi_array, "probability", 
                              inputs = self.test_multi_inputs, 
                              outputs = self.test_multi_outputs)
-        r.display_as_dataframe(conv_to_probability = True)
+        new_r = r.apply_parity_mapping()
+        assert new_r.dictionary == {
+                   State([1,1,0,0]) : {
+                       State([1,0,1,0]) : 0.4, State([0,1,0,1]) : 0.2},
+                   State([0,0,1,1]) : {
+                       State([1,0,1,0]) : 0.7, State([0,1,0,1]) : 0.4}
+                   }
+        
+    def test_single_input_threshold_mapping(self):
+        """
+        Tests result is correct when the threshold mapping is applied in the 
+        single input case.
+        """
+        r = SimulationResult(self.test_single_array, "probability", 
+                             inputs = self.test_single_inputs, 
+                             outputs = self.test_single_outputs)
+        new_r = r.apply_threshold_mapping()
+        assert new_r.dictionary == {
+                   State([1,1,0,0]) : {
+                       State([1,0,1,0]) : 0.4, State([0,1,0,1]) : 0.2}
+                   }
+        
+    def test_multi_input_threshold_mapping(self):
+        """
+        Tests result is correct when the threshold mapping is applied in the 
+        single multi case.
+        """
+        r = SimulationResult(self.test_multi_array, "probability", 
+                             inputs = self.test_multi_inputs, 
+                             outputs = self.test_multi_outputs)
+        new_r = r.apply_threshold_mapping()
+        assert new_r.dictionary == {
+                   State([1,1,0,0]) : {
+                       State([1,0,1,0]) : 0.4, State([0,1,0,1]) : 0.2},
+                   State([0,0,1,1]) : {
+                       State([1,0,1,0]) : 0.7, State([0,1,0,1]) : 0.4}
+                   }
