@@ -16,6 +16,7 @@ from lightworks import Parameter, ParameterDict, Circuit
 from lightworks import Unitary, random_unitary
 from lightworks.sdk.circuit.circuit_compiler import CompiledCircuit
 from lightworks.sdk.circuit.circuit_compiler import CompiledUnitary
+from lightworks import CircuitCompilationError
 
 import pytest
 from random import random, seed, randint
@@ -641,6 +642,64 @@ class TestCircuit:
         # Then check modes are converted to correct values
         assert circuit._Circuit__circuit_spec[0][1][0] == final_modes[0]
         assert circuit._Circuit__circuit_spec[0][1][1] == final_modes[1]
+        
+    def test_add_bs_invalid_convention(self):
+        """
+        Checks a ValueError is raised if an invalid beam splitter convention is
+        set in add_bs.
+        """
+        circuit = Circuit(3)
+        with pytest.raises(ValueError):
+            circuit.add_bs(0, convention = "Not valid")
+            
+    def test_get_all_params(self):
+        """
+        Tests get_all_params method correctly identifies all parameters added
+        within a circuit.
+        """
+        p1 = Parameter(0.5)
+        p2 = Parameter(2)
+        p3 = Parameter(3)
+        # Create circuit with parameters
+        circuit = Circuit(4)
+        circuit.add_bs(0, reflectivity = p1)
+        circuit.add_ps(2, p2)
+        circuit.add_loss(3, p3)
+        # Recover all params and then check
+        all_params = circuit.get_all_params()
+        for param in [p1, p2, p3]:
+            assert param in all_params
+            
+    def test_get_all_params_grouped_circ(self):
+        """
+        Tests get_all_params method correctly identifies all parameters added
+        within a grouped circuit.
+        """
+        p1 = Parameter(0.5)
+        p2 = Parameter(2)
+        p3 = Parameter(3)
+        # Create sub-circuit with parameters
+        sub_circuit = Circuit(4)
+        sub_circuit.add_bs(0, reflectivity = p1)
+        sub_circuit.add_ps(2, p2)
+        sub_circuit.add_loss(3, p3)
+        # Then add to larger circuit
+        circuit = Circuit(5)
+        circuit.add(sub_circuit, 1, group = True)
+        # Recover all params and then check
+        all_params = circuit.get_all_params()
+        for param in [p1, p2, p3]:
+            assert param in all_params
+        
+    def test_edit_circuit_spec(self):
+        """
+        Checks an exception is raised if a circuit spec is modified with an 
+        invalid value.
+        """
+        circuit = Circuit(4)
+        circuit._Circuit__circuit_spec = [["test", None]]
+        with pytest.raises(CircuitCompilationError):
+            circuit._build()
         
 class TestUnitary:
     """
