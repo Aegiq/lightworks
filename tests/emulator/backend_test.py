@@ -130,6 +130,30 @@ class TestBackend:
             if round(p1[s], 8) != round(p2[s], 8):
                 pytest.fail("Methods do not produce equivalent distributions.")
                 
+    def test_clifford_not_implemented(self):
+        """
+        Confirms that clifford backend produces not-implemented error when 
+        trying to use it.
+        """
+        with pytest.raises(NotImplementedError):
+            Backend("clifford")
+            
+    def test_backend_str_return(self):
+        """
+        Check that backend value is stored and returned correctly when using
+        the str operator.
+        """
+        backend = Backend("permanent")
+        assert str(backend) == "permanent"
+        
+    def test_backend_repr_return(self):
+        """
+        Checks that backend value is correctly included in __repr__ for 
+        backend.
+        """
+        backend = Backend("permanent")
+        assert "permanent" in repr(backend)  
+                
 class TestPermanent:
     """
     Specific functions for testing Permanent calculation remains functional
