@@ -13,7 +13,9 @@
 # limitations under the License.
 
 from lightworks.emulator.annotated_state import AnnotatedState
+from lightworks.emulator.utils import annotated_state_to_string
 from lightworks.emulator import AnnotatedStateError
+from lightworks import State
 
 import pytest
 
@@ -31,6 +33,14 @@ class TestAnnotatedState:
                         AnnotatedState([[],[0],[1],[]])
         assert not AnnotatedState([[],[0],[1],[]]) ==  \
                          AnnotatedState([[],[1],[0],[]])
+                         
+    def test_state_equality_diff_types(self):
+        """
+        Checks that state equality returns False when compared with a 
+        non-AnnotatedState object.
+        """
+        s = AnnotatedState([[0],[1],[2]])
+        assert not s == [[0],[1],[2]]
     
     def test_state_equality_shuffled(self):
         """
@@ -74,3 +84,83 @@ class TestAnnotatedState:
         assert AnnotatedState([[],[0],[1,2],[],[0]]).n_photons == 4
         assert AnnotatedState([[],[],[],[]]).n_photons == 0
         assert AnnotatedState([]).n_photons == 0
+
+    @pytest.mark.parametrize("value", [[0,1,2], ["0", "1", "2"], [[0], 1], 
+                                       [0], [None]])
+    def test_req_list_of_lists(self, value):
+        """
+        Checks that a exception is raised in Annotated state isn't provided a 
+        list of lists as the input.
+        """
+        with pytest.raises(TypeError):
+            AnnotatedState(value)
+            
+    def test_n_modes_modification(self):
+        """
+        Tests that an exception is raised when a user attempts to modify an
+        AnnotatedState.
+        """
+        s = AnnotatedState([[0],[1],[2]])
+        with pytest.raises(AnnotatedStateError):
+            s.n_modes = 2
+        
+    def test_merge_not_same_length(self):
+        """
+        Confirms that merge method raises an exception when AnnotatedStates are
+        not of the same length.
+        """
+        s = AnnotatedState([[0],[1],[2]])
+        s2 = AnnotatedState([[0],[1],[2],[3]])
+        with pytest.raises(ValueError):
+            s.merge(s2)
+        with pytest.raises(ValueError):
+            s2.merge(s)
+    
+    @pytest.mark.parametrize("value", [(0,1,2),[0,1,2],State([0,1,2])])
+    def test_add_not_same_type(self, value):
+        """
+        Checks that an exception is raised when a non-AnnotatedState is 
+        attempted to be added to an AnnotatedState 
+        """
+        s = AnnotatedState([[0],[1],[2]])
+        with pytest.raises(TypeError):
+            s + value
+            
+    def test_str_returns_correct_value(self):
+        """
+        Checks that string function returns correct value for AnnotatedState.
+        """
+        s = [[0],[1],[2]]
+        assert str(AnnotatedState(s)) == annotated_state_to_string(s)
+        
+    def test_repr_returns_correct_value(self):
+        """
+        Checks that repr function contains correct value for AnnotatedState.
+        """
+        s = [[0],[1],[2]]
+        assert annotated_state_to_string(s) in str(AnnotatedState(s)) 
+        
+    def test_set_item_blocked(self):
+        """
+        Confirms that set item functionality is blocked for the AnnotatedState.
+        """
+        s = AnnotatedState([[0],[1],[2]])
+        with pytest.raises(AnnotatedStateError):
+            s[0] = [1]
+            
+    def test_get_item_slicing(self):
+        """
+        Checks that slicing can be used to get a part of an AnnotatedState.
+        """
+        s = AnnotatedState([[0],[1],[2],[3]])
+        assert s[0:2] == AnnotatedState([[0],[1]])
+        
+    @pytest.mark.parametrize("value", [[0,1], None, "1"])
+    def test_get_item_invalid_value(self, value):
+        """
+        Confirms error raised when an invalid value is provided to get item.
+        """
+        s = AnnotatedState([[0],[1],[2],[3]])
+        with pytest.raises(TypeError):
+            s[[0,1]]
+        

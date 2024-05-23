@@ -14,7 +14,7 @@
 
 from .matrix_utils import (check_unitary, random_unitary, random_permutation,
                            add_mode_to_unitary)
-from .state_utils import fock_basis, state_to_string
+from .state_utils import state_to_string
 from .exceptions import *
 from .conversion import db_loss_to_transmission, transmission_to_db_loss
 from .permutation_conversion import permutation_mat_from_swaps_dict

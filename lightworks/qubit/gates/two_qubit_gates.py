@@ -45,24 +45,8 @@ class CZ(Circuit):
         
         super().__init__(4)
         self.add(unitary, 0, group = True, name = "CZ")
-        
-    def show_layout(self):
-        """
-        Shows the mode layout of the selected gate, detailing the location of
-        the qubits and modes used for post-selection/heralding as well as 
-        photon numbers on these modes.
-        """
-        rep = """
-              ______
-         0 --|      |-- 0 _
-        c0 --|      |--    | 1 photon
-        c1 --|  CZ  |--   _|
-        t0 --|      |--    | 1 photon
-        t1 --|      |--   _|
-         0 --|______|-- 0 
-        """
-        print(rep)
-        
+
+
 class CNOT(Circuit):
     """
     Post-selected CNOT gate that acts across two dual-rail encoded qubits. This 
@@ -83,24 +67,8 @@ class CNOT(Circuit):
         circ.add(H(), 2)
         
         self.add(circ, 0, group = True, name = "CNOT")
-        
-    def show_layout(self):
-        """
-        Shows the mode layout of the selected gate, detailing the location of
-        the qubits and modes used for post-selection/heralding as well as 
-        photon numbers on these modes.
-        """
-        rep = """
-              ________
-         0 --|        |-- 0 _
-        c0 --|        |--    | 1 photon
-        c1 --|  CNOT  |--   _|
-        t0 --|        |--    | 1 photon
-        t1 --|        |--   _|
-         0 --|________|-- 0 
-        """
-        print(rep)
-        
+
+  
 class CZ_Heralded(Circuit):
     """
     Heralded version of the CZ gate which acts across two dual-rail encoded 
@@ -147,26 +115,8 @@ class CZ_Heralded(Circuit):
         
         super().__init__(4)
         self.add(unitary, 0, group = True, name = "CZ")
-        
-    def show_layout(self):
-        """
-        Shows the mode layout of the selected gate, detailing the location of
-        the qubits and modes used for post-selection/heralding as well as 
-        photon numbers on these modes.
-        """
-        rep = """
-              ______
-         0 --|      |-- 0
-         1 --|      |-- 1 
-        c0 --|      |-- c0
-        c1 --|  CZ  |-- c1
-        t0 --|      |-- t0
-        t1 --|      |-- t1
-         1 --|      |-- 1
-         0 --|______|-- 0      
-        """
-        print(rep)
-        
+
+
 class CNOT_Heralded(Circuit):
     """
     Heralded version of the CNOT gate which acts across two dual-rail encoded 
@@ -190,22 +140,3 @@ class CNOT_Heralded(Circuit):
         circ.add(H(), 2)
         
         self.add(circ, 0, group = True, name = "CNOT (Heralded)")
-        
-    def show_layout(self):
-        """
-        Shows the mode layout of the selected gate, detailing the location of
-        the qubits and modes used for post-selection/heralding as well as 
-        photon numbers on these modes.
-        """
-        rep = """
-              ________
-         0 --|        |-- 0
-         1 --|        |-- 1 
-        c0 --|        |-- c0
-        c1 --|  CNOT  |-- c1
-        t0 --|        |-- t0
-        t1 --|        |-- t1
-         1 --|        |-- 1
-         0 --|________|-- 0    
-        """
-        print(rep)

@@ -469,7 +469,7 @@ class Circuit:
         Returns all the Parameter objects used as part of creating the circuit.
         """
         all_params = []
-        for _, params in unpack_circuit_spec(deepcopy(self.__circuit_spec)):
+        for _, params in unpack_circuit_spec(self.__circuit_spec):
             for p in params:
                 if isinstance(p, Parameter) and p not in all_params:
                     all_params.append(p)

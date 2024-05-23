@@ -18,6 +18,8 @@ from lightworks import ParameterDictError
 
 import pytest
 
+from math import inf
+
 class TestParameter:
     """Unit tests to test functionality of Parameter objects."""
     
@@ -124,6 +126,26 @@ class TestParameter:
         """
         p = Parameter(1.2)
         assert str(p) == "1.2"
+    
+    @pytest.mark.parametrize("value", [1, 2.1, "test"])
+    def test_repr_return(self, value):
+        """
+        Checks Parameter value is contained within the value returned when repr
+        is used.
+        """
+        p = Parameter(value)
+        assert str(value) in repr(p)
+    
+    def test_label_in_repr_return(self):
+        """Checks label included in repr return."""
+        p = Parameter(1, label = "label")
+        assert "label" in repr(p)
+        
+    def test_bounds_in_repr_return(self):
+        """Checks bounds in repr return."""
+        p = Parameter(1, bounds = [0, 3])
+        assert str(p.min_bound) in repr(p)
+        assert str(p.max_bound) in repr(p)
         
 class TestParameterDict:
     """Unit tests to test functionality of ParameterDict objects."""
@@ -144,6 +166,15 @@ class TestParameterDict:
         pd = ParameterDict()
         pd["a"] = Parameter(1)
         assert isinstance(pd["a"], Parameter)
+        
+    def test_dict_invalid_param(self):
+        """
+        Confirms that a KeyError is raised when a parameter key does not exist.
+        """
+        pd = ParameterDict()
+        pd["a"] = Parameter(1)
+        with pytest.raises(KeyError):
+            pd["b"]
     
     def test_parameter_update(self):
         """Test updating of parameter through assigning new value to dict."""
@@ -234,3 +265,19 @@ class TestParameterDict:
             params.append(p)
         # Check lists is equivalent to params attribute
         assert params == pd.params
+        
+    def test_get_bounds(self):
+        """
+        Confirms that get bounds is able to identify bounds for parameter.
+        """
+        pd = ParameterDict()
+        pd["a"] = Parameter(1, bounds = [0, 2])
+        assert pd.get_bounds()["a"] == (0, 2)
+        
+    def test_get_bounds_no_bounds(self):
+        """
+        Confirms that get bounds replaces None bounds with +/- inf.
+        """
+        pd = ParameterDict()
+        pd["a"] = Parameter(1)
+        assert pd.get_bounds()["a"] == (-inf, inf)
