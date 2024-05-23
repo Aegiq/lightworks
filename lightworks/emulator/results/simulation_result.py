@@ -144,9 +144,6 @@ class SimulationResult:
                 return sub_r[ostate]
             else:
                 raise KeyError("Requested output state not in data.")
-        elif isinstance(item, slice):
-            raise DeprecationWarning(
-                "Retrieval of data through slicing is no longer supported.")
         else:
             raise ValueError(
                 "Get item value must be either one or two States.")
@@ -227,7 +224,8 @@ class SimulationResult:
                     mapped_result[in_state][new_s] = val
         return self._recombine_mapped_result(mapped_result)
     
-    def _recombine_mapped_result(self, mapped_result: dict):
+    def _recombine_mapped_result(self, mapped_result: dict
+                                 ) -> "SimulationResult":
         """Creates a new Result object from mapped data."""
         unique_outputs = set()
         for in_state, pdist in mapped_result.items():
