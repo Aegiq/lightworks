@@ -422,8 +422,6 @@ class SimulationResult:
         if conv_to_probability:
             if self.result_type == "probability_amplitude":
                 data = abs(data)**2
-            elif self.result_type == "counts":
-                data = data/np.sum(data)
         # Apply thresholding to values
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):

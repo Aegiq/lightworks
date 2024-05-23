@@ -164,26 +164,51 @@ class TestSimulationResult:
     @pytest.fixture(autouse=True)
     def setup_data(self) -> None:
         """Create a variety of useful pieces of data for testing."""
-        self.test_inputs = [State([1,1,0,0]), State([0,0,1,1])]
-        self.test_outputs = [State([1,0,1,0]), State([0,1,0,1]), 
+        # Single input
+        self.test_single_inputs = [State([1,1,0,0])]
+        self.test_single_outputs = [State([1,0,1,0]), State([0,1,0,1]), 
                              State([0,0,2,0])]
-        self.test_array = array([[0.3, 0.2, 0.1], [0.2, 0.4, 0.5]])
+        self.test_single_array = array([[0.3, 0.2, 0.1]])
+        # Multiple inputs
+        self.test_multi_inputs = [State([1,1,0,0]), State([0,0,1,1])]
+        self.test_multi_outputs = [State([1,0,1,0]), State([0,1,0,1]), 
+                             State([0,0,2,0])]
+        self.test_multi_array = array([[0.3, 0.2, 0.1], [0.2, 0.4, 0.5]])
     
-    def test_array_result_creation(self):
+    def test_single_array_result_creation(self):
         """
-        Checks that a result object can be created with an array successfully.
+        Checks that a result object can be created with an array successfully
+        with a single input.
         """
-        SimulationResult(self.test_array, "probability_amplitude",
-                         inputs = self.test_inputs, 
-                         outputs = self.test_outputs)
+        SimulationResult(self.test_single_array, "probability_amplitude",
+                         inputs = self.test_single_inputs, 
+                         outputs = self.test_single_outputs)
+    
+    def test_multi_array_result_creation(self):
+        """
+        Checks that a result object can be created with an array successfully
+        with multiple inputs.
+        """
+        SimulationResult(self.test_multi_array, "probability_amplitude",
+                         inputs = self.test_multi_inputs, 
+                         outputs = self.test_multi_outputs)
+        
+    def test_single_input_retrival(self):
+        """
+        Checks that output can be indexed in case of single input.
+        """
+        r = SimulationResult(self.test_single_array, "probability_amplitude",
+                             inputs = self.test_single_inputs, 
+                             outputs = self.test_single_outputs)
+        assert r[State([1,0,1,0])] == 0.3
             
     def test_multi_input_retrival(self):
         """
         Confirms that result retrieval works correctly for multi input case.
         """
-        r = SimulationResult(self.test_array, "probability_amplitude", 
-                             inputs = self.test_inputs, 
-                             outputs = self.test_outputs)
+        r = SimulationResult(self.test_multi_array, "probability_amplitude", 
+                             inputs = self.test_multi_inputs, 
+                             outputs = self.test_multi_outputs)
         assert r[State([1,1,0,0])] == {State([1,0,1,0]): 0.3, 
                                        State([0,1,0,1]): 0.2, 
                                        State([0,0,2,0]): 0.1}
@@ -193,9 +218,9 @@ class TestSimulationResult:
         Confirms that result retrieval works correctly for multi input case,
         with both the input and output used to get a single value.
         """
-        r = SimulationResult(self.test_array, "probability_amplitude", 
-                             inputs = self.test_inputs, 
-                             outputs = self.test_outputs)
+        r = SimulationResult(self.test_multi_array, "probability_amplitude", 
+                             inputs = self.test_multi_inputs, 
+                             outputs = self.test_multi_outputs)
         assert r[State([1,1,0,0]), State([0,0,2,0])] == 0.1
             
     def test_multi_input_plot(self):
@@ -208,9 +233,27 @@ class TestSimulationResult:
         # https://stackoverflow.com/questions/71443540/intermittent-pytest-failures-complaining-about-missing-tcl-files-even-though-the
         original_backend = matplotlib.get_backend()
         matplotlib.use('Agg')
-        r = SimulationResult(self.test_array, "probability_amplitude", 
-                             inputs = self.test_inputs, 
-                             outputs = self.test_outputs)
+        r = SimulationResult(self.test_multi_array, "probability_amplitude", 
+                             inputs = self.test_multi_inputs, 
+                             outputs = self.test_multi_outputs)
+        # Test initial plot
+        r.plot()
+        plt.close()
+        # Test plot with conv_to_probability_option
+        r.plot(conv_to_probability=True)
+        plt.close()
+        # Reset backend after test
+        matplotlib.use(original_backend)
+        
+    def test_single_input_plot(self):
+        """
+        Confirm plotting is able to work without errors for single input case.
+        """
+        original_backend = matplotlib.get_backend()
+        matplotlib.use('Agg')
+        r = SimulationResult(self.test_single_array, "probability_amplitude", 
+                             inputs = self.test_single_inputs, 
+                             outputs = self.test_single_outputs)
         # Test initial plot
         r.plot()
         plt.close()
@@ -225,7 +268,64 @@ class TestSimulationResult:
         Check that miscellaneous additional kwargs can be provided in the 
         initial function call and that these are assigned to attributes.
         """
-        r = SimulationResult(self.test_array, "probability_amplitude", 
-                             inputs = self.test_inputs, 
-                             outputs = self.test_outputs, performance = 2.5)
+        r = SimulationResult(self.test_multi_array, "probability_amplitude", 
+                             inputs = self.test_multi_inputs, 
+                             outputs = self.test_multi_outputs, 
+                             performance = 2.5)
         assert r.performance == 2.5
+        
+    def test_single_print_outputs(self):
+        """
+        Confirms print outputs runs without raising an exception.
+        """
+        r = SimulationResult(self.test_single_array, "probability_amplitude", 
+                             inputs = self.test_single_inputs, 
+                             outputs = self.test_single_outputs)
+        r.print_outputs()
+        
+    def test_multi_print_outputs(self):
+        """
+        Confirms print outputs runs without raising an exception.
+        """
+        r = SimulationResult(self.test_multi_array, "probability_amplitude", 
+                             inputs = self.test_multi_inputs, 
+                             outputs = self.test_multi_outputs)
+        r.print_outputs()
+        
+    def test_single_display_as_dataframe(self):
+        """
+        Confirms display as dataframe runs without raising an exception.
+        """
+        r = SimulationResult(self.test_single_array, "probability_amplitude", 
+                             inputs = self.test_single_inputs, 
+                             outputs = self.test_single_outputs)
+        r.display_as_dataframe()
+        
+    def test_multi_display_as_dataframe(self):
+        """
+        Confirms display as dataframe runs without raising an exception.
+        """
+        r = SimulationResult(self.test_multi_array, "probability_amplitude", 
+                             inputs = self.test_multi_inputs, 
+                             outputs = self.test_multi_outputs)
+        r.display_as_dataframe()
+        
+    def test_single_display_as_dataframe_conv_to_probability(self):
+        """
+        Confirms display as dataframe runs without raising an exception, while
+        the conv_to_probability option is used.
+        """
+        r = SimulationResult(self.test_single_array, "probability_amplitude", 
+                             inputs = self.test_single_inputs, 
+                             outputs = self.test_single_outputs)
+        r.display_as_dataframe(conv_to_probability = True)
+        
+    def test_multi_display_as_dataframe_conv_to_probability(self):
+        """
+        Confirms display as dataframe runs without raising an exception, while
+        the conv_to_probability option is used.
+        """
+        r = SimulationResult(self.test_multi_array, "probability_amplitude", 
+                             inputs = self.test_multi_inputs, 
+                             outputs = self.test_multi_outputs)
+        r.display_as_dataframe(conv_to_probability = True)
