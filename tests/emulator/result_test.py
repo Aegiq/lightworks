@@ -13,7 +13,8 @@
 # limitations under the License.
 
 from lightworks import State
-from lightworks.emulator.results import SamplingResult, SimulationResult 
+from lightworks.emulator.results import SamplingResult, SimulationResult
+from lightworks.emulator.utils import ResultCreationError 
 
 import pytest
 from numpy import array
@@ -38,6 +39,13 @@ class TestSamplingResult:
         """
         SamplingResult(self.test_dict, self.test_input)
     
+    def test_invalid_input_type(self):
+        """
+        Checks that input state is required to be a State object.
+        """
+        with pytest.raises(ResultCreationError):
+            SamplingResult(self.test_dict, self.test_input.s)
+    
     def test_single_input_retrival(self):
         """
         Confirms that result retrieval works correctly for single input case.
@@ -49,6 +57,13 @@ class TestSamplingResult:
         """Test return value from items method is correct."""
         r = SamplingResult(self.test_dict, self.test_input)
         assert r.items() == self.test_dict.items()
+        
+    def test_keys(self):
+        """
+        Checks that keys attribute returns a list of the output states. 
+        """
+        r = SamplingResult(self.test_dict, self.test_input)
+        assert list(r.keys()) == r.outputs
     
     def test_threshold_mapping(self):
         """Check threshold mapping returns the correct result."""
@@ -83,6 +98,65 @@ class TestSamplingResult:
         """
         r = SamplingResult(self.test_dict, self.test_input, test_attr = 2.5)
         assert r.test_attr == 2.5
+        
+    def test_print_outputs(self):
+        """
+        Checks no exceptions are raised when the print outputs method is 
+        called.
+        """
+        r = SamplingResult(self.test_dict, self.test_input)
+        r.print_outputs()
+        
+    def test_display_as_dataframe(self):
+        """
+        Checks that no exceptions are raised when display as Dataframe method
+        is called.
+        """
+        r = SamplingResult(self.test_dict, self.test_input)
+        r.display_as_dataframe()
+        
+    def test_iterable(self):
+        """
+        Checks that SamplingResult acts an iterable which will run through all
+        outputs included in the result.
+        """
+        r = SamplingResult(self.test_dict, self.test_input)
+        values = []
+        for i in r:
+            values.append(i)
+        assert values == r.outputs
+        
+    def test_str(self):
+        """
+        Tests that string return should be a string representation of the 
+        results dictionary
+        """
+        r = SamplingResult(self.test_dict, self.test_input)
+        assert str(r) == str(r.dictionary)
+        
+    def test_get_items(self):
+        """
+        Checks that get item returns correct value for output.
+        """
+        r = SamplingResult(self.test_dict, self.test_input)
+        assert r[State([1,0,0,1])] == 0.3
+        
+    def test_get_item_invalid_state(self):
+        """
+        Checks that get item raises a KeyError when output isn't found.
+        """
+        r = SamplingResult(self.test_dict, self.test_input)
+        with pytest.raises(KeyError):
+            r[State([1,0,2,1])]
+        
+    @pytest.mark.parametrize("value", [[0,1,2,3], [0], ["|1,0,0,1>"]])
+    def test_get_item_invalid_type(self, value):
+        """
+        Checks that get item returns a ValueError when a non-state key is used.
+        """
+        r = SamplingResult(self.test_dict, self.test_input)
+        with pytest.raises(ValueError):
+            r[value]
             
 class TestSimulationResult:
     """Unit tests for SimulationResult object."""
