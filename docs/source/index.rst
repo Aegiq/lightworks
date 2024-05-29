@@ -26,6 +26,7 @@ Once setup, there is then a set of tutorials for familiarization with the module
    usage
    background
    getting_started
+   tutorials/index
    sdk/index
    emulator/index
 
