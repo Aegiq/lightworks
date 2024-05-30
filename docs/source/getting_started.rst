@@ -109,4 +109,4 @@ From the above, we see that in the case of distinguishable photons then approxim
 Next Steps
 ----------
 
-To find more about the usage of the different components of Lightworks head to the :doc:`sdk/index` and :doc:`emulator/index` sections. Alternatively, go to the :doc:`examples/index` section to see the different ways in which Lightworks can be utilised.
+To find more about the usage of the different components of Lightworks head to the :doc:`tutorials/index` and the :doc:`sdk/index` & :doc:`emulator/index` sections. Alternatively, go to the :doc:`examples/index` section to see the different ways in which Lightworks can be utilized.
