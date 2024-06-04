@@ -583,3 +583,20 @@ class TestSamplerCalculationBackends:
         assert len(results) == 2
         assert 0.49 < results[State([2,0])]/N_sample < 0.51
         assert 0.49 < results[State([0,2])]/N_sample < 0.51
+        
+    def test_loss_variable_value(self, backend):
+        """
+        Checks that Sampler is able to support number of required loss elements
+        changing if these are part of a parameterized circuits.
+        """
+        loss = Parameter(0)
+        circuit = Circuit(4)
+        circuit.add_bs(0, loss = loss)
+        circuit.add_bs(2, loss = loss)
+        circuit.add_bs(1, loss = loss)
+        # Initially sample
+        sampler = Sampler(circuit, State([1,0,1,0]), backend = backend)
+        results = sampler.sample_N_inputs(10000)
+        # Add loss and resample
+        loss.set(1)
+        results = sampler.sample_N_inputs(10000)
