@@ -12,7 +12,6 @@ Introductory Examples
 .. toctree::
     :maxdepth: 1
 
-    circuit_building
     single_photon_demo
     multi_photon_sampling
     bell_state_generator

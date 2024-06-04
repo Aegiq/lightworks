@@ -5,7 +5,7 @@ Introduction
 ------------
 To get started we will build a circuit to simulate the Hong-Ou-Mandel (HOM) effect with a single 50:50 beam splitter, and demonstrate the typical process flow of Lightworks.
 
-HOM interference can be seen when two indistinguishable photons are incident on a 50:50 beam splitter. Classically, when this occurs, we would expect that 50% of the time the photons go to the same output and 50% of the time they go to a different output. Instead, we see that both photons always travel to the same output, as is shown below.
+HOM interference can be seen when two indistinguishable photons are incident on a 50:50 beam splitter. Classically, when this occurs, we would expect that 50% of the time the photons exit on the same output mode and 50% of the time they exit on a different output. Instead, we see that both photons always exit on the same output mode of the beam splitter, as is shown below.
 
 .. figure:: assets/getting_started_hom_demo.svg
     :scale: 350%
@@ -23,7 +23,7 @@ First we need to import Lightworks and the emulator with the following:
     import lightworks as lw
     from lightworks import emulator
 
-We will configure a circuit to simulate by creating a new Circuit object. This Circuit object is one of the key components of Lightworks and is used in almost all interactions with it.
+We will configure a circuit to simulate by creating a new Circuit object. This Circuit object is one of the key components of Lightworks and is used in almost all interactions with it. When creating a circuit, the required number of circuit modes is provided, in this case 2. This number of modes is then fixed and cannot be modified without creating a new circuit.
 
 .. code-block:: Python
 
@@ -61,7 +61,7 @@ Once we have built a circuit, we can then move on to simulating it with the emul
 
 The exact functionality of the State object is discussed further in the :doc:`sdk/state` section.
 
-For this initial simulation, we will choose to use the :doc:`emulator_reference/sampler` to emulate the process of measuring photon outputs after they have propagated through the system. On creation of the Sampler, we specify the circuit and the input state to sample from. We then use the ``sample_N_outputs`` method to generate N samples from the system, in this case choosing N = 10000. We will also specify a random seed to ensure results are reproducible, but this is optional.
+For this initial simulation, we will choose to use the :doc:`emulator_reference/sampler` to emulate the process of measuring photon outputs after they have propagated through the system. On creation of the Sampler, we specify the circuit and the input state to sample from. By default, it is assumed that all photons are indistinguishable, and so we do not need to set anything for this. We then use the ``sample_N_outputs`` method to generate N samples from the system, in this case choosing N = 10000. We will also specify a random seed to ensure results are reproducible, but this is optional.
 
 .. code-block:: Python
 
@@ -109,4 +109,4 @@ From the above, we see that in the case of distinguishable photons then approxim
 Next Steps
 ----------
 
-To find more about the usage of the different components of Lightworks head to the :doc:`sdk/index` and :doc:`emulator/index` sections. Alternatively, go to the :doc:`examples/index` section to see the different ways in which Lightworks can be utilised.
+To find more about the usage of the different components of Lightworks head to the :doc:`tutorials/index` and the :doc:`sdk/index` & :doc:`emulator/index` sections. Alternatively, go to the :doc:`examples/index` section to see the different ways in which Lightworks can be utilized.

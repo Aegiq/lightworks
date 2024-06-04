@@ -50,11 +50,11 @@ class ProbabilityDistributionCalc:
                 else:
                     pdist = {s : p*prob for s, p in sub_dist.items()}
             else:
-                for s, p in  sub_dist:
+                for s, p in sub_dist.items():
                     if s in pdist:
-                        pdist += p*prob
+                        pdist[s] += p*prob
                     else:
-                        pdist = p*prob
+                        pdist[s] = p*prob
         # Calculate zero photon state probability afterwards
         total_prob = sum(pdist.values())
         if total_prob < 1 and circuit.loss_modes > 0:
