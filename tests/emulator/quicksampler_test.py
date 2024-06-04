@@ -291,3 +291,20 @@ class TestQuickSampler:
         for s in p2:
             full_state = s[0:2] + State([0,1]) + s[2:]
             assert pytest.approx(p2[s]) == p1[full_state]
+            
+    def test_loss_variable_value(self):
+        """
+        Checks that QuickSampler is able to support number of required loss 
+        elements changing if these are part of a parameterized circuits.
+        """
+        loss = Parameter(0)
+        circuit = Circuit(4)
+        circuit.add_bs(0, loss = loss)
+        circuit.add_bs(2, loss = loss)
+        circuit.add_bs(1, loss = loss)
+        # Initially sample
+        sampler = QuickSampler(circuit, State([1,0,1,0]))
+        results = sampler.sample_N_outputs(10000)
+        # Add loss and resample
+        loss.set(1)
+        results = sampler.sample_N_outputs(10000)
