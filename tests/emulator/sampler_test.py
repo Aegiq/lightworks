@@ -578,7 +578,8 @@ class TestSamplerCalculationBackends:
         sampler = Sampler(circuit, State([1,1]), backend = backend,
                           source = Source(brightness = 0.8))
         N_sample = 100000
-        results = sampler.sample_N_inputs(N_sample, seed = 21)
+        results = sampler.sample_N_outputs(N_sample, seed = 21, 
+                                          min_detection = 2)
         assert len(results) == 2
         assert 0.49 < results[State([2,0])]/N_sample < 0.51
         assert 0.49 < results[State([0,2])]/N_sample < 0.51
