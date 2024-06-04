@@ -566,3 +566,19 @@ class TestSamplerCalculationBackends:
                 full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
                 # Check results are within 10%
                 assert pytest.approx(results[full_s], 0.1) == results2[s]
+                
+    def test_hom_imperfect_brightness(self, backend):
+        """
+        Checks sampling a basic 2 photon input onto a 50:50 beam splitter, 
+        which should undergo HOM, producing outputs of |2,0> and |0,2>. 
+        Includes imperfect brightness.
+        """
+        circuit = Circuit(2)
+        circuit.add_bs(0)
+        sampler = Sampler(circuit, State([1,1]), backend = backend,
+                          source = Source(brightness = 0.8))
+        N_sample = 100000
+        results = sampler.sample_N_inputs(N_sample, seed = 21)
+        assert len(results) == 2
+        assert 0.49 < results[State([2,0])]/N_sample < 0.51
+        assert 0.49 < results[State([0,2])]/N_sample < 0.51
