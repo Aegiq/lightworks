@@ -406,7 +406,7 @@ class Sampler:
             # Treat arrays and other values differently
             if isinstance(i1, np.ndarray) and isinstance(i2, np.ndarray):
                 if i1.shape != i2.shape:
-                    return False
+                    return True
                 if not (i1 == i2).all():
                     return True
             else:
