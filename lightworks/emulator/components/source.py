@@ -19,7 +19,7 @@ impurity in the single photon stream and indistinguishability between different
 photons.
 """
 
-from ..annotated_state import AnnotatedState
+from ..state import AnnotatedState
 from ...sdk.state import State
 
 from numbers import Number
@@ -55,9 +55,17 @@ class Source:
         self.brightness = brightness
         self.indistinguishability = indistinguishability  
         self.probability_threshold = probability_threshold
-        self._counter = 1
     
         return
+    
+    def __str__(self) -> str:
+        return (
+            f"Source(purity = {self.purity}, brightness = {self.brightness}, "
+            f"indistinguishability = {self.indistinguishability}, "
+            f"probability threshold = {self.probability_threshold})")
+        
+    def __repr__(self) -> str:
+        return "lightworks.emulator." + str(self)
     
     @property
     def brightness(self) -> float:
@@ -229,6 +237,8 @@ class Source:
                 which are distinguishable from each other.
             
         """
+        # Reset counter
+        self._counter = 1
         # Get the full distribution and then perform remapping
         stats_dict = self._full_distribution(state)
         stats_dict = self._remap_distribution(stats_dict)

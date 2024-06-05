@@ -90,8 +90,8 @@ class State:
     def __str__(self) -> str:
         return state_to_string(self.__s)
     
-    def __repr__(self) -> str: # Confirm this is the correct way to do this
-            return f"State({state_to_string(self.__s)})"
+    def __repr__(self) -> str:
+            return f"lightworks.State({state_to_string(self.__s)})"
     
     def __add__ (self, value: "State") -> "State":
         if isinstance(value, State):
