@@ -163,6 +163,10 @@ class DrawCircuitSVG(SVGDrawSpec, DisplayComponentsSVG):
         self.d = draw.Drawing(max(self.x_locations) + 100, 
                               max(self.y_locations) + self.dy + extra_lower)
         
+        # Set white background
+        self.d.append(draw.Rectangle(0, 0, self.d.width, self.d.height,
+                                     fill = "white", stroke = "none"))
+        
         border = 100
         # Add frame around circuit
         dx = max(self.x_locations) - self._init_length
