@@ -81,6 +81,12 @@ class Circuit:
         new_circ.__circuit_spec = (self.__circuit_spec + 
                                     value.__circuit_spec)
         return new_circ
+    
+    def __str__(self) -> str:
+        return f"Circuit({self.n_modes})"
+    
+    def __repr__(self) -> str:
+        return f"lightworks.Circuit({self.n_modes})"
                     
     @property
     def U(self) -> np.ndarray:
