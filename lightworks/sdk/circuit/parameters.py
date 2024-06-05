@@ -122,7 +122,7 @@ class Parameter:
             to_output += f", '{self.label}'"
         if self.has_bounds():
             to_output += f", [{self.min_bound}, {self.max_bound}]"
-        return f"aegiq_sdk.Parameter({to_output})"
+        return f"lightworks.Parameter({to_output})"
             
     def set(self, value: Any) -> None:
         """Update the current value of the parameter."""
@@ -229,7 +229,7 @@ class ParameterDict:
         return str(self.__pdict)
     
     def __repr__(self) -> str:
-        return "aegiq_sdk.ParameterDict" + str(self.__pdict)
+        return "lightworks.ParameterDict" + str(self.__pdict)
     
     def __len__(self) -> int:
         return len(self.__pdict)

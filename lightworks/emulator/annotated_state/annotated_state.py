@@ -79,7 +79,8 @@ class AnnotatedState:
         return annotated_state_to_string(self.__s)
     
     def __repr__(self) -> str:
-            return f"AnnotatedState({annotated_state_to_string(self.__s)})"
+            return ("lightworks.emulator.AnnotatedState("
+                    f"{annotated_state_to_string(self.__s)})")
     
     def __add__ (self, value: "AnnotatedState") -> "AnnotatedState":
         if isinstance(value, AnnotatedState):
