@@ -50,6 +50,14 @@ class Detector:
        
         return
     
+    def __str__(self) -> str:
+        return (
+            f"Detector(efficiency = {self.efficiency}, p_dark = {self.p_dark},"
+            f" photon_counting = {self.photon_counting})")
+        
+    def __repr__(self) -> str:
+        return "lightworks.emulator." + str(self)
+    
     @property
     def efficiency(self) -> float:
         """The per-channel detection efficiency."""
