@@ -19,7 +19,7 @@ efficiency, dark counts and non-photon number resolving detectors.
 
 from ...sdk.state import State
 
-from random import random
+from random import random, seed
 from numbers import Number
 
 class Detector:
@@ -85,8 +85,7 @@ class Detector:
     def photon_counting(self, value: float) -> None:
         if not isinstance(value, bool):
             raise TypeError("photon_counting should be a boolean.")
-        self.__photon_counting = value
-            
+        self.__photon_counting = value    
     
     def _get_output(self, in_state: State) -> State:
         """
@@ -119,3 +118,9 @@ class Detector:
             output = [1 if count >= 1 else 0 for count in output]
         
         return State(output)  
+    
+    def _set_random_seed(self, r_seed: float) -> None:
+        """
+        Set the random seed for the detector to produce repeatable results.
+        """
+        seed(r_seed)

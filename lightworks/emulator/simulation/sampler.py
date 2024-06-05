@@ -270,6 +270,8 @@ class Sampler:
                     "a heralded mode has more than 1 photon.")
         herald_modes = list(heralds.keys())
         herald_items = list(heralds.items())
+        # Set detector seed before sampling
+        self.detector._set_random_seed(seed)
         # Process output states
         for state in samples:
             state = self.detector._get_output(state)

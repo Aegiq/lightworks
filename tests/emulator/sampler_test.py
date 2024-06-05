@@ -34,6 +34,18 @@ class TestSamplerGeneral:
         results2 = sampler.sample_N_inputs(5000, seed = 1)
         assert results.dictionary == results2.dictionary
         
+    def test_sample_n_states_seed_detector(self):
+        """
+        Checks that two successive function calls with a consistent seed 
+        produce the same result when an imperfect detector is used.
+        """
+        circuit = Unitary(random_unitary(4))
+        sampler = Sampler(circuit, State([1,0,1,0]), 
+                          detector = Detector(efficiency = 0.5, p_dark = 1e-3))
+        results = sampler.sample_N_inputs(5000, seed = 1)
+        results2 = sampler.sample_N_inputs(5000, seed = 1)
+        assert results.dictionary == results2.dictionary
+        
     def test_circuit_update_with_sampler(self):
         """
         Checks that when a circuit is modified then the sampler recalculates 
