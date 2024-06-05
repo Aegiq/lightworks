@@ -144,6 +144,7 @@ class QuickSampler:
             pdist = self._calculate_probabiltiies(out_states)
             # Then assign calculated distribution to attribute
             self.__probability_distribution = pdist
+            self.__calculation_values = self._gen_calculation_values()
             # Also pre-calculate continuous distribution
             self.__continuous_distribution = self._convert_to_continuous(pdist)
         return self.__probability_distribution
@@ -222,6 +223,8 @@ class QuickSampler:
                           self.__calculation_values):
             # Treat arrays and other values differently
             if isinstance(i1, np.ndarray) and isinstance(i2, np.ndarray):
+                if i1.shape != i2.shape:
+                    return True
                 if not (i1 == i2).all():
                     return True
             else:
