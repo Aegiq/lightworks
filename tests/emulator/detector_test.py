@@ -17,6 +17,8 @@ from lightworks.emulator import Detector
 
 import pytest
 
+from random import random
+
 class TestDetector:
     """
     Unit tests to check behaviour of the Detector object in different 
@@ -102,3 +104,24 @@ class TestDetector:
             detector.photon_counting = 0.5
         with pytest.raises(TypeError):
             detector.photon_counting = "True"
+            
+    def test_detector_random_seeding(self):
+        """
+        Checks repeatable results are produced when random seeding is used.
+        """
+        r_seed = 100*random()
+        detector = Detector(efficiency = 0.5, p_dark = 1e-2)
+        N_samples = 100
+        input_state = State([1,0,2,1,0,1,0])
+        # Get original results
+        first = []
+        detector._set_random_seed(r_seed)
+        for i in range(N_samples):
+            first.append(detector._get_output(input_state))
+        # Reset seed and sample again
+        second = []
+        detector._set_random_seed(r_seed)
+        for i in range(N_samples):
+            second.append(detector._get_output(input_state))
+        # Check they are equivalent
+        assert first == second
