@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from lightworks import State
-from lightworks.emulator.annotated_state import AnnotatedState
+from lightworks.emulator.state import AnnotatedState
 from lightworks.emulator import Source
 
 import pytest

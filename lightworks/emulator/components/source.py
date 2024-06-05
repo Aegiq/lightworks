@@ -19,7 +19,7 @@ impurity in the single photon stream and indistinguishability between different
 photons.
 """
 
-from ..annotated_state import AnnotatedState
+from ..state import AnnotatedState
 from ...sdk.state import State
 
 from numbers import Number

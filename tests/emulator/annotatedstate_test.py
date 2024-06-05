@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lightworks.emulator.annotated_state import AnnotatedState
+from lightworks.emulator.state import AnnotatedState
 from lightworks.emulator.utils import annotated_state_to_string
 from lightworks.emulator import AnnotatedStateError
 from lightworks import State
