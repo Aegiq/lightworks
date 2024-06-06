@@ -140,3 +140,47 @@ class CNOT_Heralded(Circuit):
         circ.add(H(), 2)
         
         self.add(circ, 0, group = True, name = "CNOT (Heralded)")
+        
+        
+class SWAP(Circuit):
+    """
+    Performs a swap between the modes encoding two qubits. To do this, it needs
+    to be provided with two tuples, each detailing the two modes used to encode
+    the qubit.
+    
+    Args:
+    
+        qubit_1 (tuple) : A tuple detailing the modes used to encode the 0 & 1
+            modes of the first qubit. Should be of the form (m0, m1).
+            
+        qubit_2 (tuple) : A tuple detailing the modes used to encode the 0 & 1
+            modes of the second qubit. Should be of the form (m0, m1).
+             
+    """
+    def __init__(self, qubit_1: tuple, qubit_2: tuple) -> None:
+        
+        # Confirm supplied form is correct
+        if len(qubit_1) != 2:
+            raise ValueError(
+                "qubit_1 value should be a tuple containing two integer mode "
+                "numbers.")
+        if len(qubit_2) != 2:
+            raise ValueError(
+                "qubit_2 value should be a tuple containing two integer mode "
+                "numbers.")
+        # Extract mode values
+        a0, a1 = qubit_1
+        b0, b1 = qubit_2
+        # Check each mode is an integer
+        modes = [a0, a1, b0, b1]
+        for m in modes:
+            if not isinstance(m, int) or isinstance(m, bool):
+                raise TypeError(
+                    "One or more mode numbers detected not to be integer.")
+        n_modes = max(modes) + 1
+        
+        # Create circuit with required number of modes
+        super().__init__(n_modes)
+        
+        # Add required swaps
+        self.add_mode_swaps({a0 : b0, b0 : a0, a1 : b1, b1 : a1})
