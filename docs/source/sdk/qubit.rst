@@ -80,7 +80,7 @@ These gates are functionally Circuits, and so can also be added and combined wit
 Two Qubit Gates
 ---------------
 
-All of the two qubit gates included require post-selection and/or heralding to function correctly, as well as some additional modes. The exact layout of the modes and requirements can be found in the docstrings for the chosen gate, but are also summarised in the table below. In this table, the qubit modes are also specified, where c0 and c1 are the 0 & 1 states of the control qubit respectively and t0 & t1 are the 0 & 1 states of the target qubit. The qubit gates utilise heralds within the circuit so these do not need to be accounted for as part of the simulation objects. In some cases, some additional post-selection is required however, this is noted below.
+The majority of the two qubit gates included require post-selection and/or heralding to function correctly, as well as some additional modes. The exact layout of the modes and requirements can be found in the docstrings for the chosen gate, but are also summarised in the table below. In this table, the qubit modes are also specified, where c0 and c1 are the 0 & 1 states of the control qubit respectively and t0 & t1 are the 0 & 1 states of the target qubit. The qubit gates utilise heralds within the circuit so these do not need to be accounted for as part of the simulation objects. In some cases, some additional post-selection is required however, this is noted below.
 
 .. list-table:: Two Qubit Gates
     :widths: 15, 15, 15, 55
@@ -119,6 +119,10 @@ All of the two qubit gates included require post-selection and/or heralding to f
         | t1 : 3
       - 1/16
       - Requires heralding but not post-selection.
+    * - SWAP
+      - | User selectable
+      - 1
+      - N/A
 
 The two qubit gates can then be created in the same way as the single qubit gates. We can directly use these gates with all of the simulation objects provided within the emulator. As an example, below the heralded CNOT gate is tested with the sampler. The input :math:`\ket{1,0}` (which translates to :math:`\ket{0,1,1,0}` in mode language) is chosen.
 
