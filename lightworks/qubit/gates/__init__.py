@@ -14,3 +14,4 @@
 
 from .single_qubit_gates import H, X, Y, Z, S, T
 from .two_qubit_gates import CZ, CNOT, CZ_Heralded, CNOT_Heralded, SWAP
+from .three_qubit_gates import CCZ, CCNOT
