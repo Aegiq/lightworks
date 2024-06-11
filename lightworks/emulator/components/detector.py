@@ -108,6 +108,9 @@ class Detector:
             State: The processed output state.
             
         """
+        # If detectors are perfect then just return input
+        if self.efficiency == 1 and self.p_dark == 0 and self.photon_counting:
+            return in_state
         # Convert state to list
         output = [i for i in in_state]
         # Account for efficiency
