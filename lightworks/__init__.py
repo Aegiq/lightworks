@@ -61,7 +61,7 @@ from .sdk.utils.exceptions import *
 # If installed then also import the remote module
 try:
     import lightworks_remote as remote
-except ImportError:
+except ModuleNotFoundError:
     pass
 
 __all__ = ["Circuit", "Unitary", "Display", "State", "random_unitary", 
