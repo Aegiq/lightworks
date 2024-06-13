@@ -80,7 +80,7 @@ These gates are functionally Circuits, and so can also be added and combined wit
 Two Qubit Gates
 ---------------
 
-The majority of the two qubit gates included require post-selection and/or heralding to function correctly, as well as some additional modes. The exact layout of the modes and requirements can be found in the docstrings for the chosen gate, but are also summarised in the table below. In this table, the qubit modes are also specified, where c0 and c1 are the 0 & 1 states of the control qubit respectively and t0 & t1 are the 0 & 1 states of the target qubit. The qubit gates utilise heralds within the circuit so these do not need to be accounted for as part of the simulation objects. In some cases, some additional post-selection is required however, this is noted below.
+The majority of the two qubit gates included require post-selection and/or heralding to function correctly, as well as some additional modes. The exact layout of the modes and requirements can be found in the docstrings for the chosen gate, but are also summarized in the table below. In this table, the qubit modes are also specified, where c0 and c1 are the 0 & 1 states of the control qubit respectively and t0 & t1 are the 0 & 1 states of the target qubit. The qubit gates utilise heralds within the circuit, so these do not need to be accounted for as part of the simulation objects. In some cases, some additional post-selection is required however, this is noted below.
 
 .. list-table:: Two Qubit Gates
     :widths: 15, 15, 15, 55
@@ -145,3 +145,36 @@ As expected, with the correct heralding we only measure the output state :math:`
 
 .. warning::
     Care needs to be taken when cascading two qubit gates to ensure that any post-selection and heralding criteria can still be maintained and information on this is not lost.
+
+Three Qubit Gates
+-----------------
+
+There is also a number of three qubit gates included within Lightworks, these are summarized in the table below:
+
+.. list-table:: Two Qubit Gates
+    :widths: 15, 15, 15, 55
+    :header-rows: 1
+    :align: center
+
+    * - Gate
+      - Qubit Modes
+      - Success Probability
+      - Post-selection/Heralding
+    * - CCZ
+      - | ca0 : 0
+        | ca1 : 1
+        | cb0 : 2
+        | cb1 : 3
+        | t0 : 4
+        | t1 : 5
+      - 1/72
+      - Requires heralding and need to post-select on only measuring one photon across each of the qubit modes.
+    * - CCNOT
+      - | ca0 : 0
+        | ca1 : 1
+        | cb0 : 2
+        | cb1 : 3
+        | t0 : 4
+        | t1 : 5
+      - 1/72
+      - Requires heralding and need to post-select on only measuring one photon across each of the qubit modes.
