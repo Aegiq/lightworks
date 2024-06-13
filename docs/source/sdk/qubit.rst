@@ -1,7 +1,7 @@
 Qubit Components
 ================
 
-Included within Lightworks is a set of standard photonic circuits for implementing the gates required for qubit-based paradigms of quantum computing. There is a number of the common single and two qubit gates, these gates are intended to act on dual-rail encoded qubits. To quickly see how a gate is defined on the set of modes that it acts across + other requirements for the gate, all qubit components have a ``show_layout`` method, which prints a text representation (This is separate to ``display``, which is still supported by these gates.). Alternatively, more information on the gates can be found below and in the class docstrings.
+Included within Lightworks is a set of standard photonic circuits for implementing the gates required for qubit-based paradigms of quantum computing. There is a number of the common single and two qubit gates, these gates are intended to act on dual-rail encoded qubits. More information on the exact requirements of each gate can be found below and in the class docstrings for each gate.
 
 .. note::
     Currently, qubit support is still in development. The gates provided here are designed for addition to the linear optic circuits typically used in Lightworks, and are not able to be used in a native qubit encoding.
@@ -92,31 +92,31 @@ The majority of the two qubit gates included require post-selection and/or heral
       - Success Probability
       - Post-selection/Heralding
     * - CZ
-      - | c0 : 0
-        | c1 : 1
-        | t0 : 2
-        | t1 : 3
+      - | c_0 : 0
+        | c_1 : 1
+        | t_0 : 2
+        | t_1 : 3
       - 1/9
       - Requires heralding and need to post-select on only measuring one photon across each of the qubit modes.
     * - CNOT
-      - | c0 : 0
-        | c1 : 1
-        | t0 : 2
-        | t1 : 3
+      - | c_0 : 0
+        | c_1 : 1
+        | t_0 : 2
+        | t_1 : 3
       - 1/9
       - Requires heralding and need to post-select on only measuring one photon across each of the qubit modes.
     * - CZ_Heralded
-      - | c0 : 0
-        | c1 : 1
-        | t0 : 2
-        | t1 : 3
+      - | c_0 : 0
+        | c_1 : 1
+        | t_0 : 2
+        | t_1 : 3
       - 1/16
       - Requires heralding but not post-selection.
     * - CNOT_Heralded
-      - | c0 : 0
-        | c1 : 1
-        | t0 : 2
-        | t1 : 3
+      - | c_0 : 0
+        | c_1 : 1
+        | t_0 : 2
+        | t_1 : 3
       - 1/16
       - Requires heralding but not post-selection.
     * - SWAP
@@ -161,20 +161,20 @@ There is also a number of three qubit gates included within Lightworks, these ar
       - Success Probability
       - Post-selection/Heralding
     * - CCZ
-      - | ca0 : 0
-        | ca1 : 1
-        | cb0 : 2
-        | cb1 : 3
-        | t0 : 4
-        | t1 : 5
+      - | ca_0 : 0
+        | ca_1 : 1
+        | cb_0 : 2
+        | cb_1 : 3
+        | t_0 : 4
+        | t_1 : 5
       - 1/72
       - Requires heralding and need to post-select on only measuring one photon across each of the qubit modes.
     * - CCNOT
-      - | ca0 : 0
-        | ca1 : 1
-        | cb0 : 2
-        | cb1 : 3
-        | t0 : 4
-        | t1 : 5
+      - | ca_0 : 0
+        | ca_1 : 1
+        | cb_0 : 2
+        | cb_1 : 3
+        | t_0 : 4
+        | t_1 : 5
       - 1/72
       - Requires heralding and need to post-select on only measuring one photon across each of the qubit modes.
