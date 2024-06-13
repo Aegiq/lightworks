@@ -37,6 +37,9 @@ Key objects:
         verification of outputs from a given problem. There is a number of
         different objects for simulation of the system, which provide various
         capabilities and outputs.
+        
+    qubit : Module for implementing the qubit paradigm of quantum computing on
+        photonic linear optic systems. 
 
 """
 
@@ -54,6 +57,12 @@ from .sdk.utils import db_loss_to_transmission, transmission_to_db_loss
 from .sdk.optimisation import Optimisation
 
 from .sdk.utils.exceptions import *
+
+# If installed then also import the remote module
+try:
+    import lightworks_remote as remote
+except ImportError:
+    pass
 
 __all__ = ["Circuit", "Unitary", "Display", "State", "random_unitary", 
            "random_permutation", "db_loss_to_transmission", 

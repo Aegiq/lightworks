@@ -15,7 +15,7 @@
 from lightworks import State
 from lightworks.emulator import Simulator
 from lightworks.qubit import (H, X, Y, Z, S, T, CZ, CNOT, CZ_Heralded, 
-                              CNOT_Heralded)
+                              CNOT_Heralded, SWAP, CCZ, CCNOT)
 
 import pytest
 import numpy as np
@@ -171,3 +171,63 @@ class TestTwoQubitGates:
         assert pytest.approx(amp, 1e-6) == results[states[3], states[2]]
         # Confirm success probability is 1/16
         assert pytest.approx(abs(amp)**2, 1e-6) == 1/16
+        
+    def test_swap(self):
+        """
+        Checks that SWAP gate correctly maps modes to the correct location.
+        """
+        # Define gate
+        swap = SWAP((0, 1), (4, 5))
+        # Create simulator
+        sim = Simulator(swap)
+        # Check 0 mode of first qubit maps to 0 of second qubit
+        results = sim.simulate(State([1,0,0,0,0,0]), State([0,0,0,0,1,0]))
+        amp = results.array[0,0]
+        assert amp == pytest.approx(1 + 0j, 1e-6)
+        # Check 1 mode of second qubit maps to 1 of first qubit
+        results = sim.simulate(State([0,0,0,0,0,1]), State([0,1,0,0,0,0]))
+        amp = results.array[0,0]
+        assert amp == pytest.approx(1 + 0j, 1e-6)
+        
+class TestThreeQubitGates:
+    
+    def test_CCZ(self):
+        """
+        Checks that the output of the post-selected CCZ gate is correct and 
+        that the success probability is 1/72.
+        """
+        # Define all input combinations
+        states = [[1,0,1,0,1,0], [1,0,0,1,1,0], [0,1,1,0,1,0], [0,1,0,1,1,0],
+                  [1,0,1,0,0,1], [1,0,0,1,0,1], [0,1,1,0,0,1], [0,1,0,1,0,1]]
+        states = [State(s) for s in states]
+        # Calculate probability amplitudes
+        sim = Simulator(CCZ())
+        results = sim.simulate(states, states)
+        # Check all results are identical except for |1,1,1> which has a -1
+        amp = results[states[0], states[0]]
+        for i in range(7):
+            assert pytest.approx(amp, 1e-6) == results[states[i], states[i]]
+        assert pytest.approx(amp, 1e-6) == -results[states[7], states[7]]
+        # Confirm success probability is 1/72
+        assert pytest.approx(abs(amp)**2, 1e-6) == 1/72
+        
+    def test_CCNOT(self):
+        """
+        Checks that the output of the post-selected CCNOT gate is correct and 
+        that the success probability is 1/72.
+        """
+        # Define all input combinations
+        states = [[1,0,1,0,1,0], [1,0,0,1,1,0], [0,1,1,0,1,0], [0,1,0,1,1,0],
+                  [1,0,1,0,0,1], [1,0,0,1,0,1], [0,1,1,0,0,1], [0,1,0,1,0,1]]
+        states = [State(s) for s in states]
+        # Calculate probability amplitudes
+        sim = Simulator(CCNOT())
+        results = sim.simulate(states, states)
+        # Check swap occurs when both control qubits are 1 but not otherwise
+        amp = results[states[0], states[0]]
+        for i in [0,1,2,4,5,6]:
+            assert pytest.approx(amp, 1e-6) == results[states[i], states[i]]
+        assert pytest.approx(amp, 1e-6) == results[states[3], states[7]]
+        assert pytest.approx(amp, 1e-6) == results[states[7], states[3]]
+        # Confirm success probability is 1/72
+        assert pytest.approx(abs(amp)**2, 1e-6) == 1/72
