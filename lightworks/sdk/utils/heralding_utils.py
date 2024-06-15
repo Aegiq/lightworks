@@ -43,7 +43,7 @@ def add_heralds_to_state(state: State | list, heralds: dict) -> list:
         if i in heralds:
             new_state[i] = heralds[i]
         else:
-            new_state[i] = state[count]
+            new_state[i] = state[count] # type: ignore
             count += 1
     return new_state
 

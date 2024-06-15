@@ -15,7 +15,7 @@
 from ..utils import ParameterBoundsError, ParameterValueError
 from ..utils import ParameterDictError
 
-from typing import Any
+from typing import Any, Iterable
 from numbers import Number
 from types import NoneType
 from math import inf
@@ -71,7 +71,7 @@ class Parameter:
         return
     
     @property
-    def min_bound(self) -> Number:
+    def min_bound(self) -> Number | None:
         """The lower bound of the parameter value."""
         return self.__min_bound
     
@@ -89,7 +89,7 @@ class Parameter:
         self.__min_bound = __value
         
     @property
-    def max_bound(self) -> Number:
+    def max_bound(self) -> Number | None:
         """The upper bound of the parameter value."""
         return self.__max_bound
     
@@ -161,7 +161,7 @@ class ParameterDict:
     object and ParameterDict["a"] = 1 would set the value of the Parameter 
     associated with the 'a' key to 1.
     """
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Parameter) -> None:
         
         self.__pdict = {}
         for k, v in kwargs.items():
@@ -201,7 +201,7 @@ class ParameterDict:
                 return True
         return False
         
-    def keys(self) -> iter:
+    def keys(self) -> Iterable:
         """Returns all keys associated with the Parameters as an iterable."""
         return self.__pdict.keys()
     
@@ -256,7 +256,7 @@ class ParameterDict:
                     "Values being assigned to new keys should be Parameter "
                     "objects.")
         
-    def __getitem__(self, key: str) -> None:
+    def __getitem__(self, key: str) -> Parameter:
         # Custom get item to return values from __pdict attribute
         if key in self.__pdict:
             return self.__pdict[key]

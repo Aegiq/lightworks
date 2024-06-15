@@ -21,7 +21,7 @@ import numpy as np
 from scipy.stats import unitary_group
 from typing import Any
 
-def random_unitary(N: int, seed: int = None) -> np.ndarray:
+def random_unitary(N: int, seed: int | None = None) -> np.ndarray:
     """
     Generate a random NxN unitary matrix. Seed can be used to produce the same
     unitary each time the function is called.
@@ -47,7 +47,7 @@ def random_unitary(N: int, seed: int = None) -> np.ndarray:
     seed = _check_random_seed(seed)
     return unitary_group.rvs(N, random_state = seed)
 
-def random_permutation(N: int, seed: int = None) -> np.ndarray:
+def random_permutation(N: int, seed: int | None = None) -> np.ndarray:
     """
     Generate a random NxN permutation. Seed can be used to produce the same
     unitary each time the function is called.
@@ -143,7 +143,7 @@ def add_mode_to_unitary(unitary: np.ndarray, add_mode: int) -> np.ndarray:
             
     Returns:
     
-        np.ndarray : The converted unitary matr
+        np.ndarray : The converted unitary matrix.
     
     """
     dim = unitary.shape[0] + 1

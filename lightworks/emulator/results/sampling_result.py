@@ -114,7 +114,7 @@ class SamplingResult:
         for out_state, val in self.dictionary.items():
             new_s = State([1 if s>=1 else 0 for s in out_state])
             if invert:
-                new_s = State([1-s for s in new_s])
+                new_s = State([1-s for s in new_s]) # type: ignore
             if new_s in mapped_result:
                 mapped_result[new_s] += val
             else:

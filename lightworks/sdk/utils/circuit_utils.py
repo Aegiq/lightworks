@@ -159,7 +159,7 @@ def convert_non_adj_beamsplitters(spec: list) -> list:
         list : The processed circuit spec.
                                             
     """
-    new_spec = []
+    new_spec: list[list] = []
     for s in spec:
         if s[0] == "bs" and abs(s[1][0]-s[1][1]) != 1:
             m1, m2 = s[1][0:2]

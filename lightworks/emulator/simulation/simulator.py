@@ -56,7 +56,7 @@ class Simulator:
                 "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
     
-    def simulate (self, inputs: list, 
+    def simulate (self, inputs: State | list[State], 
                   outputs: list | None = None) -> SimulationResult:
         """
         Function to run a simulation for a number of inputs/outputs, if no 
@@ -82,9 +82,6 @@ class Simulator:
             
         """
         circuit = self.circuit._build()
-        # Convert state to list of States if not provided for single state case
-        if type(inputs) is State:
-                inputs = [inputs]
         # Then process inputs list
         inputs = self._process_inputs(inputs)
         # And then either generate or process outputs
@@ -106,8 +103,11 @@ class Simulator:
         return SimulationResult(amplitudes, "probability_amplitude", 
                                 inputs = inputs, outputs = outputs)
     
-    def _process_inputs(self, inputs: list) -> list:
+    def _process_inputs(self, inputs: State | list) -> list:
         """Performs all required processing/checking on the input states."""
+        # Convert state to list of States if not provided for single state case
+        if isinstance(inputs, State):
+                inputs = [inputs]
         input_modes = self.circuit.input_modes
         # Check each input
         for state in inputs:

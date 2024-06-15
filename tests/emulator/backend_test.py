@@ -190,7 +190,7 @@ class TestSlos:
     def test_hom(self):
         """Check hom result and ensure returned value is as expected."""
         U = np.array([[1,1j],[1j,1]]) * 1/(2**0.5)
-        r = SLOS.calculate(U, [1,1])
+        r = SLOS.calculate(U, State([1,1]))
         assert r[(1,1)] == 0
         assert r[(2,0)] == pytest.approx(0.7071067811865475j)
         

@@ -54,13 +54,13 @@ class Circuit:
             else:
                 raise TypeError("Number of modes should be an integer.")
         self.__n_modes = n_modes
-        self.__circuit_spec = []
-        self.__in_heralds = {}
-        self.__out_heralds = {}
-        self.__external_in_heralds = {}
-        self.__external_out_heralds = {}
+        self.__circuit_spec: list[list] = []
+        self.__in_heralds: dict[int, int] = {}
+        self.__out_heralds: dict[int, int] = {}
+        self.__external_in_heralds: dict[int, int] = {}
+        self.__external_out_heralds: dict[int, int] = {}
         self.__show_parameter_values = False
-        self.__internal_modes = []
+        self.__internal_modes: list[int] = []
         
         return
     
@@ -119,7 +119,7 @@ class Circuit:
         raise AttributeError("Number of circuit modes cannot be modified.")
     
     @property
-    def input_modes(self):
+    def input_modes(self) -> int:
         """
         The number of input modes that should be specified, accounting for the 
         heralds used in the circuit.
@@ -153,7 +153,7 @@ class Circuit:
         return {"input" : copy(self.__external_in_heralds), 
                 "output" : copy(self.__external_out_heralds)}
         
-    def add(self, circuit: Union["Circuit", "Unitary"], mode: int = 0,         # type: ignore - ignores Pylance warning raised by undefined unitary component
+    def add(self, circuit: Union["Circuit", "Unitary"], mode: int = 0, # type: ignore
             group: bool = False, name: str | None = None) -> None:
         """
         Can be used to add either another Circuit or a Unitary component to the
@@ -259,7 +259,7 @@ class Circuit:
                                         ])
         return
     
-    def add_bs(self, mode_1: int, mode_2: int = None, 
+    def add_bs(self, mode_1: int, mode_2: int | None = None, 
                reflectivity: float = 0.5, loss: float = 0,
                convention: str = "Rx") -> None:
         """
@@ -357,7 +357,7 @@ class Circuit:
                 applied to.
                 
         """
-        if modes == None:
+        if modes is None:
             modes = [i for i in 
                      range(self.n_modes-len(self.__internal_modes))]
         modes = [self._map_mode(i) for i in modes]
@@ -394,7 +394,7 @@ class Circuit:
         self.__circuit_spec.append(["mode_swaps", (swaps, None)])
         
     def add_herald(self, n_photons: int, input_mode: int, 
-                   output_mode: int = None) -> None:
+                   output_mode: int | None = None) -> None:
         """
         Add a herald across a selected input/output of the circuit. If only one
         mode is specified then this will be used for both the input and output.
@@ -504,7 +504,7 @@ class Circuit:
             new_circ.__circuit_spec = copy(self.__circuit_spec)
         else:
             copied_spec = deepcopy(self.__circuit_spec)
-            new_circ.__circuit_spec = self._freeze_params(copied_spec)
+            new_circ.__circuit_spec = self._freeze_params(copied_spec) # type: ignore
         new_circ.__in_heralds = copy(self.__in_heralds)
         new_circ.__out_heralds = copy(self.__out_heralds)
         new_circ.__external_in_heralds = copy(self.__external_in_heralds)
@@ -692,7 +692,7 @@ class Circuit:
             
         return display_spec
     
-    def _freeze_params(self, spec: list|tuple) -> list|tuple:
+    def _freeze_params(self, spec: list[list] | tuple) -> list | tuple:
         """
         Takes a provided circuit spec and will remove get any Parameter objects
         with their currently set values.
@@ -709,8 +709,8 @@ class Circuit:
                 new_spec.append(s)
         # If original spec was tuple than convert new spec to tuple
         if isinstance(spec, tuple):
-            new_spec = tuple(new_spec)
-        return new_spec
+            return tuple(new_spec)
+        return new_spec 
             
     def _display_loss_check(self, loss: Any) -> bool:
         """

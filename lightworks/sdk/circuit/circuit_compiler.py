@@ -66,8 +66,8 @@ class CompiledCircuit:
         self.U = np.identity(n_modes, dtype = complex)
         self.U_full = np.identity(n_modes, dtype = complex)
         self._loss_modes = 0
-        self._in_heralds = {}
-        self._out_heralds = {}
+        self._in_heralds: dict[int, int] = {}
+        self._out_heralds: dict[int, int] = {}
         
         return
     
@@ -116,7 +116,7 @@ class CompiledCircuit:
             "Number of modes should not be modified after Circuit creation.")
         
     @property
-    def loss_modes(self):
+    def loss_modes(self) -> int:
         """Returns number of loss modes used in the circuit."""
         return self._loss_modes
     
@@ -340,7 +340,7 @@ class CompiledCircuit:
         return
     
     def add_herald(self, n_photons: int, input_mode: int, 
-                   output_mode: int = None) -> None:
+                   output_mode: int | None = None) -> None:
         """
         Add a herald across a selected input/output of the circuit. If only one
         mode is specified then this will be used for both the input and output.
@@ -406,7 +406,7 @@ class CompiledCircuit:
                 "Selected mode(s) is not within the range of the created "
                 "circuit.")
         
-    def _check_loss(self, loss: float) -> bool:
+    def _check_loss(self, loss: float) -> None:
         """Check that loss is positive and toggle _loss_included if not already
            done."""
         if loss < 0:

@@ -185,7 +185,7 @@ class Source:
         n_modes = len(state)
         stats: list[tuple[float, list]] = []
         # Loop over each mode
-        for mode, count in enumerate(state):
+        for mode, count in enumerate(state): # type: ignore
             if not count: continue
             for i in range(count):
                 # For a given photon in a mode work out all possible input
@@ -299,7 +299,7 @@ class Source:
         to_group, to_skip = self._group_empty_modes(state)
         input_dist: dict[AnnotatedState, float] = {}
         # Loop over each mode and find distribution
-        for i, n in enumerate(state):
+        for i, n in enumerate(state): # type: ignore
             if i in to_skip:
                 continue
             # Added groups of empty photons
@@ -399,7 +399,7 @@ class Source:
         to_group = {}
         to_skip = []
         # Loop over each mode in the state
-        for i, s in enumerate(state):
+        for i, s in enumerate(state): # type: ignore
             # Skip any modes already grouped or the last mode
             if i in to_skip or i == len(state) - 1:
                 continue

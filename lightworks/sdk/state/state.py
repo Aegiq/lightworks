@@ -21,7 +21,7 @@ from ..utils import state_to_string
 from ..utils import StateError
 
 from copy import copy
-from typing import Any
+from typing import Any, Iterable, Union
 
 class State:
     """
@@ -111,14 +111,14 @@ class State:
     def __len__(self) -> int:
         return self.n_modes
     
-    def __iter__(self) -> Any:
+    def __iter__(self) -> Iterable[int]:
         for p in self.s:
             yield p
     
     def __setitem__(self, key: Any, value: Any) -> None:
         raise StateError("State object does not support item assignment.")
     
-    def __getitem__(self, indices: slice | int) -> int | "State":
+    def __getitem__(self, indices: slice | int) -> Union[int, "State"]:
         if isinstance(indices, slice):
             return State(self.__s[indices])
         elif isinstance(indices, int):

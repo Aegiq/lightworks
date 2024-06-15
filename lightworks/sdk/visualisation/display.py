@@ -17,12 +17,13 @@ from .draw_circuit_svg import DrawCircuitSVG
 from ..utils import DisplayError
 
 import drawsvg
+import matplotlib.figure
 import matplotlib.pyplot as plt
 
 # Display function to interact with relevant classes
-def Display(circuit: "Circuit", display_loss: bool = False,                    # type:ignore - Hide warning raised by "Circuit"
-            mode_labels: bool = None, display_type: str = "svg"
-            ) -> tuple[plt.figure, plt.axes] | drawsvg.Drawing:
+def Display(circuit: "Circuit", display_loss: bool = False, # type: ignore
+            mode_labels: list[str] | None = None, display_type: str = "svg"
+            ) -> tuple[matplotlib.figure.Figure, plt.Axes] | drawsvg.Drawing:
     """
     Used to Display a circuit from lightworks in the chosen format.
     
@@ -58,7 +59,7 @@ def Display(circuit: "Circuit", display_loss: bool = False,                    #
         fig, ax = disp.draw()
         return (fig, ax)
     elif display_type == "svg":
-        disp = DrawCircuitSVG(circuit, display_loss, mode_labels)
-        return disp.draw()
+        disp_svg = DrawCircuitSVG(circuit, display_loss, mode_labels)
+        return disp_svg.draw()
     else:
         raise DisplayError("Display type not recognised.")

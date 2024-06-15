@@ -25,7 +25,7 @@ class SLOS:
     def calculate(U: np.ndarray, input_state: State) -> dict:
 
         p = []
-        for m, n in enumerate(input_state):
+        for m, n in enumerate(input_state): # type: ignore
             for i in range(n):
                 p.append(m)
         N = U.shape[0]

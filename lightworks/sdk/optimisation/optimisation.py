@@ -19,15 +19,15 @@ Contains routines to perform optimisation with a parameterized circuit.
 from ..circuit import Circuit, ParameterDict
 from ..state import State
 from ...emulator import Sampler, Source, Detector, Simulator
-from ...emulator.results import SamplingResult
+from ...emulator.results import SamplingResult, SimulationResult
 
 from typing import Any
 from types import FunctionType, NoneType
 import warnings
 from numbers import Number
-from scipy.optimize import minimize, basinhopping
-from bayes_opt import BayesianOptimization
-import zoopt
+from scipy.optimize import minimize, basinhopping # type: ignore
+from bayes_opt import BayesianOptimization # type: ignore
+import zoopt # type: ignore
 
 class Optimisation:
     """
@@ -258,7 +258,8 @@ class Optimisation:
         self.__opt_results = best["params"]
         return best["params"]
     
-    def zero_order_optimise(self, minimise = True, budget = 200):
+    def zero_order_optimise(self, minimise: bool = True, budget: int = 200
+                            ) -> dict:
         """
         Performs an optimisation using the Zeroth-Order Optimization (ZOOpt)
         python package, intended for large and noisy parameter spaces,
@@ -295,7 +296,7 @@ class Optimisation:
             self.parameters[p] = self.__opt_results[p]
         return self.opt_circuit
     
-    def test_optimal_circuit(self) -> SamplingResult:
+    def test_optimal_circuit(self) -> SamplingResult | SimulationResult:
         """
         Finds the results produced using an optimal circuit and returns 
         this as Result object.
@@ -331,7 +332,7 @@ class Optimisation:
         fom = self.__opt_func(results, *self.__func_args)
         return -fom if self.__invert_fom else fom
     
-    def _fom_zoopt(self, params) -> float:
+    def _fom_zoopt(self, params: Any) -> float:
         """Takes a parameter object and calculates the fom."""
         params = params.get_x()
         for i, p in enumerate(self.parameters.keys()):
@@ -342,7 +343,7 @@ class Optimisation:
         fom = self.__opt_func(results, *self.__func_args)
         return -fom if self.__invert_fom else fom
     
-    def _kwargs_fom(self, **kwargs) -> float:
+    def _kwargs_fom(self, **kwargs: Any) -> float:
         """Takes optimisation parameters as kwargs and finds fom."""
         for p in self.parameters.keys():
             self.parameters[p] = kwargs[p]
@@ -352,21 +353,20 @@ class Optimisation:
         fom = self.__opt_func(results, *self.__func_args)
         return -fom if self.__invert_fom else fom
     
-    def _process(self) -> SamplingResult:
+    def _process(self) -> SamplingResult | SimulationResult:
         """Get the results from the chosen processor type."""
         if self.__processor == "sampler":
-            sampler = Sampler(self.opt_circuit, self.__input,
-                              source = self.__processor_args["source"], 
-                              detector = self.__processor_args["detector"])
-            results = sampler.sample_N_states(
-                self.__processor_args["samples"],
+            sampler = Sampler(self.opt_circuit, self.__input, 
+                              source = self.__processor_args["source"], # type: ignore
+                              detector = self.__processor_args["detector"]) # type: ignore
+            return sampler.sample_N_inputs(
+                self.__processor_args["samples"], # type: ignore
                 herald = self.__processor_args["herald"],
-                post_select = self.__processor_args["post_select"]
+                post_select = self.__processor_args["post_select"] # type: ignore
                 )
-        elif self.__processor == "simulator":
+        else:
             simulator = Simulator(self.opt_circuit)
-            results =  simulator.simulate(self.__input)
-        return results
+            return simulator.simulate(self.__input)
     
     def _test_opt_func(self) -> None:
         """

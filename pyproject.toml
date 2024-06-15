@@ -18,7 +18,8 @@ omit = ["tests/*", "docs/*", "lightworks/sdk/optimisation/*"]
 [tool.mypy]
 disallow_untyped_defs = true
 exclude = ['venv', 'docs', 'tests']
+disable_error_code = 'import-untyped, import-not-found'
 
 [[tool.mypy.overrides]]
-module = "thewalrus.*"
+module = "thewalrus.*, drawsvg.*, scipy.*, scipy.*.stats.*"
 ignore_missing_imports = true

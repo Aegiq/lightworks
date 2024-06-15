@@ -20,7 +20,7 @@ It is not intended that this class will be ordinarily accessible to users.
 from ..utils import annotated_state_to_string
 from ..utils import AnnotatedStateError
 
-from typing import Any
+from typing import Any, Union
 
 class AnnotatedState:
     """
@@ -105,7 +105,8 @@ class AnnotatedState:
         raise AnnotatedStateError(
             "AnnotatedState object does not support item assignment.")
     
-    def __getitem__(self, indices: int | slice) -> "AnnotatedState" | list:
+    def __getitem__(self, indices: int | slice
+                    ) -> Union["AnnotatedState", list]:
         if isinstance(indices, slice):
             return AnnotatedState(self.__s[indices])
         elif isinstance(indices, int):
