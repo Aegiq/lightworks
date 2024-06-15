@@ -14,3 +14,10 @@ testpaths = [
 
 [tool.coverage.run]
 omit = ["tests/*", "docs/*", "lightworks/sdk/optimisation/*"]
+
+[tool.mypy]
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = "thewalrus.*"
+ignore_missing_imports = true
