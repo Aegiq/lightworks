@@ -23,7 +23,7 @@ import numpy as np
 from random import random
 from types import FunctionType
 from collections import Counter
-from typing import Any
+from typing import Any, Callable
 
     
 class QuickSampler:
@@ -54,12 +54,12 @@ class QuickSampler:
     
     def __init__(self, circuit: Circuit, input_state: State, 
                  photon_counting: bool = True,
-                 post_select: FunctionType | None = None) -> None:
+                 post_select: Callable | None = None) -> None:
         
         # Assign parameters to attributes
         self.circuit = circuit
         self.input_state = input_state
-        self.post_select = post_select
+        self.post_select = post_select # type: ignore
         self.photon_counting = photon_counting
         self.__backend = Backend("permanent")
         
@@ -96,12 +96,12 @@ class QuickSampler:
         self.__input_state = value
         
     @property
-    def post_select(self) -> FunctionType:
+    def post_select(self) -> Callable:
         """A function to be used for post-selection of outputs."""
         return self.__post_select
     
     @post_select.setter
-    def post_select(self, value: FunctionType | None) -> None:
+    def post_select(self, value: Callable | None) -> None:
         if value is None:
             value = lambda s: True
         if type(value) != FunctionType:
@@ -114,13 +114,13 @@ class QuickSampler:
         return self.__photon_counting
         
     @photon_counting.setter
-    def photon_counting(self, value: bool):
+    def photon_counting(self, value: bool) -> None:
         if not isinstance(value, bool):
             raise TypeError("Photon counting should be set to a boolean.")
         self.__photon_counting = bool(value)
         
     @property
-    def probability_distribution(self):
+    def probability_distribution(self) -> dict[State, float]:
         """
         The output probability distribution for the currently set configuration
         of the QuickSampler. This is re-calculated as the QuickSampler 
@@ -173,7 +173,7 @@ class QuickSampler:
             if pval < cd:
                 break
         # Return this as the found state - only return modes of interest
-        return self.detector._get_output(state)
+        return state
     
     
     def sample_N_outputs(self, N: int, 
@@ -203,9 +203,8 @@ class QuickSampler:
         # Generate N random samples and then process and count output states
         np.random.seed(self._check_random_seed(seed))
         samples = np.random.choice(vals, p = list(pdist.values()), size = N)
-        results = dict(Counter(samples))
-        results = SamplingResult(results, self.input_state)
-        return results
+        counted = dict(Counter(samples))
+        return SamplingResult(counted, self.input_state)
     
     def _check_parameter_updates(self) -> bool:
         """

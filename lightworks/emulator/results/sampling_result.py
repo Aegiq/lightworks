@@ -18,6 +18,7 @@ from ...sdk.state import State
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from typing import Any, Iterable
 
 class SamplingResult:
     """
@@ -34,7 +35,7 @@ class SamplingResult:
                
     """
     
-    def __init__(self, results: dict, input: State, **kwargs) -> None:
+    def __init__(self, results: dict, input: State, **kwargs: Any) -> None:
         
         if not isinstance(input, State):
             raise ResultCreationError("Input state should have type State.")
@@ -58,7 +59,7 @@ class SamplingResult:
         return self.__input
     
     @property
-    def outputs(self) -> State:
+    def outputs(self) -> list[State]:
         """All outputs measured in the sampling experiment."""
         return self.__outputs
     
@@ -78,18 +79,18 @@ class SamplingResult:
     def __len__(self) -> int:
         return len(self.dictionary)
     
-    def __iter__(self) -> iter:
+    def __iter__(self) -> Iterable:
         """Iterable to allow to do 'for output in SamplingResult'."""
         for p in self.dictionary:
             yield p
     
-    def items(self) -> iter:
+    def items(self) -> Iterable:
         return self.dictionary.items()
     
-    def keys(self) -> iter:
+    def keys(self) -> Iterable:
         return self.dictionary.keys()
     
-    def values(self) -> iter:
+    def values(self) -> Iterable:
         return self.dictionary.values()
         
     def apply_threshold_mapping(self, invert: bool = False
@@ -109,7 +110,7 @@ class SamplingResult:
                 distribution.
         
         """
-        mapped_result = {}
+        mapped_result: dict[State, float] = {}
         for out_state, val in self.dictionary.items():
             new_s = State([1 if s>=1 else 0 for s in out_state])
             if invert:
@@ -137,7 +138,7 @@ class SamplingResult:
                 distribution.
         
         """
-        mapped_result = {}
+        mapped_result: dict[State, float] = {}
         for out_state, val in self.dictionary.items():
             if invert:
                 new_s = State([1-(s%2) for s in out_state])
@@ -149,7 +150,7 @@ class SamplingResult:
                 mapped_result[new_s] = val
         return self._recombine_mapped_result(mapped_result)
         
-    def _recombine_mapped_result(self, mapped_result: dict):
+    def _recombine_mapped_result(self, mapped_result: dict) -> "SamplingResult":
         """Creates a new Result object from mapped data."""
         return SamplingResult(mapped_result, self.input)
         
@@ -192,9 +193,8 @@ class SamplingResult:
         # Optionally use show on plot if specified
         if show:
             plt.show()
-            return 
-        else:
-            return (fig, ax)
+            return None
+        return (fig, ax)
     
     def print_outputs(self) -> None:
         """

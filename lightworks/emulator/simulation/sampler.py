@@ -25,7 +25,7 @@ import numpy as np
 from random import random
 from types import FunctionType
 from collections import Counter
-from typing import Any
+from typing import Any, Callable
 
 
 class Sampler:
@@ -57,15 +57,15 @@ class Sampler:
     """
     
     def __init__(self, circuit: Circuit, input_state: State, 
-                 source: Source = None, detector: Detector = None,
-                 backend: Backend | str = None) -> None:
+                 source: Source | None = None, detector: Detector | None = None,
+                 backend: Backend | str | None = None) -> None:
         
         # Assign provided quantities to attributes
         self.circuit = circuit
         self.input_state = input_state
-        self.source = source
-        self.detector = detector
-        self.backend = backend
+        self.source = source # type: ignore
+        self.detector = detector # type: ignore
+        self.backend = backend # type: ignore
         
         return
 
@@ -108,7 +108,7 @@ class Sampler:
         return self.__source
     
     @source.setter
-    def source(self, value) -> None:
+    def source(self, value: Source) -> None:
         if value is None:
             value = Source()
         if not isinstance(value, Source):
@@ -123,7 +123,7 @@ class Sampler:
         return self.__detector
     
     @detector.setter
-    def detector(self, value) -> None:
+    def detector(self, value: Detector | None) -> None:
         if value is None:
             value = Detector()
         if not isinstance(value, Detector):
@@ -138,7 +138,7 @@ class Sampler:
         return self.__backend
     
     @backend.setter
-    def backend(self, value) -> None:
+    def backend(self, value: Backend | str | None) -> None:
         if value is None:
             value = Backend("permanent")
         if isinstance(value, str):
@@ -160,9 +160,9 @@ class Sampler:
                 raise ValueError(
                     "Mismatch in number of modes between input and circuit.")
             # Add heralds to the included input
-            input_state = add_heralds_to_state(
+            modified_state = add_heralds_to_state(
                 self.input_state, self.circuit.heralds["input"])
-            input_state = State(input_state)
+            input_state = State(modified_state)
             # Then build with source
             all_inputs = self.source._build_statistics(input_state)
             if isinstance(next(iter(all_inputs)), State):
@@ -213,7 +213,7 @@ class Sampler:
         # Return this as the found state - only return modes of interest
         return self.detector._get_output(state)
     
-    def sample_N_inputs(self, N: int, post_select: FunctionType = None, 
+    def sample_N_inputs(self, N: int, post_select: Callable | None = None, 
                         min_detection: int = 0, 
                         seed: int|None = None) -> SamplingResult:
         """
@@ -247,7 +247,7 @@ class Sampler:
         """
         # Create always true herald if one isn't provided
         if post_select is None:
-            def post_select(s): return True
+            post_select = lambda s: True
         if (not isinstance(min_detection, int) or 
             isinstance(min_detection, bool)):
             raise TypeError("Post-selection value should be an integer.")
@@ -290,11 +290,10 @@ class Sampler:
                     hs = state
                 if (post_select(hs) and hs.n_photons >= min_detection):
                     filtered_samples.append(hs)
-        results = dict(Counter(filtered_samples))
-        results = SamplingResult(results, self.input_state)
-        return results
+        counted = dict(Counter(filtered_samples))
+        return SamplingResult(counted, self.input_state)
     
-    def sample_N_outputs(self, N: int, post_select: FunctionType = None, 
+    def sample_N_outputs(self, N: int, post_select: Callable | None = None, 
                          min_detection: int = 0, 
                          seed: int|None = None) -> SamplingResult:
         """
@@ -326,7 +325,7 @@ class Sampler:
         """
         # Create always true post_select if one isn't provided
         if post_select is None:
-            def post_select(s): return True
+            post_select = lambda s: True
         if (not isinstance(min_detection, int) or 
             isinstance(min_detection, bool)):
             raise TypeError("Post-selection value should be an integer.")
@@ -346,7 +345,7 @@ class Sampler:
         herald_modes = list(heralds.keys())
         herald_items = list(heralds.items())
         # Convert distribution using provided data
-        new_dist = {}
+        new_dist: dict[State, float] = {}
         for s, p in pdist.items():
             # Apply threshold detection
             if not self.detector.photon_counting:
@@ -387,9 +386,8 @@ class Sampler:
         np.random.seed(self._check_random_seed(seed))
         samples = np.random.choice(vals, p = probs, size = N)
         # Count states and convert to results object
-        results = dict(Counter(samples))
-        results = SamplingResult(results, self.input_state)
-        return results
+        counted = dict(Counter(samples))
+        return SamplingResult(counted, self.input_state)
     
     def _check_parameter_updates(self) -> bool:
         """

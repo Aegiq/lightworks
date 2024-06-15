@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Iterable
+
 """
 Script to store various useful functions for the simulation aspect of the code.
 """
@@ -20,7 +22,7 @@ def fock_basis(N: int, n: int) -> list:
     """Returns the Fock basis for n photons in N modes."""
     return list(_sums(N,n))
 
-def _sums(length, total_sum):
+def _sums(length: int, total_sum: int) -> Iterable:
     if length == 1:
         yield [total_sum,]
     else:

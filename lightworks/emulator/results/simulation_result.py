@@ -18,6 +18,7 @@ from ...sdk.state import State
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from typing import Any, Iterable
 
 class SimulationResult:
     """
@@ -40,7 +41,7 @@ class SimulationResult:
     """
     
     def __init__(self, results: dict | np.ndarray, result_type: str, 
-                 inputs: list, outputs: list, **kwargs) -> None:
+                 inputs: list, outputs: list, **kwargs: Any) -> None:
         
         # Store result_type if valid
         if result_type in ["probability", "probability_amplitude"]:
@@ -83,12 +84,12 @@ class SimulationResult:
         return self.__array
     
     @property
-    def inputs(self) -> State:
+    def inputs(self) -> list:
         """All inputs which values were calculated for."""
         return self.__inputs
     
     @property
-    def outputs(self) -> State:
+    def outputs(self) -> list:
         """All outputs which values were calculated for."""
         return self.__outputs
     
@@ -98,7 +99,7 @@ class SimulationResult:
         return self.__dict
     
     @property
-    def result_type(self) -> dict:
+    def result_type(self) -> str:
         """
         Details where the result is a probability or probability amplitude.
         """
@@ -151,7 +152,7 @@ class SimulationResult:
     def __str__(self) -> str:
         return str(self.dictionary)
     
-    def __iter__(self) -> iter:
+    def __iter__(self) -> Iterable:
         """Iterable to allow to do 'for input in SimulationResult'."""
         for p in self.dictionary:
             yield p
@@ -177,7 +178,7 @@ class SimulationResult:
             raise ValueError(
                 "Threshold mapping cannot be applied to probability "
                 "amplitudes.")
-        mapped_result = {}
+        mapped_result: dict[State, dict] = {}
         for in_state in self.inputs:
             mapped_result[in_state] = {}
             for out_state, val in self.dictionary[in_state].items():
@@ -210,7 +211,7 @@ class SimulationResult:
         if self.result_type == "probability_amplitude":
             raise ValueError(
                 "Parity mapping cannot be applied to probability amplitudes.")
-        mapped_result = {}
+        mapped_result: dict[State, dict] = {}
         for in_state in self.inputs:
             mapped_result[in_state] = {}
             for out_state, val in self.dictionary[in_state].items():
@@ -277,13 +278,13 @@ class SimulationResult:
             if (self.result_type != "probability_amplitude" or 
                 conv_to_probability):
                 if self.result_type == "probability_amplitude":
-                    data = abs(self.array)**2
+                    a_data = abs(self.array)**2
                 else:
-                    data = abs(self.array)
+                    a_data = abs(self.array)
                 # Plot array and add colorbar
                 fig, ax = plt.subplots()
-                im = ax.imshow(data)
-                im_ratio = data.shape[0]/data.shape[1]
+                im = ax.imshow(a_data)
+                im_ratio = a_data.shape[0]/a_data.shape[1]
                 fig.colorbar(im, ax=ax, fraction=0.046*im_ratio, pad=0.04)
                 # Label states on each axis
                 ax.set_xticks(range(len(self.outputs)))
@@ -318,20 +319,20 @@ class SimulationResult:
             if (self.result_type != "probability_amplitude" or 
                 conv_to_probability):
                 if self.result_type == "probability_amplitude":
-                    data = {}
+                    d_data = {}
                     for s, p in self.dictionary[istate].items():
-                        data[s] = abs(p)**2
+                        d_data[s] = abs(p)**2
                     title = "Probability"
                 else:
-                    data = self.dictionary[istate]
+                    d_data = self.dictionary[istate]
                     title = self.result_type.capitalize()
                     
                 fig, ax = plt.subplots(figsize = (7,6))
-                x_data = range(len(data))
-                ax.bar(x_data, data.values())
+                x_data = range(len(d_data))
+                ax.bar(x_data, d_data.values())
                 ax.set_xticks(x_data)
                 labels = [state_labels[s] if s in state_labels else str(s) 
-                          for s in data]
+                          for s in d_data]
                 ax.set_xticklabels(labels, rotation = 90)
                 ax.set_xlabel("State")
                 ax.set_ylabel(title)
@@ -355,8 +356,7 @@ class SimulationResult:
         # Optionally use show on plot if specified
         if show:
             plt.show()
-            return 
-        
+            return None
         return (fig, ax)
     
     def print_outputs(self, rounding: int = 4) -> None:

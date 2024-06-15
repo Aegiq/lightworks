@@ -22,6 +22,7 @@ from ...sdk.utils import add_heralds_to_state
 
 import numpy as np
 from types import FunctionType
+from typing import Callable
 
 
 class Analyzer:
@@ -50,7 +51,7 @@ class Analyzer:
         # Assign key parameters to attributes
         self.circuit = circuit
         # Create empty list/dict to store other quantities
-        self.post_selects = []
+        self.post_selects: list[Callable] = []
         self.__backend = Backend("permanent")
         
         return
@@ -70,7 +71,7 @@ class Analyzer:
                 "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
     
-    def set_post_selection(self, function: FunctionType) -> None:
+    def set_post_selection(self, function: Callable) -> None:
         """
         Add post selection functions, these should only act across the 
         non-heralded modes of the circuit.
@@ -114,8 +115,8 @@ class Analyzer:
                 "is likely this results from a herald being added twice or "
                 "modified.")
         # Convert state to list of States if not provided for single state case
-        if type(inputs) is State:
-                inputs = [inputs] 
+        if isinstance(inputs, State):
+            inputs = [inputs] 
         # Process inputs using dedicated function
         full_inputs = self._process_inputs(inputs)
         n_photons = full_inputs[0].n_photons
@@ -137,7 +138,7 @@ class Analyzer:
                                    outputs = filtered_outputs, 
                                    performance = self.performance)
         if hasattr(self, "error_rate"):
-            results.error_rate = self.error_rate
+            results.error_rate = self.error_rate # type: ignore
         self.results = results
         # Return dict
         return results
@@ -207,9 +208,9 @@ class Analyzer:
                     error -= (iprobs[loc]/sum(iprobs))
             errors += [error]
         # Then take average and return
-        return np.mean(errors)
+        return float(np.mean(errors))
     
-    def _process_inputs(self, inputs: list) -> list:
+    def _process_inputs(self, inputs: list) -> list[State]:
         """
         Takes the provided inputs, perform error checking on them and adds any 
         heralded photons that are required, returning full states..

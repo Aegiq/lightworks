@@ -17,6 +17,7 @@ omit = ["tests/*", "docs/*", "lightworks/sdk/optimisation/*"]
 
 [tool.mypy]
 disallow_untyped_defs = true
+exclude = ['venv', 'docs', 'tests']
 
 [[tool.mypy.overrides]]
 module = "thewalrus.*"

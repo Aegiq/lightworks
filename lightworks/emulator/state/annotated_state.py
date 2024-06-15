@@ -38,9 +38,9 @@ class AnnotatedState:
     """
     
     __slots__ = ["__s"]
-    def __init__(self, state: list) -> None:
+    def __init__(self, state: list[list[int]]) -> None:
         for s in state:
-            if type(s) != list:
+            if not isinstance(s, list):
                 raise TypeError("Provided state labels should be lists.")
         self.__s = [sorted(s) for s in state]
         return
@@ -51,7 +51,7 @@ class AnnotatedState:
         return sum([len(s) for s in self.__s])
     
     @property
-    def s(self) -> None:
+    def s(self) -> list[list[int]]:
         return [[j for j in i] for i in self.__s]
     
     @s.setter
@@ -60,7 +60,7 @@ class AnnotatedState:
             "State value should not be modified directly.")
     
     @property
-    def n_modes(self) -> None:
+    def n_modes(self) -> int:
         return len(self.__s)
     
     @n_modes.setter
@@ -70,8 +70,8 @@ class AnnotatedState:
     def merge(self, merge_state: "AnnotatedState") -> "AnnotatedState":
         """Combine two states, summing the number of photons per mode."""
         if self.n_modes == merge_state.n_modes:
-            return AnnotatedState([n1 + n2 for n1, n2 in zip(self.__s, 
-                                                             merge_state.s)])
+            return AnnotatedState([n1 + n2 for n1, n2 in 
+                                   zip(self.__s, merge_state.s)])
         else:
             raise ValueError("Merged states must be the same length.")
     
@@ -89,13 +89,13 @@ class AnnotatedState:
             raise TypeError(
                 "Addition only supported between annotated states.")
         
-    def __eq__(self, value: "AnnotatedState") -> bool:
+    def __eq__(self, value: Any) -> bool:
         if isinstance(value, AnnotatedState):
             return self.__s == value.__s
         else:
             return False
     
-    def __hash__(self) -> str:
+    def __hash__(self) -> int:
         return hash(self.__str__())
         
     def __len__(self) -> int:
@@ -105,7 +105,7 @@ class AnnotatedState:
         raise AnnotatedStateError(
             "AnnotatedState object does not support item assignment.")
     
-    def __getitem__(self, indices: int | slice) -> "AnnotatedState":
+    def __getitem__(self, indices: int | slice) -> "AnnotatedState" | list:
         if isinstance(indices, slice):
             return AnnotatedState(self.__s[indices])
         elif isinstance(indices, int):

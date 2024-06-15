@@ -39,7 +39,7 @@ class ProbabilityDistributionCalc:
             dict : The calculated output probability distribution.
             
         """
-        pdist = {}
+        pdist: dict[State, float] = {}
         # Loop over each possible input
         for istate, prob in inputs.items():
             # Calculate sub distribution
@@ -83,7 +83,7 @@ class ProbabilityDistributionCalc:
             
         """
         # Determine the input state combinations given the labels
-        unique_inputs = set()
+        unique_inputs: set[State] = set()
         input_combinations = {}
         for state, p in inputs.items():
             # Find all labels in a given state
@@ -112,7 +112,7 @@ class ProbabilityDistributionCalc:
         
         # Pre-calculate dictionary items to improve speed
         for r, pdist in unique_results.items():
-            unique_results[r] = list(pdist.items())  
+            unique_results[r] = list(pdist.items()) # type: ignore
         # Then combine the results above to work out the true output 
         # probability for the inputs.
         stats_dict = {}

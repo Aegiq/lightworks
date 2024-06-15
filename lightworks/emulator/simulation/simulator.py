@@ -103,11 +103,8 @@ class Simulator:
                 amplitudes[i, j] = self.__backend.probability_amplitude(
                     circuit.U_full, in_state, out_state)
         # Return results and corresponding states as dictionary
-        results = {"amplitudes" : amplitudes, "inputs" : inputs, 
-                   "outputs" : outputs}
-        results = SimulationResult(amplitudes, "probability_amplitude", 
-                                   inputs = inputs, outputs = outputs)
-        return results
+        return SimulationResult(amplitudes, "probability_amplitude", 
+                                inputs = inputs, outputs = outputs)
     
     def _process_inputs(self, inputs: list) -> list:
         """Performs all required processing/checking on the input states."""

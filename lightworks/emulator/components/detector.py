@@ -130,7 +130,7 @@ class Detector:
         
         return State(output)  
     
-    def _set_random_seed(self, r_seed: float) -> None:
+    def _set_random_seed(self, r_seed: int | float | None) -> None:
         """
         Set the random seed for the detector to produce repeatable results.
         """
