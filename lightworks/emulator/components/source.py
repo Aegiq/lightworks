@@ -183,7 +183,7 @@ class Source:
             
         """
         n_modes = len(state)
-        stats = []
+        stats: list[tuple[float, list]] = []
         # Loop over each mode
         for mode, count in enumerate(state):
             if not count: continue
@@ -208,16 +208,16 @@ class Source:
                                                       zip(s1, s2)]))
                     stats = new_stats
         # Combine any duplicate results
-        stats_dict = {} # Convert stats to dict
+        stats_dict: dict[State, float] = {} # Convert stats to dict
         for probs, s in stats:
-            s = State(s)
+            s = State(s) # type: ignore
             if s not in stats_dict:
-                stats_dict[s] = probs
+                stats_dict[s] = probs # type: ignore
             else:
-                stats_dict[s] += probs
+                stats_dict[s] += probs # type: ignore
         # Catch any empty returns and give input
         if not stats_dict:
-            stats_dict[state] = 1
+            stats_dict[state] = 1.0
         return stats_dict
     
     def _build_statistics_full(self, state: State) -> dict:
@@ -297,7 +297,7 @@ class Source:
         """
         # Find groups of empty modes
         to_group, to_skip = self._group_empty_modes(state)
-        input_dist = {}
+        input_dist: dict[AnnotatedState, float] = {}
         # Loop over each mode and find distribution
         for i, n in enumerate(state):
             if i in to_skip:
@@ -328,7 +328,7 @@ class Source:
         Finds the input state statistics for a number of photons on a given 
         mode.
         """
-        mode_dist = []
+        mode_dist: list[tuple[list, float]] = []
         # Get distribution for each photon and combine with mode distribution
         for i in range(n_photons):
             calc_dist = self._single_photon_distribution()
@@ -356,7 +356,7 @@ class Source:
         else:
             return {AnnotatedState([[]]) : 1}
                     
-    def _single_photon_distribution(self) -> list:
+    def _single_photon_distribution(self) -> list[tuple[list, float]]:
         """
         Calculates the distribution for a single photon with imperfect 
         properties.
@@ -380,9 +380,11 @@ class Source:
         mpc = self._counter + 1
         self._counter += 2
         # Loop through all entries and add if each probability is non-zero
-        out = []
-        to_add = [(c0, []), (c1, [0]), (c1d, [dpc]), (c1dp, [mpc]), 
-                  (c12d, [0,mpc]), (c1d2d, [dpc, mpc])]
+        to_add: list[tuple[float, list]] = [
+            (c0, []), (c1, [0]), (c1d, [dpc]), (c1dp, [mpc]), (c12d, [0, mpc]), 
+            (c1d2d, [dpc, mpc])
+        ]
+        out: list[tuple[list, float]] = []
         for p, s in to_add:
             if p > 0:
                 out += [(s, p)]
@@ -403,7 +405,7 @@ class Source:
                 continue
             if s == 0:
                 # If only a single empty mode then skip
-                if state[i+1] > 0:
+                if state[i+1] > 0: # type: ignore
                     continue
                 else:
                     # Find how many empty modes there are

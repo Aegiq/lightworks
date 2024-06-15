@@ -146,15 +146,15 @@ class Backend:
                 backend.
                 
         """
+        pdist: dict[State, float] = {}
         # Return empty distribution when 0 photons in input
         if input_state.n_photons == 0:
-            pdist = {State([0]*circuit.n_modes) : 1}
+            pdist = {State([0]*circuit.n_modes) : 1.0}
         # Otherwise vary distribution calculation method
         elif self.backend == "permanent":    
             # Add extra states for loss modes here when included
             if circuit.loss_modes > 0:
                 input_state = input_state + State([0]*circuit.loss_modes) 
-            pdist = {}
             # For a given input work out all possible outputs
             out_states = fock_basis(len(input_state), input_state.n_photons)
             for ostate in out_states:
@@ -179,7 +179,6 @@ class Backend:
                 input_state = input_state + State([0]*circuit.loss_modes) 
             full_dist = SLOS.calculate(circuit.U_full, input_state)
             # Combine results to remote lossy modes
-            pdist = {}
             for s, p in full_dist.items():
                 new_s = State(s[:circuit.n_modes])
                 if new_s in pdist:

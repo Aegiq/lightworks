@@ -22,25 +22,25 @@ class SLOS:
     Contains calculate function for SLOS method.
     """
     @staticmethod
-    def calculate(U, input_state: State) -> dict:
+    def calculate(U: np.ndarray, input_state: State) -> dict:
 
         p = []
         for m, n in enumerate(input_state):
             for i in range(n):
                 p.append(m)
         N = U.shape[0]
-        input = {tuple(N*[0]):1} #N-mode vacuum state
+        input = {tuple(N*[0]):1.0} #N-mode vacuum state
 
         # Successively apply the matrices A_k
         for i in p: # Each matrix is indexed by the components of p
-            output = {}
+            output: dict[tuple, float] = {}
             for j in range(N):  # Sum over i
                 step = a_i_dagger(input, j, U[j,i]) # Apply ladder operator
                 output = add_dicts(output, step) # Add it to the total
             input = output
 
         # Renormalise the output with the overall factorial term and return
-        m = 1/np.sqrt(vector_factorial(input_state))
+        m = 1/np.sqrt(vector_factorial(input_state.s))
         return {k:v*m for k, v in input.items()}
 
 def a_i_dagger(dist: dict, mode: int, multiplier: complex) -> dict:
@@ -61,7 +61,7 @@ def a_i_dagger(dist: dict, mode: int, multiplier: complex) -> dict:
 
 def vector_factorial(vector: list) -> int:
     """Calculates the product of factorials of the elements of the vector v"""
-    return np.prod([factorial(i) for i in vector])
+    return int(np.prod([factorial(i) for i in vector]))
 
 def add_dicts(dict1: dict, dict2: dict) -> dict:
     """Function for combining two dictionaries together"""

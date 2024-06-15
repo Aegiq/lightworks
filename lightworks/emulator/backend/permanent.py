@@ -25,7 +25,7 @@ class Permanent:
     """
     
     @staticmethod
-    def calculate(U: np.ndarray, in_state: State, out_state: State) -> complex: 
+    def calculate(U: np.ndarray, in_state: list, out_state: list) -> complex: 
         """
         Function to calculate the permanent for a given unitary, input state
         and output state. It returns the complex probability amplitude for the
@@ -38,7 +38,7 @@ class Permanent:
              (np.sqrt(factor_m*factor_n)))    
         return p
 
-def partition(U: np.ndarray, in_state: State, out_state: State) -> np.ndarray:
+def partition(U: np.ndarray, in_state: list, out_state: list) -> np.ndarray:
     """
     Converts the unitary matrix into a larger matrix used for in the 
     permanent calculation.
@@ -47,8 +47,8 @@ def partition(U: np.ndarray, in_state: State, out_state: State) -> np.ndarray:
     # Construct the matrix of indices for the partition
     X, Y = [], []
     for i in range(N):
-        X += [i]*out_state[i]
-        Y += [i]*in_state[i]
+        X += [i]*out_state[i] # type: ignore
+        Y += [i]*in_state[i] # type: ignore
     # Construct the new matrix with dimension n, where n is photon number 
     part_U = U[np.ix_(X, Y)] 
     

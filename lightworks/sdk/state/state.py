@@ -99,22 +99,26 @@ class State:
         else:
             raise TypeError("Addition only supported between states.")
         
-    def __eq__(self, value: "State") -> bool:
+    def __eq__(self, value: Any) -> bool:
         if isinstance(value, State):
             return self.__s == value.s
         else:
             return False
     
-    def __hash__(self) -> str:
+    def __hash__(self) -> int:
         return hash(self.__str__())
         
     def __len__(self) -> int:
         return self.n_modes
     
+    def __iter__(self) -> Any:
+        for p in self.s:
+            yield p
+    
     def __setitem__(self, key: Any, value: Any) -> None:
         raise StateError("State object does not support item assignment.")
     
-    def __getitem__(self, indices: slice | int) -> "State":
+    def __getitem__(self, indices: slice | int) -> int | "State":
         if isinstance(indices, slice):
             return State(self.__s[indices])
         elif isinstance(indices, int):
