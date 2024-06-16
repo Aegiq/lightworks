@@ -8,4 +8,4 @@ check:
 	pycodestyle lightworks/
 
 mypy:
-	mypy -p lightworks/
+	mypy -p lightworks
