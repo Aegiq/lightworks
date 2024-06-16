@@ -43,8 +43,8 @@ class TestSimulator:
         """
         n_modes = 4
         unitary = random_unitary(n_modes)
-        unitary = Unitary(unitary)
-        sim = Simulator(unitary)
+        unitary_circ = Unitary(unitary)
+        sim = Simulator(unitary_circ)
         states = []
         for i in range(n_modes):
             states.append(State([int(i == j) for j in range(n_modes)]))

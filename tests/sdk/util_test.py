@@ -168,8 +168,8 @@ class TestUtils:
         """
         s = [randint(0, 5) for i in range(10)]
         s_copy = [i for i in s]
-        s_new = add_heralds_to_state(s, {6: 7, 1: 6})
-        assert s_new == s_copy
+        add_heralds_to_state(s, {6: 7, 1: 6})
+        assert s == s_copy
 
     def test_add_heralds_to_state_new_object(self):
         """
