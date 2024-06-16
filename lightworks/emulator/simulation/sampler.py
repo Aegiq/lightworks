@@ -56,13 +56,10 @@ class Sampler:
 
     """
 
-    def __init__(
-            self,
-            circuit: Circuit,
-            input_state: State,
-            source: Source | None = None,
-            detector: Detector | None = None,
-            backend: Backend | str | None = None) -> None:
+    def __init__(self, circuit: Circuit, input_state: State,
+                 source: Source | None = None,
+                 detector: Detector | None = None,
+                 backend: Backend | str | None = None) -> None:
 
         # Assign provided quantities to attributes
         self.circuit = circuit
