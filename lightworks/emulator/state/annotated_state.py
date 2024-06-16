@@ -58,7 +58,7 @@ class AnnotatedState:
         return [[j for j in i] for i in self.__s]
 
     @s.setter
-    def s(self, value: Any) -> None:
+    def s(self, value: Any) -> None:  # noqa: ARG002
         raise AnnotatedStateError(
             "State value should not be modified directly."
         )
@@ -69,7 +69,7 @@ class AnnotatedState:
         return len(self.__s)
 
     @n_modes.setter
-    def n_modes(self, value: Any) -> None:
+    def n_modes(self, value: Any) -> None:  # noqa: ARG002
         raise AnnotatedStateError("Number of modes cannot be modified.")
 
     def merge(self, merge_state: "AnnotatedState") -> "AnnotatedState":

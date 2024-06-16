@@ -128,7 +128,7 @@ def check_unitary(
     for i in range(product.shape[0]):
         for j in range(product.shape[1]):
             # Diagonal elements
-            if i == j and (
+            if i == j and (  # noqa: SIM114
                 np.real(product[i, j] < 1 - precision)
                 or np.imag(product[i, j]) > precision
             ):

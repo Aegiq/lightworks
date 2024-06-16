@@ -17,7 +17,7 @@ omit = ["tests/*", "docs/*", "lightworks/sdk/optimisation/*"]
 
 [tool.mypy]
 disallow_untyped_defs = true
-exclude = ['venv', 'docs', 'tests', 'setup.py']
+exclude = ['venv/', 'docs/', 'tests/', 'setup.py']
 disable_error_code = 'import-untyped, import-not-found'
 
 [[tool.mypy.overrides]]
@@ -38,9 +38,14 @@ convention = "google"
 
 [tool.ruff.lint]
 preview = true
-select = ["E", "F", "W", "N", "D", "B", "CPY", "TRY", "PLE", "PLW"]
+select = [
+    "E", "F", "W", "N", "D", "B", "CPY", "TRY", "PLE", "PLW", "YTT", "ANN", "S",
+    "Q", "SIM", "ARG", "PERF"
+]
 fixable = ["ALL"]
 ignore = [
+    "ARG005",
+    "ANN401",
     "D100",
     "D104",
     "D105",
@@ -54,6 +59,9 @@ ignore = [
     "D407",
     "D412",
     "D415",
+    "S311",
+    "SIM102",
+    "SIM105",
     "TRY003",
 ]
 
@@ -62,3 +70,7 @@ quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
+
+[tool.ruff.lint.per-file-ignores]
+"*_test.py" = ["ANN", "S101"]
+"tests/*" = ["PERF"]

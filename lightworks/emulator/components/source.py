@@ -160,10 +160,11 @@ class Source:
 
         # Apply probability thresholding if required
         if self.probability_threshold:
-            thresholded_dict = {}
-            for s, p in stats_dict.items():
-                if p >= self.probability_threshold:
-                    thresholded_dict[s] = p
+            thresholded_dict = {
+                s: p
+                for s, p in stats_dict.items()
+                if p >= self.probability_threshold
+            }
             # Re-normalize after removing values
             total = sum(thresholded_dict.values())
             for s, p in thresholded_dict.items():
@@ -348,10 +349,11 @@ class Source:
             if mode_dist == []:
                 mode_dist = calc_dist
             else:
-                new_dist = []
-                for d1 in mode_dist:
-                    for d2 in calc_dist:
-                        new_dist.append((d1[0] + d2[0], d1[1] * d2[1]))
+                new_dist = [
+                    (d1[0] + d2[0], d1[1] * d2[1])
+                    for d1 in mode_dist
+                    for d2 in calc_dist
+                ]
                 mode_dist = new_dist
         # Sort labels for easier processing
         for d in mode_dist:

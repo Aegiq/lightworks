@@ -59,9 +59,7 @@ class DrawCircuitSVG:
         yloc = self.dy
         for i in range(self.N):
             self.y_locations.append(yloc)
-            if i + 1 in self.herald_modes:
-                yloc += self.dy_smaller
-            elif i in self.herald_modes:
+            if i + 1 in self.herald_modes or i in self.herald_modes:
                 yloc += self.dy_smaller
             else:
                 yloc += self.dy

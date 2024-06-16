@@ -406,7 +406,7 @@ class TestSamplerCalculationBackends:
         )
         results = sampler.sample_N_inputs(1000)
         undetected_photons = False
-        for s in results.keys():
+        for s in results:
             if s.n_photons < 2:
                 undetected_photons = True
                 break
@@ -418,7 +418,7 @@ class TestSamplerCalculationBackends:
         )
         results = sampler.sample_N_inputs(1000)
         undetected_photons = False
-        for s in results.keys():
+        for s in results:
             if s.n_photons < 2:
                 undetected_photons = True
                 break
@@ -434,7 +434,7 @@ class TestSamplerCalculationBackends:
         )
         results = sampler.sample_N_inputs(1000)
         dark_counts = False
-        for s in results.keys():
+        for s in results:
             if s.n_photons > 0:
                 dark_counts = True
                 break
@@ -446,7 +446,7 @@ class TestSamplerCalculationBackends:
         )
         results = sampler.sample_N_inputs(1000)
         dark_counts = False
-        for s in results.keys():
+        for s in results:
             if s.n_photons > 0:
                 dark_counts = True
                 break
@@ -465,7 +465,7 @@ class TestSamplerCalculationBackends:
         )
         results = sampler.sample_N_inputs(1000)
         all_2_photon_states = True
-        for s in results.keys():
+        for s in results:
             if s.n_photons < 2:
                 all_2_photon_states = False
                 break
@@ -477,7 +477,7 @@ class TestSamplerCalculationBackends:
         )
         results = sampler.sample_N_inputs(1000)
         sub_2_photon_states = False
-        for s in results.keys():
+        for s in results:
             if s.n_photons < 2:
                 sub_2_photon_states = True
                 break

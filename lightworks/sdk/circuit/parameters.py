@@ -156,10 +156,7 @@ class Parameter:
 
     def has_bounds(self) -> bool:
         """Checks if the parameter has at least one bound given."""
-        if self.min_bound is not None or self.max_bound is not None:
-            return True
-        else:
-            return False
+        return bool(self.min_bound is not None or self.max_bound is not None)
 
 
 class ParameterDict:
@@ -206,10 +203,7 @@ class ParameterDict:
         and/or maximum bounds associated with it.
         """
         # If any parameters has bounds return True, else return False
-        for v in self.__pdict.values():
-            if v.has_bounds():
-                return True
-        return False
+        return any(v.has_bounds() for v in self.__pdict.values())
 
     def keys(self) -> Iterable:
         """Returns all keys associated with the Parameters as an iterable."""

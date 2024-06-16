@@ -34,7 +34,7 @@ class TestSimulator:
         circ.add_bs(0)
         sim = Simulator(circ)
         results = sim.simulate(State([1, 1]), State([2, 0]))
-        assert 0.5 == pytest.approx(abs(results.array[0, 0]) ** 2, 1e-8)
+        assert abs(results.array[0, 0]) ** 2 == pytest.approx(0.5, 1e-8)
 
     def test_single_photon_case(self):
         """

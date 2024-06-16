@@ -77,9 +77,7 @@ class DrawCircuitMPL:
         yloc = 0.0
         for i in range(self.N):
             self.y_locations.append(yloc)
-            if i + 1 in self.herald_modes:
-                yloc += dy_smaller
-            elif i in self.herald_modes:
+            if i + 1 in self.herald_modes or i in self.herald_modes:
                 yloc += dy_smaller
             else:
                 yloc += dy

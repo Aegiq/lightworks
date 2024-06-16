@@ -161,10 +161,10 @@ class TestSamplingResult:
     @pytest.mark.parametrize("value", [[0, 1, 2, 3], [0], ["|1,0,0,1>"]])
     def test_get_item_invalid_type(self, value):
         """
-        Checks that get item returns a ValueError when a non-state key is used.
+        Checks that get item returns a TypeError when a non-state key is used.
         """
         r = SamplingResult(self.test_dict, self.test_input)
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             r[value]
 
 

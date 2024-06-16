@@ -113,7 +113,7 @@ class Circuit:
         return self.__n_modes
 
     @n_modes.setter
-    def n_modes(self, value: Any) -> None:
+    def n_modes(self, value: Any) -> None:  # noqa: ARG002
         """
         Prevents modification of n_modes attribute after circuit creation.
         """
@@ -250,7 +250,7 @@ class Circuit:
         # Loop over all modes in circuit to find swaps
         for i in range(circuit.n_modes):
             # If used as a key then take value from provisional swaps
-            if i in provisional_swaps.keys():
+            if i in provisional_swaps:
                 swaps[i] = provisional_swaps[i]
             # Otherwise then map mode to lowest mode possible
             else:
@@ -784,10 +784,8 @@ class Circuit:
         """
         if isinstance(loss, str):
             return True
-        elif loss > 0:
-            return True
         else:
-            return False
+            return bool(loss > 0)
 
     def _get_circuit_spec(self) -> list:
         """Returns a copy of the circuit spec attribute."""

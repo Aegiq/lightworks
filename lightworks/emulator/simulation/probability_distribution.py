@@ -87,7 +87,7 @@ class ProbabilityDistributionCalc:  # noqa: D101
         # Determine the input state combinations given the labels
         unique_inputs: set[State] = set()
         input_combinations = {}
-        for state in inputs.keys():
+        for state in inputs:
             # Find all labels in a given state
             all_labels = []
             for mode in state:

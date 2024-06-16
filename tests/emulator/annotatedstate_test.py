@@ -33,7 +33,7 @@ class TestAnnotatedState:
         assert AnnotatedState([[], [0], [1], []]) == AnnotatedState(
             [[], [0], [1], []]
         )
-        assert not AnnotatedState([[], [0], [1], []]) == AnnotatedState(
+        assert AnnotatedState([[], [0], [1], []]) != AnnotatedState(
             [[], [1], [0], []]
         )
 
@@ -43,7 +43,7 @@ class TestAnnotatedState:
         non-AnnotatedState object.
         """
         s = AnnotatedState([[0], [1], [2]])
-        assert not s == [[0], [1], [2]]
+        assert s != [[0], [1], [2]]
 
     def test_state_equality_shuffled(self):
         """
@@ -171,4 +171,4 @@ class TestAnnotatedState:
         """
         s = AnnotatedState([[0], [1], [2], [3]])
         with pytest.raises(TypeError):
-            s[[0, 1]]
+            s[value]

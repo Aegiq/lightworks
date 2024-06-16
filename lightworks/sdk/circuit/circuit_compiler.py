@@ -112,7 +112,7 @@ class CompiledCircuit:
         return self._n_modes
 
     @n_modes.setter
-    def n_modes(self, value: Any) -> None:
+    def n_modes(self, value: Any) -> None:  # noqa: ARG002
         raise AttributeError(
             "Number of modes should not be modified after Circuit creation."
         )
@@ -187,7 +187,7 @@ class CompiledCircuit:
         # Use built in addition function to combine the circuit
         new_circuit = self + to_add
         # Copy created attributes from new circuit
-        for k in self.__dict__.keys():
+        for k in self.__dict__:
             setattr(self, k, getattr(new_circuit, k))
 
         return

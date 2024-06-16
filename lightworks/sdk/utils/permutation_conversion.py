@@ -40,10 +40,7 @@ def permutation_mat_from_swaps_dict(swaps: dict, n_modes: int) -> np.ndarray:
     # Add in missing modes from swap dictionary
     full_swaps = {}
     for m in range(n_modes):
-        if m not in swaps:
-            full_swaps[m] = m
-        else:
-            full_swaps[m] = swaps[m]
+        full_swaps[m] = swaps.get(m, m)
     # Create swap unitary
     permutation = np.zeros((n_modes, n_modes), dtype=complex)
     for i, j in full_swaps.items():

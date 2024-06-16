@@ -55,7 +55,7 @@ class Optimisation:
         # Check all provided parameters are included in the circuit
         circ_params = self.opt_circuit.get_all_params()
         all_in = True
-        for k in parameters.keys():
+        for k in parameters:
             if parameters[k] not in circ_params:
                 all_in = False
         # If not then raise a warning - use warning instead of error as in
@@ -317,7 +317,7 @@ class Optimisation:
 
     def get_optimal_circuit(self) -> Circuit:
         """Creates a circuit using the optimal parameters and returns it."""
-        for p in self.parameters.keys():
+        for p in self.parameters:
             self.parameters[p] = self.__opt_results[p]
         return self.opt_circuit
 
@@ -326,7 +326,7 @@ class Optimisation:
         Finds the results produced using an optimal circuit and returns
         this as Result object.
         """
-        for p in self.parameters.keys():
+        for p in self.parameters:
             self.parameters[p] = self.__opt_results[p]
         return self._process()
 
@@ -370,7 +370,7 @@ class Optimisation:
 
     def _kwargs_fom(self, **kwargs: Any) -> float:
         """Takes optimisation parameters as kwargs and finds fom."""
-        for p in self.parameters.keys():
+        for p in self.parameters:
             self.parameters[p] = kwargs[p]
         # Get results using selected processor
         results = self._process()

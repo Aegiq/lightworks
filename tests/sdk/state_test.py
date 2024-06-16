@@ -29,7 +29,7 @@ class TestState:
     def test_state_equality(self):
         """Checks that state equality comparison works as expected."""
         assert State([1, 0, 1, 0]) == State([1, 0, 1, 0])
-        assert not State([1, 0, 1, 0]) == State([0, 1, 1, 0])
+        assert State([1, 0, 1, 0]) != State([0, 1, 1, 0])
 
     def test_state_addition(self):
         """Checks that state addition behaviour is as expected."""
