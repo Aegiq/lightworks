@@ -14,28 +14,29 @@
 
 import numpy as np
 
+
 def permutation_mat_from_swaps_dict(swaps: dict, n_modes: int) -> np.ndarray:
     """
     Calculates the permutation unitary for a given dictionary of swaps across
     the n_modes of a circuit.
-    
+
     Args:
-    
+
         swaps (dict) : The dictionary containing the target mode swaps.
-        
+
         n_modes (int) : The number of modes in the circuit. If this is not the
-            number of modes then an incorrect dimension unitary will be 
+            number of modes then an incorrect dimension unitary will be
             returned.
-                        
+
     Returns:
-    
-        np.ndarray : The determined permutation matrix for the provided set of 
+
+        np.ndarray : The determined permutation matrix for the provided set of
             mode swaps.
-            
+
     """
     if not isinstance(swaps, dict):
         raise TypeError("swaps should be a dictionary object.")
-    
+
     # Add in missing modes from swap dictionary
     full_swaps = {}
     for m in range(n_modes):
@@ -46,6 +47,6 @@ def permutation_mat_from_swaps_dict(swaps: dict, n_modes: int) -> np.ndarray:
     # Create swap unitary
     permutation = np.zeros((n_modes, n_modes), dtype=complex)
     for i, j in full_swaps.items():
-        permutation[j,i] = 1
-    
+        permutation[j, i] = 1
+
     return permutation

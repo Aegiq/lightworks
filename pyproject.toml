@@ -17,9 +17,47 @@ omit = ["tests/*", "docs/*", "lightworks/sdk/optimisation/*"]
 
 [tool.mypy]
 disallow_untyped_defs = true
-exclude = ['venv', 'docs', 'tests']
+exclude = ['venv', 'docs', 'tests', 'setup.py']
 disable_error_code = 'import-untyped, import-not-found'
 
 [[tool.mypy.overrides]]
 module = "thewalrus.*, drawsvg.*, scipy.*, scipy.*.stats.*"
 ignore_missing_imports = true
+
+[tool.ruff]
+exclude = [
+    "venv",
+    "docs",
+    "setup.py"
+]
+line-length = 80
+indent-width = 4
+
+[tool.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint]
+preview = true
+select = ["E", "F", "W", "N", "D", "B", "CPY"]
+fixable = ["ALL"]
+ignore = [
+    "D100",
+    "D104",
+    "D105",
+    "D107",
+    "D200",
+    "D203",
+    "D205",
+    "D212",
+    "D400",
+    "D401",
+    "D407",
+    "D412",
+    "D415",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

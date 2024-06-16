@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# ruff: noqa: F401
+
 from .circuit import Circuit
 from .unitary import Unitary
 from .parameters import Parameter, ParameterDict

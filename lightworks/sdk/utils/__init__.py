@@ -12,8 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .matrix_utils import (check_unitary, random_unitary, random_permutation,
-                           add_mode_to_unitary)
+# ruff: noqa: F401, F403
+
+from .matrix_utils import (
+    check_unitary,
+    random_unitary,
+    random_permutation,
+    add_mode_to_unitary,
+)
 from .state_utils import state_to_string
 from .exceptions import *
 from .conversion import db_loss_to_transmission, transmission_to_db_loss

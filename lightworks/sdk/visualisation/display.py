@@ -20,40 +20,43 @@ import drawsvg
 import matplotlib.figure
 import matplotlib.pyplot as plt
 
+
 # Display function to interact with relevant classes
-def Display(circuit: "Circuit", display_loss: bool = False, # type: ignore
-            mode_labels: list[str] | None = None, display_type: str = "svg"
-            ) -> tuple[matplotlib.figure.Figure, plt.Axes] | drawsvg.Drawing:
+def Display(  # noqa: N802
+    circuit: "Circuit",  # type: ignore  # noqa: F821
+    display_loss: bool = False,
+    mode_labels: list[str] | None = None,
+    display_type: str = "svg",
+) -> tuple[matplotlib.figure.Figure, plt.Axes] | drawsvg.Drawing:
     """
     Used to Display a circuit from lightworks in the chosen format.
-    
+
     Args:
-    
+
         circuit (Circuit) : The circuit which is to be displayed.
-        
+
         display_loss (bool, optional) : Choose whether to display loss
             components in the figure, defaults to False.
-                                        
+
         mode_labels (list|None, optional) : Optionally provided a list of mode
-            labels which will be used to name the mode something other than 
+            labels which will be used to name the mode something other than
             numerical values. Can be set to None to use default values.
-                                            
-        display_type (str, optional) : Selects whether the drawsvg or 
+
+        display_type (str, optional) : Selects whether the drawsvg or
             matplotlib module should be used for displaying the circuit. Should
             either be 'svg' or 'mpl', defaults to 'svg'.
-                                           
+
     Returns:
-    
-        (fig, ax) | Drawing : The created figure and axis or drawing for the 
+
+        (fig, ax) | Drawing : The created figure and axis or drawing for the
             display plot, depending on which display type is used.
-        
+
     Raised:
-    
-        DisplayError : In any cases where an invalid display type is provided 
+
+        DisplayError : In any cases where an invalid display type is provided
             an exception will be raised.
-                                           
+
     """
-    
     if display_type == "mpl":
         disp = DrawCircuitMPL(circuit, display_loss, mode_labels)
         fig, ax = disp.draw()

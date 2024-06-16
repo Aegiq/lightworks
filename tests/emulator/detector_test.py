@@ -19,58 +19,59 @@ import pytest
 
 from random import random
 
+
 class TestDetector:
     """
-    Unit tests to check behaviour of the Detector object in different 
+    Unit tests to check behaviour of the Detector object in different
     situations.
     """
-    
-    def setup_method(self) -> None:
-        self.lossy_detector = Detector(efficiency = 0.1) # Should be very lossy
-        self.dc_detector = Detector(p_dark = 0.1) # High probability
-        self.non_pnr_detector = Detector(photon_counting = False)
-    
+
+    def setup_method(self) -> None:  # noqa: D102
+        self.lossy_detector = Detector(efficiency=0.1)  # Should be very lossy
+        self.dc_detector = Detector(p_dark=0.1)  # High probability
+        self.non_pnr_detector = Detector(photon_counting=False)
+
     def test_threshold_detection_multiphoton(self):
         """
-        Checks that threshold detection behaves as expected for a state with 
+        Checks that threshold detection behaves as expected for a state with
         multiple photons in a mode.
         """
-        out = self.non_pnr_detector._get_output(State([0,1,2,3,0,1]))
-        assert out == State([0,1,1,1,0,1])
-        
+        out = self.non_pnr_detector._get_output(State([0, 1, 2, 3, 0, 1]))
+        assert out == State([0, 1, 1, 1, 0, 1])
+
     def test_threshold_detection_singlephoton(self):
         """
         Checks that threshold detection behaves as expected for a state with
         all modes having one or less photons.
         """
-        out = self.non_pnr_detector._get_output(State([0,1,1,1,0,0]))
-        assert out == State([0,1,1,1,0,0])
-        
+        out = self.non_pnr_detector._get_output(State([0, 1, 1, 1, 0, 0]))
+        assert out == State([0, 1, 1, 1, 0, 0])
+
     def test_threshold_detection_zerostate(self):
         """
         Checks that threshold detection behaves as expected for the zero state.
         """
-        out = self.non_pnr_detector._get_output(State([0,0,0,0,0]))
-        assert out == State([0,0,0,0,0])
-        
+        out = self.non_pnr_detector._get_output(State([0, 0, 0, 0, 0]))
+        assert out == State([0, 0, 0, 0, 0])
+
     def test_lossy_detector(self):
         """
-        Confirms that the behaviour of detectors with imperfect detection 
+        Confirms that the behaviour of detectors with imperfect detection
         efficiency is as expected.
         """
         measured = set()
-        for i in range(1000):
-            measured.add(self.lossy_detector._get_output(State([0,2,1,0])))
-        assert State([0,1,0,0]) in measured
-        
+        for _i in range(1000):
+            measured.add(self.lossy_detector._get_output(State([0, 2, 1, 0])))
+        assert State([0, 1, 0, 0]) in measured
+
     def test_dark_counts(self):
         """Test that dark counts are working as expected."""
         measured = set()
-        for i in range(1000):
-            measured.add(self.dc_detector._get_output(State([0,0,0,0])))
+        for _i in range(1000):
+            measured.add(self.dc_detector._get_output(State([0, 0, 0, 0])))
         n_photons = [s.n_photons for s in measured]
         assert max(n_photons) > 0
-        
+
     def test_efficiency_modification(self):
         """
         Checks that the efficiency cannot be assigned to an invalid value.
@@ -82,7 +83,7 @@ class TestDetector:
             detector.efficiency = -0.1
         with pytest.raises(ValueError):
             detector.efficiency = 1.1
-            
+
     def test_p_dark_modification(self):
         """
         Checks that the p_dark cannot be assigned to an invalid value.
@@ -94,7 +95,7 @@ class TestDetector:
             detector.p_dark = -0.1
         with pytest.raises(ValueError):
             detector.p_dark = 1.1
-            
+
     def test_photon_counting_modification(self):
         """
         Checks that the photon_counting cannot be assigned to an invalid value.
@@ -104,24 +105,24 @@ class TestDetector:
             detector.photon_counting = 0.5
         with pytest.raises(TypeError):
             detector.photon_counting = "True"
-            
+
     def test_detector_random_seeding(self):
         """
         Checks repeatable results are produced when random seeding is used.
         """
-        r_seed = 100*random()
-        detector = Detector(efficiency = 0.5, p_dark = 1e-2)
-        N_samples = 100
-        input_state = State([1,0,2,1,0,1,0])
+        r_seed = 100 * random()
+        detector = Detector(efficiency=0.5, p_dark=1e-2)
+        n_samples = 100
+        input_state = State([1, 0, 2, 1, 0, 1, 0])
         # Get original results
         first = []
         detector._set_random_seed(r_seed)
-        for i in range(N_samples):
+        for _i in range(n_samples):
             first.append(detector._get_output(input_state))
         # Reset seed and sample again
         second = []
         detector._set_random_seed(r_seed)
-        for i in range(N_samples):
+        for _i in range(n_samples):
             second.append(detector._get_output(input_state))
         # Check they are equivalent
         assert first == second

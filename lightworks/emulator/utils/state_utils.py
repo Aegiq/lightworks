@@ -18,18 +18,25 @@ from typing import Iterable
 Script to store various useful functions for the simulation aspect of the code.
 """
 
-def fock_basis(N: int, n: int) -> list:
+
+def fock_basis(N: int, n: int) -> list:  # noqa: N803
     """Returns the Fock basis for n photons in N modes."""
-    return list(_sums(N,n))
+    return list(_sums(N, n))
+
 
 def _sums(length: int, total_sum: int) -> Iterable:
     if length == 1:
-        yield [total_sum,]
+        yield [
+            total_sum,
+        ]
     else:
         for value in range(total_sum + 1):
-            for permutation in _sums(length-1, total_sum-value):
-                yield permutation + [value,]
-                
+            for permutation in _sums(length - 1, total_sum - value):
+                yield permutation + [
+                    value,
+                ]
+
+
 def annotated_state_to_string(state: list) -> str:
     """Converts the provided annotated state to a string with ket notation."""
     string = "|"
