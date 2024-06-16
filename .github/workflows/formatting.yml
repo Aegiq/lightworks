@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
         
 jobs:
-  test:
+  formatting:
 
     runs-on: ubuntu-latest
 
