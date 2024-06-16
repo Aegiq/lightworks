@@ -38,7 +38,7 @@ convention = "google"
 
 [tool.ruff.lint]
 preview = true
-select = ["E", "F", "W", "N", "D", "B", "CPY"]
+select = ["E", "F", "W", "N", "D", "B", "CPY", "TRY"]
 fixable = ["ALL"]
 ignore = [
     "D100",
@@ -54,6 +54,7 @@ ignore = [
     "D407",
     "D412",
     "D415",
+    "TRY003",
 ]
 
 [tool.ruff.format]

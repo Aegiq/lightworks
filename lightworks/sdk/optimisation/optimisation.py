@@ -418,7 +418,7 @@ class Optimisation:
                 "optimisation function."
             ) from e
         if not isinstance(return_val, Number):
-            raise ValueError("Function return value should be a number.")
+            raise TypeError("Function return value should be a number.")
 
     def __setattr__(self, __name: str, __value: Any) -> None:
         if __name == "opt_circuit":

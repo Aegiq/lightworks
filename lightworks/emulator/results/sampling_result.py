@@ -71,7 +71,7 @@ class SamplingResult:
             else:
                 raise KeyError("Provided output state not in data.")
         else:
-            raise ValueError("Get item value must be a State.")
+            raise TypeError("Get item value must be a State.")
 
     def __str__(self) -> str:
         return str(self.dictionary)

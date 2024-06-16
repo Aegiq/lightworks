@@ -142,7 +142,7 @@ class SimulationResult:
             if not isinstance(istate, State) or not isinstance(
                 ostate, (State, type(None))
             ):
-                raise ValueError("Get item values should have type State.")
+                raise TypeError("Get item values should have type State.")
             if istate in self.dictionary:
                 sub_r = self.dictionary[istate]
             else:
@@ -156,7 +156,7 @@ class SimulationResult:
             else:
                 raise KeyError("Requested output state not in data.")
         else:
-            raise ValueError("Get item value must be either one or two States.")
+            raise TypeError("Get item value must be either one or two States.")
 
     def __str__(self) -> str:
         return str(self.dictionary)
