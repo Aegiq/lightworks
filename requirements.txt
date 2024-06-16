@@ -16,3 +16,5 @@ sphinxcontrib-bibtex
 pytest
 pytest-rerunfailures
 pytest-cov
+ruff>=0.4.8
+mypy>=1.10.0
