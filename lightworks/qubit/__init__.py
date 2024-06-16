@@ -14,5 +14,5 @@
 
 from .gates import *
 
-__all__ = ["H", "X", "Y", "Z", "S", "T", "CZ", "CNOT", "CZ_Heralded", 
+__all__ = ["H", "X", "Y", "Z", "S", "T", "CZ", "CNOT", "CZ_Heralded",
            "CNOT_Heralded", "SWAP", "CCZ", "CCNOT"]

@@ -20,28 +20,29 @@ from ...sdk.circuit.circuit_compiler import CompiledCircuit
 
 from numpy import ndarray
 
+
 class Backend:
     """
-    Provide central location for selecting and interacting with different 
+    Provide central location for selecting and interacting with different
     simulation backends.
-    
+
     Args:
-    
+
         backend (str) : A string detailing the backend which is to be used.
-        
+
     """
-    
+
     def __init__(self, backend: str) -> None:
-        
+
         self.backend = backend
-        
+
         return
-    
+
     @property
     def backend(self) -> str:
         """Stores data on the selected backend."""
         return self.__backend
-    
+
     @backend.setter
     def backend(self, value: str) -> None:
         if value not in ["permanent", "slos", "clifford"]:
@@ -51,39 +52,39 @@ class Backend:
             raise NotImplementedError(
                 "Support for this backend has not yet been included.")
         self.__backend = value
-        
+
     def __str__(self) -> str:
         return self.backend
-    
+
     def __repr__(self) -> str:
         return f"lightworks.emulator.Backend('{self.backend}')"
-    
-    def probability_amplitude(self, unitary: ndarray, 
-                              input_state: list, 
+
+    def probability_amplitude(self, unitary: ndarray,
+                              input_state: list,
                               output_state: list) -> complex:
         """
         Find the probability amplitude between a given input and output state
-        for the provided unitary. Note values should be provided as an 
+        for the provided unitary. Note values should be provided as an
         array/list.
-        
+
         Args:
-        
+
             unitary (np.ndarray) : The target unitary matrix which represents
                 the transformation implemented by a circuit.
-                
+
             input_state (list) : The input state to the system.
-            
+
             output_state (list) : The target output state.
-            
+
         Returns:
-        
+
             complex : The calculated probability amplitude.
-            
+
         Raises:
-        
+
             BackendError: Raised if this method is called with an incompatible
                 backend.
-            
+
         """
         if self.backend == "permanent":
             return Permanent.calculate(unitary, input_state, output_state)
@@ -91,70 +92,70 @@ class Backend:
             raise BackendError(
                 "Direct probability amplitude calculation only supported for "
                 "permanent backend.")
-        
-    def probability(self, unitary: ndarray, input_state: list, 
+
+    def probability(self, unitary: ndarray, input_state: list,
                     output_state: list) -> float:
         """
-        Calculates the probability of a given output state for a provided 
-        unitary and input state to the system. Note values should be provided 
+        Calculates the probability of a given output state for a provided
+        unitary and input state to the system. Note values should be provided
         as an array/list.
-        
+
         Args:
-        
+
             unitary (np.ndarray) : The target unitary matrix which represents
                 the transformation implemented by a circuit.
-                
+
             input_state (list) : The input state to the system.
-            
+
             output_state (list) : The target output state.
-            
+
         Returns:
-        
+
             float : The calculated probability of transition between the input
                 and output.
-            
+
         Raises:
-        
+
             BackendError: Raised if this method is called with an incompatible
                 backend.
-                
+
         """
-        return abs(self.probability_amplitude(unitary, input_state, 
+        return abs(self.probability_amplitude(unitary, input_state,
                                               output_state))**2
-        
-    def full_probability_distribution(self, circuit: CompiledCircuit, 
+
+    def full_probability_distribution(self, circuit: CompiledCircuit,
                                       input_state: State) -> dict:
         """
         Finds the output probability distribution for the provided circuit and
         input state.
-        
+
         Args:
-        
-            circuit (CompiledCircuit) : The compiled version of the circuit 
+
+            circuit (CompiledCircuit) : The compiled version of the circuit
                 which is being simulated. This is created by calling the _build
                 method on the target circuit.
-                
+
             input_state (State) : The input state to the system.
-                        
+
         Returns:
-        
+
             dict : The calculated full probability distribution for the input.
-            
+
         Raises:
-        
+
             BackendError: Raised if this method is called with an incompatible
                 backend.
-                
+
         """
         pdist: dict[State, float] = {}
         # Return empty distribution when 0 photons in input
         if input_state.n_photons == 0:
-            pdist = {State([0]*circuit.n_modes) : 1.0}
+            pdist = {State([0] * circuit.n_modes): 1.0}
         # Otherwise vary distribution calculation method
-        elif self.backend == "permanent":    
+        elif self.backend == "permanent":
             # Add extra states for loss modes here when included
             if circuit.loss_modes > 0:
-                input_state = input_state + State([0]*circuit.loss_modes) 
+                input_state = input_state + State([0] * circuit.loss_modes)
             # For a given input work out all possible outputs
             out_states = fock_basis(len(input_state), input_state.n_photons)
             for ostate in out_states:
@@ -172,11 +173,11 @@ class Backend:
             # Work out zero photon component before saving to unique results
             total_prob = sum(pdist.values())
             if total_prob < 1 and circuit.loss_modes > 0:
-                pdist[State([0]*circuit.n_modes)] = 1 - total_prob
+                pdist[State([0] * circuit.n_modes)] = 1 - total_prob
         elif self.backend == "slos":
             # Add extra states for loss modes here when included
             if circuit.loss_modes > 0:
-                input_state = input_state + State([0]*circuit.loss_modes) 
+                input_state = input_state + State([0] * circuit.loss_modes)
             full_dist = SLOS.calculate(circuit.U_full, input_state)
             # Combine results to remote lossy modes
             for s, p in full_dist.items():
@@ -185,9 +186,9 @@ class Backend:
                     pdist[new_s] += abs(p)**2
                 else:
                     pdist[new_s] = abs(p)**2
-        elif self.backend == "clifford": 
+        elif self.backend == "clifford":
             raise BackendError(
                 "Probability distribution calculation not supported for "
                 "clifford backend.")
-        
+
         return pdist

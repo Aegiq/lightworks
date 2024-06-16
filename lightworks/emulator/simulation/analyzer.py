@@ -28,84 +28,85 @@ from typing import Callable
 class Analyzer:
     """
     The analyzer class is built as an alternative to simulation, intended for
-    cases where we want to look at the transformations between a specific 
-    subset of states. It is useful for the simulation of probabilities in 
+    cases where we want to look at the transformations between a specific
+    subset of states. It is useful for the simulation of probabilities in
     cases where loss and circuit errors are likely to be a factor. As part of
-    the process a performance and error rate metric are calculated.  
-    
+    the process a performance and error rate metric are calculated.
+
     Args:
-    
+
         circuit (Circuit) : The circuit to simulate.
-        
+
     Attribute:
-    
-        performance : The total probabilities of mapping between the states 
+
+        performance : The total probabilities of mapping between the states
             provided compared with all possible states.
-                      
+
         error_rate : Given an expected mapping, the analyzer will determine the
             extent to which this is achieved.
-        
+
     """
-    def __init__ (self, circuit: Circuit) -> None:
-        
+
+    def __init__(self, circuit: Circuit) -> None:
+
         # Assign key parameters to attributes
         self.circuit = circuit
         # Create empty list/dict to store other quantities
         self.post_selects: list[Callable] = []
         self.__backend = Backend("permanent")
-        
+
         return
-    
+
     @property
     def circuit(self) -> Circuit:
         """
-        Stores the circuit to be used for simulation, should be a Circuit 
+        Stores the circuit to be used for simulation, should be a Circuit
         object.
         """
         return self.__circuit
-    
+
     @circuit.setter
     def circuit(self, value: Circuit) -> None:
         if not isinstance(value, Circuit):
             raise TypeError(
                 "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
-    
+
     def set_post_selection(self, function: Callable) -> None:
         """
-        Add post selection functions, these should only act across the 
+        Add post selection functions, these should only act across the
         non-heralded modes of the circuit.
         """
-        # NOTE: If multiple lambda functions are created and passed to this 
+        # NOTE: If multiple lambda functions are created and passed to this
         # using a loop this may create issues related to how lambda functions
         # use out of scope variables. See the following for more info:
         # https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
         if not isinstance(function, FunctionType):
             raise TypeError("Post-selection rule should be a function.")
         self.post_selects += [function]
-        
+
         return
-    
-    def analyze (self, inputs: State | list, 
-                 expected: dict | None = None) -> SimulationResult:
+
+    def analyze(self, inputs: State | list,
+                expected: dict | None = None) -> SimulationResult:
         """
-        Function to perform analysis of probabilities between 
+        Function to perform analysis of probabilities between
         different inputs/outputs
-        
+
         Args:
-        
-            inputs (list) : A list of the input states to simulate. For 
+
+            inputs (list) : A list of the input states to simulate. For
                 multiple inputs this should be a list of States.
-                            
+
             expected (dict) : A dictionary containing a mapping between the
                 input state and expected output state(s). If there is multiple
                 possible outputs, this can be specified as a list.
-                        
+
         Returns:
-        
-            SimulationResult : A dictionary containing an array of probability 
-                values between the provided inputs/outputs. 
-            
+
+            SimulationResult : A dictionary containing an array of probability
+                values between the provided inputs/outputs.
+
         """
         self.__circuit_built = self.circuit._build()
         n_modes = self.circuit.input_modes
@@ -116,36 +117,36 @@ class Analyzer:
                 "modified.")
         # Convert state to list of States if not provided for single state case
         if isinstance(inputs, State):
-            inputs = [inputs] 
+            inputs = [inputs]
         # Process inputs using dedicated function
         full_inputs = self._process_inputs(inputs)
         n_photons = full_inputs[0].n_photons
         # Generate lists of possible outputs with and without heralded modes
-        full_outputs, filtered_outputs = self._generate_outputs(n_modes, 
+        full_outputs, filtered_outputs = self._generate_outputs(n_modes,
                                                                 n_photons)
-        # Calculate permanent for the given inputs and outputs and return 
+        # Calculate permanent for the given inputs and outputs and return
         # values
         probs = self._get_probs(full_inputs, full_outputs)
         # Calculate performance by finding sum of valid transformations
-        self.performance = probs.sum()/len(full_inputs)
+        self.performance = probs.sum() / len(full_inputs)
         # Analyse error rate from expected results if specified
         if expected is not None:
-            self.error_rate = self._calculate_error_rate(probs, inputs, 
+            self.error_rate = self._calculate_error_rate(probs, inputs,
                                                          filtered_outputs,
                                                          expected)
         # Compile results into results object
-        results = SimulationResult(probs, "probability", inputs = inputs,
-                                   outputs = filtered_outputs, 
-                                   performance = self.performance)
+        results = SimulationResult(probs, "probability", inputs=inputs,
+                                   outputs=filtered_outputs,
+                                   performance=self.performance)
         if hasattr(self, "error_rate"):
-            results.error_rate = self.error_rate # type: ignore
+            results.error_rate = self.error_rate  # type: ignore
         self.results = results
         # Return dict
         return results
-    
+
     def _get_probs(self, full_inputs: list, full_outputs: list) -> np.ndarray:
         """
-        Create an array of output probabilities for a given set of inputs and 
+        Create an array of output probabilities for a given set of inputs and
         outputs.
         """
         probs = np.zeros((len(full_inputs), len(full_outputs)))
@@ -159,7 +160,7 @@ class Analyzer:
                 else:
                     # Photon number preserved
                     if ins.n_photons == sum(outs):
-                        outs = outs + [0]*self.__circuit_built.loss_modes
+                        outs = outs + [0] * self.__circuit_built.loss_modes
                         probs[i, j] += self.__backend.probability(
                             self.__circuit_built.U_full, ins.s, outs)
                     # Otherwise
@@ -177,14 +178,14 @@ class Analyzer:
                         for ls in loss_states:
                             fs = outs + ls
                             probs[i, j] += self.__backend.probability(
-                                self.__circuit_built.U_full, ins.s, fs)     
-                            
+                                self.__circuit_built.U_full, ins.s, fs)
+
         return probs
-    
-    def _calculate_error_rate(self, probabilities: np.ndarray, inputs: list, 
+
+    def _calculate_error_rate(self, probabilities: np.ndarray, inputs: list,
                               outputs: list, expected: dict) -> float:
         """
-        Calculate the error rate for a set of expected mappings between inputs 
+        Calculate the error rate for a set of expected mappings between inputs
         and outputs, given the results calculated by the analyzer.
         """
         # Check all inputs in expectation mapping
@@ -197,26 +198,26 @@ class Analyzer:
         for i, s in enumerate(inputs):
             out = expected[s]
             # Convert expected output to list if only one value provided
-            if type(out) == State:
+            if isinstance(out, State):
                 out = [out]
-            iprobs = probabilities[i,:]
+            iprobs = probabilities[i, :]
             error = 1
             # Loop over expected outputs and subtract from error value
             for o in out:
                 if o in outputs:
                     loc = outputs.index(o)
-                    error -= (iprobs[loc]/sum(iprobs))
+                    error -= (iprobs[loc] / sum(iprobs))
             errors += [error]
         # Then take average and return
         return float(np.mean(errors))
-    
+
     def _process_inputs(self, inputs: list) -> list[State]:
         """
-        Takes the provided inputs, perform error checking on them and adds any 
+        Takes the provided inputs, perform error checking on them and adds any
         heralded photons that are required, returning full states..
         """
         n_modes = self.circuit.input_modes
-        # Ensure all photon numbers are the same   
+        # Ensure all photon numbers are the same
         ns = [s.n_photons for s in inputs]
         if min(ns) != max(ns):
             raise PhotonNumberError(
@@ -234,24 +235,24 @@ class Analyzer:
             full_inputs += [State(add_heralds_to_state(state, in_heralds))]
         # Add extra states for loss modes here when included
         if self.__circuit_built.loss_modes > 0:
-            full_inputs = [s + State([0]*self.__circuit_built.loss_modes) 
+            full_inputs = [s + State([0] * self.__circuit_built.loss_modes)
                            for s in full_inputs]
         return full_inputs
-    
-    def _generate_outputs(self, n_modes: int, 
+
+    def _generate_outputs(self, n_modes: int,
                           n_photons: int) -> tuple[list, list]:
         """
         Generates all possible outputs for a given number of modes, photons and
-        heralding + post-selection conditions. It returns two list, one with 
+        heralding + post-selection conditions. It returns two list, one with
         the heralded modes included and one without.
         """
         # Get all possible outputs for the non-herald modes
-        if not self.__circuit_built.loss_modes:            
+        if not self.__circuit_built.loss_modes:
             outputs = fock_basis(n_modes, n_photons)
         # Combine all n < n_in for lossy case
         else:
             outputs = []
-            for n in range(0, n_photons+1):
+            for n in range(0, n_photons + 1):
                 outputs += fock_basis(n_modes, n)
         # Filter outputs according to post selection and add heralded photons
         filtered_outputs = []
@@ -263,13 +264,13 @@ class Analyzer:
                 if not funcs(state):
                     break
             else:
-                fo  = add_heralds_to_state(
-                          state, out_heralds)
+                fo = add_heralds_to_state(
+                    state, out_heralds)
                 filtered_outputs += [State(state)]
                 full_outputs += [fo]
         # Check some valid outputs found
         if not full_outputs:
             raise ValueError(
                 "No valid outputs found, consider relaxing post-selection.")
-        
+
         return (full_outputs, filtered_outputs)

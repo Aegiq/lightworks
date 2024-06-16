@@ -18,11 +18,13 @@ Contains all custom exceptions created for the emulator section of Lightworks.
 
 from ...sdk.utils import LightworksError
 
+
 class EmulatorError(LightworksError):
     """
     Generic error for emulator which sub classes the main LightworksError
     """
     pass
+
 
 class AnnotatedStateError(EmulatorError):
     """
@@ -30,28 +32,32 @@ class AnnotatedStateError(EmulatorError):
     """
     pass
 
+
 class ResultCreationError(EmulatorError):
     """
     For specific errors which occur when using creating a Result object.
     """
     pass
-    
+
+
 class BackendError(EmulatorError):
     """
     Raised when errors occur in the Backend object.
     """
     pass
-    
+
+
 class ModeMismatchError(EmulatorError):
     """
-    For use in simulation objects when there is a mode mismatch between 
+    For use in simulation objects when there is a mode mismatch between
     provided states/circuit.
     """
     pass
-    
+
+
 class PhotonNumberError(EmulatorError):
     """
-    For use in simulation objects when there is a photon number mismatch 
+    For use in simulation objects when there is a photon number mismatch
     between inputs and/or outputs.
     """
     pass

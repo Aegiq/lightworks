@@ -27,59 +27,60 @@ class Simulator:
     """
     Simulates a circuit for a provided number of inputs and outputs, returning
     the probability amplitude between them.
-    
+
     Args:
-    
+
         circuit : The circuit which is to be used for simulation.
-        
+
     """
-    def __init__ (self, circuit: Circuit) -> None:
-        
+
+    def __init__(self, circuit: Circuit) -> None:
+
         # Assign circuit to attribute
         self.circuit = circuit
         self.__backend = Backend("permanent")
-        
+
         return
-    
+
     @property
     def circuit(self) -> Circuit:
         """
-        Stores the circuit to be used for simulation, should be a Circuit 
+        Stores the circuit to be used for simulation, should be a Circuit
         object.
         """
         return self.__circuit
-    
+
     @circuit.setter
     def circuit(self, value: Circuit) -> None:
         if not isinstance(value, Circuit):
             raise TypeError(
                 "Provided circuit should be a Circuit or Unitary object.")
         self.__circuit = value
-    
-    def simulate (self, inputs: State | list[State], 
-                  outputs: list | None = None) -> SimulationResult:
+
+    def simulate(self, inputs: State | list[State],
+                 outputs: list | None = None) -> SimulationResult:
         """
-        Function to run a simulation for a number of inputs/outputs, if no 
+        Function to run a simulation for a number of inputs/outputs, if no
         outputs are specified then all possible outputs for the photon number
-        are calculated. All inputs and outputs should have the same photon 
+        are calculated. All inputs and outputs should have the same photon
         number.
-        
+
         Args:
-        
-            inputs (list) : A list of the input states to simulate. For 
+
+            inputs (list) : A list of the input states to simulate. For
                 multiple inputs this should be a list of States.
-            
-            outputs (list | None, optional) : A list of the output states to 
-                simulate, this can also be set to None to automatically find 
+
+            outputs (list | None, optional) : A list of the output states to
+                simulate, this can also be set to None to automatically find
                 all possible outputs.
-            
+
         Returns:
-        
-            SimulationResult : A dictionary containing the calculated 
-                probability amplitudes, where the first index of the array 
+
+            SimulationResult : A dictionary containing the calculated
+                probability amplitudes, where the first index of the array
                 corresponds to the input state, as well as the input and output
                 state used to create the array.
-            
+
         """
         circuit = self.circuit._build()
         # Then process inputs list
@@ -88,33 +89,33 @@ class Simulator:
         inputs, outputs = self._process_outputs(inputs, outputs)
         in_heralds = self.circuit.heralds["input"]
         out_heralds = self.circuit.heralds["output"]
-        # Calculate permanent for the given inputs and outputs and return 
+        # Calculate permanent for the given inputs and outputs and return
         # values
-        amplitudes = np.zeros((len(inputs), len(outputs)), dtype = complex)
+        amplitudes = np.zeros((len(inputs), len(outputs)), dtype=complex)
         for i, ins in enumerate(inputs):
             in_state = add_heralds_to_state(ins, in_heralds)
-            in_state += [0]*circuit.loss_modes
+            in_state += [0] * circuit.loss_modes
             for j, outs in enumerate(outputs):
                 out_state = add_heralds_to_state(outs, out_heralds)
-                out_state += [0]*circuit.loss_modes
+                out_state += [0] * circuit.loss_modes
                 amplitudes[i, j] = self.__backend.probability_amplitude(
                     circuit.U_full, in_state, out_state)
         # Return results and corresponding states as dictionary
-        return SimulationResult(amplitudes, "probability_amplitude", 
-                                inputs = inputs, outputs = outputs)
-    
+        return SimulationResult(amplitudes, "probability_amplitude",
+                                inputs=inputs, outputs=outputs)
+
     def _process_inputs(self, inputs: State | list) -> list:
         """Performs all required processing/checking on the input states."""
         # Convert state to list of States if not provided for single state case
         if isinstance(inputs, State):
-                inputs = [inputs]
+            inputs = [inputs]
         input_modes = self.circuit.input_modes
         # Check each input
         for state in inputs:
             # Ensure correct type
             if not isinstance(state, State):
                 raise TypeError(
-                    "inputs should be a State or list of State objects.")  
+                    "inputs should be a State or list of State objects.")
             # Dimension check
             if len(state) != input_modes:
                 raise ModeMismatchError(
@@ -124,11 +125,11 @@ class Simulator:
             # Also validate state values
             state._validate()
         return inputs
-    
-    def _process_outputs(self, inputs: list, 
+
+    def _process_outputs(self, inputs: list,
                          outputs: list | None) -> tuple[list, list]:
         """
-        Processes the provided outputs or generates them if no inputs were 
+        Processes the provided outputs or generates them if no inputs were
         provided. Returns both the inputs and outputs.
         """
         input_modes = self.circuit.input_modes
@@ -143,14 +144,14 @@ class Simulator:
             outputs = [State(s) for s in outputs]
         # Otherwise check provided outputs
         else:
-            if type(outputs) is State:
+            if isinstance(outputs, State):
                 outputs = [outputs]
             # Check type and dimension is correct
             for state in outputs:
                 # Ensure correct type
                 if not isinstance(state, State):
                     raise TypeError(
-                        "outputs should be a State or list of State objects.")  
+                        "outputs should be a State or list of State objects.")
                 # Dimension check
                 if len(state) != input_modes:
                     raise ModeMismatchError(
@@ -159,7 +160,7 @@ class Simulator:
                         f"{input_modes}.")
                 # Also validate state values
                 state._validate()
-            # Ensure photon numbers are the same in all states - variation not 
+            # Ensure photon numbers are the same in all states - variation not
             # currently supported
             ns = [s.n_photons for s in inputs + outputs]
             if min(ns) != max(ns):
