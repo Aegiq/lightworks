@@ -45,6 +45,7 @@ select = [
 fixable = ["ALL"]
 ignore = [
     "ARG005",
+    "ANN001",
     "ANN401",
     "D100",
     "D104",
