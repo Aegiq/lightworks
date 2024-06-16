@@ -418,7 +418,7 @@ class SimulationResult:
                 if self.result_type == "counts":
                     to_print += str(ostate) + " : " + str(p) + ", "
                 else:
-                    p = np.round(p, rounding)
+                    p = np.round(p, rounding)  # noqa: PLW2901
                     if abs(p.real) > 0 or abs(p.imag) > 0:
                         to_print += str(p) + "*" + str(ostate) + " + "
             to_print = to_print[:-2]

@@ -168,7 +168,9 @@ class Analyzer:
                 else:
                     # Photon number preserved
                     if ins.n_photons == sum(outs):
-                        outs = outs + [0] * self.__circuit_built.loss_modes
+                        outs = (  # noqa: PLW2901
+                            outs + [0] * self.__circuit_built.loss_modes
+                        )
                         probs[i, j] += self.__backend.probability(
                             self.__circuit_built.U_full, ins.s, outs
                         )

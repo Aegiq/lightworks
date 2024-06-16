@@ -292,7 +292,7 @@ class Sampler:
         self.detector._set_random_seed(seed)
         # Process output states
         for state in samples:
-            state = self.detector._get_output(state)
+            state = self.detector._get_output(state)  # noqa: PLW2901
             # Checks herald requirements are met
             for m, n in herald_items:
                 if state[m] != n:
@@ -374,7 +374,7 @@ class Sampler:
         for s, p in pdist.items():
             # Apply threshold detection
             if not self.detector.photon_counting:
-                s = State([min(i, 1) for i in s])
+                s = State([min(i, 1) for i in s])  # noqa: PLW2901
             # Check heralds
             for m, n in herald_items:
                 if s[m] != n:

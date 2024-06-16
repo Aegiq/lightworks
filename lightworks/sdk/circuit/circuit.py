@@ -699,7 +699,7 @@ class Circuit:
         for tm in to_modify:
             new_heralds = {}
             for m, n in getattr(self, "_Circuit" + tm).items():
-                m += 1 if m >= mode else 0
+                m += 1 if m >= mode else 0  # noqa: PLW2901
                 new_heralds[m] = n
             setattr(self, "_Circuit" + tm, new_heralds)
         # Add internal mode storage

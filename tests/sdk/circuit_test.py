@@ -141,7 +141,7 @@ class TestCircuit:
             circ_comp.add_bs(m)
             circ_comp.add_ps(m, i)
         # Second part
-        for i in range(4):
+        for _i in range(4):
             for i, m in enumerate([3, 1, 3, 2, 1]):
                 circ_comp.add_ps(m + 1, i)
                 circ_comp.add_bs(m, loss=0.2 * i)

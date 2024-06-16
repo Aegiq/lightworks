@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# ruff: noqa: PLW2901
+
 """
 Contains a number of different utility functions for modifying circuits.
 """

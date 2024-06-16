@@ -221,7 +221,7 @@ class Source:
         # Combine any duplicate results
         stats_dict: dict[State, float] = {}  # Convert stats to dict
         for probs, s in stats:
-            s = State(s)  # type: ignore
+            s = State(s)  # type: ignore  # noqa: PLW2901
             if s not in stats_dict:
                 stats_dict[s] = probs  # type: ignore
             else:
@@ -287,12 +287,12 @@ class Source:
             all_labels = list(dict.fromkeys(all_labels))
             mapping = {all_labels[i]: i for i in range(len(all_labels))}
             # Apply determined mapping to each state
-            state = state.s
+            state = state.s  # noqa: PLW2901
             for j, mode in enumerate(state):
                 for i, m in enumerate(mode):
                     mode[i] = mapping[m]
                 state[j] = mode
-            state = AnnotatedState(state)
+            state = AnnotatedState(state)  # noqa: PLW2901
             # Add new state to new distribution
             if state not in new_dist:
                 new_dist[state] = p

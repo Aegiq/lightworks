@@ -170,7 +170,7 @@ class Backend:
                 p = Permanent.calculate(circuit.U_full, input_state.s, ostate)
                 if abs(p) ** 2 > 0:
                     # Only care about non-loss modes
-                    ostate = State(ostate[: circuit.n_modes])
+                    ostate = State(ostate[: circuit.n_modes])  # noqa: PLW2901
                     if ostate in pdist:
                         pdist[ostate] += abs(p) ** 2
                     else:

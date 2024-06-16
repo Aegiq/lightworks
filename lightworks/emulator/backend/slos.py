@@ -59,7 +59,7 @@ def a_i_dagger(dist: dict, mode: int, multiplier: complex) -> dict:
     updated_dist = {}  # Create a new dictionary to store updated values
 
     for key, value in dist.items():
-        key = list(key)
+        key = list(key)  # noqa: PLW2901
         key[mode] += 1  # Increase the number of photons in the ith mode by 1
         # Update the new dictionary with modified key, value + normalisation
         updated_dist[tuple(key)] = key[mode] ** 0.5 * value * multiplier
