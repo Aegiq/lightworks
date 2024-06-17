@@ -5,6 +5,8 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+
+## pytest config
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra"
@@ -12,9 +14,11 @@ testpaths = [
     "tests",
 ]
 
+## pytest coverage config
 [tool.coverage.run]
 omit = ["tests/*", "docs/*", "lightworks/sdk/optimisation/*"]
 
+## mypy config
 [tool.mypy]
 disallow_untyped_defs = true
 exclude = ['venv/', 'docs/', 'tests/', 'setup.py']
@@ -24,6 +28,7 @@ disable_error_code = 'import-untyped, import-not-found'
 module = "thewalrus.*, drawsvg.*, scipy.*, scipy.*.stats.*"
 ignore_missing_imports = true
 
+## ruff config
 [tool.ruff]
 exclude = [
     "venv",
