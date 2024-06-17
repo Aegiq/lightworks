@@ -13,9 +13,10 @@
 # limitations under the License.
 
 
+from math import factorial, prod
+
 import numpy as np
 from thewalrus import perm
-from math import factorial, prod
 
 
 class Permanent:

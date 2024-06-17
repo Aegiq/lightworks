@@ -12,13 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lightworks import Parameter, ParameterDict
-from lightworks import ParameterValueError, ParameterBoundsError
-from lightworks import ParameterDictError
+from math import inf
 
 import pytest
 
-from math import inf
+from lightworks import (
+    Parameter,
+    ParameterBoundsError,
+    ParameterDict,
+    ParameterDictError,
+    ParameterValueError,
+)
 
 
 class TestParameter:

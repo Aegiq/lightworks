@@ -17,21 +17,27 @@ Circuit class for creating circuits with Parameters object that can be modified
 after creation.
 """
 
+from copy import copy, deepcopy
+from numbers import Number
+from typing import Any, Union
+
+import matplotlib.pyplot as plt
+import numpy as np
+from IPython import display
+
+from ..utils import (
+    CircuitCompilationError,
+    DisplayError,
+    ModeRangeError,
+    add_empty_mode_to_circuit_spec,
+    add_modes_to_circuit_spec,
+    compress_mode_swaps,
+    convert_non_adj_beamsplitters,
+    unpack_circuit_spec,
+)
+from ..visualisation import Display
 from .circuit_compiler import CompiledCircuit, CompiledUnitary
 from .parameters import Parameter
-from ..utils import ModeRangeError, DisplayError
-from ..utils import CircuitCompilationError
-from ..utils import unpack_circuit_spec, compress_mode_swaps
-from ..utils import convert_non_adj_beamsplitters
-from ..utils import add_modes_to_circuit_spec, add_empty_mode_to_circuit_spec
-from ..visualisation import Display
-
-from typing import Any, Union
-from numbers import Number
-import matplotlib.pyplot as plt
-from IPython import display
-from copy import copy, deepcopy
-import numpy as np
 
 
 class Circuit:

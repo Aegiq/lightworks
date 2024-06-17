@@ -17,11 +17,10 @@ A custom state datatype, which is created with the aim of making states in the
 emulator much easier to work with.
 """
 
-from ..utils import state_to_string
-from ..utils import StateError
-
 from copy import copy
 from typing import Any, Iterable, Union
+
+from ..utils import StateError, state_to_string
 
 
 class State:

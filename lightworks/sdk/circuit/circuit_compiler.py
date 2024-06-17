@@ -20,12 +20,16 @@ optics components. It also supports the inclusion of loss when being used as
 part of simulations.
 """
 
-from ..utils import ModeRangeError, check_unitary
-from ..utils import permutation_mat_from_swaps_dict
-
-from typing import Any
-import numpy as np
 from copy import copy
+from typing import Any
+
+import numpy as np
+
+from ..utils import (
+    ModeRangeError,
+    check_unitary,
+    permutation_mat_from_swaps_dict,
+)
 
 
 class CompiledCircuit:

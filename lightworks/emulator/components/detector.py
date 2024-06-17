@@ -17,10 +17,10 @@ Class to simulate detector response when sampling, including detector
 efficiency, dark counts and non-photon number resolving detectors.
 """
 
-from ...sdk.state import State
-
-from random import random, seed
 from numbers import Number
+from random import random, seed
+
+from ...sdk.state import State
 
 
 class Detector:

@@ -17,11 +17,11 @@ Contains a variety of two qubit components, designed for implementing required
 qubit processing functionality in lightworks.
 """
 
-from .single_qubit_gates import H
-from ...sdk.circuit import Unitary, Circuit
-from ...sdk.utils import permutation_mat_from_swaps_dict
-
 import numpy as np
+
+from ...sdk.circuit import Circuit, Unitary
+from ...sdk.utils import permutation_mat_from_swaps_dict
+from .single_qubit_gates import H
 
 
 class CZ(Circuit):

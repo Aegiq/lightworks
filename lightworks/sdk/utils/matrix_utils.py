@@ -16,9 +16,10 @@
 Contains a collection of different useful functions for operations on matrices.
 """
 
+from typing import Any
+
 import numpy as np
 from scipy.stats import unitary_group
-from typing import Any
 
 
 def random_unitary(N: int, seed: int | None = None) -> np.ndarray:  # noqa: N803

@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lightworks.sdk.circuit.circuit_compiler import CompiledCircuit
-
 import pytest
 from numpy import round
+
+from lightworks.sdk.circuit.circuit_compiler import CompiledCircuit
 
 
 class TestCompiledCircuit:

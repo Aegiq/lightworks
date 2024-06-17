@@ -12,13 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lightworks import Parameter, ParameterDict, Circuit
-from lightworks import Unitary, random_unitary
-from lightworks import CircuitCompilationError
+from random import randint, random, seed
 
 import pytest
-from random import random, seed, randint
 from numpy import round
+
+from lightworks import (
+    Circuit,
+    CircuitCompilationError,
+    Parameter,
+    ParameterDict,
+    Unitary,
+    random_unitary,
+)
 
 
 class TestCircuit:

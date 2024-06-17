@@ -17,10 +17,9 @@ A custom state datatype, which is created for storing annotated state details.
 It is not intended that this class will be ordinarily accessible to users.
 """
 
-from ..utils import annotated_state_to_string
-from ..utils import AnnotatedStateError
-
 from typing import Any, Union
+
+from ..utils import AnnotatedStateError, annotated_state_to_string
 
 
 class AnnotatedState:

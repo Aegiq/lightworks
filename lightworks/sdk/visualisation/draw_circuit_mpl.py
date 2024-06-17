@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..utils import DisplayError
-
-import numpy as np
 import matplotlib.figure
-import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+import numpy as np
+
+from ..utils import DisplayError
 
 # ruff: noqa: N806
 

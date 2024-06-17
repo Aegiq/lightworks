@@ -12,18 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..backend import Backend
-from ..utils import fock_basis, ModeMismatchError
-from ..results import SamplingResult
-from ...sdk.state import State
-from ...sdk.circuit import Circuit
-from ...sdk.utils import add_heralds_to_state
-
-import numpy as np
+from collections import Counter
 from random import random
 from types import FunctionType
-from collections import Counter
 from typing import Any, Callable
+
+import numpy as np
+
+from ...sdk.circuit import Circuit
+from ...sdk.state import State
+from ...sdk.utils import add_heralds_to_state
+from ..backend import Backend
+from ..results import SamplingResult
+from ..utils import ModeMismatchError, fock_basis
 
 
 class QuickSampler:

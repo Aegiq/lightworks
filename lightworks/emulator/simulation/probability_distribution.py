@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..backend import Backend
-from ...sdk.state import State
 from ...sdk.circuit.circuit_compiler import CompiledCircuit
+from ...sdk.state import State
+from ..backend import Backend
 
 
 class ProbabilityDistributionCalc:  # noqa: D101

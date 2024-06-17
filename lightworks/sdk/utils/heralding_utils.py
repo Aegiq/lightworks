@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..state import State
-
 from copy import copy
+
+from ..state import State
 
 
 def add_heralds_to_state(state: State | list, heralds: dict) -> list:

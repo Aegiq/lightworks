@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .draw_circuit_mpl import DrawCircuitMPL
-from .draw_circuit_svg import DrawCircuitSVG
-from ..utils import DisplayError
-
 import drawsvg
 import matplotlib.figure
 import matplotlib.pyplot as plt
+
+from ..utils import DisplayError
+from .draw_circuit_mpl import DrawCircuitMPL
+from .draw_circuit_svg import DrawCircuitSVG
 
 
 # Display function to interact with relevant classes

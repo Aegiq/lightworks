@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .display_components_svg import DrawSVGComponents
-from ..utils import DisplayError
-
-import numpy as np
 import drawsvg as draw
+import numpy as np
+
+from ..utils import DisplayError
+from .display_components_svg import DrawSVGComponents
 
 
 class DrawCircuitSVG:

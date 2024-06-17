@@ -14,12 +14,18 @@
 
 # ruff: noqa: E722
 
-from lightworks import Display, Circuit, Unitary, random_unitary, Parameter
-from lightworks import DisplayError
-
-import pytest
 import matplotlib
 import matplotlib.pyplot as plt
+import pytest
+
+from lightworks import (
+    Circuit,
+    Display,
+    DisplayError,
+    Parameter,
+    Unitary,
+    random_unitary,
+)
 
 
 class TestDisplay:

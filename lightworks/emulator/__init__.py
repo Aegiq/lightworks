@@ -46,10 +46,9 @@ Simulators:
 
 # ruff: noqa: F403
 
-from .components import Source, Detector
-from .simulation import Simulator, Sampler, Analyzer, QuickSampler
 from .backend import Backend
-
+from .components import Detector, Source
+from .simulation import Analyzer, QuickSampler, Sampler, Simulator
 from .utils.exceptions import *
 
 # fmt: off

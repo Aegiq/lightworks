@@ -40,7 +40,7 @@ convention = "google"
 preview = true
 select = [
     "E", "F", "W", "N", "D", "B", "CPY", "TRY", "PLE", "PLW", "YTT", "ANN", "S",
-    "Q", "SIM", "ARG", "PERF"
+    "Q", "SIM", "ARG", "PERF", "I"
 ]
 fixable = ["ALL"]
 ignore = [

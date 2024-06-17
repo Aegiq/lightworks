@@ -12,11 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lightworks import State, Unitary, Circuit, random_unitary, Parameter
-from lightworks.emulator import ModeMismatchError
-from lightworks.emulator import Sampler, Source, Detector, Backend
-
 import pytest
+
+from lightworks import Circuit, Parameter, State, Unitary, random_unitary
+from lightworks.emulator import (
+    Backend,
+    Detector,
+    ModeMismatchError,
+    Sampler,
+    Source,
+)
 
 
 class TestSamplerGeneral:

@@ -12,15 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lightworks import random_unitary, random_permutation
-from lightworks import db_loss_to_transmission, transmission_to_db_loss
-from lightworks.sdk.utils import check_unitary, add_mode_to_unitary
-from lightworks.sdk.utils import permutation_mat_from_swaps_dict
-from lightworks.sdk.utils import add_heralds_to_state
+from random import randint, random, seed
 
 import pytest
 from numpy import identity
-from random import random, seed, randint
+
+from lightworks import (
+    db_loss_to_transmission,
+    random_permutation,
+    random_unitary,
+    transmission_to_db_loss,
+)
+from lightworks.sdk.utils import (
+    add_heralds_to_state,
+    add_mode_to_unitary,
+    check_unitary,
+    permutation_mat_from_swaps_dict,
+)
 
 
 class TestUtils:

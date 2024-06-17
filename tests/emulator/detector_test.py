@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lightworks import State
-from lightworks.emulator import Detector
+from random import random
 
 import pytest
 
-from random import random
+from lightworks import State
+from lightworks.emulator import Detector
 
 
 class TestDetector:

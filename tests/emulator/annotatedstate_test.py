@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pytest
+
+from lightworks import State
+from lightworks.emulator import AnnotatedStateError
 from lightworks.emulator.state import AnnotatedState
 from lightworks.emulator.utils import annotated_state_to_string
-from lightworks.emulator import AnnotatedStateError
-from lightworks import State
-
-import pytest
 
 
 class TestAnnotatedState:

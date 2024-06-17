@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lightworks import State, Unitary, random_unitary, Circuit, Parameter
-from lightworks.emulator import PhotonNumberError, ModeMismatchError
-from lightworks.emulator import Simulator
-
 import pytest
+
+from lightworks import Circuit, Parameter, State, Unitary, random_unitary
+from lightworks.emulator import ModeMismatchError, PhotonNumberError, Simulator
 
 
 class TestSimulator:

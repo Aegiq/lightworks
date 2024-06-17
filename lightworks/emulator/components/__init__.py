@@ -14,5 +14,5 @@
 
 # ruff: noqa: F401
 
-from .source import Source
 from .detector import Detector
+from .source import Source

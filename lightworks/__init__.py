@@ -45,20 +45,19 @@ Key objects:
 
 # ruff: noqa: F401, F403
 
+from . import emulator, qubit
 from .__version import __version__
-
-from . import qubit
-from . import emulator
-
-from .sdk.circuit import Circuit, Unitary
-from .sdk.circuit import Parameter, ParameterDict
-from .sdk.visualisation import Display
-from .sdk.state import State
-from .sdk.utils import random_unitary, random_permutation
-from .sdk.utils import db_loss_to_transmission, transmission_to_db_loss
+from .sdk.circuit import Circuit, Parameter, ParameterDict, Unitary
 from .sdk.optimisation import Optimisation
-
+from .sdk.state import State
+from .sdk.utils import (
+    db_loss_to_transmission,
+    random_permutation,
+    random_unitary,
+    transmission_to_db_loss,
+)
 from .sdk.utils.exceptions import *
+from .sdk.visualisation import Display
 
 # If installed then also import the remote module
 try:

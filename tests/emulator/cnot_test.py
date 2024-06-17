@@ -14,13 +14,12 @@
 
 # ruff: noqa: E731
 
-from lightworks import State, Circuit
-from lightworks.emulator import Sampler, Source, Detector, Backend
-from lightworks.qubit import CNOT
-
 import pytest
-
 from numpy import arccos, pi
+
+from lightworks import Circuit, State
+from lightworks.emulator import Backend, Detector, Sampler, Source
+from lightworks.qubit import CNOT
 
 
 @pytest.mark.parametrize("backend", [Backend("permanent"), Backend("slos")])

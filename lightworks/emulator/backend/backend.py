@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from numpy import ndarray
+
+from ...sdk.circuit.circuit_compiler import CompiledCircuit
+from ...sdk.state import State
+from ..utils import BackendError, fock_basis
 from .permanent import Permanent
 from .slos import SLOS
-from ..utils import fock_basis, BackendError
-from ...sdk.state import State
-from ...sdk.circuit.circuit_compiler import CompiledCircuit
-
-from numpy import ndarray
 
 
 class Backend:

@@ -18,10 +18,10 @@ state variations, accounting for a non-ideal brightness, impurity in the single
 photon stream and indistinguishability between different photons.
 """
 
-from ..state import AnnotatedState
-from ...sdk.state import State
-
 from numbers import Number
+
+from ...sdk.state import State
+from ..state import AnnotatedState
 
 
 class Source:

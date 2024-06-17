@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..utils import DisplayError
-
 import drawsvg as draw
 import numpy as np
+
+from ..utils import DisplayError
 
 
 class DrawSVGComponents:

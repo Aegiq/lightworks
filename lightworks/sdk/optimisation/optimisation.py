@@ -16,18 +16,19 @@
 Contains routines to perform optimisation with a parameterized circuit.
 """
 
-from ..circuit import Circuit, ParameterDict
-from ..state import State
-from ...emulator import Sampler, Source, Detector, Simulator
-from ...emulator.results import SamplingResult, SimulationResult
-
-from typing import Any
-from types import FunctionType, NoneType
 import warnings
 from numbers import Number
-from scipy.optimize import minimize, basinhopping  # type: ignore
-from bayes_opt import BayesianOptimization  # type: ignore
+from types import FunctionType, NoneType
+from typing import Any
+
 import zoopt  # type: ignore
+from bayes_opt import BayesianOptimization  # type: ignore
+from scipy.optimize import basinhopping, minimize  # type: ignore
+
+from ...emulator import Detector, Sampler, Simulator, Source
+from ...emulator.results import SamplingResult, SimulationResult
+from ..circuit import Circuit, ParameterDict
+from ..state import State
 
 
 class Optimisation:

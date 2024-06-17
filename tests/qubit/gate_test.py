@@ -12,19 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# ruff: noqa: D101, N802
+# ruff: noqa: D101, N802, I001
+
+import numpy as np
+import pytest
 
 from lightworks import State
 from lightworks.emulator import Simulator
 
 # fmt: off
 from lightworks.qubit import (
-    H, X, Y, Z, S, T, CZ, CNOT, CZ_Heralded, CNOT_Heralded, SWAP, CCZ, CCNOT
+    CCNOT, CCZ, CNOT, CZ, SWAP, CNOT_Heralded, CZ_Heralded, H, S, T, X, Y, Z,
 )
 # fmt: on
-
-import pytest
-import numpy as np
 
 
 class TestSingleQubitGates:

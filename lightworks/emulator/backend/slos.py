@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ...sdk.state import State
+from math import factorial
 
 import numpy as np
-from math import factorial
+
+from ...sdk.state import State
 
 
 class SLOS:

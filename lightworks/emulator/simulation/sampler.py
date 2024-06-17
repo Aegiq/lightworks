@@ -12,20 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .probability_distribution import ProbabilityDistributionCalc as PDC  # noqa: N817
-from ..backend import Backend
-from ..utils import ModeMismatchError
-from ..results import SamplingResult
-from ..components import Source, Detector
-from ...sdk.state import State
-from ...sdk.circuit import Circuit
-from ...sdk.utils import add_heralds_to_state, remove_heralds_from_state
-
-import numpy as np
+from collections import Counter
 from random import random
 from types import FunctionType
-from collections import Counter
 from typing import Any, Callable
+
+import numpy as np
+
+from ...sdk.circuit import Circuit
+from ...sdk.state import State
+from ...sdk.utils import add_heralds_to_state, remove_heralds_from_state
+from ..backend import Backend
+from ..components import Detector, Source
+from ..results import SamplingResult
+from ..utils import ModeMismatchError
+from .probability_distribution import (
+    ProbabilityDistributionCalc as PDC,  # noqa: N817
+)
 
 
 class Sampler:

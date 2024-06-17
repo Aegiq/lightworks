@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..utils import ParameterBoundsError, ParameterValueError
-from ..utils import ParameterDictError
-
-from typing import Any, Iterable
+from math import inf
 from numbers import Number
 from types import NoneType
-from math import inf
+from typing import Any, Iterable
+
+from ..utils import (
+    ParameterBoundsError,
+    ParameterDictError,
+    ParameterValueError,
+)
 
 
 class Parameter:

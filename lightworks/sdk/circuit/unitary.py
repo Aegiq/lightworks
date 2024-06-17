@@ -16,10 +16,10 @@
 Dedicated unitary component for implementing unitary matrices on a circuit.
 """
 
-from .circuit import Circuit
-from ..utils import check_unitary
-
 import numpy as np
+
+from ..utils import check_unitary
+from .circuit import Circuit
 
 
 class Unitary(Circuit):

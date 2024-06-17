@@ -17,10 +17,10 @@ Contains a variety of qubit components, designed for implementing required
 qubit processing functionality in lightworks.
 """
 
-from .single_qubit_gates import H
-from ...sdk.circuit import Unitary, Circuit
-
 import numpy as np
+
+from ...sdk.circuit import Circuit, Unitary
+from .single_qubit_gates import H
 
 
 class CCZ(Circuit):

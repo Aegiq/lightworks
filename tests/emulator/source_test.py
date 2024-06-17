@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lightworks import State
-from lightworks.emulator.state import AnnotatedState
-from lightworks.emulator import Source
-
 import pytest
+
+from lightworks import State
+from lightworks.emulator import Source
+from lightworks.emulator.state import AnnotatedState
 
 
 class TestSource:

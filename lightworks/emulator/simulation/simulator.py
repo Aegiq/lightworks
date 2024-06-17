@@ -12,15 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..backend import Backend
-from ..utils import fock_basis
-from ..utils import ModeMismatchError, PhotonNumberError
-from ..results import SimulationResult
-from ...sdk.state import State
-from ...sdk.circuit import Circuit
-from ...sdk.utils import add_heralds_to_state
-
 import numpy as np
+
+from ...sdk.circuit import Circuit
+from ...sdk.state import State
+from ...sdk.utils import add_heralds_to_state
+from ..backend import Backend
+from ..results import SimulationResult
+from ..utils import ModeMismatchError, PhotonNumberError, fock_basis
 
 
 class Simulator:

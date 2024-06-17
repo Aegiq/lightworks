@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..utils import ResultCreationError
-from ...sdk.state import State
-
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
 from typing import Any, Iterable
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+from ...sdk.state import State
+from ..utils import ResultCreationError
 
 
 class SamplingResult:

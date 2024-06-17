@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lightworks import random_unitary, Unitary, State
+import numpy as np
+import pytest
+
+from lightworks import State, Unitary, random_unitary
 from lightworks.emulator import Backend
 from lightworks.emulator.backend.permanent import Permanent
 from lightworks.emulator.backend.slos import SLOS
-
-import pytest
-import numpy as np
 
 
 class TestBackend:
