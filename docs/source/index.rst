@@ -44,6 +44,7 @@ Once setup, there is then a set of tutorials for familiarization with the module
 
    sdk_reference/index
    emulator_reference/index
+   contributing
 
 .. toctree::
    :maxdepth: 2

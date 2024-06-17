@@ -27,9 +27,4 @@ Documentation of this package is hosted at: https://aegiq.github.io/lightworks/
 
 Contributions to Lightworks can be made via a pull request. If you have an idea for a feature that you'd like to implement it may be best to first raise this in the issues sections, as it may be the case that this is already in development internally or is potentially incompatible with the existing Lightworks framework.
 
-Some things to keep in mind before contributing:
-1) Any pull requests should be made initially to the main branch.
-2) We aim to follow the Google Python style guide (https://google.github.io/styleguide/pyguide.html) including their proposed doc strings format. 
-3) The existing unit tests should be used to ensure the core functionality of Lightworks remains intact. Additionally, any new features should ideally include a set of tests.
-4) Type hints are used throughout the code to indicate the expected inputs and return for each class and function within Lightworks. These are also used for generating the Sphinx documentation.
-5) Where possible, a line limit of 80 is used across the code.
+Before contributing, please see [Contributing](https://aegiq.github.io/lightworks/contributing.html) in the documentation for more guidance on code testing & formatting requirements. 
