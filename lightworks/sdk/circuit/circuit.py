@@ -19,11 +19,14 @@ after creation.
 
 from copy import copy, deepcopy
 from numbers import Number
-from typing import Any, Union
+from typing import TYPE_CHECKING, Any, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
 from IPython import display
+
+if TYPE_CHECKING:
+    from .unitary import Unitary
 
 from ..utils import (
     CircuitCompilationError,
@@ -166,7 +169,7 @@ class Circuit:
 
     def add(
         self,
-        circuit: Union["Circuit", "Unitary"],  # type: ignore  # noqa: F821
+        circuit: Union["Circuit", "Unitary"],
         mode: int = 0,
         group: bool = False,
         name: str | None = None,

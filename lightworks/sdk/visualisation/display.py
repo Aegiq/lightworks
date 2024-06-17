@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import TYPE_CHECKING
+
 import drawsvg
 import matplotlib.figure
 import matplotlib.pyplot as plt
@@ -20,10 +22,13 @@ from ..utils import DisplayError
 from .draw_circuit_mpl import DrawCircuitMPL
 from .draw_circuit_svg import DrawCircuitSVG
 
+if TYPE_CHECKING:
+    from ..circuit import Circuit
+
 
 # Display function to interact with relevant classes
 def Display(  # noqa: N802
-    circuit: "Circuit",  # type: ignore  # noqa: F821
+    circuit: "Circuit",
     display_loss: bool = False,
     mode_labels: list[str] | None = None,
     display_type: str = "svg",

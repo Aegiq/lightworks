@@ -12,12 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import TYPE_CHECKING
+
 import matplotlib.figure
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 
 from ..utils import DisplayError
+
+if TYPE_CHECKING:
+    from ..circuit import Circuit
 
 # ruff: noqa: N806
 
@@ -44,7 +49,7 @@ class DrawCircuitMPL:
 
     def __init__(
         self,
-        circuit: "Circuit",  # type:ignore  # noqa: F821
+        circuit: "Circuit",
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
     ) -> None:
