@@ -27,4 +27,4 @@ Documentation of this package is hosted at: https://aegiq.github.io/lightworks/
 
 Contributions to Lightworks can be made via a pull request. If you have an idea for a feature that you'd like to implement it may be best to first raise this in the issues sections, as it may be the case that this is already in development internally or is potentially incompatible with the existing Lightworks framework.
 
-Before contributing, please see the [Contributing](https://aegiq.github.io/lightworks/contributing.html) in the documentation for more guidance on code testing & formatting requirements. 
+Before contributing, please see [Contributing](https://aegiq.github.io/lightworks/contributing.html) in the documentation for more guidance on code testing & formatting requirements. 
