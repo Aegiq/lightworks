@@ -20,7 +20,8 @@ emulator much easier to work with.
 from copy import copy
 from typing import Any, Iterable, Union
 
-from ..utils import StateError, state_to_string
+from ..utils.exceptions import StateError
+from ..utils.state_utils import state_to_string
 
 
 class State:

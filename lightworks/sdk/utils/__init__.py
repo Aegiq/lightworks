@@ -31,4 +31,3 @@ from .matrix_utils import (
     random_unitary,
 )
 from .permutation_conversion import permutation_mat_from_swaps_dict
-from .state_utils import state_to_string
