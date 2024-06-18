@@ -66,8 +66,7 @@ def Display(  # noqa: N802
         disp = DrawCircuitMPL(circuit, display_loss, mode_labels)
         fig, ax = disp.draw()
         return (fig, ax)
-    elif display_type == "svg":
+    if display_type == "svg":
         disp_svg = DrawCircuitSVG(circuit, display_loss, mode_labels)
         return disp_svg.draw()
-    else:
-        raise DisplayError("Display type not recognised.")
+    raise DisplayError("Display type not recognised.")

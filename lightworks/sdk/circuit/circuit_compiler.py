@@ -76,39 +76,38 @@ class CompiledCircuit:
 
     def __add__(self, value: "CompiledCircuit") -> "CompiledCircuit":
         """Method for addition of two circuits."""
-        if isinstance(value, CompiledCircuit):
-            if self.n_modes != value.n_modes:
-                raise ModeRangeError(
-                    "Mismatch in number of circuit modes, used add method to "
-                    "add circuits of a different size."
-                )
-            nm = self.n_modes
-            newU = value.U @ self.U
-            loss = self._loss_included or value._loss_included
-            if loss:
-                l1 = self._loss_modes
-                l2 = value._loss_modes
-                newU_full = np.identity(nm + l1 + l2, dtype=complex)
-                # Expand U full to include combined loss sum
-                newU_full[: nm + l1, : nm + l1] = self.U_full
-                U2_full = np.identity(nm + l1 + l2, dtype=complex)
-                U2_full[:nm, :nm] = value.U_full[:nm, :nm]
-                U2_full[nm + l1 :, :nm] = value.U_full[nm:, :nm]
-                U2_full[:nm, nm + l1 :] = value.U_full[:nm, nm:]
-                U2_full[nm + l1 :, nm + l1 :] = value.U_full[nm:, nm:]
-                newU_full = U2_full @ newU_full
-            else:
-                newU_full = newU
-                l1, l2 = 0, 0
-            # Create a new circuit and manually assign attributes
-            newCirc = CompiledCircuit(nm)
-            newCirc._loss_included = loss
-            newCirc.U = newU
-            newCirc.U_full = newU_full
-            newCirc._loss_modes = l1 + l2
-            return newCirc
-        else:
+        if not isinstance(value, CompiledCircuit):
             raise TypeError("Addition only supported between two circuits.")
+        if self.n_modes != value.n_modes:
+            raise ModeRangeError(
+                "Mismatch in number of circuit modes, used add method to "
+                "add circuits of a different size."
+            )
+        nm = self.n_modes
+        newU = value.U @ self.U
+        loss = self._loss_included or value._loss_included
+        if loss:
+            l1 = self._loss_modes
+            l2 = value._loss_modes
+            newU_full = np.identity(nm + l1 + l2, dtype=complex)
+            # Expand U full to include combined loss sum
+            newU_full[: nm + l1, : nm + l1] = self.U_full
+            U2_full = np.identity(nm + l1 + l2, dtype=complex)
+            U2_full[:nm, :nm] = value.U_full[:nm, :nm]
+            U2_full[nm + l1 :, :nm] = value.U_full[nm:, :nm]
+            U2_full[:nm, nm + l1 :] = value.U_full[:nm, nm:]
+            U2_full[nm + l1 :, nm + l1 :] = value.U_full[nm:, nm:]
+            newU_full = U2_full @ newU_full
+        else:
+            newU_full = newU
+            l1, l2 = 0, 0
+        # Create a new circuit and manually assign attributes
+        newCirc = CompiledCircuit(nm)
+        newCirc._loss_included = loss
+        newCirc.U = newU
+        newCirc.U_full = newU_full
+        newCirc._loss_modes = l1 + l2
+        return newCirc
 
     @property
     def n_modes(self) -> int:
@@ -424,11 +423,10 @@ class CompiledCircuit:
                 raise TypeError("Mode number should be an integer.")
         if 0 <= mode < self.n_modes:
             return True
-        else:
-            raise ModeRangeError(
-                "Selected mode(s) is not within the range of the created "
-                "circuit."
-            )
+        raise ModeRangeError(
+            "Selected mode(s) is not within the range of the created "
+            "circuit."
+        )
 
     def _check_loss(self, loss: float) -> None:
         """

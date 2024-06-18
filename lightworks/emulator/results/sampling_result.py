@@ -66,13 +66,11 @@ class SamplingResult:
 
     def __getitem__(self, item: State) -> float | dict:
         """Custom get item behaviour - used when object accessed with []."""
-        if isinstance(item, State):
-            if item in self.dictionary:
-                return self.dictionary[item]
-            else:
-                raise KeyError("Provided output state not in data.")
-        else:
+        if not isinstance(item, State):
             raise TypeError("Get item value must be a State.")
+        if item not in self.dictionary:
+            raise KeyError("Provided output state not in data.")
+        return self.dictionary[item]
 
     def __str__(self) -> str:
         return str(self.dictionary)

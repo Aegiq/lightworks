@@ -86,13 +86,12 @@ class Backend:
                 backend.
 
         """
-        if self.backend == "permanent":
-            return Permanent.calculate(unitary, input_state, output_state)
-        else:
+        if self.backend != "permanent":
             raise BackendError(
                 "Direct probability amplitude calculation only supported for "
                 "permanent backend."
             )
+        return Permanent.calculate(unitary, input_state, output_state)
 
     def probability(
         self, unitary: ndarray, input_state: list, output_state: list

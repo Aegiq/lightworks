@@ -48,5 +48,4 @@ def annotated_state_to_string(state: list) -> str:
             string = string[:-1] + "),"
         else:
             string += "0,"
-    string = string[:-1] + ">"
-    return string
+    return string[:-1] + ">"

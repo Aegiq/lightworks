@@ -92,7 +92,7 @@ class Optimisation:
         if function.__code__.co_argcount > 1:
             if args is None:
                 raise ValueError("args not specified.")
-            elif len(args) != function.__code__.co_argcount - 1:
+            if len(args) != function.__code__.co_argcount - 1:
                 raise ValueError(
                     "args has an incorrect number of items for the function."
                 )
@@ -394,7 +394,7 @@ class Optimisation:
                 herald=self.__processor_args["herald"],
                 post_select=self.__processor_args["post_select"],  # type: ignore
             )
-        else:
+        else:  # noqa: RET505
             simulator = Simulator(self.opt_circuit)
             return simulator.simulate(self.__input)
 

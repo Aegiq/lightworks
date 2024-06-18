@@ -22,5 +22,4 @@ def state_to_string(state: list) -> str:
     string = "|"
     for s in state:
         string += str(s) + ","
-    string = string[:-1] + ">"
-    return string
+    return string[:-1] + ">"
