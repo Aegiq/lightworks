@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# ruff: noqa: F401, F403
-
 from .circuit_utils import (
     add_empty_mode_to_circuit_spec,
     add_modes_to_circuit_spec,

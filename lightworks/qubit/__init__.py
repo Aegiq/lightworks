@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# ruff: noqa: F403, F405
+# ruff: noqa: F405
 
 from .gates import *
 

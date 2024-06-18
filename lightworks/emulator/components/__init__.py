@@ -12,7 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# ruff: noqa: F401
-
 from .detector import Detector
 from .source import Source

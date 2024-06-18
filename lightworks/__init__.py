@@ -43,8 +43,6 @@ Key objects:
 
 """
 
-# ruff: noqa: F401, F403
-
 from . import emulator, qubit
 from .__version import __version__
 from .sdk.circuit import Circuit, Parameter, ParameterDict, Unitary

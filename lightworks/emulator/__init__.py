@@ -44,8 +44,6 @@ Simulators:
 
 """
 
-# ruff: noqa: F403
-
 from .backend import Backend
 from .components import Detector, Source
 from .simulation import Analyzer, QuickSampler, Sampler, Simulator
