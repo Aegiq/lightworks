@@ -210,9 +210,8 @@ class Analyzer:
         # Check all inputs in expectation mapping
         for s in inputs:
             if s not in expected:
-                raise KeyError(
-                    f"Input state {s} not in provided expectation dict."
-                )
+                msg = f"Input state {s} not in provided expectation dict."
+                raise KeyError(msg)
         # For each input check error rate
         errors = []
         for i, s in enumerate(inputs):

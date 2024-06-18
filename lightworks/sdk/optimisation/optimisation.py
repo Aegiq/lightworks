@@ -159,10 +159,11 @@ class Optimisation:
                         args[p] = v
                     else:
                         options = ", ".join(list(args.keys()))
-                        raise ValueError(
+                        msg = (
                             "Incorrect sampler argument entered, valid "
                             f"options are '{options}'."
                         )
+                        raise ValueError(msg)
         else:
             raise ValueError("Processor type not valid.")
         self.__processor = processor

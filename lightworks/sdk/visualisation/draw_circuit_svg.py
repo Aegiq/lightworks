@@ -73,10 +73,11 @@ class DrawCircuitSVG:
         if mode_labels is not None:
             exp_len = self.N - len(self.herald_modes)
             if len(mode_labels) != exp_len:
-                raise DisplayError(
+                msg = (
                     "Length of provided mode labels list should be equal to "
                     f"the number of useable modes ({exp_len})."
                 )
+                raise DisplayError(msg)
         else:
             mode_labels = [
                 str(i) for i in range(self.N - len(self.herald_modes))

@@ -270,7 +270,8 @@ class ParameterDict:
         if key in self.__pdict:
             return self.__pdict[key]
         else:
-            raise KeyError(f"Parameter '{key}' not found in ParameterDict.")
+            msg = f"Parameter '{key}' not found in ParameterDict."
+            raise KeyError(msg)
 
     def __contains__(self, key: Any) -> bool:
         # Custom behaviors for in operator in python

@@ -152,10 +152,11 @@ class DrawCircuitMPL:
         if self.mode_labels is not None:
             exp_len = N - len(self.herald_modes)
             if len(self.mode_labels) != exp_len:
-                raise DisplayError(
+                msg = (
                     "Length of provided mode labels list should be equal to "
                     f"the number of useable modes ({exp_len})."
                 )
+                raise DisplayError(msg)
             mode_labels = self.mode_labels
         else:
             mode_labels = [str(i) for i in range(N - len(self.herald_modes))]

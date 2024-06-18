@@ -459,6 +459,8 @@ class Source:
 
         """
         if not isinstance(value, Number) or isinstance(value, bool):
-            raise TypeError(f"{name} should be a numerical value.")
+            msg = f"{name} should be a numerical value."
+            raise TypeError(msg)
         if not 0 <= value <= 1:
-            raise ValueError(f"Value of {name} should be in range [0,1].")
+            msg = f"Value of {name} should be in range [0,1]."
+            raise ValueError()
