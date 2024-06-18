@@ -46,7 +46,7 @@ class DrawCircuitSVG:
 
     def __init__(
         self,
-        circuit: "Circuit",  # type: ignore  # noqa: F821
+        circuit: "Circuit",
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
     ) -> None:
