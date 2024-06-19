@@ -73,12 +73,11 @@ class AnnotatedState:
 
     def merge(self, merge_state: "AnnotatedState") -> "AnnotatedState":
         """Combine two states, summing the number of photons per mode."""
-        if self.n_modes == merge_state.n_modes:
-            return AnnotatedState(
-                [n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)]
-            )
-        else:
+        if self.n_modes != merge_state.n_modes:
             raise ValueError("Merged states must be the same length.")
+        return AnnotatedState(
+            [n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)]
+        )
 
     def __str__(self) -> str:
         return annotated_state_to_string(self.__s)
@@ -90,16 +89,14 @@ class AnnotatedState:
         )
 
     def __add__(self, value: "AnnotatedState") -> "AnnotatedState":
-        if isinstance(value, AnnotatedState):
-            return AnnotatedState(self.__s + value.__s)
-        else:
+        if not isinstance(value, AnnotatedState):
             raise TypeError("Addition only supported between annotated states.")
+        return AnnotatedState(self.__s + value.__s)
 
     def __eq__(self, value: Any) -> bool:
-        if isinstance(value, AnnotatedState):
-            return self.__s == value.__s
-        else:
+        if not isinstance(value, AnnotatedState):
             return False
+        return self.__s == value.__s
 
     def __hash__(self) -> int:
         return hash(self.__str__())
@@ -117,7 +114,6 @@ class AnnotatedState:
     ) -> Union["AnnotatedState", list]:
         if isinstance(indices, slice):
             return AnnotatedState(self.__s[indices])
-        elif isinstance(indices, int):
+        if isinstance(indices, int):
             return self.__s[indices]
-        else:
-            raise TypeError("Subscript should either be int or slice.")
+        raise TypeError("Subscript should either be int or slice.")

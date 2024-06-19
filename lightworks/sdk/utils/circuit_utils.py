@@ -217,7 +217,7 @@ def compress_mode_swaps(spec: list) -> list:
         if i in to_skip:
             continue
         # If it a mode swap then check for subsequent mode swaps
-        elif s[0] == "mode_swaps":
+        if s[0] == "mode_swaps":
             blocked_modes = set()
             for j, s2 in enumerate(spec[i + 1 :]):
                 # Block modes with components other than the mode swap on
@@ -291,5 +291,4 @@ def combine_mode_swap_dicts(swaps1: dict, swaps2: dict) -> dict:
         if s2 not in added_swaps:
             new_swaps[s2] = swaps2[s2]
     # Remove any modes that are unchanged as these are not required
-    new_swaps = {m1: m2 for m1, m2 in new_swaps.items() if m1 != m2}
-    return new_swaps
+    return {m1: m2 for m1, m2 in new_swaps.items() if m1 != m2}

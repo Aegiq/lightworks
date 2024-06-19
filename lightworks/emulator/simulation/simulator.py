@@ -121,11 +121,11 @@ class Simulator:
                 )
             # Dimension check
             if len(state) != input_modes:
-                raise ModeMismatchError(
+                msg = (
                     "One or more input states have an incorrect number of "
-                    "modes, correct number of modes is "
-                    f"{input_modes}."
+                    f"modes, correct number of modes is {input_modes}."
                 )
+                raise ModeMismatchError(msg)
             # Also validate state values
             state._validate()
         return inputs
@@ -161,11 +161,11 @@ class Simulator:
                     )
                 # Dimension check
                 if len(state) != input_modes:
-                    raise ModeMismatchError(
+                    msg = (
                         "One or more input states have an incorrect number of "
-                        "modes, correct number of modes is "
-                        f"{input_modes}."
+                        f"modes, correct number of modes is {input_modes}."
                     )
+                    raise ModeMismatchError(msg)
                 # Also validate state values
                 state._validate()
             # Ensure photon numbers are the same in all states - variation not

@@ -654,20 +654,19 @@ class Circuit:
         if isinstance(mode, Parameter):
             raise TypeError("Mode values cannot be parameters.")
         # Catch this separately as bool is subclass of int
-        elif isinstance(mode, bool):
+        if isinstance(mode, bool):
             raise TypeError("Mode number should be an integer.")
-        elif not isinstance(mode, int):
+        if not isinstance(mode, int):
             if int(mode) == mode:
                 mode = int(mode)
             else:
                 raise TypeError("Mode number should be an integer.")
-        if 0 <= mode < self.n_modes:
-            return True
-        else:
+        if not (0 <= mode < self.n_modes):
             raise ModeRangeError(
                 "Selected mode(s) is not within the range of the created "
                 "circuit."
             )
+        return True
 
     def _map_mode(self, mode: int) -> int:
         """
@@ -689,8 +688,7 @@ class Circuit:
             raise TypeError("Loss value should be numerical or a Parameter.")
         if loss < 0:
             raise ValueError("Provided loss values should be greater than 0.")
-        else:
-            return True
+        return True
 
     def _add_empty_mode(self, circuit_spec: list, mode: int) -> list:
         """
@@ -793,8 +791,7 @@ class Circuit:
         """
         if isinstance(loss, str):
             return True
-        else:
-            return bool(loss > 0)
+        return bool(loss > 0)
 
     def _get_circuit_spec(self) -> list:
         """Returns a copy of the circuit spec attribute."""

@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# ruff: noqa: F401
-
 from .analyzer import Analyzer
 from .quick_sampler import QuickSampler
 from .sampler import Sampler

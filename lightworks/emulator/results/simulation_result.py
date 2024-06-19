@@ -121,16 +121,13 @@ class SimulationResult:
             # When only one input is used, automatically return output value
             # from dictionary instead of dictionary
             if len(self.inputs) == 1:
-                if item in self.dictionary[self.inputs[0]]:
-                    return self.dictionary[self.inputs[0]][item]
-                else:
+                if item not in self.dictionary[self.inputs[0]]:
                     raise KeyError("Provided output state not in data.")
-            else:
-                if item in self.dictionary:
-                    return self.dictionary[item]
-                else:
-                    raise KeyError("Provided input state not in data.")
-        elif isinstance(item, tuple):
+                return self.dictionary[self.inputs[0]][item]
+            if item not in self.dictionary:
+                raise KeyError("Provided input state not in data.")
+            return self.dictionary[item]
+        if isinstance(item, tuple):
             # Check only two values have been provided
             if len(item) > 2:
                 raise ValueError(
@@ -152,12 +149,10 @@ class SimulationResult:
             if ostate is None:
                 return sub_r
             # Else return requested value
-            elif ostate in sub_r:
-                return sub_r[ostate]
-            else:
+            if ostate not in sub_r:
                 raise KeyError("Requested output state not in data.")
-        else:
-            raise TypeError("Get item value must be either one or two States.")
+            return sub_r[ostate]
+        raise TypeError("Get item value must be either one or two States.")
 
     def __str__(self) -> str:
         return str(self.dictionary)
@@ -251,13 +246,12 @@ class SimulationResult:
             for j, out_state in enumerate(unique_outputs):
                 if out_state in mapped_result[in_state]:
                     array[i, j] = mapped_result[in_state][out_state]
-        r = SimulationResult(
+        return SimulationResult(
             array,
             result_type=self.result_type,
             inputs=self.inputs,
             outputs=list(unique_outputs),
         )
-        return r
 
     def plot(
         self,
@@ -474,6 +468,5 @@ class SimulationResult:
                 data = data.astype(int)
             else:
                 data = data.astype(float)
-        # Create dataframe
-        df = pd.DataFrame(data, index=in_strings, columns=out_strings)
-        return df
+        # Create dataframe and return
+        return pd.DataFrame(data, index=in_strings, columns=out_strings)

@@ -253,9 +253,7 @@ class Source:
         self._counter = 1
         # Get the full distribution and then perform remapping
         stats_dict = self._full_distribution(state)
-        stats_dict = self._remap_distribution(stats_dict)
-
-        return stats_dict
+        return self._remap_distribution(stats_dict)
 
     def _purity_to_prob(self, purity: float) -> float:
         """
@@ -342,6 +340,9 @@ class Source:
         Finds the input state statistics for a number of photons on a given
         mode.
         """
+        # Check for special case in which a mode is empty
+        if n_photons == 0:
+            return {AnnotatedState([[]]): 1}
         mode_dist: list[tuple[list, float]] = []
         # Get distribution for each photon and combine with mode distribution
         for _i in range(n_photons):
@@ -366,11 +367,7 @@ class Source:
                 dist_dict[state] = p
             else:
                 dist_dict[state] += p
-        # Check for special case in which a mode is empty
-        if n_photons > 0:
-            return dist_dict
-        else:
-            return {AnnotatedState([[]]): 1}
+        return dist_dict
 
     def _single_photon_distribution(self) -> list[tuple[list, float]]:
         """
@@ -427,15 +424,14 @@ class Source:
                 # If only a single empty mode then skip
                 if state[i + 1] > 0:  # type: ignore
                     continue
-                else:
-                    # Find how many empty modes there are
-                    n = 1
-                    while state[i + n] == 0:
-                        n += 1
-                        if i + n > len(state) - 1:
-                            break
-                    to_group[i] = list(range(i, i + n))
-                    to_skip += list(range(i + 1, i + n))
+                # Find how many empty modes there are
+                n = 1
+                while state[i + n] == 0:
+                    n += 1
+                    if i + n > len(state) - 1:
+                        break
+                to_group[i] = list(range(i, i + n))
+                to_skip += list(range(i + 1, i + n))
 
         return (to_group, to_skip)
 
@@ -459,6 +455,8 @@ class Source:
 
         """
         if not isinstance(value, Number) or isinstance(value, bool):
-            raise TypeError(f"{name} should be a numerical value.")
+            msg = f"{name} should be a numerical value."
+            raise TypeError(msg)
         if not 0 <= value <= 1:
-            raise ValueError(f"Value of {name} should be in range [0,1].")
+            msg = f"Value of {name} should be in range [0,1]."
+            raise ValueError()

@@ -267,10 +267,10 @@ class ParameterDict:
 
     def __getitem__(self, key: str) -> Parameter:
         # Custom get item to return values from __pdict attribute
-        if key in self.__pdict:
-            return self.__pdict[key]
-        else:
-            raise KeyError(f"Parameter '{key}' not found in ParameterDict.")
+        if key not in self.__pdict:
+            msg = f"Parameter '{key}' not found in ParameterDict."
+            raise KeyError(msg)
+        return self.__pdict[key]
 
     def __contains__(self, key: Any) -> bool:
         # Custom behaviors for in operator in python

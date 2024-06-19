@@ -72,10 +72,9 @@ class State:
 
     def merge(self, merge_state: "State") -> "State":
         """Combine two states, summing the number of photons per mode."""
-        if self.n_modes == merge_state.n_modes:
-            return State([n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)])
-        else:
+        if self.n_modes != merge_state.n_modes:
             raise ValueError("Merged states must be the same length.")
+        return State([n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)])
 
     def _validate(self) -> None:
         """
@@ -97,16 +96,14 @@ class State:
         return f"lightworks.State({state_to_string(self.__s)})"
 
     def __add__(self, value: "State") -> "State":
-        if isinstance(value, State):
-            return State(self.__s + value.__s)
-        else:
+        if not isinstance(value, State):
             raise TypeError("Addition only supported between states.")
+        return State(self.__s + value.__s)
 
     def __eq__(self, value: Any) -> bool:
-        if isinstance(value, State):
-            return self.__s == value.s
-        else:
+        if not isinstance(value, State):
             return False
+        return self.__s == value.s
 
     def __hash__(self) -> int:
         return hash(self.__str__())
@@ -124,7 +121,6 @@ class State:
     def __getitem__(self, indices: slice | int) -> Union[int, "State"]:
         if isinstance(indices, slice):
             return State(self.__s[indices])
-        elif isinstance(indices, int):
+        if isinstance(indices, int):
             return self.__s[indices]
-        else:
-            raise TypeError("Subscript should either be int or slice.")
+        raise TypeError("Subscript should either be int or slice.")

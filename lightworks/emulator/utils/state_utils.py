@@ -32,9 +32,7 @@ def _sums(length: int, total_sum: int) -> Iterable:
     else:
         for value in range(total_sum + 1):
             for permutation in _sums(length - 1, total_sum - value):
-                yield permutation + [
-                    value,
-                ]
+                yield [*permutation, value]
 
 
 def annotated_state_to_string(state: list) -> str:
@@ -48,5 +46,4 @@ def annotated_state_to_string(state: list) -> str:
             string = string[:-1] + "),"
         else:
             string += "0,"
-    string = string[:-1] + ">"
-    return string
+    return string[:-1] + ">"

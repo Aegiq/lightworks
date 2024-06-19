@@ -92,7 +92,7 @@ class Optimisation:
         if function.__code__.co_argcount > 1:
             if args is None:
                 raise ValueError("args not specified.")
-            elif len(args) != function.__code__.co_argcount - 1:
+            if len(args) != function.__code__.co_argcount - 1:
                 raise ValueError(
                     "args has an incorrect number of items for the function."
                 )
@@ -159,10 +159,11 @@ class Optimisation:
                         args[p] = v
                     else:
                         options = ", ".join(list(args.keys()))
-                        raise ValueError(
+                        msg = (
                             "Incorrect sampler argument entered, valid "
                             f"options are '{options}'."
                         )
+                        raise ValueError(msg)
         else:
             raise ValueError("Processor type not valid.")
         self.__processor = processor
@@ -393,7 +394,7 @@ class Optimisation:
                 herald=self.__processor_args["herald"],
                 post_select=self.__processor_args["post_select"],  # type: ignore
             )
-        else:
+        else:  # noqa: RET505
             simulator = Simulator(self.opt_circuit)
             return simulator.simulate(self.__input)
 

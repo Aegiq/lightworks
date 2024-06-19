@@ -37,10 +37,9 @@ class Permanent:
         factor_m = prod([factorial(i) for i in in_state])
         factor_n = prod([factorial(i) for i in out_state])
         # Calculate permanent for given input/output
-        p = perm(partition(unitary, in_state, out_state)) / (
+        return perm(partition(unitary, in_state, out_state)) / (
             np.sqrt(factor_m * factor_n)
         )
-        return p
 
 
 def partition(

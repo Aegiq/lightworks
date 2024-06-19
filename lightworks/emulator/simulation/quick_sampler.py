@@ -248,13 +248,12 @@ class QuickSampler:
         returns this.
         """
         # Store circuit unitary and input state
-        vals = [
+        return [
             self.__circuit.U_full,
             self.input_state,
             self.post_select,
             self.photon_counting,
         ]
-        return vals
 
     def _calculate_probabiltiies(self, outputs: list) -> dict:
         """
