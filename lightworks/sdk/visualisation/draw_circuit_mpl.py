@@ -24,8 +24,6 @@ from ..utils import DisplayError
 if TYPE_CHECKING:
     from ..circuit import Circuit
 
-# ruff: noqa: N806
-
 
 class DrawCircuitMPL:
     """
@@ -56,7 +54,7 @@ class DrawCircuitMPL:
         self.circuit = circuit
         self.display_loss = display_loss
         self.mode_labels = mode_labels
-        self.N = self.circuit.n_modes
+        self.n_modes = self.circuit.n_modes
         self.herald_modes = self.circuit._internal_modes
 
     def draw(self) -> tuple[matplotlib.figure.Figure, plt.Axes]:
@@ -65,7 +63,6 @@ class DrawCircuitMPL:
         """
         # Set a waveguide width and get mode number
         self.wg_width = 0.05
-        N = self.circuit.n_modes
         # Adjust size of figure according to circuit with min size 4 and max 40
         s = min(len(self.circuit._display_spec), 40)
         s = max(s, 4)
@@ -73,14 +70,14 @@ class DrawCircuitMPL:
         self.fig, self.ax = plt.subplots(figsize=(s, s), dpi=200)
         self.ax.set_aspect("equal")
         # Manually adjust figure height
-        h = max(N, 4)
+        h = max(self.n_modes, 4)
         self.fig.set_figheight(h)
         dy = 1.0
         dy_smaller = 0.6
         self.y_locations = []
         # Set mode y locations
         yloc = 0.0
-        for i in range(self.N):
+        for i in range(self.n_modes):
             self.y_locations.append(yloc)
             if i + 1 in self.herald_modes or i in self.herald_modes:
                 yloc += dy_smaller
@@ -91,10 +88,10 @@ class DrawCircuitMPL:
         if False:
             self._add_wg(0, i - self.wg_width / 2, init_length)
         # Create a list to store the positions of each mode
-        self.x_locations = [init_length] * N
+        self.x_locations = [init_length] * self.n_modes
         # Add extra waveguides when using heralds
         if self.circuit._external_heralds["input"]:
-            for i in range(self.N):
+            for i in range(self.n_modes):
                 if i not in self.herald_modes:
                     self._add_wg(self.x_locations[i], self.y_locations[i], 0.5)
                     self.x_locations[i] += 0.5
@@ -150,7 +147,7 @@ class DrawCircuitMPL:
         self.ax.set_ylim(max(self.y_locations) + 1, -1)
         self.ax.set_yticks(self.y_locations)
         if self.mode_labels is not None:
-            exp_len = N - len(self.herald_modes)
+            exp_len = self.n_modes - len(self.herald_modes)
             if len(self.mode_labels) != exp_len:
                 msg = (
                     "Length of provided mode labels list should be equal to "
@@ -159,12 +156,14 @@ class DrawCircuitMPL:
                 raise DisplayError(msg)
             mode_labels = self.mode_labels
         else:
-            mode_labels = [str(i) for i in range(N - len(self.herald_modes))]
+            mode_labels = [
+                str(i) for i in range(self.n_modes - len(self.herald_modes))
+            ]
         mode_labels = [str(m) for m in mode_labels]
         # Include heralded modes in mode labels
         full_mode_labels = []
         count = 0
-        for i in range(N):
+        for i in range(self.n_modes):
             if i not in self.herald_modes:
                 full_mode_labels.append(mode_labels[count])
                 count += 1

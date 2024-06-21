@@ -12,13 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .circuit_utils import (
-    add_empty_mode_to_circuit_spec,
-    add_modes_to_circuit_spec,
-    compress_mode_swaps,
-    convert_non_adj_beamsplitters,
-    unpack_circuit_spec,
-)
 from .conversion import db_loss_to_transmission, transmission_to_db_loss
 from .exceptions import *
 from .heralding_utils import add_heralds_to_state, remove_heralds_from_state

@@ -17,7 +17,7 @@ A custom state datatype, which is created for storing annotated state details.
 It is not intended that this class will be ordinarily accessible to users.
 """
 
-from typing import Any, Union
+from typing import Any, Iterable, Union
 
 from ..utils import AnnotatedStateError, annotated_state_to_string
 
@@ -108,6 +108,9 @@ class AnnotatedState:
         raise AnnotatedStateError(
             "AnnotatedState object does not support item assignment."
         )
+
+    def __iter__(self) -> Iterable[list]:
+        yield from self.s
 
     def __getitem__(
         self, indices: int | slice

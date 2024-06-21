@@ -26,9 +26,7 @@ from ..backend import Backend
 from ..components import Detector, Source
 from ..results import SamplingResult
 from ..utils import ModeMismatchError
-from .probability_distribution import (
-    ProbabilityDistributionCalc as PDC,  # noqa: N817
-)
+from .probability_distribution import pdist_calc
 
 
 class Sampler:
@@ -177,14 +175,8 @@ class Sampler:
             input_state = State(modified_state)
             # Then build with source
             all_inputs = self.source._build_statistics(input_state)
-            if isinstance(next(iter(all_inputs)), State):
-                pdist = PDC.state_prob_calc(
-                    self.circuit._build(), all_inputs, self.backend
-                )
-            else:
-                pdist = PDC.annotated_state_prob_calc(
-                    self.circuit._build(), all_inputs, self.backend
-                )
+            # And find probability distribution
+            pdist = pdist_calc(self.circuit._build(), all_inputs, self.backend)
             # Special case to catch an empty distribution
             if not pdist:
                 pdist = {State([0] * self.circuit.n_modes): 1}

@@ -21,7 +21,7 @@ from copy import copy
 from typing import Any, Iterable, Union
 
 from ..utils.exceptions import StateError
-from ..utils.state_utils import state_to_string
+from .state_utils import state_to_string
 
 
 class State:
@@ -112,8 +112,7 @@ class State:
         return self.n_modes
 
     def __iter__(self) -> Iterable[int]:
-        for p in self.s:
-            yield p
+        yield from self.s
 
     def __setitem__(self, key: Any, value: Any) -> None:
         raise StateError("State object does not support item assignment.")

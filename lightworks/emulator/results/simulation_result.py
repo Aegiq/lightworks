@@ -14,6 +14,7 @@
 
 from typing import Any, Iterable
 
+import matplotlib.figure
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -159,8 +160,7 @@ class SimulationResult:
 
     def __iter__(self) -> Iterable:
         """Iterable to allow to do 'for input in SimulationResult'."""
-        for p in self.dictionary:
-            yield p
+        yield from self.dictionary
 
     def apply_threshold_mapping(
         self, invert: bool = False
@@ -258,7 +258,7 @@ class SimulationResult:
         conv_to_probability: bool = False,
         show: bool = False,
         state_labels: dict | None = None,
-    ) -> tuple | None:
+    ) -> tuple[matplotlib.figure.Figure, plt.Axes] | None:
         """
         Create a plot of the data contained in the result. This will either
         take the form of a heatmap or bar chart, depending on the nature of the
@@ -280,7 +280,6 @@ class SimulationResult:
                 values should be strings or States.
 
         """
-        # TODO: Clean up the logic here
         if state_labels is None:
             state_labels = {}
         # Check provided state labels are valid
@@ -292,102 +291,10 @@ class SimulationResult:
         # Use imshow for any results originally provided as an array if more
         # than two more inputs are used.
         if len(self.inputs) >= 2:
-            if (
-                self.result_type != "probability_amplitude"
-                or conv_to_probability
-            ):
-                if self.result_type == "probability_amplitude":
-                    a_data = abs(self.array) ** 2
-                else:
-                    a_data = abs(self.array)
-                # Plot array and add colorbar
-                fig, ax = plt.subplots()
-                im = ax.imshow(a_data)
-                im_ratio = a_data.shape[0] / a_data.shape[1]
-                fig.colorbar(im, ax=ax, fraction=0.046 * im_ratio, pad=0.04)
-                # Label states on each axis
-                ax.set_xticks(range(len(self.outputs)))
-                xlabels = [
-                    state_labels[s] if s in state_labels else str(s)
-                    for s in self.outputs
-                ]
-                ax.set_xticklabels(xlabels, rotation=90)
-                ax.set_yticks(range(len(self.inputs)))
-                ylabels = [
-                    state_labels[s] if s in state_labels else str(s)
-                    for s in self.inputs
-                ]
-                ax.set_yticklabels(ylabels)
-            else:
-                fig, ax = plt.subplots(1, 2, figsize=(20, 6))
-                vmin = min([op(self.array).min() for op in [np.real, np.imag]])
-                vmax = min([op(self.array).max() for op in [np.real, np.imag]])
-                im = ax[0].imshow(np.real(self.array), vmin=vmin, vmax=vmax)
-                ax[0].set_title("real(result)")
-                ax[1].imshow(np.imag(self.array), vmin=vmin, vmax=vmax)
-                ax[1].set_title("imag(result)")
-                for i in range(2):
-                    ax[i].set_xticks(range(len(self.outputs)))
-                    xlabels = [
-                        state_labels[s] if s in state_labels else str(s)
-                        for s in self.outputs
-                    ]
-                    ax[i].set_xticklabels(xlabels, rotation=90)
-                    ax[i].set_yticks(range(len(self.inputs)))
-                    ylabels = [
-                        state_labels[s] if s in state_labels else str(s)
-                        for s in self.inputs
-                    ]
-                    ax[i].set_yticklabels(ylabels)
-                fig.colorbar(im, ax=ax.ravel().tolist())
+            fig, ax = self._plot_array(conv_to_probability, state_labels)
         # Otherwise use a bar chart
         else:
-            istate = self.inputs[0]
-            if (
-                self.result_type != "probability_amplitude"
-                or conv_to_probability
-            ):
-                if self.result_type == "probability_amplitude":
-                    d_data = {}
-                    for s, p in self.dictionary[istate].items():
-                        d_data[s] = abs(p) ** 2
-                    title = "Probability"
-                else:
-                    d_data = self.dictionary[istate]
-                    title = self.result_type.capitalize()
-
-                fig, ax = plt.subplots(figsize=(7, 6))
-                x_data = range(len(d_data))
-                ax.bar(x_data, d_data.values())
-                ax.set_xticks(x_data)
-                labels = [
-                    state_labels[s] if s in state_labels else str(s)
-                    for s in d_data
-                ]
-                ax.set_xticklabels(labels, rotation=90)
-                ax.set_xlabel("State")
-                ax.set_ylabel(title)
-            # Plot both real and imaginary parts
-            else:
-                fig, ax = plt.subplots(1, 2, figsize=(14, 6))
-                x_data = range(len(self.dictionary[istate]))
-                ax[0].bar(
-                    x_data, np.real(list(self.dictionary[istate].values()))
-                )
-                ax[1].bar(
-                    x_data, np.imag(list(self.dictionary[istate].values()))
-                )
-                for i in range(2):
-                    ax[i].set_xticks(x_data)
-                    labels = [
-                        state_labels[s] if s in state_labels else str(s)
-                        for s in self.dictionary[istate]
-                    ]
-                    ax[i].set_xticklabels(labels, rotation=90)
-                    ax[i].set_xlabel("State")
-                    ax[i].axhline(0, color="black", linewidth=0.5)
-                ax[0].set_ylabel("real(amplitude)")
-                ax[1].set_ylabel("imag(amplitude)")
+            fig, ax = self._plot_bar(conv_to_probability, state_labels)
         # Optionally use show on plot if specified
         if show:
             plt.show()
@@ -470,3 +377,98 @@ class SimulationResult:
                 data = data.astype(float)
         # Create dataframe and return
         return pd.DataFrame(data, index=in_strings, columns=out_strings)
+
+    def _plot_array(
+        self, conv_to_probability: bool, state_labels: dict
+    ) -> tuple[matplotlib.figure.Figure, plt.Axes]:
+        """
+        Plots an array of the data contained within the Result object.
+        """
+        # Generate x and y labels
+        xlabels = [
+            state_labels[s] if s in state_labels else str(s)
+            for s in self.outputs
+        ]
+        ylabels = [
+            state_labels[s] if s in state_labels else str(s)
+            for s in self.inputs
+        ]
+        # Vary process depending on result type
+        if self.result_type != "probability_amplitude" or conv_to_probability:
+            if self.result_type == "probability_amplitude":
+                a_data = abs(self.array) ** 2
+            else:
+                a_data = abs(self.array)
+            # Plot array and add colorbar
+            fig, ax = plt.subplots()
+            im = ax.imshow(a_data)
+            im_ratio = a_data.shape[0] / a_data.shape[1]
+            fig.colorbar(im, ax=ax, fraction=0.046 * im_ratio, pad=0.04)
+            # Label states on each axis
+            ax.set_xticks(range(len(self.outputs)))
+            ax.set_xticklabels(xlabels, rotation=90)
+            ax.set_yticks(range(len(self.inputs)))
+            ax.set_yticklabels(ylabels)
+        else:
+            fig, ax = plt.subplots(1, 2, figsize=(20, 6))
+            vmin = min([op(self.array).min() for op in [np.real, np.imag]])
+            vmax = min([op(self.array).max() for op in [np.real, np.imag]])
+            im = ax[0].imshow(np.real(self.array), vmin=vmin, vmax=vmax)
+            ax[0].set_title("real(result)")
+            ax[1].imshow(np.imag(self.array), vmin=vmin, vmax=vmax)
+            ax[1].set_title("imag(result)")
+            for i in range(2):
+                ax[i].set_xticks(range(len(self.outputs)))
+                ax[i].set_xticklabels(xlabels, rotation=90)
+                ax[i].set_yticks(range(len(self.inputs)))
+                ax[i].set_yticklabels(ylabels)
+            fig.colorbar(im, ax=ax.ravel().tolist())
+        return (fig, ax)
+
+    def _plot_bar(
+        self, conv_to_probability: bool, state_labels: dict
+    ) -> tuple[matplotlib.figure.Figure, plt.Axes]:
+        """
+        Plots bar chart with data contained in Results object. This should only
+        be used if there is a single input.
+        """
+        istate = self.inputs[0]
+        # Vary plot depending on result type
+        if self.result_type != "probability_amplitude" or conv_to_probability:
+            if self.result_type == "probability_amplitude":
+                d_data = {}
+                for s, p in self.dictionary[istate].items():
+                    d_data[s] = abs(p) ** 2
+                title = "Probability"
+            else:
+                d_data = self.dictionary[istate]
+                title = self.result_type.capitalize()
+
+            fig, ax = plt.subplots(figsize=(7, 6))
+            x_data = range(len(d_data))
+            ax.bar(x_data, d_data.values())
+            ax.set_xticks(x_data)
+            labels = [
+                state_labels[s] if s in state_labels else str(s) for s in d_data
+            ]
+            ax.set_xticklabels(labels, rotation=90)
+            ax.set_xlabel("State")
+            ax.set_ylabel(title)
+        # Plot both real and imaginary parts
+        else:
+            fig, ax = plt.subplots(1, 2, figsize=(14, 6))
+            x_data = range(len(self.dictionary[istate]))
+            ax[0].bar(x_data, np.real(list(self.dictionary[istate].values())))
+            ax[1].bar(x_data, np.imag(list(self.dictionary[istate].values())))
+            for i in range(2):
+                ax[i].set_xticks(x_data)
+                labels = [
+                    state_labels[s] if s in state_labels else str(s)
+                    for s in self.dictionary[istate]
+                ]
+                ax[i].set_xticklabels(labels, rotation=90)
+                ax[i].set_xlabel("State")
+                ax[i].axhline(0, color="black", linewidth=0.5)
+            ax[0].set_ylabel("real(amplitude)")
+            ax[1].set_ylabel("imag(amplitude)")
+        return (fig, ax)

@@ -79,7 +79,7 @@ class Source:
 
     @brightness.setter
     def brightness(self, value: float) -> None:
-        self._quantity_check(value, "brightness")
+        quantity_check(value, "brightness")
         self.__brightness = value
 
     @property
@@ -92,7 +92,7 @@ class Source:
         # Special check for purity as it requires value >= 0.5
         if not 0.5 < value <= 1:
             raise ValueError("Value of purity should be in range (0.5,1].")
-        self._quantity_check(value, "purity")
+        quantity_check(value, "purity")
         self.__purity = value
 
     @property
@@ -102,7 +102,7 @@ class Source:
 
     @indistinguishability.setter
     def indistinguishability(self, value: float) -> None:
-        self._quantity_check(value, "indistinguishability")
+        quantity_check(value, "indistinguishability")
         self.__indistinguishability = value
 
     @property
@@ -115,7 +115,7 @@ class Source:
 
     @probability_threshold.setter
     def probability_threshold(self, value: float) -> None:
-        self._quantity_check(value, "probability_threshold")
+        quantity_check(value, "probability_threshold")
         self.__probability_threshold = value
 
     def check_number(self, state: State) -> int:
@@ -135,7 +135,9 @@ class Source:
         """
         return len(self._build_statistics(state))
 
-    def _build_statistics(self, state: State) -> dict:
+    def _build_statistics(
+        self, state: State
+    ) -> dict[State, float] | dict[AnnotatedState, float]:
         """
         Determine the true input statistics for a given target input and the
         provided properties of the single photon source.
@@ -189,7 +191,7 @@ class Source:
 
         """
         n_modes = len(state)
-        stats: list[tuple[float, list]] = []
+        stats: list[tuple[float, list[int]]] = []
         # Loop over each mode
         for mode, count in enumerate(state):  # type: ignore
             if not count:
@@ -222,11 +224,11 @@ class Source:
         # Combine any duplicate results
         stats_dict: dict[State, float] = {}  # Convert stats to dict
         for probs, s in stats:
-            s = State(s)  # type: ignore  # noqa: PLW2901
-            if s not in stats_dict:
-                stats_dict[s] = probs  # type: ignore
+            s_conv = State(s)
+            if s_conv not in stats_dict:
+                stats_dict[s_conv] = probs
             else:
-                stats_dict[s] += probs  # type: ignore
+                stats_dict[s_conv] += probs
         # Catch any empty returns and give input
         if not stats_dict:
             stats_dict[state] = 1.0
@@ -254,21 +256,6 @@ class Source:
         # Get the full distribution and then perform remapping
         stats_dict = self._full_distribution(state)
         return self._remap_distribution(stats_dict)
-
-    def _purity_to_prob(self, purity: float) -> float:
-        """
-        Return single photon probability for a given purity, probability of a
-        two photon state will be twice this.
-        """
-        if purity <= 0.5:
-            raise ValueError("Purity values below 0.5 not supported.")
-        if purity < 1:
-            g2 = 1 - purity
-            b = 2 * (1 - (1 / g2))
-            p1 = 1 - (-b - (b**2 - 4) ** 0.5) / 2
-        else:
-            p1 = 1
-        return p1
 
     def _remap_distribution(self, distribution: dict) -> dict:
         """
@@ -306,7 +293,7 @@ class Source:
         state.
         """
         # Find groups of empty modes
-        to_group, to_skip = self._group_empty_modes(state)
+        to_group, to_skip = group_empty_modes(state)
         input_dist: dict[AnnotatedState, float] = {}
         # Loop over each mode and find distribution
         for i, n in enumerate(state):  # type: ignore
@@ -379,7 +366,7 @@ class Source:
         p_i = self.indistinguishability**0.5
         p_d = 1 - p_i
         # Find pure state probability using purity
-        p1 = self._purity_to_prob(self.purity)
+        p1 = purity_to_prob(self.purity)
         p2 = 1 - p1
         # Define all required probabilities
         c0 = 1 - nu * (p1 + p2 * nu + 2 * (1 - nu) * p2)
@@ -408,55 +395,73 @@ class Source:
 
         return out
 
-    def _group_empty_modes(self, state: State) -> tuple[dict, list]:
-        """
-        Used to find groups of empty modes, this can be used to speed up the
-        source distribution calculation.
-        """
-        to_group = {}
-        to_skip = []
-        # Loop over each mode in the state
-        for i, s in enumerate(state):  # type: ignore
-            # Skip any modes already grouped or the last mode
-            if i in to_skip or i == len(state) - 1:
+
+def group_empty_modes(state: State) -> tuple[dict, list]:
+    """
+    Used to find groups of empty modes, this can be used to speed up the source
+    distribution calculation.
+    """
+    to_group = {}
+    to_skip = []
+    # Loop over each mode in the state
+    for i, s in enumerate(state):  # type: ignore
+        # Skip any modes already grouped or the last mode
+        if i in to_skip or i == len(state) - 1:
+            continue
+        if s == 0:
+            # If only a single empty mode then skip
+            if state[i + 1] > 0:  # type: ignore
                 continue
-            if s == 0:
-                # If only a single empty mode then skip
-                if state[i + 1] > 0:  # type: ignore
-                    continue
-                # Find how many empty modes there are
-                n = 1
-                while state[i + n] == 0:
-                    n += 1
-                    if i + n > len(state) - 1:
-                        break
-                to_group[i] = list(range(i, i + n))
-                to_skip += list(range(i + 1, i + n))
+            # Find how many empty modes there are
+            n = 1
+            while state[i + n] == 0:
+                n += 1
+                if i + n > len(state) - 1:
+                    break
+            to_group[i] = list(range(i, i + n))
+            to_skip += list(range(i + 1, i + n))
 
-        return (to_group, to_skip)
+    return (to_group, to_skip)
 
-    def _quantity_check(self, value: float, name: str) -> None:
-        """
-        General function to confirm that a quantity is numerical and lies in
-        the range [0,1].
 
-        Args:
+def purity_to_prob(purity: float) -> float:
+    """
+    Return single photon probability for a given purity, probability of a two
+    photon state will be twice this.
+    """
+    if purity <= 0.5:
+        raise ValueError("Purity values below 0.5 not supported.")
+    if purity < 1:
+        g2 = 1 - purity
+        b = 2 * (1 - (1 / g2))
+        p1 = 1 - (-b - (b**2 - 4) ** 0.5) / 2
+    else:
+        p1 = 1
+    return p1
 
-            value (float) : The quantity that is to be checked.
 
-            name (str) : A name to use for the quantity when displaying error
-                messages.
+def quantity_check(value: float, name: str) -> None:
+    """
+    General function to confirm that a quantity is numerical and lies in the
+    range [0,1].
 
-        Raises:
+    Args:
 
-            TypeError : When quantity isn't numeric.
+        value (float) : The quantity that is to be checked.
 
-            ValueError : When quantity is not within the range [0,1].
+        name (str) : A name to use for the quantity when displaying error
+            messages.
 
-        """
-        if not isinstance(value, Number) or isinstance(value, bool):
-            msg = f"{name} should be a numerical value."
-            raise TypeError(msg)
-        if not 0 <= value <= 1:
-            msg = f"Value of {name} should be in range [0,1]."
-            raise ValueError()
+    Raises:
+
+        TypeError : When quantity isn't numeric.
+
+        ValueError : When quantity is not within the range [0,1].
+
+    """
+    if not isinstance(value, Number) or isinstance(value, bool):
+        msg = f"{name} should be a numerical value."
+        raise TypeError(msg)
+    if not 0 <= value <= 1:
+        msg = f"Value of {name} should be in range [0,1]."
+        raise ValueError(msg)
