@@ -55,14 +55,14 @@ class DrawCircuitSVG:
         self.herald_modes = self.circuit._internal_modes
         # Set a waveguide width and get mode number
         self.wg_width = 8
-        self.N = self.circuit.n_modes
+        self.n_modes = self.circuit.n_modes
         self.draw_spec: list[tuple] = []
         self.dy = 125
         self.dy_smaller = 75
         self.y_locations = []
         # Set mode y locations
         yloc = self.dy
-        for i in range(self.N):
+        for i in range(self.n_modes):
             self.y_locations.append(yloc)
             if i + 1 in self.herald_modes or i in self.herald_modes:
                 yloc += self.dy_smaller
@@ -71,7 +71,7 @@ class DrawCircuitSVG:
         init_length = 100.0
         # Add the mode labels
         if mode_labels is not None:
-            exp_len = self.N - len(self.herald_modes)
+            exp_len = self.n_modes - len(self.herald_modes)
             if len(mode_labels) != exp_len:
                 msg = (
                     "Length of provided mode labels list should be equal to "
@@ -80,13 +80,13 @@ class DrawCircuitSVG:
                 raise DisplayError(msg)
         else:
             mode_labels = [
-                str(i) for i in range(self.N - len(self.herald_modes))
+                str(i) for i in range(self.n_modes - len(self.herald_modes))
             ]
         # Convert all labels to strings
         mode_labels = [str(m) for m in mode_labels]
         full_mode_labels = []
         count = 0
-        for i in range(self.N):
+        for i in range(self.n_modes):
             if i not in self.herald_modes:
                 full_mode_labels.append(mode_labels[count])
                 count += 1
@@ -114,10 +114,10 @@ class DrawCircuitSVG:
             ]
         self._init_length = init_length
         # Create list of locations for each mode
-        self.x_locations = [init_length + 50] * self.N
+        self.x_locations = [init_length + 50] * self.n_modes
         # Add extra waveguides when using heralds
         if self.circuit._external_heralds["input"]:
-            for m in range(self.N):
+            for m in range(self.n_modes):
                 if m not in self.herald_modes:
                     self._add_wg(self.x_locations[m], self.y_locations[m], 50)
                     self.x_locations[m] += 50
@@ -167,7 +167,7 @@ class DrawCircuitSVG:
             self.circuit._external_heralds, self._init_length + 50, maxloc
         )
 
-        for i in range(self.N):
+        for i in range(self.n_modes):
             self.x_locations[i] += 50
 
         return
@@ -211,7 +211,7 @@ class DrawCircuitSVG:
         )
         # Add ticks to left side of frame
         length, width = 8, 1
-        for i in range(self.N):
+        for i in range(self.n_modes):
             self.d.append(
                 draw.Rectangle(
                     self._init_length - length,
@@ -226,7 +226,9 @@ class DrawCircuitSVG:
         dr.add(self.draw_spec)
 
         # Adjust size of figure to meet target scale
-        target_scale = min(50 + (self.N - len(self.herald_modes)) * 65, 900)
+        target_scale = min(
+            50 + (self.n_modes - len(self.herald_modes)) * 65, 900
+        )
         # target_scale = max(target_scale, 200)
         self.d.set_pixel_scale(1)
         _w, h = self.d.calc_render_size()
@@ -397,7 +399,7 @@ class DrawCircuitSVG:
         self.draw_spec += [
             ("unitary", (xloc, yloc, size_x, size_y, offset / 2))
         ]
-        s = 25 if self.N > 2 else 20
+        s = 25 if self.n_modes > 2 else 20
         s = 35 if len(label) == 1 else s
         r = 270 if len(label) > 2 else 0
         self.draw_spec += [
@@ -546,7 +548,7 @@ class DrawCircuitSVG:
         xloc += con_length + extra_length
         # Add unitary shape and U label
         self.draw_spec += [("group", (xloc, yloc, size_x, size_y, offset / 2))]
-        s = 25 if self.N > 2 else 20
+        s = 25 if self.n_modes > 2 else 20
         s = 35 if len(name) == 1 else s
         r = 270 if len(name) > 2 else 0
         self.draw_spec += [
