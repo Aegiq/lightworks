@@ -14,6 +14,7 @@
 
 from typing import Any, Iterable
 
+import matplotlib.figure
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -163,7 +164,7 @@ class SamplingResult:
 
     def plot(
         self, show: bool = False, state_labels: dict | None = None
-    ) -> tuple | None:
+    ) -> tuple[matplotlib.figure.Figure, plt.Axes] | None:
         """
         Create a plot of the data contained in the result. This will either
         take the form of a heatmap or bar chart, depending on the nature of the
