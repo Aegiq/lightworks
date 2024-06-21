@@ -17,9 +17,14 @@ from ...sdk.state import State
 from ..backend import Backend
 
 
-class ProbabilityDistributionCalc:  # noqa: D101
+class ProbabilityDistributionCalc:
+    """
+    Contains methods for calculation of the full probability distribution for a
+    given circuit and input state probability distribution.
+    """
+
     @staticmethod
-    def state_prob_calc(  # noqa: D417
+    def state_prob_calc(
         circuit: CompiledCircuit, inputs: dict, backend: Backend
     ) -> dict:
         """
@@ -34,6 +39,9 @@ class ProbabilityDistributionCalc:  # noqa: D101
 
             inputs (dict) : The inputs to the system and their associated
                 probabilities.
+
+            backend (Backend) : A backend object which provides the required
+                methods for calculation of the probability distribution.
 
         Returns:
 
@@ -64,7 +72,7 @@ class ProbabilityDistributionCalc:  # noqa: D101
         return pdist
 
     @staticmethod
-    def annotated_state_prob_calc(  # noqa: D417
+    def annotated_state_prob_calc(
         circuit: CompiledCircuit, inputs: dict, backend: Backend
     ) -> dict:
         """
@@ -78,6 +86,9 @@ class ProbabilityDistributionCalc:  # noqa: D101
 
             inputs (dict) : The inputs to the system and their associated
                             probabilities.
+
+            backend (Backend) : A backend object which provides the required
+                methods for calculation of the probability distribution.
 
         Returns:
 
