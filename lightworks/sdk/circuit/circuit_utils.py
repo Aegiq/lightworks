@@ -307,7 +307,7 @@ def check_loss(loss: float | Parameter) -> bool:
         loss = loss.get()
     if not isinstance(loss, Number) or isinstance(loss, bool):
         raise TypeError("Loss value should be numerical or a Parameter.")
-    if loss < 0:
+    if loss < 0:  # type: ignore
         raise ValueError("Provided loss values should be greater than 0.")
     return True
 
