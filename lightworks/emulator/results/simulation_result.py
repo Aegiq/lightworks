@@ -159,8 +159,7 @@ class SimulationResult:
 
     def __iter__(self) -> Iterable:
         """Iterable to allow to do 'for input in SimulationResult'."""
-        for p in self.dictionary:
-            yield p
+        yield from self.dictionary
 
     def apply_threshold_mapping(
         self, invert: bool = False

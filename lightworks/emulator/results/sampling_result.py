@@ -80,8 +80,7 @@ class SamplingResult:
 
     def __iter__(self) -> Iterable:
         """Iterable to allow to do 'for output in SamplingResult'."""
-        for p in self.dictionary:
-            yield p
+        yield from self.dictionary
 
     def items(self) -> Iterable:
         """

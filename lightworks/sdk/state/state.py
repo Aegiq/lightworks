@@ -112,8 +112,7 @@ class State:
         return self.n_modes
 
     def __iter__(self) -> Iterable[int]:
-        for p in self.s:
-            yield p
+        yield from self.s
 
     def __setitem__(self, key: Any, value: Any) -> None:
         raise StateError("State object does not support item assignment.")

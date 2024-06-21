@@ -243,8 +243,7 @@ class ParameterDict:
 
     def __iter__(self) -> Any:
         """Iterable to allow to do 'for param in ParameterDict'."""
-        for p in self.params:
-            yield p
+        yield from self.params
 
     def __setitem__(self, key: Any, value: Any) -> None:
         # Custom set item behaviors to allow for parameter values to be
