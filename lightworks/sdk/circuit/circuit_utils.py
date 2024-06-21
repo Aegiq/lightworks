@@ -18,7 +18,11 @@
 Contains a number of different utility functions for modifying circuits.
 """
 
-from .matrix_utils import add_mode_to_unitary
+from numbers import Number
+from typing import Any
+
+from ..utils import add_mode_to_unitary
+from .parameters import Parameter
 
 
 def unpack_circuit_spec(circuit_spec: list) -> list:
@@ -292,3 +296,27 @@ def combine_mode_swap_dicts(swaps1: dict, swaps2: dict) -> dict:
             new_swaps[s2] = swaps2[s2]
     # Remove any modes that are unchanged as these are not required
     return {m1: m2 for m1, m2 in new_swaps.items() if m1 != m2}
+
+
+def check_loss(loss: float | Parameter) -> bool:
+    """
+    Check that loss is positive and toggle _loss_included if not already
+    done.
+    """
+    if isinstance(loss, Parameter):
+        loss = loss.get()
+    if not isinstance(loss, Number) or isinstance(loss, bool):
+        raise TypeError("Loss value should be numerical or a Parameter.")
+    if loss < 0:
+        raise ValueError("Provided loss values should be greater than 0.")
+    return True
+
+
+def display_loss_check(loss: Any) -> bool:
+    """
+    Checks whether a loss element should be shown when using the display
+    function.
+    """
+    if isinstance(loss, str):
+        return True
+    return bool(loss > 0)

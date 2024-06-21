@@ -18,7 +18,6 @@ after creation.
 """
 
 from copy import copy, deepcopy
-from numbers import Number
 from typing import TYPE_CHECKING, Any, Union
 
 import matplotlib.pyplot as plt
@@ -32,14 +31,18 @@ from ..utils import (
     CircuitCompilationError,
     DisplayError,
     ModeRangeError,
-    add_empty_mode_to_circuit_spec,
-    add_modes_to_circuit_spec,
-    compress_mode_swaps,
-    convert_non_adj_beamsplitters,
-    unpack_circuit_spec,
 )
 from ..visualisation import Display
 from .circuit_compiler import CompiledCircuit, CompiledUnitary
+from .circuit_utils import (
+    add_empty_mode_to_circuit_spec,
+    add_modes_to_circuit_spec,
+    check_loss,
+    compress_mode_swaps,
+    convert_non_adj_beamsplitters,
+    display_loss_check,
+    unpack_circuit_spec,
+)
 from .parameters import Parameter
 
 
@@ -341,7 +344,7 @@ class Circuit:
                 "Beam splitter must act across two different modes."
             )
         self._mode_in_range(mode_2)
-        self._check_loss(loss)
+        check_loss(loss)
         # Check correct convention is given
         all_convs = ["Rx", "H"]
         if convention not in all_convs:
@@ -373,7 +376,7 @@ class Circuit:
         """
         mode = self._map_mode(mode)
         self._mode_in_range(mode)
-        self._check_loss(loss)
+        check_loss(loss)
         self.__circuit_spec.append(["ps", (mode, phi)])
         if isinstance(loss, Parameter) or loss > 0:
             self.add_loss(mode, loss)
@@ -392,7 +395,7 @@ class Circuit:
         """
         mode = self._map_mode(mode)
         self._mode_in_range(mode)
-        self._check_loss(loss)
+        check_loss(loss)
         self.__circuit_spec.append(["loss", (mode, loss)])
 
     def add_barrier(self, modes: list | None = None) -> None:
@@ -563,7 +566,7 @@ class Circuit:
             new_circ.__circuit_spec = copy(self.__circuit_spec)
         else:
             copied_spec = deepcopy(self.__circuit_spec)
-            new_circ.__circuit_spec = self._freeze_params(copied_spec)  # type: ignore
+            new_circ.__circuit_spec = list(self._freeze_params(copied_spec))
         new_circ.__in_heralds = copy(self.__in_heralds)
         new_circ.__out_heralds = copy(self.__out_heralds)
         new_circ.__external_in_heralds = copy(self.__external_in_heralds)
@@ -677,19 +680,6 @@ class Circuit:
                 mode += 1
         return mode
 
-    def _check_loss(self, loss: float) -> bool:
-        """
-        Check that loss is positive and toggle _loss_included if not already
-        done.
-        """
-        if isinstance(loss, Parameter):
-            loss = loss.get()
-        if not isinstance(loss, Number) or isinstance(loss, bool):
-            raise TypeError("Loss value should be numerical or a Parameter.")
-        if loss < 0:
-            raise ValueError("Provided loss values should be greater than 0.")
-        return True
-
     def _add_empty_mode(self, circuit_spec: list, mode: int) -> list:
         """
         Adds an empty mode at the selected location to a provided circuit spec.
@@ -744,7 +734,7 @@ class Circuit:
             elif cs == "ps":
                 display_spec.append(("PS", cparams[0], (cparams[1])))
             elif cs == "loss":
-                if self._display_loss_check(cparams[1]):
+                if display_loss_check(cparams[1]):
                     display_spec.append(("LC", cparams[0], (cparams[1])))
             elif cs == "barrier":
                 display_spec.append(("barrier", cparams[0], None))
@@ -783,15 +773,6 @@ class Circuit:
         if isinstance(spec, tuple):
             return tuple(new_spec)
         return new_spec
-
-    def _display_loss_check(self, loss: Any) -> bool:
-        """
-        Checks whether a loss element should be shown when using the display
-        function.
-        """
-        if isinstance(loss, str):
-            return True
-        return bool(loss > 0)
 
     def _get_circuit_spec(self) -> list:
         """Returns a copy of the circuit spec attribute."""
