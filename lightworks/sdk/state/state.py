@@ -21,7 +21,7 @@ from copy import copy
 from typing import Any, Iterable, Union
 
 from ..utils.exceptions import StateError
-from ..utils.state_utils import state_to_string
+from .state_utils import state_to_string
 
 
 class State:
