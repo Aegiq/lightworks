@@ -135,7 +135,9 @@ class Source:
         """
         return len(self._build_statistics(state))
 
-    def _build_statistics(self, state: State) -> dict:
+    def _build_statistics(
+        self, state: State
+    ) -> dict[State, float] | dict[AnnotatedState, float]:
         """
         Determine the true input statistics for a given target input and the
         provided properties of the single photon source.

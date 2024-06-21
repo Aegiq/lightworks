@@ -3,6 +3,7 @@ matplotlib>=3.7.1
 pandas>=2.0.1
 pandas-stubs
 numpy>=1.24.3
+multimethod>=1.11.2
 bayesian-optimization>=1.4.3
 drawsvg>=2.3.0
 zoopt>=0.4.2
