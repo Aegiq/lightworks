@@ -280,7 +280,6 @@ class SimulationResult:
                 values should be strings or States.
 
         """
-        # TODO: Clean up the logic here
         if state_labels is None:
             state_labels = {}
         # Check provided state labels are valid
