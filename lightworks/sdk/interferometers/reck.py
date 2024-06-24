@@ -16,22 +16,39 @@ import numpy as np
 
 from ..circuit import Circuit
 from .decomposition import reck_decomposition
+from .error_model import ErrorModel
 
 
 class Reck:
     """
-    Desc
+    Used for mapping a provided Circuit to a Reck interferometer.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, error_model: ErrorModel | None = None) -> None:
         # TODO: Will implement some sort of error model here.
+        if error_model is None:
+            error_model = ErrorModel()
+        self.error_model = error_model
 
         return
 
-    def map(self, circuit: Circuit) -> Circuit:
+    @property
+    def error_model(self) -> ErrorModel:
+        """Returns currently used error model for the system."""
+        return self.__error_model
+
+    @error_model.setter
+    def error_model(self, value: ErrorModel) -> None:
+        if not isinstance(value, ErrorModel):
+            raise TypeError("error_model should be an ErrorModel object.")
+        self.__error_model = value
+
+    def map(self, circuit: Circuit, seed: int | None = None) -> Circuit:
         """
         Maps a provided circuit onto the interferometer.
         """
+        if seed is None:
+            pass
         # Invert unitary so reck layout starts with fewest elements on mode 0
         unitary = np.flip(circuit.U, axis=(0, 1))
         phase_map, end_phases = reck_decomposition(unitary)
@@ -48,9 +65,15 @@ class Reck:
                 mode = n_modes - j - 2
                 mapped_circuit.add_barrier([mode, mode + 1])
                 mapped_circuit.add_ps(mode + 1, phase_map["ps_" + coord])
-                mapped_circuit.add_bs(mode)
+                mapped_circuit.add_bs(
+                    mode, reflectivity=self.error_model.bs_reflectivity
+                )
                 mapped_circuit.add_ps(mode, phase_map["bs_" + coord])
-                mapped_circuit.add_bs(mode)
+                mapped_circuit.add_bs(
+                    mode,
+                    reflectivity=self.error_model.bs_reflectivity,
+                    loss=self.error_model.loss,
+                )
         mapped_circuit.add_barrier()
         # Apply residual phases at the end
         for i in range(n_modes):
