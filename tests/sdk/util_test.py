@@ -26,6 +26,7 @@ from lightworks import (
 from lightworks.sdk.utils import (
     add_heralds_to_state,
     add_mode_to_unitary,
+    check_random_seed,
     check_unitary,
     permutation_mat_from_swaps_dict,
 )
@@ -187,3 +188,11 @@ class TestUtils:
         s = [randint(0, 5) for i in range(10)]
         s_new = add_heralds_to_state(s, {})
         assert id(s) != id(s_new)
+
+    @pytest.mark.parametrize("value", [0.5, 3.2, "1.1", "seed", [1], (1,)])
+    def test_check_random_seed(self, value):
+        """
+        Confirms that check_random_seed detects invalid seeds.
+        """
+        with pytest.raises(TypeError):
+            check_random_seed(value)

@@ -45,7 +45,7 @@ def random_unitary(N: int, seed: int | None = None) -> np.ndarray:  # noqa: N803
             value.
 
     """
-    seed = _check_random_seed(seed)
+    seed = check_random_seed(seed)
     return unitary_group.rvs(N, random_state=seed)
 
 
@@ -76,14 +76,18 @@ def random_permutation(
             value.
 
     """
-    seed = _check_random_seed(seed)
+    seed = check_random_seed(seed)
     np.random.seed(seed)
     return np.random.permutation(np.identity(N, dtype=complex))
 
 
-def _check_random_seed(seed: Any) -> int | None:
+def check_random_seed(seed: Any) -> int | None:
     """Process a supplied random seed."""
     if not isinstance(seed, (int, type(None))):
+        try:
+            int(seed)
+        except Exception as e:
+            raise TypeError("Random seed must be an integer.") from e
         if int(seed) == seed:
             seed = int(seed)
         else:
