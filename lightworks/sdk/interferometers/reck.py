@@ -47,8 +47,8 @@ class Reck:
         """
         Maps a provided circuit onto the interferometer.
         """
-        if seed is None:
-            pass
+        # Reset error model seed
+        self.error_model._set_random_seed(seed)
         # Invert unitary so reck layout starts with fewest elements on mode 0
         unitary = np.flip(circuit.U, axis=(0, 1))
         phase_map, end_phases = reck_decomposition(unitary)
