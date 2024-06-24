@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import numpy as np
+
 from ..circuit import Circuit
 from .decomposition import reck_decomposition
 
@@ -26,25 +28,41 @@ class Reck:
 
         return
 
-    def map(self, circuit: Circuit) -> None:
+    def map(self, circuit: Circuit) -> Circuit:
         """
         Maps a provided circuit onto the interferometer.
         """
-        phase_map, end_phases = reck_decomposition(circuit.U)
+        # Invert unitary so reck layout starts with fewest elements on mode 0
+        unitary = np.flip(circuit.U, axis=(0, 1))
+        phase_map, end_phases = reck_decomposition(unitary)
+        phase_map = {k: v % (2 * np.pi) for k, v in phase_map.items()}
+        end_phases = [p % (2 * np.pi) for p in end_phases]
 
+        # Build circuit with required mode number
         n_modes = circuit.n_modes
-
         mapped_circuit = Circuit(n_modes)
-        # Build circuit here
         for i in range(n_modes - 1):
             for j in range(0, n_modes - 1 - i, 1):
+                # Find coordinates + mode from i & j values
                 coord = f"{j + 2 * i}_{j}"
-                mapped_circuit.add_ps(j, phase_map["ps_" + coord])
-                mapped_circuit.add_bs(j)
-                mapped_circuit.add_ps(j + 1, phase_map["bs_" + coord])
-                mapped_circuit.add_bs(j)
+                mode = n_modes - j - 2
+                mapped_circuit.add_barrier([mode, mode + 1])
+                mapped_circuit.add_ps(mode + 1, phase_map["ps_" + coord])
+                mapped_circuit.add_bs(mode)
+                mapped_circuit.add_ps(mode, phase_map["bs_" + coord])
+                mapped_circuit.add_bs(mode)
+        mapped_circuit.add_barrier()
+        # Apply residual phases at the end
         for i in range(n_modes):
-            mapped_circuit.add_ps(i, end_phases[i])
+            mapped_circuit.add_ps(n_modes - i - 1, end_phases[i])
 
-        # TODO: Copy over heralds
+        # Add any heralds from the original circuit
+        heralds = circuit.heralds
+        for m1, m2 in zip(heralds["input"], heralds["output"]):
+            # NOTE: Could be errors if input and output photon numbers don't
+            # match - this shouldn't happen but for now check just in case.
+            if heralds["input"][m1] != heralds["output"][m2]:
+                raise RuntimeError("Mismatching heralding numbers detected.")
+            mapped_circuit.add_herald(heralds["input"][m1], m1, m2)
+
         return mapped_circuit

@@ -29,12 +29,11 @@ def reck_decomposition(unitary: np.ndarray) -> tuple[dict[str, float], list]:
 
     Returns:
 
-        phase_map (dict) : A dictionary which details the calculated theta
-            and phi values for each of the unit cells in the
-            interferometer..
+        dict : A dictionary which stores the calculated phase shifter settings
+            for each element of the interferometer
 
-        D_prime (np.ndarray) : The remaining diagonal matrix after the
-            decomposition has been completed.
+        list : A list of the residual phases which needs to be applied at the
+            output of the system.
 
     """
     n_modes = unitary.shape[0]
@@ -76,7 +75,8 @@ def bs_matrix(
     mode1: int, mode2: int, theta: float, phi: float, n_modes: int
 ) -> np.ndarray:
     """
-    Desc
+    Generates a n_modes X n_modes matrix which implements the beam
+    transformation of the unit cell between two modes.
     """
     mat = np.identity(n_modes, dtype=complex)
     gp = 1j * np.exp(1j * theta / 2)
@@ -87,7 +87,7 @@ def bs_matrix(
     return mat
 
 
-def check_null(mat: np.ndarray, precision: float = 1e-10) -> np.ndarray:
+def check_null(mat: np.ndarray, precision: float = 1e-10) -> bool:
     """
     A function to check if a provided matrix has been nulled correctly by
     the algorithm.
@@ -100,16 +100,9 @@ def check_null(mat: np.ndarray, precision: float = 1e-10) -> np.ndarray:
             checked according to. If there are large float errors this may
             need to be reduced.
 
-        print_mat (bool, optional) : Select whether to print a cleaned
-            version of the nulled matrix.
-
-        plot_abs (bool, optional) : Select whether to produce a heatmap
-            plot of the output value of the matrix.
-
     Returns:
 
-        unitary (bool) : A boolean to indicate whether or not the matrix is
-            unitary.
+        bool : Indicates if the original unitary was successfully nulled.
 
     """
     # Loop over each value and ensure it is the expected number to some
