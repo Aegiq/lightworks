@@ -97,7 +97,7 @@ class TestSamplingResult:
         Confirm plotting is able to work without errors for single input case.
         """
         r = SamplingResult(self.test_dict, self.test_input)
-        r.plot()
+        r.plot(show=False)
         plt.close()
 
     def test_extra_attribute_assignment(self):
@@ -282,7 +282,7 @@ class TestSimulationResult:
             outputs=self.test_multi_outputs,
         )
         # Test plot
-        r.plot(conv_to_probability=conv_to_probability)
+        r.plot(conv_to_probability=conv_to_probability, show=False)
         plt.close()
         # Reset backend after test
         matplotlib.use(original_backend)
@@ -309,7 +309,7 @@ class TestSimulationResult:
             outputs=self.test_single_outputs,
         )
         # Test plot
-        r.plot(conv_to_probability=conv_to_probability)
+        r.plot(conv_to_probability=conv_to_probability, show=False)
         plt.close()
         # Reset backend after test
         matplotlib.use(original_backend)
