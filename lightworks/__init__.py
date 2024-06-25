@@ -46,6 +46,7 @@ Key objects:
 from . import emulator, qubit
 from .__version import __version__
 from .sdk.circuit import Circuit, Parameter, ParameterDict, Unitary
+from .sdk.optimisation import Optimisation
 from .sdk.state import State
 from .sdk.utils import (
     db_loss_to_transmission,
