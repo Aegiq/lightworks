@@ -22,10 +22,16 @@ from .error_model import ErrorModel
 class Reck:
     """
     Used for mapping a provided Circuit to a Reck interferometer.
+
+    Args:
+
+        error_model (ErrorModel) : An error model object which implements
+            variation of the interferometer parameters.
+
     """
 
     def __init__(self, error_model: ErrorModel | None = None) -> None:
-        # TODO: Will implement some sort of error model here.
+        # If no error model provided then set to default
         if error_model is None:
             error_model = ErrorModel()
         self.error_model = error_model
@@ -46,6 +52,19 @@ class Reck:
     def map(self, circuit: Circuit, seed: int | None = None) -> Circuit:
         """
         Maps a provided circuit onto the interferometer.
+
+        Args:
+
+            circuit (Circuit) : The circuit to map onto the reck interferometer.
+
+            seed (int | None) : Set a random seed to produce identical results
+                when implementing a probabilistic error model.
+
+        Returns:
+
+            Circuit : The created Reck interferometer which implements the
+                programmed transformation.
+
         """
         # Reset error model seed
         self.error_model._set_random_seed(seed)
