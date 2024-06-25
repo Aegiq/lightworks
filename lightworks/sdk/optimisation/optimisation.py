@@ -147,6 +147,7 @@ class Optimisation:
 
         self.__opt_func = function
         self.__func_args = args
+        # Check optimisation function is valid
         self._test_opt_func()
 
         return
@@ -442,7 +443,7 @@ class Optimisation:
         n = self.opt_circuit.n_modes
         results = SamplingResult(
             {State([0] * n): 0.5, State([1] + [0] * (n - 1)): 0.5},
-            input=State([1] + [0] * (n - 1)),
+            input=self.input_state,
         )
         try:
             return_val = self.__opt_func(results, *self.__func_args)
@@ -453,15 +454,3 @@ class Optimisation:
             ) from e
         if not isinstance(return_val, Number):
             raise TypeError("Function return value should be a number.")
-
-    def __setattr__(self, __name: str, __value: Any) -> None:
-        if __name == "opt_circuit":
-            if not isinstance(__value, Circuit):
-                raise TypeError(
-                    "opt_circuit attribute should be a Circuit object."
-                )
-        elif __name == "parameters":
-            if not isinstance(__value, ParameterDict):
-                raise TypeError("parameters should be a ParameterDict.")
-            self.__x0 = [v for k, v in __value.items()]
-        super().__setattr__(__name, __value)
