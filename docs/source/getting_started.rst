@@ -82,11 +82,11 @@ This produces a :doc:`emulator_reference/sampling_result` object, we can quickly
     print(results)
     # Output: {State(|2,0>): 4990, State(|0,2>): 5010}
 
-Alternatively, we can use the ``show`` method to quickly create a plot of the measured output states.
+Alternatively, we can use the ``plot`` method to quickly create a plot of the measured output states.
 
 .. code-block:: Python
 
-    results.plot(show = True)
+    results.plot()
 
 .. image:: assets/getting_started_demo_plot.png
     :scale: 100%
@@ -105,7 +105,7 @@ With the emulator, we can also simulate distinguishable particles, to confirm th
     sampler = emulator.Sampler(circuit, input_state, source = source)
 
     results = sampler.sample_N_outputs(10000, seed = 1)
-    results.plot(show = True)
+    results.plot()
 
 .. image:: assets/getting_started_demo_plot2.png
     :scale: 100%
