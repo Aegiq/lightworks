@@ -163,7 +163,7 @@ class SamplingResult:
         return SamplingResult(mapped_result, self.input)
 
     def plot(
-        self, show: bool = False, state_labels: dict | None = None
+        self, show: bool = True, state_labels: dict | None = None
     ) -> tuple[matplotlib.figure.Figure, plt.Axes] | None:
         """
         Create a plot of the data contained in the result. This will either

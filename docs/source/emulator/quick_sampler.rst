@@ -39,7 +39,7 @@ The probability distribution can then be sampled from, using either ``sample`` t
     # Get 20 samples from system
     results = quick_sampler.sample_N_outputs(20, seed = 61)
     # Plot output from function
-    results.plot(show = True)
+    results.plot()
 
 .. image:: assets/quick_sampler_results.png
     :scale: 100%

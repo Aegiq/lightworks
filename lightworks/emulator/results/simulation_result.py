@@ -256,7 +256,7 @@ class SimulationResult:
     def plot(
         self,
         conv_to_probability: bool = False,
-        show: bool = False,
+        show: bool = True,
         state_labels: dict | None = None,
     ) -> tuple[matplotlib.figure.Figure, plt.Axes] | None:
         """
