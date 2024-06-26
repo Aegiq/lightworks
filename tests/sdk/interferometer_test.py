@@ -74,21 +74,23 @@ class TestDecomposition:
     Tests for decomposition module.
     """
 
-    def test_decomposition(self):
+    @pytest.mark.parametrize("n_modes", [2, 7, 8])
+    def test_decomposition(self, n_modes):
         """
         Checks decomposition is able to pass successfully for a valid unitary
         matrix.
         """
-        unitary = random_unitary(8)
+        unitary = random_unitary(n_modes)
         reck_decomposition(unitary)
 
-    def test_decomposition_failed(self):
+    @pytest.mark.parametrize("n_modes", [2, 7, 8])
+    def test_decomposition_failed(self, n_modes):
         """
         Checks decomposition fails for a non-unitary matrix.
         """
-        unitary = np.zeros((8, 8), dtype=complex)
-        for i in range(8):
-            for j in range(8):
+        unitary = np.zeros((n_modes, n_modes), dtype=complex)
+        for i in range(n_modes):
+            for j in range(n_modes):
                 unitary[i, j] = random() + 1j * random()
         with pytest.raises(ValueError):
             reck_decomposition(unitary)
@@ -110,12 +112,13 @@ class TestDecomposition:
         # Check equivalence
         assert (bs_u.round(8) == circ_u.round(8)).all()
 
-    def test_check_null(self):
+    @pytest.mark.parametrize("n_modes", [2, 7, 8])
+    def test_check_null(self, n_modes):
         """
         Checks null matrix returns True for a diagonal matrix.
         """
-        unitary = np.identity(8, dtype=complex)
-        for i in range(8):
+        unitary = np.identity(n_modes, dtype=complex)
+        for i in range(n_modes):
             unitary[i, i] *= np.exp(1j * random())
         assert check_null(unitary)
 
