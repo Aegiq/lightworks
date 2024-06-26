@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from ..utils import DecompositionUnsuccessful
+from ..utils import DecompositionUnsuccessful, check_unitary
 
 
 def reck_decomposition(unitary: np.ndarray) -> tuple[dict[str, float], list]:
@@ -36,6 +36,9 @@ def reck_decomposition(unitary: np.ndarray) -> tuple[dict[str, float], list]:
             output of the system.
 
     """
+    # Check matrix is unitary before decomposition
+    if not check_unitary(unitary):
+        raise ValueError("Provided matrix determined not to be unitary.")
     n_modes = unitary.shape[0]
     # Dictionary to store calculated phases
     phase_map: dict[str, float] = {}
@@ -110,10 +113,10 @@ def check_null(mat: np.ndarray, precision: float = 1e-10) -> bool:
     # level of precision
     for i in range(mat.shape[0]):
         for j in range(mat.shape[1]):
-            # Off diagonals
+            # Check off diagonals are nulled
             if i != j and (
                 np.real(mat[i, j] > precision) or np.imag(mat[i, j]) > precision
             ):
-                return False
-    # Return whether matrix has been nulled or not
+                return False  # Return false if any elements aren't
+    # Return true if above loop passes
     return True
