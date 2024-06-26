@@ -37,8 +37,9 @@ def reck_decomposition(unitary: np.ndarray) -> tuple[dict[str, float], list]:
 
     """
     n_modes = unitary.shape[0]
-    phase_map = {}
-
+    # Dictionary to store calculated phases
+    phase_map: dict[str, float] = {}
+    # Loop over each element in matrix
     for i in range(0, n_modes - 1, 1):
         for j in range(n_modes - 1 - i):
             # Determine location to null
@@ -65,7 +66,7 @@ def reck_decomposition(unitary: np.ndarray) -> tuple[dict[str, float], list]:
         raise DecompositionUnsuccessful(
             "Unable to successfully perform unitary decomposition procedure."
         )
-
+    # Extract remaining end phases from diagonals of unitary
     end_phases = [np.angle(unitary[i, i]) for i in range(n_modes)]
 
     return phase_map, end_phases
@@ -94,7 +95,7 @@ def check_null(mat: np.ndarray, precision: float = 1e-10) -> bool:
 
     Args:
 
-        mat (np.array) : The resultant nulled matrix
+        mat (np.array) : The resultant nulled matrix.
 
         precision (float, optional) : The precision which the matrix is
             checked according to. If there are large float errors this may
@@ -107,13 +108,12 @@ def check_null(mat: np.ndarray, precision: float = 1e-10) -> bool:
     """
     # Loop over each value and ensure it is the expected number to some
     # level of precision
-    nulled = True
     for i in range(mat.shape[0]):
         for j in range(mat.shape[1]):
             # Off diagonals
             if i != j and (
                 np.real(mat[i, j] > precision) or np.imag(mat[i, j]) > precision
             ):
-                nulled = False
+                return False
     # Return whether matrix has been nulled or not
-    return nulled
+    return True
