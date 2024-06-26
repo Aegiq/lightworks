@@ -44,6 +44,15 @@ class TestReck:
         # Then check equivalence
         assert (test_circ.U.round(8) == mapped_circ.U.round(8)).all()
 
+    @pytest.mark.parametrize("value", ["not_error_model", Circuit(4)])
+    def test_error_model_invalid_type(self, value):
+        """
+        Checks that an exception is raised if the error_model is set to
+        something other than an ErrorModel or None.
+        """
+        with pytest.raises(TypeError):
+            Reck(error_model=value)
+
 
 class TestErrorModel:
     """
@@ -81,6 +90,15 @@ class TestDecomposition:
         matrix.
         """
         unitary = random_unitary(n_modes)
+        reck_decomposition(unitary)
+
+    @pytest.mark.parametrize("n_modes", [2, 7, 8])
+    def test_decomposition_identity(self, n_modes):
+        """
+        Checks decomposition is able to pass successfully for an identity
+        matrix.
+        """
+        unitary = np.identity(n_modes, dtype=complex)
         reck_decomposition(unitary)
 
     @pytest.mark.parametrize("n_modes", [2, 7, 8])
