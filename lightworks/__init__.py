@@ -45,6 +45,7 @@ Key objects:
 
 from . import emulator, qubit
 from .__version import __version__
+from .sdk import interferometers
 from .sdk.circuit import Circuit, Parameter, ParameterDict, Unitary
 from .sdk.optimisation import Optimisation
 from .sdk.state import State
@@ -67,6 +68,6 @@ except ModuleNotFoundError:
 __all__ = [
     "Circuit", "Unitary", "Display", "State", "random_unitary",
     "random_permutation", "db_loss_to_transmission", "transmission_to_db_loss",
-    "Parameter", "ParameterDict", "emulator", "qubit"
+    "Parameter", "ParameterDict", "emulator", "qubit", "interferometers"
 ]
 # fmt: on

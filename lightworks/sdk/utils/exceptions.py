@@ -67,3 +67,9 @@ class ParameterDictError(LightworksError):
     """
     Exceptions relating to ParameterDict behaviour.
     """
+
+
+class DecompositionUnsuccessful(LightworksError):  # noqa: N818
+    """
+    For situations in which a unitary decomposition procedure is unsuccessful.
+    """
