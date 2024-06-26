@@ -99,6 +99,7 @@ class Optimisation:
         if not isinstance(value, ParameterDict):
             raise TypeError("parameters should be a ParameterDict.")
         self.__parameters = value
+        self.__x0 = [v for k, v in value.items()]
 
     @property
     def input_state(self) -> State:
