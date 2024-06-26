@@ -440,7 +440,7 @@ class Optimisation:
             raise RuntimeError(
                 "Optimisation function needs to be specified first."
             )
-        n = self.opt_circuit.n_modes
+        n = self.opt_circuit.input_modes
         results = SamplingResult(
             {State([0] * n): 0.5, State([1] + [0] * (n - 1)): 0.5},
             input=self.input_state,
