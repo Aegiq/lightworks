@@ -37,7 +37,7 @@ The probability distribution can then be sampled from, using either ``sample`` t
 .. code-block:: Python
 
     # Get 20 samples from system
-    results = quick_sampler.sample_N_outputs(20, seed = 61)
+    results = quick_sampler.sample_N_outputs(20, seed = 10)
     # Plot output from function
     results.plot()
 

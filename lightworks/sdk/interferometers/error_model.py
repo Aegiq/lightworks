@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from numpy import random
-
-from ..utils import check_random_seed
-
 
 class ErrorModel:
     """
@@ -46,5 +42,4 @@ class ErrorModel:
         """
         Set the random seed for the error_model to produce repeatable results.
         """
-        seed = check_random_seed(r_seed)
-        random.seed(seed)
+        pass

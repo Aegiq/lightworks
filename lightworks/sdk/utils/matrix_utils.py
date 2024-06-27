@@ -77,8 +77,8 @@ def random_permutation(
 
     """
     seed = check_random_seed(seed)
-    np.random.seed(seed)
-    return np.random.permutation(np.identity(N, dtype=complex))
+    rng = np.random.default_rng(seed)
+    return rng.permutation(np.identity(N, dtype=complex))
 
 
 def check_random_seed(seed: Any) -> int | None:
