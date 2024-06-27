@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from ..utils import DecompositionUnsuccessful, check_unitary
+from ..sdk.utils import DecompositionUnsuccessful, check_unitary
 
 
 def reck_decomposition(unitary: np.ndarray) -> tuple[dict[str, float], list]:

@@ -44,7 +44,7 @@ class TestReck:
         # Then check equivalence
         assert (test_circ.U.round(8) == mapped_circ.U.round(8)).all()
 
-    @pytest.mark.parametrize("value", ["not_error_model", Circuit(4)])
+    @pytest.mark.parametrize("value", ["not_error_model", Circuit(4), 0])
     def test_error_model_invalid_type(self, value):
         """
         Checks that an exception is raised if the error_model is set to

@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from ..circuit import Circuit
+from ..sdk.circuit import Circuit
 from .decomposition import reck_decomposition
 from .error_model import ErrorModel
 
