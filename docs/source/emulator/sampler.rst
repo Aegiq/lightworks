@@ -29,7 +29,7 @@ Note that this CNOT gate requires a set of post-selection criteria to function c
 
     cnot_circuit.display(mode_labels = ["a0", "c0", "c1", "t0", "t1", "a1"])
 
-.. image:: assets/cnot_circuit.svg
+.. image:: assets/cnot_circuit_no_heralds.svg
     :scale: 100%
     :align: center
 
@@ -54,7 +54,7 @@ It is possible to view the output probability distribution by accessing the ``pr
     
     results = sampler.sample_N_outputs(10000, seed = 1)
 
-This method also supports supplying a random seed for the creation of repeatable results. It returns a :doc:`../emulator_reference/sampling_result` object, which has a range of useful functionality, but primarily the ``plot`` method can be used to view the output counts from the sampling experiment. ``show = True`` is passed to directly display the created plot.
+This method also supports supplying a random seed for the creation of repeatable results. It returns a :doc:`../emulator_reference/sampling_result` object, which has a range of useful functionality, but primarily the ``plot`` method can be used to view the output counts from the sampling experiment.
 
 .. code-block:: Python
 
@@ -76,19 +76,19 @@ The other sample methods are ``sample``, which is used to generate single output
 Post-selection & Heralding
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As mentioned, post-selection/heralding is required for the CNOT gate above to work correctly. In particular, the gate requires that no photons are measured on the a0 & a1 modes. Additionally, there is a condition that only one photon is measured across c0 & c1 and another across t0 & t1. These can be implemented in the ``sample_N_outputs`` method by providing a function to the ``herald`` option. This can either be a dedicated function or can use the lambda function included with Python, but must take a single argument as the input, with this argument expected to be a State object. There is also a ``min_detection`` option, which is used to set the minimum number of photons that should be detected at the output. In this case the function we supply will enforce this condition and so it is not necessary. 
+As mentioned, post-selection/heralding is required for the CNOT gate above to work correctly. In particular, the gate requires that no photons are measured on the a0 & a1 modes. Additionally, there is a condition that only one photon is measured across c0 & c1 and another across t0 & t1. These can be implemented in the ``sample_N_outputs`` method by providing a function to the ``post_select`` option. This can either be a dedicated function or can use the lambda function included with Python, but must take a single argument as the input, with this argument expected to be a State object. There is also a ``min_detection`` option, which is used to set the minimum number of photons that should be detected at the output. In this case the function we supply will enforce this condition and so it is not necessary. 
 
 .. code-block:: Python
 
-    # Define heralding function
-    def herald(s):
+    # Define post-selection function
+    def post_select(s):
         return not s[0] and not s[5] and sum(s[1:3]) == 1 and sum(s[3:5]) == 1
 
     # Also define as equivalent lambda function
-    herald = lambda s: not s[0] and not s[5] and sum(s[1:3]) == 1 and sum(s[3:5]) == 1
+    post_select = lambda s: not s[0] and not s[5] and sum(s[1:3]) == 1 and sum(s[3:5]) == 1
 
     # Sample from the system again
-    results = sampler.sample_N_inputs(10000, herald = herald, seed = 1,
+    results = sampler.sample_N_inputs(10000, post_select = post_select, seed = 1,
                                       min_detection = 2) # Not needed
 
     # View results
