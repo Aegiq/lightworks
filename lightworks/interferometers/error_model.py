@@ -23,50 +23,46 @@ class ErrorModel:
     """
 
     def __init__(self) -> None:
-        self.bs_reflectivity_dist = Constant(0.5)
-        self.loss_dist = Constant(0)
+        self.bs_reflectivity = Constant(0.5)
+        self.loss = Constant(0)
 
         return
 
     @property
-    def bs_reflectivity(self) -> int | float:
+    def bs_reflectivity(self) -> Distribution:
+        """Returns currently in use beam splitter value distribution."""
+        return self._bs_reflectivity
+
+    @bs_reflectivity.setter
+    def bs_reflectivity(self, distribution: Distribution) -> None:
+        if not isinstance(distribution, Distribution):
+            raise TypeError("bs_reflectivity should be a distribution object.")
+        self._bs_reflectivity = distribution
+
+    @property
+    def loss(self) -> Distribution:
+        """Returns currently in use loss value distribution."""
+        return self._loss
+
+    @loss.setter
+    def loss(self, distribution: Distribution) -> None:
+        if not isinstance(distribution, Distribution):
+            raise TypeError("loss should be a distribution object.")
+        self._loss = distribution
+
+    def get_bs_reflectivity(self) -> int | float:
         """
         Returns a value for beam splitter reflectivity, which depends on the
         configuration of the error model.
         """
-        return self._bs_reflectivity_dist.value()
+        return self._bs_reflectivity.value()
 
-    @property
-    def bs_reflectivity_dist(self) -> int | float:
-        """Returns currently in use beam splitter value distribution."""
-        return self._bs_reflectivity_dist
-
-    @bs_reflectivity_dist.setter
-    def bs_reflectivity_dist(self, distribution: Distribution) -> None:
-        if not isinstance(distribution, Distribution):
-            raise TypeError(
-                "bs_reflectivity_dist should be a distribution object."
-            )
-        self._bs_reflectivity_dist = distribution
-
-    @property
-    def loss(self) -> int | float:
+    def get_loss(self) -> int | float:
         """
         Returns a value for loss which depends on the configuration of the error
         model.
         """
-        return self._loss_dist.value()
-
-    @property
-    def loss_dist(self) -> int | float:
-        """Returns currently in use loss value distribution."""
-        return self._loss_dist
-
-    @loss_dist.setter
-    def loss_dist(self, distribution: Distribution) -> None:
-        if not isinstance(distribution, Distribution):
-            raise TypeError("loss_dist should be a distribution object.")
-        self._loss_dist = distribution
+        return self._loss.value()
 
     def _set_random_seed(self, r_seed: int | None) -> None:
         """
@@ -74,7 +70,7 @@ class ErrorModel:
         """
         seed = check_random_seed(r_seed)
         # Set random seed in each property if present
-        for prop in [self._bs_reflectivity_dist, self._loss_dist]:
+        for prop in [self._bs_reflectivity, self._loss]:
             if hasattr(prop, "set_random_seed") and callable(
                 prop.set_random_seed
             ):

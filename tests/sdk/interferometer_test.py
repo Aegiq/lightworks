@@ -18,8 +18,8 @@ import numpy as np
 import pytest
 
 from lightworks import Circuit, Unitary, random_unitary
-from lightworks.sdk.interferometers import ErrorModel, Reck
-from lightworks.sdk.interferometers.decomposition import (
+from lightworks.interferometers import ErrorModel, Reck
+from lightworks.interferometers.decomposition import (
     bs_matrix,
     check_null,
     reck_decomposition,
@@ -66,7 +66,7 @@ class TestErrorModel:
         em = ErrorModel()
         # Repeat 100 times to confirm no randomness present
         for _i in range(100):
-            assert em.bs_reflectivity == 0.5
+            assert em.get_bs_reflectivity() == 0.5
 
     def test_default_loss(self):
         """
@@ -75,7 +75,7 @@ class TestErrorModel:
         em = ErrorModel()
         # Repeat 100 times to confirm no randomness present
         for _i in range(100):
-            assert em.loss == 0
+            assert em.get_loss() == 0
 
 
 class TestDecomposition:
