@@ -47,7 +47,8 @@ Once setup, there is then a set of tutorials for familiarization with the module
 
 .. toctree::
    :maxdepth: 2
-   :caption: Bibliography
+   :caption: Other
    :hidden:
 
    bibliography
+   contributing

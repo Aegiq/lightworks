@@ -1,0 +1,82 @@
+# Copyright 2024 Aegiq Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+Contains a variety of qubit components, designed for implementing required
+qubit processing functionality in lightworks.
+"""
+
+import numpy as np
+
+from ...sdk.circuit import Circuit, Unitary
+from .single_qubit_gates import H
+
+
+class CCZ(Circuit):
+    """
+    Post-selected CCZ gate which acts across three dual-rail encoded qubits.
+    There is a total of 4 heralded modes also included, each requiring 0
+    photons on the input and output. For correct functioning of this gate it
+    must be post-selected on the condition that only one photon is measured
+    across the two modes used to encode each of the qubits.
+    """
+
+    def __init__(self) -> None:
+        # Define transformation matrix
+        # fmt: off
+        u_a = np.array(
+            [[3**-0.5, 0, 0, 1j * (2 / 3)**0.5, 0, 0, 0, 0, 0, 0],
+             [0, 3**-0.5, 0, 0, 0, 1j * (2 / 3)**0.5, 0, 0, 0, 0],
+             [0, 0, - 3**-0.5, 0, 0, 0, 0, 2**-0.5, -1j * 6**-0.5, 0],
+             [-1j * (2 / 3)**0.5, 0, 0, -3**-0.5, 0, 0, 0, 0, 0, 0],
+             [0, 0, -1j * 2**0.5 / 3, 0, -3**-0.5, 0, 0, -1j * 3**-0.5, 1 / 3,
+              0],
+             [0, -1j * (2 / 3)**0.5, 0, 0, 0, -3**-0.5, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0, 0, 1j * 2**-1.5, 0, 0, 1j * (7 / 8)**0.5],
+             [0, 0, -1j * 3**-0.5, 0, 2**-0.5, 0, 0, -1j * 2**-1.5, -24**-0.5,
+              0],
+             [0, 0, -1j / 3, 0, -6**-0.5, 0, 0, 1j * 24**-0.5, -7 * 72**-0.5,
+              0],
+             [0, 0, 0, 0, 0, 0, -(7 / 8)**0.5, 0, 0, 2**-1.5]]
+        )
+        # fmt: on
+        # Create unitary component and add heralds on required modes
+        unitary = Unitary(u_a)
+        unitary.add_herald(0, 0)
+        unitary.add_herald(0, 1)
+        unitary.add_herald(0, 8)
+        unitary.add_herald(0, 9)
+
+        super().__init__(6)
+        self.add(unitary, 0, group=True, name="CCZ")
+
+
+class CCNOT(Circuit):
+    """
+    Post-selected CCNOT (Toffoli) gate which acts across three dual-rail
+    encoded qubits. There is a total of 4 heralded modes also included, each
+    requiring 0 photons on the input and output. For correct functioning of
+    this gate it must be post-selected on the condition that only one photon is
+    measured across the two modes used to encode each of the qubits.
+    """
+
+    def __init__(self) -> None:
+        # Create CCNOT from combination of H and CCZ
+        circ = Circuit(6)
+        circ.add(H(), 4)
+        circ.add(CCZ(), 0)
+        circ.add(H(), 4)
+
+        super().__init__(6)
+        self.add(circ, 0, group=True, name="CCNOT")

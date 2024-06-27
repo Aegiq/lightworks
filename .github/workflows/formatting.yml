@@ -1,0 +1,41 @@
+name: Code Formatting
+
+on:
+  pull_request:
+    branches: 
+      - main
+      - release-*
+
+  # Allows workflow to be manually run from the Actions tab
+  workflow_dispatch:
+        
+jobs:
+  formatting:
+
+    runs-on: ubuntu-latest
+
+    # Runs for each version
+    steps:
+      - uses: actions/checkout@v4
+
+      # Configures the Python version
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+            python-version: 3.11
+
+      # Install all dependencies from requirements file 
+      - name: Install dependencies
+        run: | 
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+
+      # Formatting check
+      - name: Check formatting with ruff
+        run: |
+            ruff check
+
+      # Mypy check
+      - name: Mypy checks
+        run: |
+            mypy -p lightworks

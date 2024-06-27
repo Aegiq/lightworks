@@ -13,75 +13,76 @@
 # limitations under the License.
 
 """
-Contains a variety of qubit components, designed for implementing required 
+Contains a variety of qubit components, designed for implementing required
 qubit processing functionality in lightworks.
 """
 
+import numpy as np
+
 from ...sdk.circuit import Unitary
 
-import numpy as np
 
 class H(Unitary):
     """
-    Implements a Hadamard across a pair of modes corresponding to a dual-rail 
+    Implements a Hadamard across a pair of modes corresponding to a dual-rail
     encoded qubit.
     """
+
     def __init__(self) -> None:
-        
-        unitary = np.array([[1,1],[1,-1]])/2**0.5
+        unitary = np.array([[1, 1], [1, -1]]) / 2**0.5
         super().__init__(unitary, "H")
 
 
 class X(Unitary):
     """
-    Implements an X gate across a pair of modes corresponding to a dual-rail 
+    Implements an X gate across a pair of modes corresponding to a dual-rail
     encoded qubit.
     """
+
     def __init__(self) -> None:
-        
-        unitary = np.array([[0,1],[1,0]])
+        unitary = np.array([[0, 1], [1, 0]])
         super().__init__(unitary, "X")
 
 
 class Y(Unitary):
     """
-    Implements a Y gate across a pair of modes corresponding to a dual-rail 
+    Implements a Y gate across a pair of modes corresponding to a dual-rail
     encoded qubit.
     """
+
     def __init__(self) -> None:
-        
-        unitary = np.array([[0,-1j],[1j,0]])
+        unitary = np.array([[0, -1j], [1j, 0]])
         super().__init__(unitary, "Y")
 
 
 class Z(Unitary):
     """
-    Implements a Z gate across a pair of modes corresponding to a dual-rail 
+    Implements a Z gate across a pair of modes corresponding to a dual-rail
     encoded qubit.
     """
+
     def __init__(self) -> None:
-        
-        unitary = np.array([[1,0],[0,-1]])
+        unitary = np.array([[1, 0], [0, -1]])
         super().__init__(unitary, "Z")
 
 
 class S(Unitary):
     """
-    Implements an S gate across a pair of modes corresponding to a dual-rail 
+    Implements an S gate across a pair of modes corresponding to a dual-rail
     encoded qubit.
     """
+
     def __init__(self) -> None:
-        
-        unitary = np.array([[1,0],[0,1j]])
+        unitary = np.array([[1, 0], [0, 1j]])
         super().__init__(unitary, "S")
 
 
 class T(Unitary):
     """
-    Implements a T gate across a pair of modes corresponding to a dual-rail 
+    Implements a T gate across a pair of modes corresponding to a dual-rail
     encoded qubit.
     """
+
     def __init__(self) -> None:
-        
-        unitary = np.array([[1,0],[0,np.exp(1j*np.pi/4)]])
+        unitary = np.array([[1, 0], [0, np.exp(1j * np.pi / 4)]])
         super().__init__(unitary, "T")

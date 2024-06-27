@@ -12,20 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ...sdk.state import State
+
+from math import factorial, prod
 
 import numpy as np
 from thewalrus import perm
-from math import factorial, prod
+
 
 class Permanent:
     """
-    Calculate the permanent for a give unitary matrix and input state. In this 
+    Calculate the permanent for a give unitary matrix and input state. In this
     case, thewalrus module is used for all permanent calculations.
     """
-    
+
     @staticmethod
-    def calculate(U: np.ndarray, in_state: State, out_state: State) -> complex: 
+    def calculate(
+        unitary: np.ndarray, in_state: list, out_state: list
+    ) -> complex:
         """
         Function to calculate the permanent for a given unitary, input state
         and output state. It returns the complex probability amplitude for the
@@ -34,22 +37,23 @@ class Permanent:
         factor_m = prod([factorial(i) for i in in_state])
         factor_n = prod([factorial(i) for i in out_state])
         # Calculate permanent for given input/output
-        p = (perm(partition(U, in_state, out_state)) / 
-             (np.sqrt(factor_m*factor_n)))    
-        return p
+        return perm(partition(unitary, in_state, out_state)) / (
+            np.sqrt(factor_m * factor_n)
+        )
 
-def partition(U: np.ndarray, in_state: State, out_state: State) -> np.ndarray:
+
+def partition(
+    unitary: np.ndarray, in_state: list, out_state: list
+) -> np.ndarray:
     """
-    Converts the unitary matrix into a larger matrix used for in the 
+    Converts the unitary matrix into a larger matrix used for in the
     permanent calculation.
     """
-    N = len(in_state) # Number of modes
+    n_modes = len(in_state)  # Number of modes
     # Construct the matrix of indices for the partition
-    X, Y = [], []
-    for i in range(N):
-        X += [i]*out_state[i]
-        Y += [i]*in_state[i]
-    # Construct the new matrix with dimension n, where n is photon number 
-    part_U = U[np.ix_(X, Y)] 
-    
-    return part_U
+    x, y = [], []
+    for i in range(n_modes):
+        x += [i] * out_state[i]  # type: ignore
+        y += [i] * in_state[i]  # type: ignore
+    # Construct the new matrix with dimension n, where n is photon number
+    return unitary[np.ix_(x, y)]

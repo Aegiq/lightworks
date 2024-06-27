@@ -15,11 +15,11 @@
 """
 Script to store various useful functions for the simulation aspect of the code.
 """
-                
+
+
 def state_to_string(state: list) -> str:
     """Converts the provided state to a string with ket notation."""
     string = "|"
     for s in state:
         string += str(s) + ","
-    string = string[:-1] + ">"
-    return string
+    return string[:-1] + ">"

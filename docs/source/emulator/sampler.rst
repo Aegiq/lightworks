@@ -58,7 +58,7 @@ This method also supports supplying a random seed for the creation of repeatable
 
 .. code-block:: Python
 
-    results.plot(show = True)
+    results.plot()
 
 .. image:: assets/cnot_results_original.png
     :scale: 100%
@@ -92,7 +92,7 @@ As mentioned, post-selection/heralding is required for the CNOT gate above to wo
                                       min_detection = 2) # Not needed
 
     # View results
-    results.plot(show = True)
+    results.plot()
 
 .. image:: assets/cnot_results_heralded.png
     :scale: 100%

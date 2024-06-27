@@ -13,5 +13,5 @@
 # limitations under the License.
 
 from .circuit import Circuit
-from .unitary import Unitary
 from .parameters import Parameter, ParameterDict
+from .unitary import Unitary

@@ -15,55 +15,61 @@
 """
 Defines all custom exceptions used as part of the SDK section of lightworks.
 In general, the approach is to use the built-in exceptions where possible, but
-provide custom exceptions where the extra context would be useful, or it may 
+provide custom exceptions where the extra context would be useful, or it may
 cause confusion as to the root of an issue if a generic type is used.
 """
+
 
 class LightworksError(Exception):
     """
     Generic error from which all other errors are derived.
     """
-    pass
+
 
 class StateError(LightworksError):
     """
     Error relating to issues with a provided State
     """
-    pass
+
 
 class ModeRangeError(LightworksError):
     """
-    Error for specific errors arising when a provided mode is outside of the 
+    Error for specific errors arising when a provided mode is outside of the
     circuit range.
     """
-    pass
+
 
 class CircuitCompilationError(LightworksError):
     """
     For all errors that arise during compilation of a circuit.
     """
-    pass
+
 
 class DisplayError(LightworksError):
     """
-    Used when specific errors during the Display methods. 
+    Used when specific errors during the Display methods.
     """
-    pass
+
 
 class ParameterValueError(LightworksError):
     """
     For errors in the setting of a Parameter value.
     """
-    pass
-    
+
+
 class ParameterBoundsError(LightworksError):
     """
     For errors in the setting of Parameter bounds.
     """
-    pass
+
 
 class ParameterDictError(LightworksError):
     """
     Exceptions relating to ParameterDict behaviour.
     """
-    pass
+
+
+class DecompositionUnsuccessful(LightworksError):  # noqa: N818
+    """
+    For situations in which a unitary decomposition procedure is unsuccessful.
+    """

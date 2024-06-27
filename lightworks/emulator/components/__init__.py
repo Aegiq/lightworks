@@ -12,5 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .source import Source
 from .detector import Detector
+from .source import Source

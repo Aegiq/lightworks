@@ -1,7 +1,7 @@
 Qubit Components
 ================
 
-Included within Lightworks is a set of standard photonic circuits for implementing the gates required for qubit-based paradigms of quantum computing. There is a number of the common single and two qubit gates, these gates are intended to act on dual-rail encoded qubits. To quickly see how a gate is defined on the set of modes that it acts across + other requirements for the gate, all qubit components have a ``show_layout`` method, which prints a text representation (This is separate to ``display``, which is still supported by these gates.). Alternatively, more information on the gates can be found below and in the class docstrings.
+Included within Lightworks is a set of standard photonic circuits for implementing the gates required for qubit-based paradigms of quantum computing. There is a number of the common single and two qubit gates, these gates are intended to act on dual-rail encoded qubits. More information on the exact requirements of each gate can be found below and in the class docstrings for each gate.
 
 .. note::
     Currently, qubit support is still in development. The gates provided here are designed for addition to the linear optic circuits typically used in Lightworks, and are not able to be used in a native qubit encoding.
@@ -80,7 +80,7 @@ These gates are functionally Circuits, and so can also be added and combined wit
 Two Qubit Gates
 ---------------
 
-All of the two qubit gates included require post-selection and/or heralding to function correctly, as well as some additional modes. The exact layout of the modes and requirements can be found in the docstrings for the chosen gate, but are also summarised in the table below. In this table, the qubit modes are also specified, where c0 and c1 are the 0 & 1 states of the control qubit respectively and t0 & t1 are the 0 & 1 states of the target qubit. The qubit gates utilise heralds within the circuit so these do not need to be accounted for as part of the simulation objects. In some cases, some additional post-selection is required however, this is noted below.
+The majority of the two qubit gates included require post-selection and/or heralding to function correctly, as well as some additional modes. The exact layout of the modes and requirements can be found in the docstrings for the chosen gate, but are also summarized in the table below. In this table, the qubit modes are also specified, where c0 and c1 are the 0 & 1 states of the control qubit respectively and t0 & t1 are the 0 & 1 states of the target qubit. The qubit gates utilise heralds within the circuit, so these do not need to be accounted for as part of the simulation objects. In some cases, some additional post-selection is required however, this is noted below.
 
 .. list-table:: Two Qubit Gates
     :widths: 15, 15, 15, 55
@@ -92,33 +92,37 @@ All of the two qubit gates included require post-selection and/or heralding to f
       - Success Probability
       - Post-selection/Heralding
     * - CZ
-      - | c0 : 0
-        | c1 : 1
-        | t0 : 2
-        | t1 : 3
+      - | c_0 : 0
+        | c_1 : 1
+        | t_0 : 2
+        | t_1 : 3
       - 1/9
       - Requires heralding and need to post-select on only measuring one photon across each of the qubit modes.
     * - CNOT
-      - | c0 : 0
-        | c1 : 1
-        | t0 : 2
-        | t1 : 3
+      - | c_0 : 0
+        | c_1 : 1
+        | t_0 : 2
+        | t_1 : 3
       - 1/9
       - Requires heralding and need to post-select on only measuring one photon across each of the qubit modes.
     * - CZ_Heralded
-      - | c0 : 0
-        | c1 : 1
-        | t0 : 2
-        | t1 : 3
+      - | c_0 : 0
+        | c_1 : 1
+        | t_0 : 2
+        | t_1 : 3
       - 1/16
       - Requires heralding but not post-selection.
     * - CNOT_Heralded
-      - | c0 : 0
-        | c1 : 1
-        | t0 : 2
-        | t1 : 3
+      - | c_0 : 0
+        | c_1 : 1
+        | t_0 : 2
+        | t_1 : 3
       - 1/16
       - Requires heralding but not post-selection.
+    * - SWAP
+      - | User selectable
+      - 1
+      - N/A
 
 The two qubit gates can then be created in the same way as the single qubit gates. We can directly use these gates with all of the simulation objects provided within the emulator. As an example, below the heralded CNOT gate is tested with the sampler. The input :math:`\ket{1,0}` (which translates to :math:`\ket{0,1,1,0}` in mode language) is chosen.
 
@@ -141,3 +145,36 @@ As expected, with the correct heralding we only measure the output state :math:`
 
 .. warning::
     Care needs to be taken when cascading two qubit gates to ensure that any post-selection and heralding criteria can still be maintained and information on this is not lost.
+
+Three Qubit Gates
+-----------------
+
+There is also a number of three qubit gates included within Lightworks, these are summarized in the table below:
+
+.. list-table:: Two Qubit Gates
+    :widths: 15, 15, 15, 55
+    :header-rows: 1
+    :align: center
+
+    * - Gate
+      - Qubit Modes
+      - Success Probability
+      - Post-selection/Heralding
+    * - CCZ
+      - | ca_0 : 0
+        | ca_1 : 1
+        | cb_0 : 2
+        | cb_1 : 3
+        | t_0 : 4
+        | t_1 : 5
+      - 1/72
+      - Requires heralding and need to post-select on only measuring one photon across each of the qubit modes.
+    * - CCNOT
+      - | ca_0 : 0
+        | ca_1 : 1
+        | cb_0 : 2
+        | cb_1 : 3
+        | t_0 : 4
+        | t_1 : 5
+      - 1/72
+      - Requires heralding and need to post-select on only measuring one photon across each of the qubit modes.

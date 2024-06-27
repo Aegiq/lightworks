@@ -12,4 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .annotated_state import AnnotatedState
+"""
+Script to store various useful functions for the simulation aspect of the code.
+"""
+
+
+def state_to_string(state: list) -> str:
+    """Converts the provided state to a string with ket notation."""
+    string = "|"
+    for s in state:
+        string += str(s) + ","
+    return string[:-1] + ">"

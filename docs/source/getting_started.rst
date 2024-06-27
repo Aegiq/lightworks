@@ -29,6 +29,13 @@ We will configure a circuit to simulate by creating a new Circuit object. This C
 
     circuit = lw.Circuit(2)
 
+If print is then used on the circuit, this will display the total number of modes.
+
+.. code-block:: Python
+
+    print(circuit)
+    # Output: Circuit(2)
+
 Next, we add a beam splitter to the circuit, this is achieved with the ``add_bs`` method. The default reflectivity of a beam splitter is 0.5 (50%), so we do not need to specify this. The value we specify in the method arguments is the first mode that the beam splitter is placed on. By default, if a second mode isn't specified then it will be set to the first mode + 1, so below we could have equivalently used ``add_bs(0,1)``.
 
 .. code-block:: Python
@@ -68,18 +75,18 @@ For this initial simulation, we will choose to use the :doc:`emulator_reference/
     sampler = emulator.Sampler(circuit, input_state)
     results = sampler.sample_N_outputs(10000, seed = 1)
 
-This produces a :doc:`emulator_reference/sampling_result` object, we can quickly the contents of this using the print statement.
+This produces a :doc:`emulator_reference/sampling_result` object, we can quickly view the contents of this using the print statement.
 
 .. code-block:: Python
 
     print(results)
     # Output: {State(|2,0>): 4990, State(|0,2>): 5010}
 
-Alternatively, we can use the ``show`` method to quickly create a plot of the measured output states.
+Alternatively, we can use the ``plot`` method to quickly create a plot of the measured output states.
 
 .. code-block:: Python
 
-    results.plot(show = True)
+    results.plot()
 
 .. image:: assets/getting_started_demo_plot.png
     :scale: 100%
@@ -98,7 +105,7 @@ With the emulator, we can also simulate distinguishable particles, to confirm th
     sampler = emulator.Sampler(circuit, input_state, source = source)
 
     results = sampler.sample_N_outputs(10000, seed = 1)
-    results.plot(show = True)
+    results.plot()
 
 .. image:: assets/getting_started_demo_plot2.png
     :scale: 100%
