@@ -77,7 +77,7 @@ def random_permutation(
 
     """
     seed = check_random_seed(seed)
-    rng = np.random.RandomState(seed)
+    rng = np.random.default_rng(seed)
     return rng.permutation(np.identity(N, dtype=complex))
 
 

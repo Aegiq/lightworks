@@ -60,11 +60,11 @@ class TestUtils:
         """
         Checks that random permutation consistently returns the same results.
         """
-        unitary = random_permutation(4, seed=222)
+        unitary = random_permutation(4, seed=44)
         # Check one diagonal element and two off-diagonals
-        assert unitary[0, 0] == 1 + 0j
-        assert unitary[1, 2] == 0j
-        assert unitary[3, 2] == 1 + 0j
+        assert unitary[0, 0] == 0j
+        assert unitary[0, 1] == 1 + 0j
+        assert unitary[3, 0] == 0j
 
     def test_check_unitary(self):
         """Confirm that the check unitary function behaves as expected."""
