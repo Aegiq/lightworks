@@ -21,7 +21,11 @@ from numpy import random
 
 class Distribution(metaclass=ABCMeta):
     """
-    Base class for all distributions. Enforce that the class has a value method.
+    Base class for all distributions. Enforces that any created distributions
+    have the required value method, which returns a singular value on request.
+    If the distribution requires randomness, then the set_random_seed method
+    should be added, which accepts a seed and sets this for the rng to allow
+    for repeatability where required.
     """
 
     @abstractmethod
@@ -32,7 +36,12 @@ class Distribution(metaclass=ABCMeta):
 
 class Constant(Distribution):
     """
-    Desc
+    Implements returns of a singular constant value for the assigned quantity.
+
+    Args:
+
+        value (int | float) : The constant value to use.
+
     """
 
     def __init__(self, value: int | float) -> None:
@@ -46,7 +55,28 @@ class Constant(Distribution):
 
 class Gaussian(Distribution):
     """
-    Desc
+    Returns random values according to a Gaussian distribution with defined
+    center and standard deviation. It can also be constrained to be between a
+    minimum and maximum value to prevent issues with assigning invalid
+    quantities. When a value is outside of the set bounds the distribution will
+    be resampled until this is no longer the case. Note: care should be taken
+    with setting minimum and maximum values as setting these to be too strict
+    could significantly increase the time taken to produce a valid value.
+
+    Args:
+
+        center (int | float) : The center (mean) of the Gaussian distribution.
+
+        deviation (int | float) : The standard deviation of the distribution.
+
+        min_value (int | float | None) : The minimum allowed value for the
+            distribution. Defaults to None, which will assign the min value to
+            be - infinity.
+
+        max_value (int | float | None) : The maximum allowed value for the
+            distribution. Defaults to None, which will assign the max value to
+            be + infinity.
+
     """
 
     def __init__(
@@ -74,7 +104,7 @@ class Gaussian(Distribution):
         self._rng = random.default_rng()
 
     def value(self) -> int | float:
-        """Returns value from the Gaussian distribution."""
+        """Returns random value from the Gaussian distribution."""
         val = self._rng.normal(self._center, self._deviation)
         # Recalculate value until valid.
         while val < self._min_value or val > self._max_value:
@@ -89,7 +119,14 @@ class Gaussian(Distribution):
 
 class TopHat(Distribution):
     """
-    Desc
+    Returns random value according to a uniform distribution between two values.
+
+    Args:
+
+        min_value (int | float) : The minimum value of the distribution.
+
+        max_value (int | float) : The maximum value of the distribution.
+
     """
 
     def __init__(self, min_value: int | float, max_value: int | float) -> None:
@@ -104,7 +141,7 @@ class TopHat(Distribution):
         self._rng = random.default_rng()
 
     def value(self) -> int | float:
-        """Returns value from range."""
+        """Returns random value from within set range."""
         return (
             self._min_value
             + (self._max_value - self._min_value) * self._rng.random()
