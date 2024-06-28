@@ -15,7 +15,8 @@
 import pytest
 
 from lightworks import Circuit, Unitary, random_unitary
-from lightworks.interferometers import Reck
+from lightworks.interferometers import ErrorModel, Reck
+from lightworks.interferometers.dists import Gaussian, TopHat
 
 
 class TestReck:
@@ -35,6 +36,42 @@ class TestReck:
         mapped_circ = Reck().map(test_circ)
         # Then check equivalence
         assert (test_circ.U.round(8) == mapped_circ.U.round(8)).all()
+
+    def test_sequential_maps(self):
+        """
+        Checks random procedure produces different circuits on subsequent calls
+        when the random seed is not set.
+        """
+        # Create test circuit
+        test_circ = Unitary(random_unitary(8))
+        # Define error model with random variations
+        emodel = ErrorModel()
+        emodel.bs_reflectivity = Gaussian(0.5, 0.02, min_value=0, max_value=1)
+        emodel.loss = TopHat(0.1, 0.2)
+        r = Reck(emodel)
+        # Create two mapped circuits
+        mapped_circ = r.map(test_circ)
+        mapped_circ2 = r.map(test_circ)
+        # Then check equivalence
+        assert (mapped_circ.U.round(8) != mapped_circ2.U.round(8)).any()
+
+    def test_random_seeding(self):
+        """
+        Checks random seeding produces repeatable circuits for a range of mode
+        values.
+        """
+        # Create test circuit
+        test_circ = Unitary(random_unitary(8))
+        # Define error model with random variations
+        emodel = ErrorModel()
+        emodel.bs_reflectivity = Gaussian(0.5, 0.02, min_value=0, max_value=1)
+        emodel.loss = TopHat(0.1, 0.2)
+        r = Reck(emodel)
+        # Set seed and create two mapped circuits
+        mapped_circ = r.map(test_circ, seed=12)
+        mapped_circ2 = r.map(test_circ, seed=12)
+        # Then check equivalence
+        assert (mapped_circ.U.round(8) == mapped_circ2.U.round(8)).all()
 
     @pytest.mark.parametrize("value", ["not_error_model", Circuit(4), 0])
     def test_error_model_invalid_type(self, value):
