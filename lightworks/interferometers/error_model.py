@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from numpy import random
+
 from ..sdk.utils import check_random_seed
 from .dists import Constant, Distribution
 
@@ -69,9 +71,13 @@ class ErrorModel:
         Set the random seed for the error_model to produce repeatable results.
         """
         seed = check_random_seed(r_seed)
+        # Create a rng to modify the seed by, ensuring two distributions produce
+        # different values
+        rng = random.default_rng(seed)
         # Set random seed in each property if present
         for prop in [self._bs_reflectivity, self._loss]:
             if hasattr(prop, "set_random_seed") and callable(
                 prop.set_random_seed
             ):
-                prop.set_random_seed(seed)
+                mod_seed = rng.randint(0, 2**31)
+                prop.set_random_seed(seed * mod_seed)
