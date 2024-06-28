@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from ..circuit import Circuit
+from ..sdk.circuit import Circuit
 from .decomposition import reck_decomposition
 from .error_model import ErrorModel
 
@@ -85,13 +85,13 @@ class Reck:
                 mapped_circuit.add_barrier([mode, mode + 1])
                 mapped_circuit.add_ps(mode + 1, phase_map["ps_" + coord])
                 mapped_circuit.add_bs(
-                    mode, reflectivity=self.error_model.bs_reflectivity
+                    mode, reflectivity=self.error_model.get_bs_reflectivity()
                 )
                 mapped_circuit.add_ps(mode, phase_map["bs_" + coord])
                 mapped_circuit.add_bs(
                     mode,
-                    reflectivity=self.error_model.bs_reflectivity,
-                    loss=self.error_model.loss,
+                    reflectivity=self.error_model.get_bs_reflectivity(),
+                    loss=self.error_model.get_loss(),
                 )
         mapped_circuit.add_barrier()
         # Apply residual phases at the end

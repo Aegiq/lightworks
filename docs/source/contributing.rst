@@ -6,10 +6,10 @@ To contribute to Lightworks, please fork the repo and then merge changes back vi
 Code Style
 ----------
 
-To ensure consistency of the Lightworks codebase the tools `ruff <https://docs.astral.sh/ruff/>`_ and `mypy <https://mypy.readthedocs.io/en/stable/>`_ are used (exact usage detailed below). Generally, when writing code for Lightworks there are a few key principles that should be followed:
+To ensure consistency of the Lightworks codebase the tools `ruff <https://docs.astral.sh/ruff/>`_ and `mypy <https://mypy.readthedocs.io/en/stable/>`_ are used (exact usage detailed below). Generally though, when writing code for Lightworks there are a few key principles that should be followed:
 
 #. Code should be formatted using ruff with the style configured in pyproject.toml.
-#. Where possible, a line limit of 80 is used across the cdode.
+#. Where possible, a line limit of 80 is used across the code.
 #. Docstrings should be written in the `google docstring format <https://google.github.io/styleguide/pyguide.html#s3.8-comments-and-docstrings>`_.
 #. Type hints should be used in all functions across the module.
 
