@@ -11,19 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from abc import ABCMeta, abstractmethod
-
-
-class Distribution(metaclass=ABCMeta):
-    """
-    Base class for all distributions. Enforces that any created distributions
-    have the required value method, which returns a singular value on request.
-    If the distribution requires randomness, then the set_random_seed method
-    should be added, which accepts a seed and sets this for the rng to allow
-    for repeatability where required.
-    """
-
-    @abstractmethod
-    def value(self) -> int | float:
-        """Returns a value from the distribution on request."""
