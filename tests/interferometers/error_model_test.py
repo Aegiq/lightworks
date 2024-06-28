@@ -108,3 +108,13 @@ class TestErrorModel:
         em = ErrorModel()
         with pytest.raises(TypeError):
             em.loss = value
+
+    @pytest.mark.parametrize("param", ["bs_reflectivity", "loss"])
+    def test_parameters_in_string_and_repr(self, param):
+        """
+        Checks that all parameters of the error model are contained in the
+        string and repr returns.
+        """
+        em = ErrorModel()
+        assert param in str(em)
+        assert param in repr(em)

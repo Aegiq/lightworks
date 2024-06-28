@@ -84,6 +84,15 @@ class TestConstant:
         for _i in range(100):
             assert val == c.value()
 
+    def test_params_in_string_and_repr(self):
+        """
+        Checks that the assigned value is detailed in the string and repr
+        """
+        val = random()
+        c = Constant(val)
+        assert str(val) in str(c)
+        assert str(val) in repr(c)
+
 
 class TestGaussian:
     """Tests for Constant distribution"""
@@ -131,6 +140,17 @@ class TestGaussian:
         # Check equivalence
         assert v1 == v2
 
+    def test_params_in_string_and_repr(self):
+        """
+        Checks that the assigned value is detailed in the string and repr
+        """
+        val = random()
+        dist = Gaussian(val, 2 * val)
+        assert str(val) in str(dist)
+        assert str(2 * val) in str(dist)
+        assert str(val) in repr(dist)
+        assert str(2 * val) in repr(dist)
+
 
 class TestTopHat:
     """Tests for TopHat distribution"""
@@ -166,3 +186,14 @@ class TestTopHat:
         v2 = dist.value()
         # Check equivalence
         assert v1 == v2
+
+    def test_params_in_string_and_repr(self):
+        """
+        Checks that the assigned value is detailed in the string and repr
+        """
+        val = random()
+        dist = TopHat(val, 2 * val)
+        assert str(val) in str(dist)
+        assert str(2 * val) in str(dist)
+        assert str(val) in repr(dist)
+        assert str(2 * val) in repr(dist)

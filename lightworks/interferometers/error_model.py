@@ -30,6 +30,15 @@ class ErrorModel:
 
         return
 
+    def __str__(self) -> str:
+        return (
+            f"ErrorModel(bs_reflectivity = {self.bs_reflectivity}, "
+            f"loss = {self.loss})"
+        )
+
+    def __repr__(self) -> str:
+        return "lightworks.interferometers." + str(self)
+
     @property
     def bs_reflectivity(self) -> Distribution:
         """Returns currently in use beam splitter value distribution."""
