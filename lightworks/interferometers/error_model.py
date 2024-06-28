@@ -79,5 +79,7 @@ class ErrorModel:
             if hasattr(prop, "set_random_seed") and callable(
                 prop.set_random_seed
             ):
-                mod_seed = rng.integers(0, 2**31)
-                prop.set_random_seed(seed * mod_seed)
+                if seed is not None:
+                    mod_seed = rng.integers(0, 2**31)
+                    seed = seed * mod_seed
+                prop.set_random_seed(seed)
