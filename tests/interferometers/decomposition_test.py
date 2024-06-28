@@ -17,65 +17,12 @@ from random import random
 import numpy as np
 import pytest
 
-from lightworks import Circuit, Unitary, random_unitary
-from lightworks.sdk.interferometers import ErrorModel, Reck
-from lightworks.sdk.interferometers.decomposition import (
+from lightworks import Circuit, random_unitary
+from lightworks.interferometers.decomposition import (
     bs_matrix,
     check_null,
     reck_decomposition,
 )
-
-
-class TestReck:
-    """
-    Tests to check functionality of the Reck interferometer.
-    """
-
-    @pytest.mark.parametrize("n_modes", [2, 3, 7, 8, 15, 16])
-    def test_equivalence(self, n_modes):
-        """
-        Checks map functionality produces an equivalent circuit for a range of
-        mode values.
-        """
-        # Create test circuit
-        test_circ = Unitary(random_unitary(n_modes))
-        # Find mapped circuit
-        mapped_circ = Reck().map(test_circ)
-        # Then check equivalence
-        assert (test_circ.U.round(8) == mapped_circ.U.round(8)).all()
-
-    @pytest.mark.parametrize("value", ["not_error_model", Circuit(4)])
-    def test_error_model_invalid_type(self, value):
-        """
-        Checks that an exception is raised if the error_model is set to
-        something other than an ErrorModel or None.
-        """
-        with pytest.raises(TypeError):
-            Reck(error_model=value)
-
-
-class TestErrorModel:
-    """
-    Tests for Error Model object of module.
-    """
-
-    def test_default_bs_reflectivity(self):
-        """
-        Checks that the default beam splitter reflectivity is 0.5.
-        """
-        em = ErrorModel()
-        # Repeat 100 times to confirm no randomness present
-        for _i in range(100):
-            assert em.bs_reflectivity == 0.5
-
-    def test_default_loss(self):
-        """
-        Checks that default loss value is 0.
-        """
-        em = ErrorModel()
-        # Repeat 100 times to confirm no randomness present
-        for _i in range(100):
-            assert em.loss == 0
 
 
 class TestDecomposition:
