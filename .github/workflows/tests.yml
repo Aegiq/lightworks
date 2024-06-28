@@ -43,7 +43,7 @@ jobs:
 
       # Add comment to PR with coverage report
       - name: Pytest coverage comment
-        if: ${{ matrix.python-version == '3.11' }}
+        if: ${{ matrix.python-version == '3.11'  && github.event_name == 'pull_request' }} 
         uses: MishaKav/pytest-coverage-comment@main
         with:
           junitxml-path: ./report.xml
