@@ -24,6 +24,13 @@ from lightworks.interferometers.decomposition import (
     check_null,
     reck_decomposition,
 )
+from lightworks.interferometers.dists import (
+    Constant,
+    Distribution,
+    Gaussian,
+    TopHat,
+)
+from lightworks.interferometers.dists.utils import is_number
 
 
 class TestReck:
@@ -146,3 +153,80 @@ class TestDecomposition:
         """
         unitary = random_unitary(8)
         assert not check_null(unitary)
+
+
+class TestDistributions:
+    """Test for probability distribution (dists) module."""
+
+    @pytest.mark.parametrize(
+        "dist",
+        [Constant(0.5), Gaussian(0.5, 0), TopHat(0.5, 0.5)],
+    )
+    def test_is_distribution(self, dist):
+        """
+        Checks each of the distribution classes is an instance of the
+        distribution base class.
+        """
+        assert isinstance(dist, Distribution)
+
+    def test_constant(self):
+        """
+        Checks that Constant distribution just returns set value.
+        """
+        val = random()
+        c = Constant(val)
+        # Check 100 times to ensure it always works
+        for _i in range(100):
+            assert val == c.value()
+
+    @pytest.mark.flaky(max_runs=3)
+    def test_gaussian(self):
+        """
+        Checks that Gaussian distribution generates values with a mean close to
+        the set value for large numbers.
+        """
+        dist = Gaussian(1, 0.2)
+        vals = [dist.value() for _i in range(100000)]
+        # Check within 5% of expected mean
+        assert np.mean(vals) == pytest.approx(1, 0.05)
+
+    def test_top_hat(self):
+        """
+        Checks that Top Hat distribution only creates values within the expected
+        range.
+        """
+        dist = TopHat(0.4, 0.6)
+        vals = [dist.value() for _i in range(100000)]
+        # Check min and max value within set range
+        assert min(vals) >= 0.4
+        assert max(vals) <= 0.6
+
+    @pytest.mark.parametrize(
+        "value", [1, 0.5, np.inf, np.float64(1.2), [1, 0.5, np.inf]]
+    )
+    def test_is_number(self, value):
+        """
+        Confirms that is_number does not return an exception for valid values.
+        """
+        is_number(value)
+
+    @pytest.mark.parametrize("value", ["1", None, True, [1, True]])
+    def test_is_number_invalid(self, value):
+        """
+        Confirms that is_number returns an exception when an invalid value is
+        attempted to be set.
+        """
+        with pytest.raises(TypeError):
+            is_number(value)
+
+    def test_custom_distribution_requires_value(self):
+        """
+        Checks that any created custom class which uses Distribution as the
+        parent requires the value method for the class to be initialized.
+        """
+
+        class TestClass(Distribution):
+            pass
+
+        with pytest.raises(TypeError):
+            TestClass()
