@@ -80,7 +80,7 @@ This produces a :doc:`emulator_reference/sampling_result` object, we can quickly
 .. code-block:: Python
 
     print(results)
-    # Output: {State(|2,0>): 4990, State(|0,2>): 5010}
+    # Output: {lightworks.State(|0,2>): 5047, lightworks.State(|2,0>): 4953}
 
 Alternatively, we can use the ``plot`` method to quickly create a plot of the measured output states.
 

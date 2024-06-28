@@ -211,8 +211,8 @@ class QuickSampler:
         for i, k in enumerate(pdist.keys()):
             vals[i] = k
         # Generate N random samples and then process and count output states
-        np.random.seed(self._check_random_seed(seed))
-        samples = np.random.choice(vals, p=list(pdist.values()), size=N)
+        rng = np.random.default_rng(self._check_random_seed(seed))
+        samples = rng.choice(vals, p=list(pdist.values()), size=N)
         counted = dict(Counter(samples))
         return SamplingResult(counted, self.input_state)
 
