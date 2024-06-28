@@ -41,6 +41,12 @@ class TopHat(Distribution):
         self._max_value = max_value
         self._rng = random.default_rng()
 
+    def __str__(self) -> str:
+        return f"TopHat({self._min_value}, {self._max_value})"
+
+    def __repr__(self) -> str:
+        return "lightworks.interferometers.dists." + str(self)
+
     def value(self) -> int | float:
         """Returns random value from within set range."""
         return (

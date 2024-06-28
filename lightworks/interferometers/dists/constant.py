@@ -30,6 +30,12 @@ class Constant(Distribution):
         is_number(value)
         self._value = value
 
+    def __str__(self) -> str:
+        return f"Constant({self._value})"
+
+    def __repr__(self) -> str:
+        return "lightworks.interferometers.dists." + str(self)
+
     def value(self) -> int | float:
         """Returns set constant value."""
         return self._value

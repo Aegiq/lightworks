@@ -69,6 +69,19 @@ class Gaussian(Distribution):
         self._max_value = max_value
         self._rng = random.default_rng()
 
+    def __str__(self) -> str:
+        if self._min_value == -np.inf and self._max_value == np.inf:
+            contents = f"\u03bc = {self._center}, \u03c3 = {self._deviation}"
+        else:
+            contents = (
+                f"\u03bc = {self._center}, \u03c3 = {self._deviation}, "
+                f"bounds = [{self._min_value}, {self._max_value}]"
+            )
+        return f"Gaussian({contents})"
+
+    def __repr__(self) -> str:
+        return "lightworks.interferometers.dists." + str(self)
+
     def value(self) -> int | float:
         """Returns random value from the Gaussian distribution."""
         val = self._rng.normal(self._center, self._deviation)

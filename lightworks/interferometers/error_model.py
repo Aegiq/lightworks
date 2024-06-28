@@ -20,8 +20,8 @@ from .dists import Constant, Distribution
 
 class ErrorModel:
     """
-    Placeholder class for configuring an error model which can be introduced
-    within an interferometer.
+    Allows for configuration of an error model which can be applied to different
+    components of the interferometers.
     """
 
     def __init__(self) -> None:
