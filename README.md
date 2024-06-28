@@ -11,7 +11,7 @@ Included within Lightworks is also an emulator, allowing users to evaluate the o
 
 ## Usage
 
-Python 3.10+ is required.
+Python versions 3.10-3.12 are supported.
 
 Lightworks can be installed through pip using the command:
 
