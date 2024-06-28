@@ -86,7 +86,7 @@ class TestConstant:
 
     def test_params_in_string_and_repr(self):
         """
-        Checks that the assigned value is detailed in the string and repr
+        Checks that the assigned value is detailed in the string and repr.
         """
         val = random()
         c = Constant(val)
@@ -142,10 +142,22 @@ class TestGaussian:
 
     def test_params_in_string_and_repr(self):
         """
-        Checks that the assigned value is detailed in the string and repr
+        Checks that the assigned value is detailed in the string and repr.
         """
         val = random()
         dist = Gaussian(val, 2 * val)
+        assert str(val) in str(dist)
+        assert str(2 * val) in str(dist)
+        assert str(val) in repr(dist)
+        assert str(2 * val) in repr(dist)
+
+    def test_params_in_string_and_repr_bounds(self):
+        """
+        Checks that the assigned min and max value is detailed in the string and
+        repr.
+        """
+        val = random()
+        dist = Gaussian(1, 0.5, min_value=val, max_value=2 * val)
         assert str(val) in str(dist)
         assert str(2 * val) in str(dist)
         assert str(val) in repr(dist)
@@ -189,7 +201,7 @@ class TestTopHat:
 
     def test_params_in_string_and_repr(self):
         """
-        Checks that the assigned value is detailed in the string and repr
+        Checks that the assigned value is detailed in the string and repr.
         """
         val = random()
         dist = TopHat(val, 2 * val)
