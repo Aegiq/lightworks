@@ -31,6 +31,9 @@ setup(
         "pyarrow", 
         "ipython"
     ],
+    extras_require = {
+        'qiskit':  ["qiskit[visualization]>=1.1.0"]
+    },
     classifiers = [
         "License :: OSI Approved :: Apache Software License",
         "Natural Language :: English",
