@@ -28,8 +28,8 @@ class CZ(Circuit):
     """
     Post-selected CZ gate that acts across two dual-rail encoded qubits. This
     gate occupies a total of 6 modes, where modes 0 & 5 are used for 0 photon
-    heralds, modes 1 & 2 correspond to the 0 & 1 states of the control qubit
-    and modes 3 & 4 correspond to the 0 & 1 states of the target qubit. This
+    heralds, modes 1 & 2 correspond to the 0 & 1 states of the first qubit and
+    modes 3 & 4 correspond to the 0 & 1 states of the second qubit. This
     gate requires additional post-selection in which only one photon should be
     measured across each of the pairs of modes which encode a qubit.
     """
@@ -52,22 +52,34 @@ class CNOT(Circuit):
     """
     Post-selected CNOT gate that acts across two dual-rail encoded qubits. This
     gate occupies a total of 6 modes, where modes 0 & 5 are used for 0 photon
-    heralds, modes 1 & 2 correspond to the 0 & 1 states of the control qubit
-    and modes 3 & 4 correspond to the 0 & 1 states of the target qubit. This
-    gate requires additional post-selection in which only one photon should be
+    heralds, modes 1 & 2 correspond to the 0 & 1 states of the first qubit and
+    modes 3 & 4 correspond to the 0 & 1 states of the second qubit. This gate
+    requires additional post-selection in which only one photon should be
     measured across each of the pairs of modes which encode a qubit.
+
+    Args:
+
+        target_qubit (int, optional) : Sets which of the two qubits is used as
+            the target qubit for the gate.
+
     """
 
-    def __init__(self) -> None:
+    def __init__(self, target_qubit: int = 1) -> None:
+        if target_qubit not in [0, 1]:
+            raise ValueError(
+                "target_qubit setting must have a value of either 0 or 1."
+            )
+
         super().__init__(4)
 
         # Create CNOT from combination of H and CZ
         circ = Circuit(4)
-        circ.add(H(), 2)
+        circ.add(H(), 2 * target_qubit)
         circ.add(CZ(), 0)
-        circ.add(H(), 2)
+        circ.add(H(), 2 * target_qubit)
 
-        self.add(circ, 0, group=True, name="CNOT")
+        name = f"CNOT ({1 - target_qubit}, {target_qubit})"
+        self.add(circ, 0, group=True, name=name)
 
 
 class CZ_Heralded(Circuit):  # noqa: N801
@@ -76,11 +88,11 @@ class CZ_Heralded(Circuit):  # noqa: N801
     qubits, using two NS gates with ancillary photons to herald the success of
     the transformation. This gate occupies 8 modes, where modes 0 & 7 are used
     as 0 photon heralds, modes 1 & 6 are used as 1 photon heralds, mode 2 & 3
-    correspond to the 0 & 1 states of the control qubit and modes 4 & 5
-    correspond to the 0 & 1 states of the target qubit. The heralded gate does
-    not require any post-selection on the output qubits, other than that they
-    are not lost (i.e a total of 4 photons should be measured at the output
-    of the system), allowing it to be cascaded with other two qubit gates.
+    correspond to the 0 & 1 states of the first qubit and modes 4 & 5 correspond
+    to the 0 & 1 states of the second qubit. The heralded gate does not require
+    any post-selection on the output qubits, other than that they are not lost
+    (i.e a total of 4 photons should be measured at the output of the system),
+    allowing it to be cascaded with other two qubit gates.
     """
 
     def __init__(self) -> None:
@@ -128,23 +140,35 @@ class CNOT_Heralded(Circuit):  # noqa: N801
     qubits, using two NS gates with ancillary photons to herald the success of
     the transformation. This gate occupies 8 modes, where modes 0 & 7 are used
     as 0 photon heralds, modes 1 & 6 are used as 1 photon heralds, mode 2 & 3
-    correspond to the 0 & 1 states of the control qubit and modes 4 & 5
-    correspond to the 0 & 1 states of the target qubit. The heralded gate does
-    not require any post-selection on the output qubits, other than that they
-    are not lost (i.e a total of 4 photons should be measured at the output
-    of the system), allowing it to be cascaded with other two qubit gates.
+    correspond to the 0 & 1 states of the first qubit and modes 4 & 5 correspond
+    to the 0 & 1 states of the second qubit. The heralded gate does not require
+    any post-selection on the output qubits, other than that they are not lost
+    (i.e a total of 4 photons should be measured at the output of the system),
+    allowing it to be cascaded with other two qubit gates.
+
+    Args:
+
+        target_qubit (int, optional) : Sets which of the two qubits is used as
+            the target qubit for the gate.
+
     """
 
-    def __init__(self) -> None:
+    def __init__(self, target_qubit: int = 1) -> None:
+        if target_qubit not in [0, 1]:
+            raise ValueError(
+                "target_qubit setting must have a value of either 0 or 1."
+            )
+
         super().__init__(4)
 
         # Create CNOT from combination of H and CZ
         circ = Circuit(4)
-        circ.add(H(), 2)
+        circ.add(H(), 2 * target_qubit)
         circ.add(CZ_Heralded(), 0)
-        circ.add(H(), 2)
+        circ.add(H(), 2 * target_qubit)
 
-        self.add(circ, 0, group=True, name="CNOT (Heralded)")
+        name = f"CNOT Heralded ({1 - target_qubit}, {target_qubit})"
+        self.add(circ, 0, group=True, name=name)
 
 
 class SWAP(Circuit):
