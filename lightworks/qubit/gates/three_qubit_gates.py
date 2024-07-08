@@ -69,14 +69,28 @@ class CCNOT(Circuit):
     requiring 0 photons on the input and output. For correct functioning of
     this gate it must be post-selected on the condition that only one photon is
     measured across the two modes used to encode each of the qubits.
+
+    Args:
+
+        target_qubit (int, optional) : Sets which of the three qubits is used as
+            the target qubit for the gate. Should be either 0, 1 or 2.
+
     """
 
-    def __init__(self) -> None:
+    def __init__(self, target_qubit: int = 2) -> None:
+        if target_qubit not in [0, 1, 2]:
+            raise ValueError(
+                "target_qubit setting must have a value of either 0, 1 or 3."
+            )
+
         # Create CCNOT from combination of H and CCZ
         circ = Circuit(6)
-        circ.add(H(), 4)
+        circ.add(H(), 2 * target_qubit)
         circ.add(CCZ(), 0)
-        circ.add(H(), 4)
+        circ.add(H(), 2 * target_qubit)
 
         super().__init__(6)
-        self.add(circ, 0, group=True, name="CCNOT")
+
+        controls = tuple([i for i in range(3) if i != target_qubit])
+        name = f"CCNOT ({controls}, {target_qubit})"
+        self.add(circ, 0, group=True, name=name)

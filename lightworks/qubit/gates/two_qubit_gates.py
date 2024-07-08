@@ -60,7 +60,7 @@ class CNOT(Circuit):
     Args:
 
         target_qubit (int, optional) : Sets which of the two qubits is used as
-            the target qubit for the gate.
+            the target qubit for the gate. Should be either 0 or 1.
 
     """
 
@@ -149,7 +149,7 @@ class CNOT_Heralded(Circuit):  # noqa: N801
     Args:
 
         target_qubit (int, optional) : Sets which of the two qubits is used as
-            the target qubit for the gate.
+            the target qubit for the gate. Should be either 0 or 1.
 
     """
 
