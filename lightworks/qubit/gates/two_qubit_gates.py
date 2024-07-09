@@ -131,7 +131,7 @@ class CZ_Heralded(Circuit):  # noqa: N801
         unitary.add_herald(0, 7, 7)
 
         super().__init__(4)
-        self.add(unitary, 0, group=True, name="CZ")
+        self.add(unitary, 0, group=True, name="CZ Heralded")
 
 
 class CNOT_Heralded(Circuit):  # noqa: N801
