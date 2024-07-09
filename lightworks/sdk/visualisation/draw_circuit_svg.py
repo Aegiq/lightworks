@@ -227,7 +227,8 @@ class DrawCircuitSVG:
 
         # Adjust size of figure to meet target scale
         target_scale = min(
-            50 + (self.n_modes - len(self.herald_modes)) * 65, 900
+            50 + (self.circuit.input_modes + 0.4 * len(self.herald_modes)) * 65,
+            900,
         )
         # target_scale = max(target_scale, 200)
         self.d.set_pixel_scale(1)
