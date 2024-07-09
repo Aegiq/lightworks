@@ -80,7 +80,8 @@ def qiskit_converter(circuit: QuantumCircuit) -> Circuit:
 
 class QiskitConverter:
     """
-    Desc
+    Manages conversion between qiskit and lightworks circuit, adding each of the
+    qubit gates into a created circuit object.
     """
 
     def convert(self, q_circ: QuantumCircuit) -> Circuit:
@@ -107,25 +108,23 @@ class QiskitConverter:
         for inst in q_circ.data:
             # Single Qubit Gates
             if inst.operation.num_qubits == 1:
-                self.add_single_qubit_gate(inst)
-
+                self._add_single_qubit_gate(inst)
             # Two Qubit Gates
             elif inst.operation.num_qubits == 2:
-                self.add_two_qubit_gate(inst)
-
+                self._add_two_qubit_gate(inst)
             # Three Qubit Gates
             elif inst.operation.num_qubits == 3:
-                self.add_three_qubit_gate(inst)
-
+                self._add_three_qubit_gate(inst)
             # Limit to three qubit gates
             else:
                 raise ValueError("Gates with more than 3 qubits not supported.")
 
         return self.circuit
 
-    def add_single_qubit_gate(self, instruction: CircuitInstruction) -> None:
+    def _add_single_qubit_gate(self, instruction: CircuitInstruction) -> None:
         """
-        Desc
+        Adds a provided single qubit gate within an instruction to a circuit on
+        the correct modes.
         """
         gate = instruction.operation.name
         qubit = instruction.qubits[0]._index
@@ -134,9 +133,10 @@ class QiskitConverter:
             raise ValueError(msg)
         self.circuit.add(SINGLE_QUBIT_GATES_MAP[gate], self.modes[qubit][0])
 
-    def add_two_qubit_gate(self, instruction: CircuitInstruction) -> None:
+    def _add_two_qubit_gate(self, instruction: CircuitInstruction) -> None:
         """
-        Desc
+        Adds a provided two qubit gate within an instruction to a circuit on
+        the correct modes.
         """
         gate = instruction.operation.name
         q0 = instruction.qubits[0]._index
@@ -160,9 +160,10 @@ class QiskitConverter:
             msg = f"Unsupported gate '{gate}' included in circuit."
             raise ValueError(msg)
 
-    def add_three_qubit_gate(self, instruction: CircuitInstruction) -> None:
+    def _add_three_qubit_gate(self, instruction: CircuitInstruction) -> None:
         """
-        Desc
+        Adds a provided three qubit gate within an instruction to a circuit on
+        the correct modes.
         """
         gate = instruction.operation.name
         q0 = instruction.qubits[0]._index
