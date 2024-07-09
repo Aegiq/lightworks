@@ -39,13 +39,13 @@ SINGLE_QUBIT_GATES_MAP = {
 }
 
 TWO_QUBIT_GATES_MAP = {
-    "cx": CNOT_Heralded(),
-    "cz": CZ_Heralded(),
+    "cx": CNOT_Heralded,
+    "cz": CZ_Heralded,
 }
 
 THREE_QUBIT_GATES_MAP = {
-    "ccx": CCNOT(),
-    "cxz": CCZ(),
+    "ccx": CCNOT,
+    "cxz": CCZ,
 }
 
 ALLOWED_GATES = [
@@ -84,12 +84,18 @@ def qiskit_converter(q_circ: QuantumCircuit) -> Circuit:
             if gate == "swap":
                 circuit.add(SWAP(modes[q0], modes[q1]), 0)
             elif gate in ["cx", "cz"]:
-                if q1 - q0 != 1:
+                if abs(q1 - q0) != 1:
                     raise ValueError(
-                        "CX and CZ must have control qubit q and target qubit "
-                        "q+1, please add swap gates to achieve this."
+                        "CX and CZ qubits must be adjacent to each other, "
+                        "please add swap gates to achieve this."
                     )
-                circuit.add(TWO_QUBIT_GATES_MAP[gate], modes[q0][0])
+                if gate == "cx":
+                    target = q1 - min([q0, q1])
+                    add_circ = TWO_QUBIT_GATES_MAP["cx"](target)
+                else:
+                    add_circ = TWO_QUBIT_GATES_MAP["cz"]()
+                add_mode = modes[min([q0, q1])][0]
+                circuit.add(add_circ, add_mode)
             else:
                 msg = f"Unsupported gate '{gate}' included in circuit."
                 raise ValueError(msg)
@@ -100,15 +106,19 @@ def qiskit_converter(q_circ: QuantumCircuit) -> Circuit:
             q1 = inst.qubits[1]._index
             q2 = inst.qubits[2]._index
             if gate in ["ccx", "ccz"]:
-                if q1 < q0:
-                    q0, q1 = q1, q0
-                if q2 - q1 != 1 or q2 - q0 != 2:
+                all_qubits = [q0, q1, q2]
+                if max(all_qubits) - min(all_qubits) > 2:
                     raise ValueError(
-                        "CCX and CCZ must have control qubit q & q + 1 and "
-                        "target qubit q+2, please add swap gates to achieve "
-                        "this."
+                        "CCX and CCZ qubits must be adjacent to each other, "
+                        "please add swap gates to achieve this."
                     )
-                circuit.add(THREE_QUBIT_GATES_MAP[gate], modes[q0][0])
+                if gate == "ccx":
+                    target = q2 - min(all_qubits)
+                    add_circ = THREE_QUBIT_GATES_MAP["ccx"](target)
+                else:
+                    add_circ = THREE_QUBIT_GATES_MAP["ccz"]()
+                add_mode = modes[min(all_qubits)][0]
+                circuit.add(add_circ, add_mode)
             else:
                 msg = f"Unsupported gate '{gate}' included in circuit."
                 raise ValueError(msg)
