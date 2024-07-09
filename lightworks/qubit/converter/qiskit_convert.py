@@ -84,28 +84,28 @@ class QiskitConverter:
     qubit gates into a created circuit object.
     """
 
-    def convert(self, q_circ: QuantumCircuit) -> Circuit:
+    def convert(self, q_circuit: QuantumCircuit) -> Circuit:
         """
         Performs conversion of a provided qiskit QuantumCircuit into a photonic
         circuit within Lightworks.
 
         Args:
 
-            q_circ (QuantumCircuit) : The qiskit circuit to be converted,
+            q_circuit (QuantumCircuit) : The qiskit circuit to be converted,
 
         Returns:
 
             Circuit : The created circuit within Lightworks.
 
         """
-        if not isinstance(q_circ, QuantumCircuit):
+        if not isinstance(q_circuit, QuantumCircuit):
             raise TypeError("Circuit to convert must be a qiskit circuit.")
 
-        n_qubits = q_circ.num_qubits
+        n_qubits = q_circuit.num_qubits
         self.circuit = Circuit(n_qubits * 2)
         self.modes = {i: (2 * i, 2 * i + 1) for i in range(n_qubits)}
 
-        for inst in q_circ.data:
+        for inst in q_circuit.data:
             # Single Qubit Gates
             if inst.operation.num_qubits == 1:
                 self._add_single_qubit_gate(inst)
