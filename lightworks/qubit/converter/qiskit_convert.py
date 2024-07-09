@@ -49,8 +49,8 @@ THREE_QUBIT_GATES_MAP = {
 }
 
 ALLOWED_GATES = [
-    *SINGLE_QUBIT_GATES_MAP.keys(),
-    *TWO_QUBIT_GATES_MAP.keys(),
+    *SINGLE_QUBIT_GATES_MAP,
+    *TWO_QUBIT_GATES_MAP,
     "swap",
 ]
 
@@ -107,7 +107,7 @@ def qiskit_converter(q_circ: QuantumCircuit) -> Circuit:
             q2 = inst.qubits[2]._index
             if gate in ["ccx", "ccz"]:
                 all_qubits = [q0, q1, q2]
-                if max(all_qubits) - min(all_qubits) > 2:
+                if max(all_qubits) - min(all_qubits) != 2:
                     raise ValueError(
                         "CCX and CCZ qubits must be adjacent to each other, "
                         "please add swap gates to achieve this."
