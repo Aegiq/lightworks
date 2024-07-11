@@ -5,6 +5,8 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[lightworks]
+requires-python = ">=3.10"
 
 ## pytest config
 [tool.pytest.ini_options]

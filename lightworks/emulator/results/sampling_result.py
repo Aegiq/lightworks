@@ -193,7 +193,7 @@ class SamplingResult:
 
         fig, ax = plt.subplots(figsize=(7, 6))
         x_data = range(len(self.dictionary))
-        ax.bar(x_data, self.dictionary.values())
+        ax.bar(x_data, list(self.dictionary.values()))
         ax.set_xticks(x_data)
         labels = [
             state_labels[s] if s in state_labels else str(s)
