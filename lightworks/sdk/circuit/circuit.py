@@ -357,8 +357,8 @@ class Circuit:
             ["bs", (mode_1, mode_2, reflectivity, convention)]
         )
         if isinstance(loss, Parameter) or loss > 0:
-            self.add_loss(mode_1, loss)
-            self.add_loss(mode_2, loss)
+            self.loss(mode_1, loss)
+            self.loss(mode_2, loss)
 
     def ps(self, mode: int, phi: float, loss: float = 0) -> None:
         """
@@ -379,7 +379,7 @@ class Circuit:
         check_loss(loss)
         self.__circuit_spec.append(["ps", (mode, phi)])
         if isinstance(loss, Parameter) or loss > 0:
-            self.add_loss(mode, loss)
+            self.loss(mode, loss)
 
     def loss(self, mode: int, loss: float = 0) -> None:
         """

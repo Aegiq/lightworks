@@ -82,21 +82,21 @@ class Reck:
                 # Find coordinates + mode from i & j values
                 coord = f"{j + 2 * i}_{j}"
                 mode = n_modes - j - 2
-                mapped_circuit.add_barrier([mode, mode + 1])
-                mapped_circuit.add_ps(mode + 1, phase_map["ps_" + coord])
-                mapped_circuit.add_bs(
+                mapped_circuit.barrier([mode, mode + 1])
+                mapped_circuit.ps(mode + 1, phase_map["ps_" + coord])
+                mapped_circuit.bs(
                     mode, reflectivity=self.error_model.get_bs_reflectivity()
                 )
-                mapped_circuit.add_ps(mode, phase_map["bs_" + coord])
-                mapped_circuit.add_bs(
+                mapped_circuit.ps(mode, phase_map["bs_" + coord])
+                mapped_circuit.bs(
                     mode,
                     reflectivity=self.error_model.get_bs_reflectivity(),
                     loss=self.error_model.get_loss(),
                 )
-        mapped_circuit.add_barrier()
+        mapped_circuit.barrier()
         # Apply residual phases at the end
         for i in range(n_modes):
-            mapped_circuit.add_ps(n_modes - i - 1, end_phases[i])
+            mapped_circuit.ps(n_modes - i - 1, end_phases[i])
 
         # Add any heralds from the original circuit
         heralds = circuit.heralds
@@ -105,6 +105,6 @@ class Reck:
             # match - this shouldn't happen but for now check just in case.
             if heralds["input"][m1] != heralds["output"][m2]:
                 raise RuntimeError("Mismatching heralding numbers detected.")
-            mapped_circuit.add_herald(heralds["input"][m1], m1, m2)
+            mapped_circuit.herald(heralds["input"][m1], m1, m2)
 
         return mapped_circuit

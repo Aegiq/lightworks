@@ -50,12 +50,12 @@ class TestCNOT:
             (3, pi / 2, 0),
         ]
         for m, t, p in to_add:
-            cnot_circuit.add_bs(m, loss=loss, reflectivity=0.5)
-            cnot_circuit.add_ps(m + 1, t)
-            cnot_circuit.add_bs(m, loss=loss, reflectivity=0.5)
-            cnot_circuit.add_ps(m + 1, p)
+            cnot_circuit.bs(m, loss=loss, reflectivity=0.5)
+            cnot_circuit.ps(m + 1, t)
+            cnot_circuit.bs(m, loss=loss, reflectivity=0.5)
+            cnot_circuit.ps(m + 1, p)
             if m in [3, 4, 3]:
-                cnot_circuit.add_barrier()
+                cnot_circuit.barrier()
         # Define imperfect source and detector
         source = Source(purity=0.99, brightness=0.4, indistinguishability=0.94)
         detector = Detector(efficiency=0.9, p_dark=1e-5, photon_counting=False)
@@ -99,12 +99,12 @@ class TestCNOT:
             (3, pi / 2, 0),
         ]
         for m, t, p in to_add:
-            cnot_circuit.add_bs(m, loss=loss, reflectivity=0.5)
-            cnot_circuit.add_ps(m + 1, t)
-            cnot_circuit.add_bs(m, loss=loss, reflectivity=0.5)
-            cnot_circuit.add_ps(m + 1, p)
+            cnot_circuit.bs(m, loss=loss, reflectivity=0.5)
+            cnot_circuit.ps(m + 1, t)
+            cnot_circuit.bs(m, loss=loss, reflectivity=0.5)
+            cnot_circuit.ps(m + 1, p)
             if m in [3, 4, 3]:
-                cnot_circuit.add_barrier()
+                cnot_circuit.barrier()
         # Define imperfect source and detector
         source = Source(purity=0.99, brightness=0.4, indistinguishability=0.94)
         detector = Detector(efficiency=0.9, photon_counting=False)

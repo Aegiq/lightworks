@@ -69,10 +69,10 @@ class TestDecomposition:
         bs_u = bs_matrix(0, 1, theta, phi, 2)
         # Create unit cell circuit
         circ = Circuit(2)
-        circ.add_ps(0, phi)
-        circ.add_bs(0)
-        circ.add_ps(1, theta)
-        circ.add_bs(0)
+        circ.ps(0, phi)
+        circ.bs(0)
+        circ.ps(1, theta)
+        circ.bs(0)
         circ_u = circ.U
         # Check equivalence
         assert (bs_u.round(8) == circ_u.round(8)).all()

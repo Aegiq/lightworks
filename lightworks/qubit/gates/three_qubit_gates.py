@@ -53,10 +53,10 @@ class CCZ(Circuit):
         # fmt: on
         # Create unitary component and add heralds on required modes
         unitary = Unitary(u_a)
-        unitary.add_herald(0, 0)
-        unitary.add_herald(0, 1)
-        unitary.add_herald(0, 8)
-        unitary.add_herald(0, 9)
+        unitary.herald(0, 0)
+        unitary.herald(0, 1)
+        unitary.herald(0, 8)
+        unitary.herald(0, 9)
 
         super().__init__(6)
         self.add(unitary, 0, group=True, name="CCZ")
