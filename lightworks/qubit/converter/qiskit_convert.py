@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from qiskit import QuantumCircuit
-from qiskit.circuit import CircuitInstruction
 
 from ...sdk.circuit import Circuit
 from ..gates import (
@@ -52,6 +51,7 @@ THREE_QUBIT_GATES_MAP = {
 ALLOWED_GATES = [
     *SINGLE_QUBIT_GATES_MAP,
     *TWO_QUBIT_GATES_MAP,
+    *THREE_QUBIT_GATES_MAP,
     "swap",
 ]
 
@@ -106,69 +106,65 @@ class QiskitConverter:
         self.modes = {i: (2 * i, 2 * i + 1) for i in range(n_qubits)}
 
         for inst in q_circuit.data:
+            gate = inst.operation.name
+            qubits = [
+                inst.qubits[i]._index for i in range(inst.operation.num_qubits)
+            ]
+            if gate not in ALLOWED_GATES:
+                msg = f"Unsupported gate '{gate}' included in circuit."
+                raise ValueError(msg)
             # Single Qubit Gates
-            if inst.operation.num_qubits == 1:
-                self._add_single_qubit_gate(inst)
+            if len(qubits) == 1:
+                self._add_single_qubit_gate(gate, *qubits)
             # Two Qubit Gates
-            elif inst.operation.num_qubits == 2:
-                self._add_two_qubit_gate(inst)
+            elif len(qubits) == 2:
+                self._add_two_qubit_gate(gate, *qubits)
             # Three Qubit Gates
-            elif inst.operation.num_qubits == 3:
-                self._add_three_qubit_gate(inst)
+            elif len(qubits) == 3:
+                self._add_three_qubit_gate(gate, *qubits)
             # Limit to three qubit gates
             else:
                 raise ValueError("Gates with more than 3 qubits not supported.")
 
         return self.circuit
 
-    def _add_single_qubit_gate(self, instruction: CircuitInstruction) -> None:
+    def _add_single_qubit_gate(self, gate: str, qubit: int) -> None:
         """
-        Adds a provided single qubit gate within an instruction to a circuit on
-        the correct modes.
+        Adds a single qubit gate to the provided qubit on the circuit.
         """
-        gate = instruction.operation.name
-        qubit = instruction.qubits[0]._index
-        if gate not in ALLOWED_GATES:
-            msg = f"Unsupported gate '{gate}' included in circuit."
-            raise ValueError(msg)
         self.circuit.add(SINGLE_QUBIT_GATES_MAP[gate], self.modes[qubit][0])
 
-    def _add_two_qubit_gate(self, instruction: CircuitInstruction) -> None:
+    def _add_two_qubit_gate(self, gate: str, q0: int, q1: int) -> None:
         """
         Adds a provided two qubit gate within an instruction to a circuit on
         the correct modes.
         """
-        gate = instruction.operation.name
-        q0 = instruction.qubits[0]._index
-        q1 = instruction.qubits[1]._index
         if gate == "swap":
             self.circuit.add(SWAP(self.modes[q0], self.modes[q1]), 0)
         elif gate in ["cx", "cz"]:
-            if abs(q1 - q0) != 1:
-                raise ValueError(
-                    "CX and CZ qubits must be adjacent to each other, "
-                    "please add swap gates to achieve this."
-                )
+            q0, q1, to_swap = convert_two_qubits_to_adjacent(q0, q1)
             if gate == "cx":
                 target = q1 - min([q0, q1])
                 add_circ = TWO_QUBIT_GATES_MAP["cx"](target)
             else:
                 add_circ = TWO_QUBIT_GATES_MAP["cz"]()
             add_mode = self.modes[min([q0, q1])][0]
+            for swap_qs in to_swap:
+                self._add_two_qubit_gate("swap", swap_qs[0], swap_qs[1])
             self.circuit.add(add_circ, add_mode)
+            for swap_qs in to_swap:
+                self._add_two_qubit_gate("swap", swap_qs[0], swap_qs[1])
         else:
             msg = f"Unsupported gate '{gate}' included in circuit."
             raise ValueError(msg)
 
-    def _add_three_qubit_gate(self, instruction: CircuitInstruction) -> None:
+    def _add_three_qubit_gate(
+        self, gate: str, q0: int, q1: int, q2: int
+    ) -> None:
         """
         Adds a provided three qubit gate within an instruction to a circuit on
         the correct modes.
         """
-        gate = instruction.operation.name
-        q0 = instruction.qubits[0]._index
-        q1 = instruction.qubits[1]._index
-        q2 = instruction.qubits[2]._index
         if gate in ["ccx", "ccz"]:
             all_qubits = [q0, q1, q2]
             if max(all_qubits) - min(all_qubits) != 2:
@@ -186,3 +182,27 @@ class QiskitConverter:
         else:
             msg = f"Unsupported gate '{gate}' included in circuit."
             raise ValueError(msg)
+
+
+def convert_two_qubits_to_adjacent(q0: int, q1: int) -> tuple[int, int, list]:
+    """
+    Takes two qubit indices and converts these so that they are adjacent to each
+    other, and determining the swaps required for this. The order of the two
+    qubits is preserved, so if q0 > q1 then this will remain True.
+    """
+    swaps = []
+    if abs(q1 - q0) != 1:
+        new_upper = max(q0, q1)
+        new_lower = min(q0, q1)
+        while new_upper - new_lower != 1:
+            new_upper -= 1
+            if new_upper - new_lower == 1:
+                break
+            new_lower += 1
+        swaps.append((min(q0, q1), new_lower))
+        swaps.append((max(q0, q1), new_upper))
+        if q0 < q1:
+            q0, q1 = new_lower, new_upper
+        else:
+            q0, q1 = new_upper, new_lower
+    return (q0, q1, swaps)

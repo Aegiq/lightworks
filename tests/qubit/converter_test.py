@@ -66,6 +66,38 @@ class TestQiskitConversion:
             results[State([1, 0, 0, 1]), State([0, 1, 0, 1])]
         ) ** 2 == pytest.approx(1 / 16, 1e-6)
 
+    def test_cnot_non_adjacent(self):
+        """
+        Checks operation of CNOT gate when the two qubits it is applied are not
+        adjacent to each other.
+        """
+        circ = QuantumCircuit(3)
+        circ.cx(0, 2)
+        conv_circ = qiskit_converter(circ)
+        sim = Simulator(conv_circ)
+        results = sim.simulate(
+            State([0, 1, 0, 1, 0, 1]), State([0, 1, 0, 1, 1, 0])
+        )
+        assert abs(
+            results[State([0, 1, 0, 1, 0, 1]), State([0, 1, 0, 1, 1, 0])]
+        ) ** 2 == pytest.approx(1 / 16, 1e-6)
+
+    def test_cnot_non_adjacent_flipped(self):
+        """
+        Checks operation of CNOT gate when the two qubits it is applied are not
+        adjacent to each other and the control and target are flipped.
+        """
+        circ = QuantumCircuit(3)
+        circ.cx(2, 0)
+        conv_circ = qiskit_converter(circ)
+        sim = Simulator(conv_circ)
+        results = sim.simulate(
+            State([0, 1, 0, 1, 0, 1]), State([1, 0, 0, 1, 0, 1])
+        )
+        assert abs(
+            results[State([0, 1, 0, 1, 0, 1]), State([1, 0, 0, 1, 0, 1])]
+        ) ** 2 == pytest.approx(1 / 16, 1e-6)
+
     def test_ccnot(self):
         """
         Checks operation of three qubit CCNOT gate produces output as expected.
