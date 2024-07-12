@@ -19,6 +19,7 @@ after creation.
 
 from copy import copy, deepcopy
 from typing import TYPE_CHECKING, Any, Union
+from warnings import warn
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -487,6 +488,60 @@ class Circuit:
         self.__out_heralds[output_mode] = n_photons
         self.__external_in_heralds[input_mode] = n_photons
         self.__external_out_heralds[output_mode] = n_photons
+
+    def add_bs(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_bs' method has been deprecated in favour of 'bs', this is "
+            "planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.bs(*args, **kwargs)
+
+    def add_ps(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_ps' method has been deprecated in favour of 'ps', this is "
+            "planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.ps(*args, **kwargs)
+
+    def add_loss(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_loss' method has been deprecated in favour of 'loss', this "
+            "is planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.loss(*args, **kwargs)
+
+    def add_mode_swaps(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_mode_swaps' method has been deprecated in favour of "
+            "'mode_swaps', this is planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.mode_swaps(*args, **kwargs)
+
+    def add_barrier(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_barrier' method has been deprecated in favour of 'barrier', "
+            "this is planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.barrier(*args, **kwargs)
+
+    def add_herald(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_herald' method has been deprecated in favour of 'herald', "
+            "this is planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.herald(*args, **kwargs)
 
     def display(
         self,
