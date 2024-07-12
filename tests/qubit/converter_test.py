@@ -14,16 +14,58 @@
 
 import pytest
 from qiskit import QuantumCircuit
+from qiskit.circuit.library import MCXGate
 
 from lightworks import State
 from lightworks.emulator import Simulator
 from lightworks.qubit.converter import qiskit_converter
+from lightworks.qubit.converter.qiskit_convert import (
+    SINGLE_QUBIT_GATES_MAP,
+    THREE_QUBIT_GATES_MAP,
+    TWO_QUBIT_GATES_MAP,
+)
 
 
 class TestQiskitConversion:
     """
     Unit tests to check correct functionality of qiskit conversion function.
     """
+
+    @pytest.mark.parametrize("gate", list(SINGLE_QUBIT_GATES_MAP.keys()))
+    def test_all_single_qubit_gates(self, gate):
+        """
+        Checks all expected single qubit gates can be converted.
+        """
+        circ = QuantumCircuit(1)
+        getattr(circ, gate)(0)
+        qiskit_converter(circ)
+
+    @pytest.mark.parametrize("gate", list(TWO_QUBIT_GATES_MAP.keys()))
+    def test_all_two_qubit_gates(self, gate):
+        """
+        Checks all expected two qubit gates can be converted.
+        """
+        circ = QuantumCircuit(2)
+        getattr(circ, gate)(0, 1)
+        qiskit_converter(circ)
+
+    @pytest.mark.parametrize("gate", list(THREE_QUBIT_GATES_MAP.keys()))
+    def test_all_three_qubit_gates(self, gate):
+        """
+        Checks all expected three qubit gates can be converted.
+        """
+        circ = QuantumCircuit(3)
+        getattr(circ, gate)(0, 1, 2)
+        qiskit_converter(circ)
+
+    def test_four_qubit_gate(self):
+        """
+        Checks that an error is raised for a 4 qubit gate.
+        """
+        circ = QuantumCircuit(4)
+        circ.append(MCXGate(3), [0, 1, 2, 3])
+        with pytest.raises(ValueError):
+            qiskit_converter(circ)
 
     def test_x_gate(self):
         """
@@ -136,3 +178,19 @@ class TestQiskitConversion:
         assert abs(
             results[State([0, 1, 0, 1, 1, 0]), State([0, 1, 0, 1, 0, 1])]
         ) ** 2 == pytest.approx(1 / 72, 1e-6)
+
+    def test_swap(self):
+        """
+        Checks swap is able to move correctly map between modes.
+        """
+        circ = QuantumCircuit(3)
+        circ.swap(0, 2)
+        conv_circ = qiskit_converter(circ)
+
+        sim = Simulator(conv_circ)
+        results = sim.simulate(
+            State([0, 1, 0, 0, 2, 3]), State([2, 3, 0, 0, 0, 1])
+        )
+        assert abs(
+            results[State([0, 1, 0, 0, 2, 3]), State([2, 3, 0, 0, 0, 1])]
+        ) ** 2 == pytest.approx(1, 1e-6)

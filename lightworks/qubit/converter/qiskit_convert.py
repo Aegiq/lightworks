@@ -45,7 +45,7 @@ TWO_QUBIT_GATES_MAP = {
 
 THREE_QUBIT_GATES_MAP = {
     "ccx": CCNOT,
-    "cxz": CCZ,
+    "ccz": CCZ,
 }
 
 ALLOWED_GATES = [
