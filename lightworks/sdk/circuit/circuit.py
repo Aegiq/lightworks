@@ -304,7 +304,7 @@ class Circuit:
             )
         return
 
-    def add_bs(
+    def bs(
         self,
         mode_1: int,
         mode_2: int | None = None,
@@ -360,7 +360,7 @@ class Circuit:
             self.add_loss(mode_1, loss)
             self.add_loss(mode_2, loss)
 
-    def add_ps(self, mode: int, phi: float, loss: float = 0) -> None:
+    def ps(self, mode: int, phi: float, loss: float = 0) -> None:
         """
         Applies a phase shift to a given mode in the circuit.
 
@@ -381,7 +381,7 @@ class Circuit:
         if isinstance(loss, Parameter) or loss > 0:
             self.add_loss(mode, loss)
 
-    def add_loss(self, mode: int, loss: float = 0) -> None:
+    def loss(self, mode: int, loss: float = 0) -> None:
         """
         Adds a loss channel to the specified mode of the circuit.
 
@@ -398,7 +398,7 @@ class Circuit:
         check_loss(loss)
         self.__circuit_spec.append(["loss", (mode, loss)])
 
-    def add_barrier(self, modes: list | None = None) -> None:
+    def barrier(self, modes: list | None = None) -> None:
         """
         Adds a barrier to separate different parts of a circuit. This is
         applied to the specified modes.
@@ -418,7 +418,7 @@ class Circuit:
             self._mode_in_range(m)
         self.__circuit_spec.append(["barrier", tuple([modes])])
 
-    def add_mode_swaps(self, swaps: dict) -> None:
+    def mode_swaps(self, swaps: dict) -> None:
         """
         Performs swaps between a given set of modes. The keys of the dictionary
         should correspond to the initial modes and the values to the modes they
@@ -448,7 +448,7 @@ class Circuit:
             self._mode_in_range(m)
         self.__circuit_spec.append(["mode_swaps", (swaps, None)])
 
-    def add_herald(
+    def herald(
         self, n_photons: int, input_mode: int, output_mode: int | None = None
     ) -> None:
         """
