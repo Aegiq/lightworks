@@ -33,6 +33,7 @@ class TestQiskitConversion:
         circ = QuantumCircuit(1)
         circ.x(0)
         conv_circ = qiskit_converter(circ)
+
         sim = Simulator(conv_circ)
         results = sim.simulate(State([1, 0]), State([0, 1]))
         assert abs(results[State([1, 0]), State([0, 1])]) ** 2 == pytest.approx(
@@ -46,11 +47,30 @@ class TestQiskitConversion:
         circ = QuantumCircuit(2)
         circ.cx(0, 1)
         conv_circ = qiskit_converter(circ)
+
         sim = Simulator(conv_circ)
         results = sim.simulate(State([0, 1, 1, 0]), State([0, 1, 0, 1]))
         assert abs(
             results[State([0, 1, 1, 0]), State([0, 1, 0, 1])]
         ) ** 2 == pytest.approx(1 / 16, 1e-6)
+
+    def test_bell_state(self):
+        """
+        Checks operation of two qubit H + CNOT gate produces the expected Bell
+        state.
+        """
+        circ = QuantumCircuit(2)
+        circ.h(0)
+        circ.cx(0, 1)
+        conv_circ = qiskit_converter(circ)
+
+        sim = Simulator(conv_circ)
+        outputs = [State([1, 0, 1, 0]), State([0, 1, 0, 1])]
+        results = sim.simulate(State([1, 0, 1, 0]), outputs)
+        for out in outputs:
+            assert abs(results[State([1, 0, 1, 0]), out]) ** 2 == pytest.approx(
+                1 / 32, 1e-6
+            )
 
     def test_cnot_flipped(self):
         """
@@ -60,6 +80,7 @@ class TestQiskitConversion:
         circ = QuantumCircuit(2)
         circ.cx(1, 0)
         conv_circ = qiskit_converter(circ)
+
         sim = Simulator(conv_circ)
         results = sim.simulate(State([1, 0, 0, 1]), State([0, 1, 0, 1]))
         assert abs(
@@ -74,6 +95,7 @@ class TestQiskitConversion:
         circ = QuantumCircuit(3)
         circ.cx(0, 2)
         conv_circ = qiskit_converter(circ)
+
         sim = Simulator(conv_circ)
         results = sim.simulate(
             State([0, 1, 0, 1, 0, 1]), State([0, 1, 0, 1, 1, 0])
@@ -90,6 +112,7 @@ class TestQiskitConversion:
         circ = QuantumCircuit(3)
         circ.cx(2, 0)
         conv_circ = qiskit_converter(circ)
+
         sim = Simulator(conv_circ)
         results = sim.simulate(
             State([0, 1, 0, 1, 0, 1]), State([1, 0, 0, 1, 0, 1])
@@ -105,6 +128,7 @@ class TestQiskitConversion:
         circ = QuantumCircuit(3)
         circ.ccx(0, 1, 2)
         conv_circ = qiskit_converter(circ)
+
         sim = Simulator(conv_circ)
         results = sim.simulate(
             State([0, 1, 0, 1, 1, 0]), State([0, 1, 0, 1, 0, 1])
