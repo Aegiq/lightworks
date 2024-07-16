@@ -38,21 +38,14 @@ SINGLE_QUBIT_GATES_MAP = {
     "t": T(),
 }
 
-TWO_QUBIT_GATES_MAP = {
-    "cx": CNOT_Heralded,
-    "cz": CZ_Heralded,
-}
+TWO_QUBIT_GATES_MAP = {"cx": CNOT_Heralded, "cz": CZ_Heralded, "swap": SWAP}
 
-THREE_QUBIT_GATES_MAP = {
-    "ccx": CCNOT,
-    "ccz": CCZ,
-}
+THREE_QUBIT_GATES_MAP = {"ccx": CCNOT, "ccz": CCZ}
 
 ALLOWED_GATES = [
     *SINGLE_QUBIT_GATES_MAP,
     *TWO_QUBIT_GATES_MAP,
     *THREE_QUBIT_GATES_MAP,
-    "swap",
 ]
 
 
@@ -146,7 +139,9 @@ class QiskitConverter:
         the correct modes.
         """
         if gate == "swap":
-            self.circuit.add(SWAP(self.modes[q0], self.modes[q1]), 0)
+            self.circuit.add(
+                TWO_QUBIT_GATES_MAP["swap"](self.modes[q0], self.modes[q1]), 0
+            )
         elif gate in ["cx", "cz"]:
             q0, q1, to_swap = convert_two_qubits_to_adjacent(q0, q1)
             if gate == "cx":
