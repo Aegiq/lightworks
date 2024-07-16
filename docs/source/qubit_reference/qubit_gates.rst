@@ -1,4 +1,4 @@
-Qubit Gates
+Gates
 ============
 
 Single Qubit Gates

@@ -1,4 +1,4 @@
-Qubit Converters
+Converters
 ================
 
 Qiskit
