@@ -3,7 +3,7 @@ Analyzer
 
 The :doc:`../emulator_reference/analyzer` object provides a set of tools to enable a better understanding of the functionality of a circuit under a set of post-selection criteria. The provision of this criteria before computation enables the Analyzer to filter down the possible output states from a given target input, reducing the number of states that it needs to calculate the permanent for.
 
-To test the Analyzer, we will use the CNOT gate from :cite:p:`ralph2002`, as this is a useful demonstration of all analyzer features. For successful operation, it requires that at the output there are no output photons measured on the upper and lower modes, and also that only one photon exists across each of the two modes used to define each qubit. For the former condition, we will integrate these into the circuit with the ``add_herald`` method. This means we don't need to consider these modes when specifying inputs and outputs of the Analyzer. The latter condition is included later as part of the setup of the Analyzer.
+To test the Analyzer, we will use the CNOT gate from :cite:p:`ralph2002`, as this is a useful demonstration of all analyzer features. For successful operation, it requires that at the output there are no output photons measured on the upper and lower modes, and also that only one photon exists across each of the two modes used to define each qubit. For the former condition, we will integrate these into the circuit with the ``herald`` method. This means we don't need to consider these modes when specifying inputs and outputs of the Analyzer. The latter condition is included later as part of the setup of the Analyzer.
 
 To begin, the circuit is first defined:
 
@@ -18,14 +18,14 @@ To begin, the circuit is first defined:
               (3, np.pi/2, 0)]
 
     for m, t, p in to_add:
-        cnot_circuit.add_bs(m, reflectivity = 0.5)
-        cnot_circuit.add_ps(m+1, t)
-        cnot_circuit.add_bs(m, reflectivity = 0.5)
-        cnot_circuit.add_ps(m+1, p)
+        cnot_circuit.bs(m, reflectivity = 0.5)
+        cnot_circuit.ps(m+1, t)
+        cnot_circuit.bs(m, reflectivity = 0.5)
+        cnot_circuit.ps(m+1, p)
 
     # Then add required heralds
-    cnot_circuit.add_herald(0, 0)
-    cnot_circuit.add_herald(0, 5)
+    cnot_circuit.herald(0, 0)
+    cnot_circuit.herald(0, 5)
 
     cnot_circuit.display(mode_labels = ["a0", "c0", "c1", "t0", "t1", "a1"])
 

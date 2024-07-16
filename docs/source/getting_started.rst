@@ -36,11 +36,11 @@ If print is then used on the circuit, this will display the total number of mode
     print(circuit)
     # Output: Circuit(2)
 
-Next, we add a beam splitter to the circuit, this is achieved with the ``add_bs`` method. The default reflectivity of a beam splitter is 0.5 (50%), so we do not need to specify this. The value we specify in the method arguments is the first mode that the beam splitter is placed on. By default, if a second mode isn't specified then it will be set to the first mode + 1, so below we could have equivalently used ``add_bs(0,1)``.
+Next, we add a beam splitter to the circuit, this is achieved with the ``bs`` method. The default reflectivity of a beam splitter is 0.5 (50%), so we do not need to specify this. The value we specify in the method arguments is the first mode that the beam splitter is placed on. By default, if a second mode isn't specified then it will be set to the first mode + 1, so below we could have equivalently used ``bs(0,1)``.
 
 .. code-block:: Python
 
-    circuit.add_bs(0)
+    circuit.bs(0)
 
 .. note::
     Like Python itself, indexing in Lightworks starts from 0, meaning this is always the first mode. So for example, in a 4 mode circuit, the modes would be referred to using the indices 0, 1, 2 & 3.

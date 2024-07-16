@@ -16,10 +16,10 @@ To demonstrate the usage of the Simulator, we will first configure a Circuit for
 
     seed(1) # Set random seed so circuit is reproducible
     for m in [0, 1, 0, 2]:
-        circuit.add_ps(m, random())
-        circuit.add_bs(m)
-        circuit.add_ps(m+1, random())
-        circuit.add_bs(m)
+        circuit.ps(m, random())
+        circuit.bs(m)
+        circuit.ps(m+1, random())
+        circuit.bs(m)
 
     circuit.display()
 

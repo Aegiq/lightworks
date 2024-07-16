@@ -59,7 +59,7 @@ As mentioned, the QuickSampler should provide some performance benefit over the 
     circuit = lw.Unitary(U)
     for i in range(8):
         for j in range(3):
-            circuit.add_loss(j, lw.transmission_to_db_loss(0.9))
+            circuit.loss(j, lw.transmission_to_db_loss(0.9))
 
     input_state = lw.State([1,0,1,0,1,0,1,0])
 
