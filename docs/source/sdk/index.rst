@@ -13,5 +13,4 @@ Contents
     unitary
     parameters
     state
-    qubit
     utilities
