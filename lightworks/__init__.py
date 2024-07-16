@@ -67,6 +67,7 @@ except ModuleNotFoundError:
 __all__ = [
     "Circuit", "Unitary", "Display", "State", "random_unitary",
     "random_permutation", "db_loss_to_transmission", "transmission_to_db_loss",
-    "Parameter", "ParameterDict", "emulator", "qubit", "Optimisation"
+    "Parameter", "ParameterDict", "emulator", "qubit", "Optimisation",
+    "interferometers"
 ]
 # fmt: on
