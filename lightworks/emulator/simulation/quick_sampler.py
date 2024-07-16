@@ -92,7 +92,7 @@ class QuickSampler:
 
     @input_state.setter
     def input_state(self, value: State) -> None:
-        if type(value) != State:
+        if not isinstance(value, State):
             raise TypeError("A single input of type State should be provided.")
         if len(value) != self.circuit.input_modes:
             raise ModeMismatchError("Incorrect input length.")
@@ -109,7 +109,7 @@ class QuickSampler:
     def post_select(self, value: Callable | None) -> None:
         if value is None:
             value = lambda s: True  # noqa: E731
-        if type(value) != FunctionType:
+        if not isinstance(value, FunctionType):
             raise TypeError("Provided post_select value should be a function.")
         self.__post_select = value
 

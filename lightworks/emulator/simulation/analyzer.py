@@ -217,7 +217,7 @@ class Analyzer:
         for i, s in enumerate(inputs):
             out = expected[s]
             # Convert expected output to list if only one value provided
-            if type(out) == State:
+            if isinstance(out, State):
                 out = [out]
             iprobs = probabilities[i, :]
             error = 1
