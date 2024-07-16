@@ -13,8 +13,9 @@
 # limitations under the License.
 
 """
-Contains a variety of two qubit components, designed for implementing required
-qubit processing functionality in lightworks.
+Contains a variety of qubit two components, designed for implementing required
+qubit processing functionality across pairs of dual-rail encoded qubits in
+lightworks.
 """
 
 import numpy as np

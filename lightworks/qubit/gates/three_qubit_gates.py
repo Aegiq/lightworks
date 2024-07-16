@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-Contains a variety of qubit components, designed for implementing required
+Contains a variety of three qubit components, designed for implementing required
 qubit processing functionality in lightworks.
 """
 
