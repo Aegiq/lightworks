@@ -14,7 +14,7 @@
 
 """
 Contains a variety of single qubit components which act across a pair of
-adjacent dual-rail encoded modes, assuming |0> is the first mode and |1> is the
+adjacent dual-rail encoded modes, assuming 0 is the first mode and 1 is the
 second mode.
 """
 

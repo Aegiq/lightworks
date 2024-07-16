@@ -1,5 +1,5 @@
 Gates
-============
+=====
 
 Single Qubit Gates
 ------------------
@@ -14,7 +14,7 @@ Two Qubit Gates
     :members:
 
 Three Qubit Gates
----------------
+-----------------
 
 .. automodule:: lightworks.qubit.gates.three_qubit_gates
     :members:
