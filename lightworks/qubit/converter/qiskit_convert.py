@@ -55,10 +55,6 @@ ALLOWED_GATES = [
     "swap",
 ]
 
-# TODO: Track post-selection requirements, using post-selected gates where
-# possible and return required post-selection.
-# TODO: Support cx and cz on non-adjacent qubits.
-
 
 def qiskit_converter(circuit: QuantumCircuit) -> Circuit:
     """
@@ -105,6 +101,7 @@ class QiskitConverter:
         self.circuit = Circuit(n_qubits * 2)
         self.modes = {i: (2 * i, 2 * i + 1) for i in range(n_qubits)}
 
+        has_three_qubit = False
         for inst in q_circuit.data:
             gate = inst.operation.name
             qubits = [
@@ -113,14 +110,23 @@ class QiskitConverter:
             if gate not in ALLOWED_GATES:
                 msg = f"Unsupported gate '{gate}' included in circuit."
                 raise ValueError(msg)
+            three_qubit_msg = (
+                "When a three qubit gate is included then this must be the only"
+                " multi-qubit gate in the circuit."
+            )
             # Single Qubit Gates
             if len(qubits) == 1:
                 self._add_single_qubit_gate(gate, *qubits)
             # Two Qubit Gates
             elif len(qubits) == 2:
+                if has_three_qubit:
+                    raise ValueError(three_qubit_msg)
                 self._add_two_qubit_gate(gate, *qubits)
             # Three Qubit Gates
             elif len(qubits) == 3:
+                if has_three_qubit:
+                    raise ValueError(three_qubit_msg)
+                has_three_qubit = True
                 self._add_three_qubit_gate(gate, *qubits)
             # Limit to three qubit gates
             else:
