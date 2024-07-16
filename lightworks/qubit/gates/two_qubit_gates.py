@@ -41,8 +41,8 @@ class CZ(Circuit):
             u_a[i : i + 2, i : i + 2] = u_bs[:, :]
         u_a[3, :] = -u_a[3, :]
         unitary = Unitary(u_a, label="CZ")
-        unitary.add_herald(0, 0, 0)
-        unitary.add_herald(0, 5, 5)
+        unitary.herald(0, 0, 0)
+        unitary.herald(0, 5, 5)
 
         super().__init__(4)
         self.add(unitary, 0, group=True, name="CZ")
@@ -113,10 +113,10 @@ class CZ_Heralded(Circuit):  # noqa: N801
         u_a = u_perm2 @ u_bs @ u_a @ u_bs @ u_perm1
 
         unitary = Unitary(u_a)
-        unitary.add_herald(0, 0, 0)
-        unitary.add_herald(1, 1, 1)
-        unitary.add_herald(1, 6, 6)
-        unitary.add_herald(0, 7, 7)
+        unitary.herald(0, 0, 0)
+        unitary.herald(1, 1, 1)
+        unitary.herald(1, 6, 6)
+        unitary.herald(0, 7, 7)
 
         super().__init__(4)
         self.add(unitary, 0, group=True, name="CZ")
@@ -191,4 +191,4 @@ class SWAP(Circuit):
         super().__init__(n_modes)
 
         # Add required swaps
-        self.add_mode_swaps({a0: b0, b0: a0, a1: b1, b1: a1})
+        self.mode_swaps({a0: b0, b0: a0, a1: b1, b1: a1})

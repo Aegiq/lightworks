@@ -63,8 +63,8 @@ class TestSamplerGeneral:
         circuit = Unitary(random_unitary(4))
         sampler = Sampler(circuit, State([1, 0, 1, 0]))
         p1 = sampler.probability_distribution
-        circuit.add_bs(0)
-        circuit.add_bs(2)
+        circuit.bs(0)
+        circuit.bs(2)
         p2 = sampler.probability_distribution
         assert p1 != p2
 
@@ -75,9 +75,9 @@ class TestSamplerGeneral:
         """
         p = Parameter(0.3)
         circuit = Circuit(4)
-        circuit.add_bs(0, reflectivity=p)
-        circuit.add_bs(2, reflectivity=p)
-        circuit.add_bs(1, reflectivity=p)
+        circuit.bs(0, reflectivity=p)
+        circuit.bs(2, reflectivity=p)
+        circuit.bs(1, reflectivity=p)
         sampler = Sampler(circuit, State([1, 0, 1, 0]))
         p1 = sampler.probability_distribution
         p.set(0.7)
@@ -203,7 +203,7 @@ class TestSamplerGeneral:
         """
         circuit = Unitary(random_unitary(4))
         for i in range(4):
-            circuit.add_loss(i, 1)
+            circuit.loss(i, 1)
         source = Source(indistinguishability=0.9, brightness=0.9, purity=0.9)
         # Permanent
         sampler = Sampler(
@@ -258,7 +258,7 @@ class TestSamplerCalculationBackends:
         which should undergo HOM, producing outputs of |2,0> and |0,2>.
         """
         circuit = Circuit(2)
-        circuit.add_bs(0)
+        circuit.bs(0)
         sampler = Sampler(circuit, State([1, 1]), backend=backend)
         n_sample = 100000
         results = sampler.sample_N_inputs(n_sample, seed=21)
@@ -272,7 +272,7 @@ class TestSamplerCalculationBackends:
         |2,0> and |0,2>.
         """
         circuit = Circuit(2)
-        circuit.add_bs(0, loss=1)
+        circuit.bs(0, loss=1)
         sampler = Sampler(circuit, State([1, 1]), backend=backend)
         n_sample = 100000
         results = sampler.sample_N_outputs(n_sample, seed=54, min_detection=2)
@@ -287,9 +287,9 @@ class TestSamplerCalculationBackends:
         """
         # Build circuit
         circuit = Circuit(4)
-        circuit.add_bs(1)
-        circuit.add_mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
-        circuit.add_bs(0, 3)
+        circuit.bs(1)
+        circuit.mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
+        circuit.bs(0, 3)
         # And check output counts
         sampler = Sampler(circuit, State([1, 0, 0, 1]), backend=backend)
         results = sampler.sample_N_inputs(1000)
@@ -302,9 +302,9 @@ class TestSamplerCalculationBackends:
         """
         # Build circuit
         circuit = Circuit(4)
-        circuit.add_bs(1)
-        circuit.add_mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
-        circuit.add_bs(0, 3)
+        circuit.bs(1)
+        circuit.mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
+        circuit.bs(0, 3)
         # And check output counts
         sampler = Sampler(circuit, State([1, 0, 0, 1]), backend=backend)
         output = sampler.sample()
@@ -363,13 +363,13 @@ class TestSamplerCalculationBackends:
         """
         # Build circuit
         circuit = Circuit(4)
-        circuit.add_bs(0, loss=1)
-        circuit.add_bs(2, loss=2)
-        circuit.add_ps(1, 0.3, loss=0.5)
-        circuit.add_ps(3, 0.3, loss=0.5)
-        circuit.add_bs(1, loss=1)
-        circuit.add_bs(2, loss=2)
-        circuit.add_ps(1, 0.3, loss=0.5)
+        circuit.bs(0, loss=1)
+        circuit.bs(2, loss=2)
+        circuit.ps(1, 0.3, loss=0.5)
+        circuit.ps(3, 0.3, loss=0.5)
+        circuit.bs(1, loss=1)
+        circuit.bs(2, loss=2)
+        circuit.ps(1, 0.3, loss=0.5)
         # Sample from circuit
         sampler = Sampler(circuit, State([1, 0, 1, 0]), backend=backend)
         p = sampler.probability_distribution[State([0, 1, 1, 0])]
@@ -384,13 +384,13 @@ class TestSamplerCalculationBackends:
         """
         # Build circuit
         circuit = Circuit(4)
-        circuit.add_bs(0, loss=1)
-        circuit.add_bs(2, loss=2)
-        circuit.add_ps(1, 0.3, loss=0.5)
-        circuit.add_ps(3, 0.3, loss=0.5)
-        circuit.add_bs(1, loss=1)
-        circuit.add_bs(2, loss=2)
-        circuit.add_ps(1, 0.3, loss=0.5)
+        circuit.bs(0, loss=1)
+        circuit.bs(2, loss=2)
+        circuit.ps(1, 0.3, loss=0.5)
+        circuit.ps(3, 0.3, loss=0.5)
+        circuit.bs(1, loss=1)
+        circuit.bs(2, loss=2)
+        circuit.ps(1, 0.3, loss=0.5)
         # Sample from circuit
         source = Source(purity=0.9, brightness=0.9, indistinguishability=0.9)
         sampler = Sampler(
@@ -501,8 +501,8 @@ class TestSamplerCalculationBackends:
             50000, post_select=lambda s: s[1] == 1 and s[3] == 0
         )
         # Then add and re-sample
-        circuit.add_herald(1, 0, 1)
-        circuit.add_herald(0, 2, 3)
+        circuit.herald(1, 0, 1)
+        circuit.herald(0, 2, 3)
         sampler = Sampler(circuit, State([1, 1, 0, 0]), backend=backend)
         results2 = sampler.sample_N_outputs(50000)
         # Check all results with outputs greater than 2000
@@ -530,8 +530,8 @@ class TestSamplerCalculationBackends:
             50000, post_select=lambda s: s[1] == 1 and s[3] == 0
         )
         # Then add and re-sample
-        circuit.add_herald(1, 0, 1)
-        circuit.add_herald(0, 2, 3)
+        circuit.herald(1, 0, 1)
+        circuit.herald(0, 2, 3)
         sampler = Sampler(
             circuit, State([1, 1, 0, 0]), backend=backend, source=source
         )
@@ -551,15 +551,15 @@ class TestSamplerCalculationBackends:
         """
         circuit = Unitary(random_unitary(6))
         for i in range(6):
-            circuit.add_loss(i, i + 1)
+            circuit.loss(i, i + 1)
         # Sampler without built-in heralds
         sampler = Sampler(circuit, State([1, 1, 0, 1, 0, 0]), backend=backend)
         results = sampler.sample_N_outputs(
             50000, post_select=lambda s: s[1] == 1 and s[3] == 0
         )
         # Then add and re-sample
-        circuit.add_herald(1, 0, 1)
-        circuit.add_herald(0, 2, 3)
+        circuit.herald(1, 0, 1)
+        circuit.herald(0, 2, 3)
         sampler = Sampler(circuit, State([1, 1, 0, 0]), backend=backend)
         results2 = sampler.sample_N_outputs(50000)
         # Check all results with outputs greater than 2000
@@ -578,7 +578,7 @@ class TestSamplerCalculationBackends:
         """
         circuit = Unitary(random_unitary(6))
         for i in range(6):
-            circuit.add_loss(i, i + 1)
+            circuit.loss(i, i + 1)
         # Define source to use
         source = Source(purity=0.9, brightness=0.9, indistinguishability=0.9)
         # Sampler without built-in heralds
@@ -589,8 +589,8 @@ class TestSamplerCalculationBackends:
             50000, post_select=lambda s: s[1] == 1 and s[3] == 0
         )
         # Then add and re-sample
-        circuit.add_herald(1, 0, 1)
-        circuit.add_herald(0, 2, 3)
+        circuit.herald(1, 0, 1)
+        circuit.herald(0, 2, 3)
         sampler = Sampler(
             circuit, State([1, 1, 0, 0]), backend=backend, source=source
         )
@@ -609,7 +609,7 @@ class TestSamplerCalculationBackends:
         Includes imperfect brightness.
         """
         circuit = Circuit(2)
-        circuit.add_bs(0)
+        circuit.bs(0)
         sampler = Sampler(
             circuit,
             State([1, 1]),
@@ -629,9 +629,9 @@ class TestSamplerCalculationBackends:
         """
         loss = Parameter(0)
         circuit = Circuit(4)
-        circuit.add_bs(0, loss=loss)
-        circuit.add_bs(2, loss=loss)
-        circuit.add_bs(1, loss=loss)
+        circuit.bs(0, loss=loss)
+        circuit.bs(2, loss=loss)
+        circuit.bs(1, loss=loss)
         # Initially sample
         sampler = Sampler(circuit, State([1, 0, 1, 0]), backend=backend)
         sampler.sample_N_inputs(10000)

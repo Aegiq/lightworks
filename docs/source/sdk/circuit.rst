@@ -33,19 +33,19 @@ We can then begin to add components to the circuit, the following are included a
       - Method
       - Options
     * - :ref:`Beam Splitter <beamsplitter>`
-      - ``add_bs``
+      - ``bs``
       - Modes, Reflectivity, Loss, Convention
     * - :ref:`Phase Shifter <phaseshifter>`
-      - ``add_ps``
+      - ``ps``
       - Mode, Phase shift, Loss
     * - :ref:`Mode Swaps <modeswaps>`
-      - ``add_mode_swaps``
+      - ``mode_swaps``
       - Swaps, Element Loss
     * - :ref:`Loss Element <losselement>`
-      - ``add_loss``
+      - ``loss``
       - Mode, Loss
     * - :ref:`Barriers <barriers>`
-      - ``add_barrier``
+      - ``barrier``
       - Modes
 
 Below, a subsection is dedicated to each component, with more information about how each component can be used and their options.
@@ -57,12 +57,12 @@ Beam Splitter
 
 A beam splitter is used to controllably couple two modes, with the exact nature of the coupling defined by the reflectivity of the splitter (also often referred to using an angle :math:`\theta`).
 
-To include a beam splitter in a circuit the ``add_bs`` method is used, at minimum it requires the first mode that the beam splitter will be placed on to be specified. By default, if the second mode isn't specified then this will be set to the first mode + 1. So the following function calls will be equivalent:
+To include a beam splitter in a circuit the ``bs`` method is used, at minimum it requires the first mode that the beam splitter will be placed on to be specified. By default, if the second mode isn't specified then this will be set to the first mode + 1. So the following function calls will be equivalent:
 
 .. code-block:: Python
 
-    circuit.add_bs(0)
-    circuit.add_bs(0, 1)
+    circuit.bs(0)
+    circuit.bs(0, 1)
 
 The reflectivity of the beam splitter can be adjusted by specifying the ``reflectivity`` option in the method. It should be provided as a decimal value, with the default value being 0.5. The beam splitter convention can also be adjusted if required, it defaults to 'Rx', with the available options being:
 
@@ -87,48 +87,48 @@ Where :math:`\theta = 2\cos^{-1}(\sqrt{\text{reflectivity}})`. As an example, if
 
 .. code-block:: Python
 
-    circuit.add_bs(1, reflectivity = 0.4, convention = "H")
+    circuit.bs(1, reflectivity = 0.4, convention = "H")
 
 When using the emulator to simulate a circuit, it is also possible to include loss for components with the ``loss`` option, this will be included as a separate loss element on each of the two modes that the beam splitter acts over. If we therefore wanted to extend the function call above to include a beam splitter loss of 0.3 dB then it would look like:
 
 .. code-block:: Python
 
-    circuit.add_bs(1, reflectivity = 0.4, convention = "H", loss = 0.3)
+    circuit.bs(1, reflectivity = 0.4, convention = "H", loss = 0.3)
 
 .. warning:: 
     All losses in Lightworks should be provided as a positive dB loss value. To provide loss as a decimal transmission value instead, the ``transmission_to_db_loss`` function can be used. For a transmission of 80%, the function call above would therefore look like:
 
   .. code-block:: Python
 
-    circuit.add_bs(1, reflectivity = 0.4, convention = "H", loss = lw.transmission_to_db_loss(0.8))
+    circuit.bs(1, reflectivity = 0.4, convention = "H", loss = lw.transmission_to_db_loss(0.8))
 
 .. _phaseshifter:
 
 Phase Shifter
 ^^^^^^^^^^^^^
 
-A phase shifter acts to apply a phase to a single mode of the circuit. They are added to the circuit with the ``add_ps`` method, which requires the mode number it will act on and the phase shift that is to be applied. A phase shifter can also optionally introduce a loss on the mode if this is required. As an example of this, if we wanted to add a phase shift of 2 on mode 1 of the circuit, and include a 0.5 dB loss, then the method call should look like:
+A phase shifter acts to apply a phase to a single mode of the circuit. They are added to the circuit with the ``ps`` method, which requires the mode number it will act on and the phase shift that is to be applied. A phase shifter can also optionally introduce a loss on the mode if this is required. As an example of this, if we wanted to add a phase shift of 2 on mode 1 of the circuit, and include a 0.5 dB loss, then the method call should look like:
 
 .. code-block:: Python
 
-    circuit.add_ps(1, 2, loss = 0.5)
+    circuit.ps(1, 2, loss = 0.5)
 
 .. _modeswaps:
 
 Mode Swaps
 ^^^^^^^^^^
 
-The mode swaps component can be used to quickly rearrange the mode configuration of a circuit, without worrying about having to determine the exact sequence of swaps that would be required. To specify the mode swaps to be implemented a dictionary should be provided to the ``add_mode_swaps`` method, where the keys of the dictionary describe the initial modes and the values describe the final mode positions. If we were aiming to swaps modes 0 & 2 of a circuit, this might look like:
+The mode swaps component can be used to quickly rearrange the mode configuration of a circuit, without worrying about having to determine the exact sequence of swaps that would be required. To specify the mode swaps to be implemented a dictionary should be provided to the ``mode_swaps`` method, where the keys of the dictionary describe the initial modes and the values describe the final mode positions. If we were aiming to swaps modes 0 & 2 of a circuit, this might look like:
 
 .. code-block:: Python
 
-    circuit.add_mode_swaps({0:2, 2:0})
+    circuit.mode_swaps({0:2, 2:0})
 
 It is also possible to implement more complex configurations though. For example, in a 4 mode circuit the following reconfiguration could be implemented:
 
 .. code-block:: Python
 
-    circuit.add_mode_swaps({0:2, 2:3, 3:1, 1:0})
+    circuit.mode_swaps({0:2, 2:3, 3:1, 1:0})
 
 This would map 0 :math:`\rightarrow` 2, 2 :math:`\rightarrow` 3, 3 :math:`\rightarrow` 1 and 1 :math:`\rightarrow` 0.
 
@@ -140,30 +140,30 @@ This would map 0 :math:`\rightarrow` 2, 2 :math:`\rightarrow` 3, 3 :math:`\right
 Loss Element
 ^^^^^^^^^^^^
 
-A loss element is used to implement a dedicated source of loss to a mode of a photonic circuit. They are added through the ``add_loss`` method, which requires the mode to implement the loss on and the value of the loss in dB. It is important to note that adding loss elements to a circuit will introduce additional invisible modes to the circuit. This will increase runtime when simulating a circuit, so users should endeavour to minimize additional loss elements where possible. 
+A loss element is used to implement a dedicated source of loss to a mode of a photonic circuit. They are added through the ``loss`` method, which requires the mode to implement the loss on and the value of the loss in dB. It is important to note that adding loss elements to a circuit will introduce additional invisible modes to the circuit. This will increase runtime when simulating a circuit, so users should endeavour to minimize additional loss elements where possible. 
 
 To add a loss component on mode 1 of a circuit, with a value of 3dB, the method call should look like:
 
 .. code-block:: Python
 
-    circuit.add_loss(1, 3)
+    circuit.loss(1, 3)
 
 .. _barriers:
 
 Barriers
 ^^^^^^^^^^^
 
-The ``add_barrier`` method only affects how circuits are displayed by the visualization functions, and does not alter the actual functionality of the circuit. It is useful as it allows for different aspects of a circuit to be spatially separated, enabling a user to see which components correspond to a particular functionality they are trying to implement. 
+The ``barrier`` method only affects how circuits are displayed by the visualization functions, and does not alter the actual functionality of the circuit. It is useful as it allows for different aspects of a circuit to be spatially separated, enabling a user to see which components correspond to a particular functionality they are trying to implement. 
 
 When adding a barrier, a list of the modes which it should be applied to is provided, alternatively if no arguments are provided to the function then it will be applied across all modes of the circuit.
 
 .. code-block:: Python
 
     # Apply to all circuit modes
-    circuit.add_barrier()
+    circuit.barrier()
     
     # Apply to modes 0, 2, 4
-    circuit.add_barrier([0,2,4])
+    circuit.barrier([0,2,4])
 
 Visualization
 -------------
@@ -174,12 +174,12 @@ Once a circuit has been created, the configuration can be viewed with the ``disp
 
     circuit = lw.Circuit(4)
   
-    circuit.add_bs(0, reflectivity = 0.4)
-    circuit.add_loss(0, 1)
-    circuit.add_barrier()
-    circuit.add_bs(2, loss = 2)
-    circuit.add_ps(0, 2)
-    circuit.add_mode_swaps({0:2,2:1,1:0})
+    circuit.bs(0, reflectivity = 0.4)
+    circuit.loss(0, 1)
+    circuit.barrier()
+    circuit.bs(2, loss = 2)
+    circuit.ps(0, 2)
+    circuit.mode_swaps({0:2,2:1,1:0})
 
 The ``display`` method is then called on the circuit.
 
@@ -191,7 +191,7 @@ The ``display`` method is then called on the circuit.
     :scale: 125%
     :align: center
 
-From the circuit above, there is a few things to note. The first is that the beam splitter across modes 2 and 3 is not inline with the other beam splitter, this is directly as a result of the ``add_barrier`` method used in the circuit, which creates a horizontal distinction between them. It may be useful to recreate this circuit and remove the barrier so the effect of this can be seen. The other thing to note is that the loss elements, both those included with the beam splitter and the dedicated ``add_loss`` call are not shown. This is because we need to use the display_loss option to choose to show this. Implementing this option yields:
+From the circuit above, there is a few things to note. The first is that the beam splitter across modes 2 and 3 is not inline with the other beam splitter, this is directly as a result of the ``barrier`` method used in the circuit, which creates a horizontal distinction between them. It may be useful to recreate this circuit and remove the barrier so the effect of this can be seen. The other thing to note is that the loss elements, both those included with the beam splitter and the dedicated ``loss`` call are not shown. This is because we need to use the display_loss option to choose to show this. Implementing this option yields:
 
 .. code-block:: Python
   
@@ -218,9 +218,9 @@ We can then use this in a circuit, providing the parameter object in place of th
 
     circuit = lw.Circuit(4)
 
-    circuit.add_bs(0, reflectivity = parameter)
-    circuit.add_bs(2, reflectivity = parameter)
-    circuit.add_bs(1, reflectivity = parameter)
+    circuit.bs(0, reflectivity = parameter)
+    circuit.bs(2, reflectivity = parameter)
+    circuit.bs(1, reflectivity = parameter)
 
 When then viewing this circuit with ``display``, we will see that by default the parameter value is replaced by the provided label.
 
@@ -268,14 +268,14 @@ The first is through the use of the ``+`` operator. This is simpler, but only su
 .. code-block:: Python
 
     circuit_bs = lw.Circuit(4)
-    circuit_bs.add_bs(0)
-    circuit_bs.add_bs(2)
-    circuit_bs.add_bs(1)
+    circuit_bs.bs(0)
+    circuit_bs.bs(2)
+    circuit_bs.bs(1)
 
     circuit_ps = lw.Circuit(4)
-    circuit_ps.add_ps(0, 1)
-    circuit_ps.add_ps(2, 2)
-    circuit_ps.add_ps(1, 3)
+    circuit_ps.ps(0, 1)
+    circuit_ps.ps(2, 2)
+    circuit_ps.ps(1, 3)
 
     new_circuit = circuit_bs + circuit_ps
     new_circuit.display()
@@ -289,15 +289,15 @@ The other way to combine circuits is through the ``add`` method, which allows fo
 .. code-block:: Python
 
     circuit_bs = lw.Circuit(5)
-    circuit_bs.add_bs(0)
-    circuit_bs.add_bs(2)
-    circuit_bs.add_bs(1)
-    circuit_bs.add_bs(3)
+    circuit_bs.bs(0)
+    circuit_bs.bs(2)
+    circuit_bs.bs(1)
+    circuit_bs.bs(3)
 
     circuit_ps = lw.Circuit(3)
-    circuit_ps.add_ps(0, 1)
-    circuit_ps.add_ps(1, 2)
-    circuit_ps.add_ps(2, 3)
+    circuit_ps.ps(0, 1)
+    circuit_ps.ps(1, 2)
+    circuit_ps.ps(2, 3)
 
     circuit_bs.add(circuit_ps, 1)
     circuit_bs.display()
@@ -316,15 +316,15 @@ When using ``add``, it is also possible to choose to group all elements being ad
 .. code-block:: Python
 
     circuit_bs = lw.Circuit(5)
-    circuit_bs.add_bs(0)
-    circuit_bs.add_bs(2)
-    circuit_bs.add_bs(1)
-    circuit_bs.add_bs(3)
+    circuit_bs.bs(0)
+    circuit_bs.bs(2)
+    circuit_bs.bs(1)
+    circuit_bs.bs(3)
 
     circuit_ps = lw.Circuit(3)
-    circuit_ps.add_ps(0, 1)
-    circuit_ps.add_ps(1, 2)
-    circuit_ps.add_ps(2, 3)
+    circuit_ps.ps(0, 1)
+    circuit_ps.ps(1, 2)
+    circuit_ps.ps(2, 3)
 
     circuit_bs.add(circuit_ps, 1, group = True, name = "phases")
     circuit_bs.display()
@@ -336,18 +336,18 @@ When using ``add``, it is also possible to choose to group all elements being ad
 Heralding Integration
 ---------------------
 
-In photonic quantum computing, ancillary photons/modes are often used to realize particular entangled states, particularly in qubit paradigms. The Lightworks Circuit supports the addition of these ancillary photons with the ``add_herald`` method, enabling heralding to be completed on a circuit without having to factor these modes being factored into the inputs and outputs of a circuit. This is supported for all simulation objects in the emulator.
+In photonic quantum computing, ancillary photons/modes are often used to realize particular entangled states, particularly in qubit paradigms. The Lightworks Circuit supports the addition of these ancillary photons with the ``herald`` method, enabling heralding to be completed on a circuit without having to factor these modes being factored into the inputs and outputs of a circuit. This is supported for all simulation objects in the emulator.
 
-As an example of this, in the following a herald is added on mode 2 of the circuit, requiring that 1 photon is input and output on this mode of the circuit. When the input and output mode are the same, only the input needs to be specified, but when they differ these both need to be specified. For example, ``add_herald(1, 2)`` and ``add_herald(1, 2, 2)`` are equivalent.
+As an example of this, in the following a herald is added on mode 2 of the circuit, requiring that 1 photon is input and output on this mode of the circuit. When the input and output mode are the same, only the input needs to be specified, but when they differ these both need to be specified. For example, ``herald(1, 2)`` and ``herald(1, 2, 2)`` are equivalent.
 
 .. code-block:: Python
 
     circuit = lw.Circuit(4)
-    circuit.add_bs(0)
-    circuit.add_bs(1)
-    circuit.add_bs(2)
+    circuit.bs(0)
+    circuit.bs(1)
+    circuit.bs(2)
 
-    circuit.add_herald(1, 2)
+    circuit.herald(1, 2)
 
     circuit.display()
 
@@ -372,7 +372,7 @@ If a beam splitter is then added across modes 2 & 3, this will then effectively 
 
 .. code-block:: Python
 
-    main_circuit.add_bs(2, 3)
+    main_circuit.bs(2, 3)
 
     main_circuit.display()
 

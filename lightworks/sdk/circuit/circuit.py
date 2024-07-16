@@ -19,6 +19,7 @@ after creation.
 
 from copy import copy, deepcopy
 from typing import TYPE_CHECKING, Any, Union
+from warnings import warn
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -304,7 +305,7 @@ class Circuit:
             )
         return
 
-    def add_bs(
+    def bs(
         self,
         mode_1: int,
         mode_2: int | None = None,
@@ -357,10 +358,10 @@ class Circuit:
             ["bs", (mode_1, mode_2, reflectivity, convention)]
         )
         if isinstance(loss, Parameter) or loss > 0:
-            self.add_loss(mode_1, loss)
-            self.add_loss(mode_2, loss)
+            self.loss(mode_1, loss)
+            self.loss(mode_2, loss)
 
-    def add_ps(self, mode: int, phi: float, loss: float = 0) -> None:
+    def ps(self, mode: int, phi: float, loss: float = 0) -> None:
         """
         Applies a phase shift to a given mode in the circuit.
 
@@ -379,9 +380,9 @@ class Circuit:
         check_loss(loss)
         self.__circuit_spec.append(["ps", (mode, phi)])
         if isinstance(loss, Parameter) or loss > 0:
-            self.add_loss(mode, loss)
+            self.loss(mode, loss)
 
-    def add_loss(self, mode: int, loss: float = 0) -> None:
+    def loss(self, mode: int, loss: float = 0) -> None:
         """
         Adds a loss channel to the specified mode of the circuit.
 
@@ -398,7 +399,7 @@ class Circuit:
         check_loss(loss)
         self.__circuit_spec.append(["loss", (mode, loss)])
 
-    def add_barrier(self, modes: list | None = None) -> None:
+    def barrier(self, modes: list | None = None) -> None:
         """
         Adds a barrier to separate different parts of a circuit. This is
         applied to the specified modes.
@@ -418,7 +419,7 @@ class Circuit:
             self._mode_in_range(m)
         self.__circuit_spec.append(["barrier", tuple([modes])])
 
-    def add_mode_swaps(self, swaps: dict) -> None:
+    def mode_swaps(self, swaps: dict) -> None:
         """
         Performs swaps between a given set of modes. The keys of the dictionary
         should correspond to the initial modes and the values to the modes they
@@ -448,7 +449,7 @@ class Circuit:
             self._mode_in_range(m)
         self.__circuit_spec.append(["mode_swaps", (swaps, None)])
 
-    def add_herald(
+    def herald(
         self, n_photons: int, input_mode: int, output_mode: int | None = None
     ) -> None:
         """
@@ -487,6 +488,60 @@ class Circuit:
         self.__out_heralds[output_mode] = n_photons
         self.__external_in_heralds[input_mode] = n_photons
         self.__external_out_heralds[output_mode] = n_photons
+
+    def add_bs(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_bs' method has been deprecated in favour of 'bs', this is "
+            "planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.bs(*args, **kwargs)
+
+    def add_ps(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_ps' method has been deprecated in favour of 'ps', this is "
+            "planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.ps(*args, **kwargs)
+
+    def add_loss(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_loss' method has been deprecated in favour of 'loss', this "
+            "is planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.loss(*args, **kwargs)
+
+    def add_mode_swaps(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_mode_swaps' method has been deprecated in favour of "
+            "'mode_swaps', this is planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.mode_swaps(*args, **kwargs)
+
+    def add_barrier(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_barrier' method has been deprecated in favour of 'barrier', "
+            "this is planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.barrier(*args, **kwargs)
+
+    def add_herald(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_herald' method has been deprecated in favour of 'herald', "
+            "this is planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.herald(*args, **kwargs)
 
     def display(
         self,

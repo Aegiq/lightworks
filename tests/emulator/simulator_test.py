@@ -30,7 +30,7 @@ class TestSimulator:
         |0,2> state is 0.5.
         """
         circ = Circuit(2)
-        circ.add_bs(0)
+        circ.bs(0)
         sim = Simulator(circ)
         results = sim.simulate(State([1, 1]), State([2, 0]))
         assert abs(results.array[0, 0]) ** 2 == pytest.approx(0.5, 1e-8)
@@ -57,10 +57,10 @@ class TestSimulator:
         """
         # Build circuit
         circuit = Circuit(4)
-        circuit.add_bs(1, reflectivity=0.6)
-        circuit.add_mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
-        circuit.add_bs(0, 3, reflectivity=0.3)
-        circuit.add_bs(0)
+        circuit.bs(1, reflectivity=0.6)
+        circuit.mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
+        circuit.bs(0, 3, reflectivity=0.3)
+        circuit.bs(0)
         # And check output probability
         sim = Simulator(circuit)
         results = sim.simulate(State([1, 0, 0, 1]), State([0, 1, 1, 0]))
@@ -100,12 +100,12 @@ class TestSimulator:
         one input/output.
         """
         circ = Circuit(4)
-        circ.add_bs(0, loss=2)
-        circ.add_ps(1, phi=0.3)
-        circ.add_bs(1, loss=2)
-        circ.add_bs(2, loss=2)
-        circ.add_ps(1, phi=0.5)
-        circ.add_bs(1, loss=2)
+        circ.bs(0, loss=2)
+        circ.ps(1, phi=0.3)
+        circ.bs(1, loss=2)
+        circ.bs(2, loss=2)
+        circ.ps(1, phi=0.5)
+        circ.bs(1, loss=2)
         sim = Simulator(circ)
         results = sim.simulate(State([2, 0, 0, 0]), State([0, 1, 1, 0]))
         x = results.array[0, 0]
@@ -121,7 +121,7 @@ class TestSimulator:
         results = sim.simulate(State([1, 0, 1, 0]), State([0, 2, 0, 0]))
         x = results.array[0, 0]
         # Update circuit adn re-simulate
-        unitary.add_bs(0)
+        unitary.bs(0)
         results = sim.simulate(State([1, 0, 1, 0]), State([0, 2, 0, 0]))
         x2 = results.array[0, 0]
         assert x != x2
@@ -133,9 +133,9 @@ class TestSimulator:
         """
         param = Parameter(0.3)
         circuit = Circuit(4)
-        circuit.add_bs(0, reflectivity=param)
-        circuit.add_bs(2, reflectivity=param)
-        circuit.add_bs(1, reflectivity=param)
+        circuit.bs(0, reflectivity=param)
+        circuit.bs(2, reflectivity=param)
+        circuit.bs(1, reflectivity=param)
         # Create simulator and get initial results
         sim = Simulator(circuit)
         results = sim.simulate(State([1, 0, 1, 0]), State([0, 2, 0, 0]))
@@ -218,7 +218,7 @@ class TestSimulator:
         """
         # Create circuit and simulator object
         circuit = Unitary(random_unitary(4))
-        circuit.add_herald(1, 0, 2)
+        circuit.herald(1, 0, 2)
         sim = Simulator(circuit)
         # Attempt to simulate with input which is too short
         with pytest.raises(ModeMismatchError):
@@ -236,7 +236,7 @@ class TestSimulator:
         # Create circuit and simulator object
         circuit = Unitary(random_unitary(4))
         sub_circuit = Unitary(random_unitary(4))
-        sub_circuit.add_herald(1, 0, 2)
+        sub_circuit.herald(1, 0, 2)
         circuit.add(sub_circuit, 1)
         sim = Simulator(circuit)
         # Attempt to simulate with input which is too short
@@ -256,8 +256,8 @@ class TestSimulator:
         unitary = random_unitary(6)
         circuit = Unitary(unitary)
         circuit_herald = Unitary(unitary)
-        circuit_herald.add_herald(0, 2, 2)
-        circuit_herald.add_herald(1, 1, 3)
+        circuit_herald.herald(0, 2, 2)
+        circuit_herald.herald(1, 1, 3)
         # Simulate both with equivalent inputs
         sim = Simulator(circuit)
         results = sim.simulate(State([0, 1, 0, 1, 1, 0]))
@@ -278,12 +278,12 @@ class TestSimulator:
         unitary = random_unitary(6)
         circuit = Unitary(unitary)
         for i in range(6):
-            circuit.add_loss(i, i + 1)
+            circuit.loss(i, i + 1)
         circuit_herald = Unitary(unitary)
         for i in range(6):
-            circuit_herald.add_loss(i, i + 1)
-        circuit_herald.add_herald(0, 2, 2)
-        circuit_herald.add_herald(1, 1, 3)
+            circuit_herald.loss(i, i + 1)
+        circuit_herald.herald(0, 2, 2)
+        circuit_herald.herald(1, 1, 3)
         # Simulate both with equivalent inputs
         sim = Simulator(circuit)
         results = sim.simulate(State([0, 1, 0, 1, 1, 0]))
@@ -305,12 +305,12 @@ class TestSimulator:
         unitary = random_unitary(6)
         circuit = Unitary(unitary)
         for i in range(6):
-            circuit.add_loss(i, i + 1)
+            circuit.loss(i, i + 1)
         sub_circuit = Unitary(unitary)
         for i in range(6):
-            sub_circuit.add_loss(i, i + 1)
-        sub_circuit.add_herald(0, 2, 2)
-        sub_circuit.add_herald(1, 1, 3)
+            sub_circuit.loss(i, i + 1)
+        sub_circuit.herald(0, 2, 2)
+        sub_circuit.herald(1, 1, 3)
         circuit_herald = Circuit(4)
         circuit_herald.add(sub_circuit)
         # Simulate both with equivalent inputs
