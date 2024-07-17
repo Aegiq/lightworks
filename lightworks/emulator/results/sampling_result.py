@@ -218,7 +218,7 @@ class SamplingResult:
         for ostate, p in self.dictionary.items():
             to_print += str(ostate) + " : " + str(p) + ", "
         to_print = to_print[:-2]
-        print(to_print)
+        print(to_print)  # noqa: T201
 
         return
 

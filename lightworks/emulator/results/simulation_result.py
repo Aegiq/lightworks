@@ -324,7 +324,7 @@ class SimulationResult:
                     if abs(p.real) > 0 or abs(p.imag) > 0:
                         to_print += str(p) + "*" + str(ostate) + " + "
             to_print = to_print[:-2]
-            print(to_print)
+            print(to_print)  # noqa: T201
 
         return
 

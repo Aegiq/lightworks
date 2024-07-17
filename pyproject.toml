@@ -49,7 +49,7 @@ preview = true
 select = [
     "E", "F", "W", "N", "D", "B", "CPY", "TRY", "PLE", "PLW", "YTT", "ANN", "S",
     "Q", "SIM", "ARG", "PERF", "I", "EM102", "EM103", "RET", "FURB148", 
-    "FURB168", "RUF", "BLE", "UP", "NPY"
+    "FURB168", "RUF", "BLE", "UP", "NPY", "T20", "PT"
 ]
 fixable = ["ALL"]
 ignore = [
@@ -68,6 +68,7 @@ ignore = [
     "D407",
     "D412",
     "D415",
+    "PT011",
     "RUF022",
     "S311",
     "SIM102",
@@ -84,3 +85,7 @@ line-ending = "auto"
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["PERF", "ANN", "S101"]
 "__init__.py" = ["F401", "F403"]
+
+[tool.ruff.lint.flake8-pytest-style]
+parametrize-names-type = "tuple"
+parametrize-values-row-type = "tuple"
