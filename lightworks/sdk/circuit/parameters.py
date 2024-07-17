@@ -83,19 +83,19 @@ class Parameter:
         return self.__min_bound
 
     @min_bound.setter
-    def min_bound(self, __value: Any) -> None:
-        if __value is not None:
+    def min_bound(self, value: Any) -> None:
+        if value is not None:
             if not isnumeric(self.__value):
                 raise ParameterBoundsError(
                     "Bounds cannot be set for non-numeric parameters."
                 )
-            if not isnumeric(__value):
+            if not isnumeric(value):
                 raise ParameterBoundsError("Bound should be numeric or None.")
-            if self.__value < __value:
+            if self.__value < value:
                 raise ParameterBoundsError(
                     "Current parameter value is below new minimum bound."
                 )
-        self.__min_bound = __value
+        self.__min_bound = value
 
     @property
     def max_bound(self) -> Number | None:
@@ -103,19 +103,19 @@ class Parameter:
         return self.__max_bound
 
     @max_bound.setter
-    def max_bound(self, __value: Any) -> None:
-        if __value is not None:
+    def max_bound(self, value: Any) -> None:
+        if value is not None:
             if not isnumeric(self.__value):
                 raise ParameterBoundsError(
                     "Bounds cannot be set for non-numeric parameters."
                 )
-            if not isnumeric(__value):
+            if not isnumeric(value):
                 raise ParameterBoundsError("Bound should be numeric or None.")
-            if self.__value > __value:
+            if self.__value > value:
                 raise ParameterBoundsError(
                     "Current parameter value is above new maximum bound."
                 )
-        self.__max_bound = __value
+        self.__max_bound = value
 
     def __str__(self) -> str:
         return str(self.__value)

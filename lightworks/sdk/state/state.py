@@ -18,7 +18,7 @@ emulator much easier to work with.
 """
 
 from copy import copy
-from typing import Any, Iterable, Union
+from typing import Any, Iterator, Union, overload
 
 from ..utils.exceptions import StateError
 from .state_utils import state_to_string
@@ -100,7 +100,7 @@ class State:
             raise TypeError("Addition only supported between states.")
         return State(self.__s + value.__s)
 
-    def __eq__(self, value: Any) -> bool:
+    def __eq__(self, value: object) -> bool:
         if not isinstance(value, State):
             return False
         return self.__s == value.s
@@ -111,11 +111,17 @@ class State:
     def __len__(self) -> int:
         return self.n_modes
 
-    def __iter__(self) -> Iterable[int]:
+    def __iter__(self) -> Iterator[int]:
         yield from self.s
 
     def __setitem__(self, key: Any, value: Any) -> None:
         raise StateError("State object does not support item assignment.")
+
+    @overload
+    def __getitem__(self, indices: int) -> int: ...
+
+    @overload
+    def __getitem__(self, indices: slice) -> "State": ...
 
     def __getitem__(self, indices: slice | int) -> Union[int, "State"]:
         if isinstance(indices, slice):

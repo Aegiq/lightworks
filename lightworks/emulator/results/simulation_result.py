@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Iterable
+from typing import Any, Iterator
 
 import matplotlib.figure
 import matplotlib.pyplot as plt
@@ -158,7 +158,7 @@ class SimulationResult:
     def __str__(self) -> str:
         return str(self.dictionary)
 
-    def __iter__(self) -> Iterable:
+    def __iter__(self) -> Iterator:
         """Iterable to allow to do 'for input in SimulationResult'."""
         yield from self.dictionary
 
@@ -191,7 +191,7 @@ class SimulationResult:
             for out_state, val in self.dictionary[in_state].items():
                 new_s = State([1 if s >= 1 else 0 for s in out_state])
                 if invert:
-                    new_s = State([1 - s for s in new_s])  # type: ignore
+                    new_s = State([1 - s for s in new_s])
                 if new_s in mapped_result[in_state]:
                     mapped_result[in_state][new_s] += val
                 else:
@@ -413,8 +413,8 @@ class SimulationResult:
         # Otherwise create two plots
         fig, axes = plt.subplots(1, 2, figsize=(20, 6))
         axes = np.array(axes)
-        vmin = min([op(self.array).min() for op in [np.real, np.imag]])
-        vmax = min([op(self.array).max() for op in [np.real, np.imag]])
+        vmin = min(op(self.array).min() for op in [np.real, np.imag])
+        vmax = min(op(self.array).max() for op in [np.real, np.imag])
         im = axes[0].imshow(np.real(self.array), vmin=vmin, vmax=vmax)
         axes[0].set_title("real(result)")
         axes[1].imshow(np.imag(self.array), vmin=vmin, vmax=vmax)

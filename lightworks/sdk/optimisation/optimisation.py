@@ -225,9 +225,7 @@ class Optimisation:
         if self.parameters.has_bounds():
             bounds = list(self.parameters.get_bounds().values())
         res = minimize(self._fom, x0=self.__x0, bounds=bounds)
-        self.__opt_results = {
-            p: x for p, x in zip(self.parameters.keys(), res.x)
-        }
+        self.__opt_results = dict(zip(self.parameters.keys(), res.x))
         return self.__opt_results
 
     def scipy_basinhopping_optimise(
@@ -262,9 +260,7 @@ class Optimisation:
                 "Bounds not supported by basinhopping optimise method."
             )
         res = basinhopping(self._fom, x0=self.__x0, niter=n_iter)
-        self.__opt_results = {
-            p: x for p, x in zip(self.parameters.keys(), res.x)
-        }
+        self.__opt_results = dict(zip(self.parameters.keys(), res.x))
         return self.__opt_results
 
     def bayesian_optimise(
@@ -344,9 +340,7 @@ class Optimisation:
         objective = zoopt.Objective(self._fom_zoopt, dim)
         parameter = zoopt.Parameter(budget=budget)
         sol = zoopt.Opt.min(objective, parameter)
-        self.__opt_results = {
-            p: x for p, x in zip(self.parameters.keys(), sol.get_x())
-        }
+        self.__opt_results = dict(zip(self.parameters.keys(), sol.get_x()))
         return self.__opt_results
 
     def get_optimal_circuit(self) -> Circuit:

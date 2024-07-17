@@ -38,7 +38,7 @@ def unpack_circuit_spec(circuit_spec: list) -> list:
         list : The processed circuit spec.
 
     """
-    new_spec = [c for c in circuit_spec]
+    new_spec = list(circuit_spec)
     components = [i[0] for i in circuit_spec]
     while "group" in components:
         temp_spec = []
@@ -77,7 +77,7 @@ def add_modes_to_circuit_spec(circuit_spec: list, mode: int) -> list:
             params[1] += mode
         elif c == "barrier":
             params = [p + mode for p in params[0]]
-            params = tuple([params])
+            params = (params,)
         elif c == "mode_swaps":
             params[0] = {k + mode: v + mode for k, v in params[0].items()}
         elif c == "group":
@@ -113,7 +113,7 @@ def add_empty_mode_to_circuit_spec(circuit_spec: list, mode: int) -> list:
             params[1] += 1 if params[1] >= mode else 0
         elif c == "barrier":
             params = [p + 1 if p >= mode else p for p in params[0]]
-            params = tuple([params])
+            params = (params,)
         elif c == "mode_swaps":
             swaps = {}
             for k, v in params[0].items():
@@ -190,7 +190,7 @@ def convert_non_adj_beamsplitters(spec: list) -> list:
             swaps = {v: k for k, v in swaps.items()}
             new_spec.append(["mode_swaps", (swaps, None)])
         elif s[0] == "group":
-            new_s1 = [si for si in s[1]]
+            new_s1 = list(s[1])
             new_s1[0] = convert_non_adj_beamsplitters(s[1][0])
             s = [s[0], tuple(new_s1)]
             new_spec.append(s)

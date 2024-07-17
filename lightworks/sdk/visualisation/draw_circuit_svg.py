@@ -94,7 +94,7 @@ class DrawCircuitSVG:
                 full_mode_labels.append("-")
         mode_labels = full_mode_labels
         # Adjust canvas size for long labels
-        max_len = max([len(m) for m in mode_labels])
+        max_len = max(len(m) for m in mode_labels)
         if max_len > 4:
             init_length += (max_len - 4) * 17.5
         for m, label in enumerate(mode_labels):
@@ -473,7 +473,7 @@ class DrawCircuitSVG:
         Add a barrier which will separate different parts of the circuit. This
         is applied to the provided modes.
         """
-        max_loc = max([self.x_locations[m] for m in modes])
+        max_loc = max(self.x_locations[m] for m in modes)
         for m in modes:
             loc = self.x_locations[m]
             if loc < max_loc:

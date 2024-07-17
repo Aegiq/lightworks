@@ -30,11 +30,7 @@ class SLOS:
         Performs calculation of full probability distribution given a unitary
         matrix and input state.
         """
-        p = [  # type: ignore
-            m
-            for m, n in enumerate(input_state)  # type: ignore
-            for _i in range(n)
-        ]
+        p = [m for m, n in enumerate(input_state) for _i in range(n)]
         n_modes = unitary.shape[0]
         input = {tuple(n_modes * [0]): 1.0}  # N-mode vacuum state
 

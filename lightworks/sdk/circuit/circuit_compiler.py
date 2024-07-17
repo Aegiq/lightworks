@@ -338,8 +338,8 @@ class CompiledCircuit:
             raise TypeError("Mode swaps data should be a dictionary.")
         for m in list(swaps.keys()) + list(swaps.values()):
             self._mode_in_range(m)
-        in_modes = sorted(list(swaps.keys()))
-        out_modes = sorted(list(swaps.values()))
+        in_modes = sorted(swaps.keys())
+        out_modes = sorted(swaps.values())
         if in_modes != out_modes:
             raise ValueError(
                 "Mode swaps not complete, dictionary keys and values should "
