@@ -17,7 +17,7 @@ A custom state datatype, which is created for storing annotated state details.
 It is not intended that this class will be ordinarily accessible to users.
 """
 
-from typing import Any, Iterable, Union
+from typing import Any, Iterator, Union
 
 from ..utils import AnnotatedStateError, annotated_state_to_string
 
@@ -93,7 +93,7 @@ class AnnotatedState:
             raise TypeError("Addition only supported between annotated states.")
         return AnnotatedState(self.__s + value.__s)
 
-    def __eq__(self, value: Any) -> bool:
+    def __eq__(self, value: object) -> bool:
         if not isinstance(value, AnnotatedState):
             return False
         return self.__s == value.__s
@@ -109,7 +109,7 @@ class AnnotatedState:
             "AnnotatedState object does not support item assignment."
         )
 
-    def __iter__(self) -> Iterable[list]:
+    def __iter__(self) -> Iterator[list]:
         yield from self.s
 
     def __getitem__(

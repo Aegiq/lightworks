@@ -47,10 +47,10 @@ class Gaussian(Distribution):
 
     def __init__(
         self,
-        center: int | float,
-        deviation: int | float,
-        min_value: int | float | None = None,
-        max_value: int | float | None = None,
+        center: float,
+        deviation: float,
+        min_value: float | None = None,
+        max_value: float | None = None,
     ) -> None:
         # Assign min\max to +/i infinity if None
         if min_value is None:

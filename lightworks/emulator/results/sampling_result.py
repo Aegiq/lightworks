@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Iterable
+from typing import Any, Iterable, Iterator
 
 import matplotlib.figure
 import matplotlib.pyplot as plt
@@ -79,7 +79,7 @@ class SamplingResult:
     def __len__(self) -> int:
         return len(self.dictionary)
 
-    def __iter__(self) -> Iterable:
+    def __iter__(self) -> Iterator:
         """Iterable to allow to do 'for output in SamplingResult'."""
         yield from self.dictionary
 
@@ -122,7 +122,7 @@ class SamplingResult:
         for out_state, val in self.dictionary.items():
             new_s = State([1 if s >= 1 else 0 for s in out_state])
             if invert:
-                new_s = State([1 - s for s in new_s])  # type: ignore
+                new_s = State([1 - s for s in new_s])
             if new_s in mapped_result:
                 mapped_result[new_s] += val
             else:

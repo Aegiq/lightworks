@@ -49,7 +49,7 @@ preview = true
 select = [
     "E", "F", "W", "N", "D", "B", "CPY", "TRY", "PLE", "PLW", "YTT", "ANN", "S",
     "Q", "SIM", "ARG", "PERF", "I", "EM102", "EM103", "RET", "FURB148", 
-    "FURB168", "RUF", "BLE", "UP", "NPY", "T20", "PT", "C4"
+    "FURB168", "RUF", "BLE", "UP", "NPY", "T20", "PT", "C4", "A", "PYI"
 ]
 fixable = ["ALL"]
 ignore = [
@@ -89,3 +89,6 @@ line-ending = "auto"
 [tool.ruff.lint.flake8-pytest-style]
 parametrize-names-type = "tuple"
 parametrize-values-row-type = "tuple"
+
+[tool.ruff.lint.flake8-builtins]
+builtins-ignorelist = ["input"]

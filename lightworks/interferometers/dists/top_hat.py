@@ -30,7 +30,7 @@ class TopHat(Distribution):
 
     """
 
-    def __init__(self, min_value: int | float, max_value: int | float) -> None:
+    def __init__(self, min_value: float, max_value: float) -> None:
         # Type check all values
         is_number([min_value, max_value])
         # Then check min and max values are valid
