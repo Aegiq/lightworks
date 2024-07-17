@@ -119,7 +119,7 @@ def annotated_state_pdist_calc(
         input_combinations[state] = states
     # For each of the unique inputs then need to work out the probability
     # distribution
-    unique_results: dict[Any, Any] = {}
+    unique_results: dict[State, Any] = {}
     for in_state in unique_inputs:
         # Calculate sub distribution and store
         unique_results[in_state[: circuit.n_modes]] = (

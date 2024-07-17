@@ -18,7 +18,7 @@ emulator much easier to work with.
 """
 
 from copy import copy
-from typing import Any, Iterator, Union
+from typing import Any, Iterator, Union, overload
 
 from ..utils.exceptions import StateError
 from .state_utils import state_to_string
@@ -116,6 +116,12 @@ class State:
 
     def __setitem__(self, key: Any, value: Any) -> None:
         raise StateError("State object does not support item assignment.")
+
+    @overload
+    def __getitem__(self, indices: int) -> int: ...
+
+    @overload
+    def __getitem__(self, indices: slice) -> "State": ...
 
     def __getitem__(self, indices: slice | int) -> Union[int, "State"]:
         if isinstance(indices, slice):

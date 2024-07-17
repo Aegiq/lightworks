@@ -410,7 +410,7 @@ def group_empty_modes(state: State) -> tuple[dict, list]:
             continue
         if s == 0:
             # If only a single empty mode then skip
-            if state[i + 1] > 0:  # type: ignore
+            if state[i + 1] > 0:
                 continue
             # Find how many empty modes there are
             n = 1

@@ -17,7 +17,7 @@ A custom state datatype, which is created for storing annotated state details.
 It is not intended that this class will be ordinarily accessible to users.
 """
 
-from typing import Any, Iterator, Union
+from typing import Any, Iterator, Union, overload
 
 from ..utils import AnnotatedStateError, annotated_state_to_string
 
@@ -111,6 +111,12 @@ class AnnotatedState:
 
     def __iter__(self) -> Iterator[list]:
         yield from self.s
+
+    @overload
+    def __getitem__(self, indices: int) -> list: ...
+
+    @overload
+    def __getitem__(self, indices: slice) -> "AnnotatedState": ...
 
     def __getitem__(
         self, indices: int | slice
