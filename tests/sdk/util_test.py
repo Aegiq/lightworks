@@ -176,7 +176,7 @@ class TestUtils:
         Checks that add heralds to state does not modify the original state.
         """
         s = [randint(0, 5) for i in range(10)]
-        s_copy = [i for i in s]
+        s_copy = list(s)  # Creates copy of list
         add_heralds_to_state(s, {6: 7, 1: 6})
         assert s == s_copy
 

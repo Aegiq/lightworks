@@ -118,7 +118,7 @@ class Detector:
         if self.efficiency == 1 and self.p_dark == 0 and self.photon_counting:
             return in_state
         # Convert state to list
-        output = [i for i in in_state]  # type: ignore
+        output = list(in_state)  # type: ignore
         # Account for efficiency
         if self.efficiency < 1:
             for mode, n in enumerate(in_state):  # type: ignore

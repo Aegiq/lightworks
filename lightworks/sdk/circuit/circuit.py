@@ -411,13 +411,11 @@ class Circuit:
 
         """
         if modes is None:
-            modes = [
-                i for i in range(self.n_modes - len(self.__internal_modes))
-            ]
+            modes = list(range(self.n_modes - len(self.__internal_modes)))
         modes = [self._map_mode(i) for i in modes]
         for m in modes:
             self._mode_in_range(m)
-        self.__circuit_spec.append(["barrier", tuple([modes])])
+        self.__circuit_spec.append(["barrier", (modes,)])
 
     def mode_swaps(self, swaps: dict) -> None:
         """
@@ -438,8 +436,8 @@ class Circuit:
             self._map_mode(mi): self._map_mode(mo) for mi, mo in swaps.items()
         }
         # Perform some error checking steps
-        in_modes = sorted(list(swaps.keys()))
-        out_modes = sorted(list(swaps.values()))
+        in_modes = sorted(swaps.keys())
+        out_modes = sorted(swaps.values())
         if in_modes != out_modes:
             raise ValueError(
                 "Mode swaps not complete, dictionary keys and values should "

@@ -49,12 +49,12 @@ class AnnotatedState:
     @property
     def n_photons(self) -> int:
         """Returns the number of photons in a State."""
-        return sum([len(s) for s in self.__s])
+        return sum(len(s) for s in self.__s)
 
     @property
     def s(self) -> list[list[int]]:
         """Returns list representation of State."""
-        return [[j for j in i] for i in self.__s]
+        return [list(i) for i in self.__s]
 
     @s.setter
     def s(self, value: Any) -> None:  # noqa: ARG002

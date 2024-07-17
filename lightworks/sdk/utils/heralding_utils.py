@@ -65,7 +65,7 @@ def remove_heralds_from_state(state: State | list, herald_modes: list) -> list:
 
     """
     # Remove modes in reverse order so mode locations do not change
-    to_remove = reversed(sorted(herald_modes))
+    to_remove = sorted(herald_modes, reverse=True)
     # Get list version of state
     new_s = state.s if isinstance(state, State) else copy(state)
     # Then sequentially pop modes

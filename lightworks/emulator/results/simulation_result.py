@@ -413,8 +413,8 @@ class SimulationResult:
         # Otherwise create two plots
         fig, axes = plt.subplots(1, 2, figsize=(20, 6))
         axes = np.array(axes)
-        vmin = min([op(self.array).min() for op in [np.real, np.imag]])
-        vmax = min([op(self.array).max() for op in [np.real, np.imag]])
+        vmin = min(op(self.array).min() for op in [np.real, np.imag])
+        vmax = min(op(self.array).max() for op in [np.real, np.imag])
         im = axes[0].imshow(np.real(self.array), vmin=vmin, vmax=vmax)
         axes[0].set_title("real(result)")
         axes[1].imshow(np.imag(self.array), vmin=vmin, vmax=vmax)
