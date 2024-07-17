@@ -299,7 +299,10 @@ class TestCircuit:
             if spec[0] == "bs":
                 # Check it acts on adjacent modes, otherwise fail
                 if spec[1][0] != spec[1][1] - 1:
-                    pytest.fail()
+                    pytest.fail(
+                        "Beam splitter which acts on non-adjacent modes found "
+                        "in circuit spec."
+                    )
 
     def test_remove_non_adj_bs_equivalence(self):
         """
@@ -658,8 +661,8 @@ class TestCircuit:
         assert circuit.input_modes == n - 2
 
     @pytest.mark.parametrize(
-        "initial_modes,final_modes",
-        [[(0,), (0, 2)], [(2,), (5, 6)], [(2, 3), (5, 6)], [(0, 2), (0, 5)]],
+        ("initial_modes", "final_modes"),
+        [((0,), (0, 2)), ((2,), (5, 6)), ((2, 3), (5, 6)), ((0, 2), (0, 5))],
     )
     def test_bs_correct_modes(self, initial_modes, final_modes):
         """

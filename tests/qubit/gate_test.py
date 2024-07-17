@@ -270,7 +270,7 @@ class TestThreeQubitGates:
         assert pytest.approx(abs(amp) ** 2, 1e-6) == 1 / 72
 
     @pytest.mark.parametrize(
-        "target,swap_indices", [[0, (5, 7)], [1, (6, 7)], [2, (3, 7)]]
+        ("target", "swap_indices"), [(0, (5, 7)), (1, (6, 7)), (2, (3, 7))]
     )
     def test_CCNOT(self, target, swap_indices):
         """
