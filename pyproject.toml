@@ -49,7 +49,8 @@ preview = true
 select = [
     "E", "F", "W", "N", "D", "B", "CPY", "TRY", "PLE", "PLW", "YTT", "ANN", "S",
     "Q", "SIM", "ARG", "PERF", "I", "EM102", "EM103", "RET", "FURB148", 
-    "FURB168", "RUF", "BLE", "UP", "NPY", "T20", "PT", "C4", "A", "PYI"
+    "FURB168", "RUF", "BLE", "UP", "NPY", "T20", "PT", "C4", "A", "PYI", "PIE",
+    "SLOT", "PD"
 ]
 fixable = ["ALL"]
 ignore = [

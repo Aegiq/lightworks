@@ -259,5 +259,5 @@ class SamplingResult:
         # Convert array to floats when not non complex results used
         data = data.astype(int)
         # Create dataframe
-        df = pd.DataFrame(data, index=out_strings, columns=in_strings)
-        return df.transpose()
+        results = pd.DataFrame(data, index=out_strings, columns=in_strings)
+        return results.transpose()
