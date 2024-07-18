@@ -23,6 +23,7 @@ from .parameters import Parameter
 # ruff: noqa: ANN202, ANN204, D101
 
 
+@dataclass(slots=True)
 class Component:
     def fields(self) -> list:
         """Returns a list of all field from the component dataclass."""
@@ -40,7 +41,7 @@ class BeamSplitter(Component):
     reflectivity: float | Parameter
     convention: str
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # Validate reflectivity
         if not isinstance(self.reflectivity, Parameter):
             if not 0 <= self.reflectivity <= 1:
@@ -94,7 +95,7 @@ class Barrier(Component):
 class ModeSwaps(Component):
     swaps: dict
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # Check swaps are valid
         in_modes = sorted(self.swaps.keys())
         out_modes = sorted(self.swaps.values())
@@ -120,7 +121,7 @@ class UnitaryMatrix(Component):
     unitary: np.ndarray
     label: str
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # Check type of supplied unitary
         if not isinstance(self.unitary, (np.ndarray, list)):
             raise TypeError("Unitary should be a numpy array or list.")

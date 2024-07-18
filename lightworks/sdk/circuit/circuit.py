@@ -74,7 +74,7 @@ class Circuit:
             else:
                 raise TypeError("Number of modes should be an integer.")
         self.__n_modes = n_modes
-        self.__circuit_spec: list[list] = []
+        self.__circuit_spec: list[Component] = []
         self.__in_heralds: dict[int, int] = {}
         self.__out_heralds: dict[int, int] = {}
         self.__external_in_heralds: dict[int, int] = {}
@@ -749,7 +749,7 @@ class Circuit:
         Takes a provided circuit spec and will remove get any Parameter objects
         with their currently set values.
         """
-        new_spec = []
+        new_spec: list[Component] = []
         # Loop over spec and either call function again or add the value to the
         # new spec
         for spec in circuit_spec:

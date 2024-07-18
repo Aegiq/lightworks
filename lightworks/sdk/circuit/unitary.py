@@ -36,6 +36,6 @@ class Unitary(Circuit):
 
     def __init__(self, unitary: np.ndarray, label: str = "U") -> None:
         super().__init__(int(unitary.shape[0]))
-        self._Circuit__circuit_spec.append(UnitaryMatrix(0, unitary, label))
+        self._Circuit__circuit_spec = [UnitaryMatrix(0, unitary, label)]
 
         return

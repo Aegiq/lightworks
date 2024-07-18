@@ -26,6 +26,7 @@ from ..utils import add_mode_to_unitary
 from .components import (
     Barrier,
     BeamSplitter,
+    Component,
     Group,
     Loss,
     ModeSwaps,
@@ -181,7 +182,7 @@ def convert_non_adj_beamsplitters(circuit_spec: list) -> list:
         list : The processed circuit spec.
 
     """
-    new_spec: list[list] = []
+    new_spec: list[Component] = []
     for spec in circuit_spec:
         spec = copy(spec)
         if (
@@ -256,7 +257,7 @@ def compress_mode_swaps(circuit_spec: list) -> list:
                         blocked_modes.add(m)
                 # TODO: Test this works
                 elif isinstance(spec2, UnitaryMatrix):
-                    for m in range(spec2.mode, spec2.array.shape[0]):
+                    for m in range(spec2.mode, spec2.unitary.shape[0]):
                         blocked_modes.add(m)
                 elif isinstance(spec2, ModeSwaps):
                     # When a mode swap is found check if any of its mode
