@@ -18,7 +18,12 @@ testpaths = [
 
 ## pytest coverage config
 [tool.coverage.run]
-omit = ["tests/*", "docs/*", "lightworks/sdk/optimisation/*"]
+omit = [
+    "tests/*",
+    "docs/*",
+    "lightworks/sdk/optimisation/*",
+    "lightworks/qubit/converter/__init__.py"
+]
 
 ## mypy config
 [tool.mypy]

@@ -18,10 +18,21 @@
 Contains a number of different utility functions for modifying circuits.
 """
 
+from copy import copy
 from numbers import Number
 from typing import Any
 
 from ..utils import add_mode_to_unitary
+from .components import (
+    Barrier,
+    BeamSplitter,
+    Component,
+    Group,
+    Loss,
+    ModeSwaps,
+    PhaseShifter,
+    UnitaryMatrix,
+)
 from .parameters import Parameter
 
 
@@ -39,16 +50,14 @@ def unpack_circuit_spec(circuit_spec: list) -> list:
 
     """
     new_spec = list(circuit_spec)
-    components = [i[0] for i in circuit_spec]
-    while "group" in components:
+    while any(isinstance(s, Group) for s in new_spec):
         temp_spec = []
         for spec in circuit_spec:
-            if spec[0] != "group":
+            if not isinstance(spec, Group):
                 temp_spec += [spec]
             else:
-                temp_spec += spec[1][0]
+                temp_spec += spec.circuit_spec
         new_spec = temp_spec
-        components = [i[0] for i in new_spec]
 
     return new_spec
 
@@ -70,23 +79,24 @@ def add_modes_to_circuit_spec(circuit_spec: list, mode: int) -> list:
 
     """
     new_circuit_spec = []
-    for c, params in circuit_spec:
-        params = list(params)
-        if c in ["bs"]:
-            params[0] += mode
-            params[1] += mode
-        elif c == "barrier":
-            params = [p + mode for p in params[0]]
-            params = (params,)
-        elif c == "mode_swaps":
-            params[0] = {k + mode: v + mode for k, v in params[0].items()}
-        elif c == "group":
-            params[0] = add_modes_to_circuit_spec(params[0], mode)
-            params[2] += mode
-            params[3] += mode
+    for spec in circuit_spec:
+        spec = copy(spec)
+        if isinstance(spec, BeamSplitter):
+            spec.mode_1 += mode
+            spec.mode_2 += mode
+        elif isinstance(spec, Barrier):
+            spec.modes = [p + mode for p in spec.modes]
+        elif isinstance(spec, ModeSwaps):
+            spec.swaps = {k + mode: v + mode for k, v in spec.swaps.items()}
+        elif isinstance(spec, Group):
+            spec.circuit_spec = add_modes_to_circuit_spec(
+                spec.circuit_spec, mode
+            )
+            spec.mode_1 += mode
+            spec.mode_2 += mode
         else:
-            params[0] += mode
-        new_circuit_spec.append([c, tuple(params)])
+            spec.mode += mode
+        new_circuit_spec.append(spec)
     return new_circuit_spec
 
 
@@ -106,53 +116,57 @@ def add_empty_mode_to_circuit_spec(circuit_spec: list, mode: int) -> list:
 
     """
     new_circuit_spec = []
-    for c, params in circuit_spec:
-        params = list(params)
-        if c in ["bs"]:
-            params[0] += 1 if params[0] >= mode else 0
-            params[1] += 1 if params[1] >= mode else 0
-        elif c == "barrier":
-            params = [p + 1 if p >= mode else p for p in params[0]]
-            params = (params,)
-        elif c == "mode_swaps":
+    for spec in circuit_spec:
+        spec = copy(spec)
+        if isinstance(spec, BeamSplitter):
+            spec.mode_1 += 1 if spec.mode_1 >= mode else 0
+            spec.mode_2 += 1 if spec.mode_2 >= mode else 0
+        elif isinstance(spec, Barrier):
+            spec.modes = [p + 1 if p >= mode else p for p in spec.modes]
+        elif isinstance(spec, ModeSwaps):
             swaps = {}
-            for k, v in params[0].items():
+            for k, v in spec.swaps.items():
                 k += 1 if k >= mode else 0
                 v += 1 if v >= mode else 0
                 swaps[k] = v
-            params[0] = swaps
-        elif c == "group":
-            params[0] = add_empty_mode_to_circuit_spec(params[0], mode)
+            spec.swaps = swaps
+        elif isinstance(spec, Group):
+            spec.circuit_spec = add_empty_mode_to_circuit_spec(
+                spec.circuit_spec, mode
+            )
             # Shift unitary mode range
-            params[2] += 1 if params[2] >= mode else 0
-            params[3] += 1 if params[3] >= mode else 0
+            spec.mode_1 += 1 if spec.mode_1 >= mode else 0
+            spec.mode_2 += 1 if spec.mode_2 >= mode else 0
             # Update herald values
-            in_heralds, out_heralds = params[4]["input"], params[4]["output"]
+            in_heralds, out_heralds = (
+                spec.heralds["input"],
+                spec.heralds["output"],
+            )
             new_in_heralds = {}
             for m, n in in_heralds.items():
-                if m >= (mode - params[2]) and mode - params[2] >= 0:
+                if m >= (mode - spec.mode_1) and mode - spec.mode_1 >= 0:
                     m += 1
                 new_in_heralds[m] = n
             new_out_heralds = {}
             for m, n in out_heralds.items():
-                if m >= (mode - params[2]) and mode - params[2] >= 0:
+                if m >= (mode - spec.mode_1) and mode - spec.mode_1 >= 0:
                     m += 1
                 new_out_heralds[m] = n
-            params[4] = {"input": new_in_heralds, "output": new_out_heralds}
-        elif c == "unitary":
-            params[0] += 1 if params[0] >= mode else 0
+            spec.heralds = {"input": new_in_heralds, "output": new_out_heralds}
+        elif isinstance(spec, UnitaryMatrix):
+            spec.mode += 1 if spec.mode >= mode else 0
             # Expand unitary if required
-            if params[0] < mode < params[0] + params[1].shape[0]:
-                add_mode = mode - params[0]
+            if spec.mode < mode < spec.mode + spec.unitary.shape[0]:
+                add_mode = mode - spec.mode
                 # Update unitary value
-                params[1] = add_mode_to_unitary(params[1], add_mode)
+                spec.unitary = add_mode_to_unitary(spec.unitary, add_mode)
         else:
-            params[0] += 1 if params[0] >= mode else 0
-        new_circuit_spec.append([c, tuple(params)])
+            spec.mode += 1 if spec.mode >= mode else 0
+        new_circuit_spec.append(spec)
     return new_circuit_spec
 
 
-def convert_non_adj_beamsplitters(spec: list) -> list:
+def convert_non_adj_beamsplitters(circuit_spec: list) -> list:
     """
     Takes a given circuit spec and removes all beam splitters acting on
     non-adjacent modes by replacing with a mode swap and adjacent beam
@@ -160,18 +174,22 @@ def convert_non_adj_beamsplitters(spec: list) -> list:
 
     Args:
 
-        spec (list) : The circuit spec to remove beam splitter on non-adjacent
-            modes from.
+        circuit_spec (list) : The circuit spec to remove beam splitter on
+            non-adjacent modes from.
 
     Returns:
 
         list : The processed circuit spec.
 
     """
-    new_spec: list[list] = []
-    for s in spec:
-        if s[0] == "bs" and abs(s[1][0] - s[1][1]) != 1:
-            m1, m2 = s[1][0:2]
+    new_spec: list[Component] = []
+    for spec in circuit_spec:
+        spec = copy(spec)
+        if (
+            isinstance(spec, BeamSplitter)
+            and abs(spec.mode_2 - spec.mode_1) != 1
+        ):
+            m1, m2 = spec.mode_1, spec.mode_2
             if m1 > m2:
                 m1, m2 = m2, m1
             mid = int((m1 + m2 - 1) / 2)
@@ -180,26 +198,26 @@ def convert_non_adj_beamsplitters(spec: list) -> list:
                 swaps[i] = mid if i == m1 else i - 1
             for i in range(mid + 1, m2 + 1):
                 swaps[i] = mid + 1 if i == m2 else i + 1
-            new_spec.append(["mode_swaps", (swaps, None)])
+            new_spec.append(ModeSwaps(swaps))
             # If original modes were inverted then invert here too
             add1, add2 = mid, mid + 1
-            if s[1][0] > s[1][1]:
+            if spec.mode_1 > spec.mode_2:
                 add1, add2 = add2, add1
             # Add beam splitter on new modes
-            new_spec.append(["bs", (add1, add2, s[1][2], s[1][3])])
+            new_spec.append(
+                BeamSplitter(add1, add2, spec.reflectivity, spec.convention)
+            )
             swaps = {v: k for k, v in swaps.items()}
-            new_spec.append(["mode_swaps", (swaps, None)])
-        elif s[0] == "group":
-            new_s1 = list(s[1])
-            new_s1[0] = convert_non_adj_beamsplitters(s[1][0])
-            s = [s[0], tuple(new_s1)]
-            new_spec.append(s)
+            new_spec.append(ModeSwaps(swaps))
+        elif isinstance(spec, Group):
+            spec.circuit_spec = convert_non_adj_beamsplitters(spec.circuit_spec)
+            new_spec.append(spec)
         else:
-            new_spec.append(s)
+            new_spec.append(spec)
     return new_spec
 
 
-def compress_mode_swaps(spec: list) -> list:
+def compress_mode_swaps(circuit_spec: list) -> list:
     """
     Takes a provided circuit spec and will try to compress any more swaps
     such that the circuit length is reduced. Note that any components in a
@@ -207,7 +225,7 @@ def compress_mode_swaps(spec: list) -> list:
 
     Args:
 
-        spec (list) : The circuit spec which is to be processed.
+        circuit_spec (list) : The circuit spec which is to be processed.
 
     Returns:
 
@@ -217,29 +235,35 @@ def compress_mode_swaps(spec: list) -> list:
     new_spec = []
     to_skip = []
     # Loop over each item in original spec
-    for i, s in enumerate(spec):
+    for i, spec in enumerate(circuit_spec):
+        spec = copy(spec)
         if i in to_skip:
             continue
         # If it a mode swap then check for subsequent mode swaps
-        if s[0] == "mode_swaps":
+        if isinstance(spec, ModeSwaps):
             blocked_modes = set()
-            for j, s2 in enumerate(spec[i + 1 :]):
+            for j, spec2 in enumerate(circuit_spec[i + 1 :]):
                 # Block modes with components other than the mode swap on
-                if s2[0] == "ps":
+                if isinstance(spec2, (PhaseShifter, Loss)):
                     # NOTE: In principle a phase shift doesn't need to
                     # block a mode and instead we could modify it's
                     # location
-                    blocked_modes.add(s2[1][0])
-                elif s2[0] == "bs":
-                    blocked_modes.add(s2[1][0])
-                    blocked_modes.add(s2[1][1])
-                elif s2[0] == "group":
-                    for m in range(s2[1][2], s2[1][3] + 1):
+                    blocked_modes.add(spec2.mode)
+                elif isinstance(spec2, BeamSplitter):
+                    blocked_modes.add(spec2.mode_1)
+                    blocked_modes.add(spec2.mode_2)
+                elif isinstance(spec2, Group):
+                    for m in range(spec2.mode_1, spec2.mode_2 + 1):
                         blocked_modes.add(m)
-                elif s2[0] == "mode_swaps":
+                elif isinstance(spec2, UnitaryMatrix):
+                    for m in range(
+                        spec2.mode, spec2.mode + spec2.unitary.shape[0]
+                    ):
+                        blocked_modes.add(m)
+                elif isinstance(spec2, ModeSwaps):
                     # When a mode swap is found check if any of its mode
                     # are in the blocked mode
-                    swaps = s2[1][0]
+                    swaps = spec2.swaps
                     for m in swaps:
                         # If they are then block all other modes of swap
                         if m in blocked_modes:
@@ -249,13 +273,13 @@ def compress_mode_swaps(spec: list) -> list:
                     else:
                         # Otherwise combine the original and found swap
                         # and update spec entry
-                        new_swaps = combine_mode_swap_dicts(s[1][0], swaps)
-                        s = ["mode_swaps", (new_swaps, None)]
+                        new_swaps = combine_mode_swap_dicts(spec.swaps, swaps)
+                        spec.swaps = new_swaps
                         # Also set to skip the swap that was combine
                         to_skip.append(i + 1 + j)
-            new_spec.append(s)
+            new_spec.append(spec)
         else:
-            new_spec.append(s)
+            new_spec.append(spec)
 
     return new_spec
 

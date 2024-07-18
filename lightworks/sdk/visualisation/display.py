@@ -32,6 +32,7 @@ def Display(  # noqa: N802
     display_loss: bool = False,
     mode_labels: list[str] | None = None,
     display_type: str = "svg",
+    show_parameter_values: bool = False,
 ) -> tuple[matplotlib.figure.Figure, plt.Axes] | drawsvg.Drawing:
     """
     Used to Display a circuit from lightworks in the chosen format.
@@ -51,6 +52,9 @@ def Display(  # noqa: N802
             matplotlib module should be used for displaying the circuit. Should
             either be 'svg' or 'mpl', defaults to 'svg'.
 
+        show_parameter_values (bool, optional) : Shows the values of parameters
+            instead of the associated labels if specified.
+
     Returns:
 
         (fig, ax) | Drawing : The created figure and axis or drawing for the
@@ -63,10 +67,14 @@ def Display(  # noqa: N802
 
     """
     if display_type == "mpl":
-        disp = DrawCircuitMPL(circuit, display_loss, mode_labels)
+        disp = DrawCircuitMPL(
+            circuit, display_loss, mode_labels, show_parameter_values
+        )
         fig, ax = disp.draw()
         return (fig, ax)
     if display_type == "svg":
-        disp_svg = DrawCircuitSVG(circuit, display_loss, mode_labels)
+        disp_svg = DrawCircuitSVG(
+            circuit, display_loss, mode_labels, show_parameter_values
+        )
         return disp_svg.draw()
     raise DisplayError("Display type not recognised.")

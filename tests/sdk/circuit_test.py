@@ -25,6 +25,13 @@ from lightworks import (
     Unitary,
     random_unitary,
 )
+from lightworks.qubit import CNOT
+from lightworks.sdk.circuit.components import (
+    BeamSplitter,
+    Component,
+    Group,
+    ModeSwaps,
+)
 
 
 class TestCircuit:
@@ -256,6 +263,24 @@ class TestCircuit:
         # Unitary should not be modified
         assert (u_1 == u_2).all()
 
+    def test_circuit_copy_parameter_freeze_group(self):
+        """
+        Checks copy method of the circuit can be used with the freeze parameter
+        argument to create a new circuit without the Parameter objects, while
+        one of the parameters is in a group.
+        """
+        circ = Circuit(self.param_circuit.n_modes + 2)
+        circ.bs(0)
+        circ.bs(2)
+        circ.add(self.param_circuit, 1, group=True)
+        copied_circ = circ.copy(freeze_parameters=True)
+        u_1 = copied_circ.U_full
+        # Modify parameter and get new unitary from copied circuit
+        self.parameters["bs_0_0"] = 4
+        u_2 = copied_circ.U_full
+        # Unitary should not be modified
+        assert (u_1 == u_2).all()
+
     def test_circuit_ungroup(self):
         """
         Check that the unpack_groups method removes any grouped components from
@@ -276,7 +301,7 @@ class TestCircuit:
         circuit.unpack_groups()
         group_found = False
         for spec in circuit._get_circuit_spec():
-            if spec[0] == "group":
+            if isinstance(spec, Group):
                 group_found = True
         assert not group_found
 
@@ -296,9 +321,40 @@ class TestCircuit:
         # Apply method and check all remaining beam splitters
         circuit.remove_non_adjacent_bs()
         for spec in circuit._get_circuit_spec():
-            if spec[0] == "bs":
+            if isinstance(spec, BeamSplitter):
                 # Check it acts on adjacent modes, otherwise fail
-                if spec[1][0] != spec[1][1] - 1:
+                if spec.mode_1 != spec.mode_2 - 1:
+                    pytest.fail(
+                        "Beam splitter which acts on non-adjacent modes found "
+                        "in circuit spec."
+                    )
+
+    def test_remove_non_adj_bs_grouped_success(self):
+        """
+        Checks that the remove_non_adjacent_bs method of the circuit is able
+        to successfully remove all beam splitters which act on non-adjacent
+        modes when groups are included.
+        """
+        # Create circuit with beam splitters across non-adjacent modes
+        circuit = Circuit(8)
+        circuit.bs(0, 7)
+        circuit.bs(1, 4)
+        circuit.bs(2, 6)
+        circuit.bs(3, 7)
+        circuit.bs(0, 1)
+        # Then create smaller second circuit and add, with group = True
+        circuit2 = Circuit(6)
+        circuit2.bs(1, 4)
+        circuit2.bs(2, 5)
+        circuit2.bs(3)
+        circuit.add(circuit2, 1, group=True)
+        # Apply method and check all remaining beam splitters
+        circuit.remove_non_adjacent_bs()
+        circuit.unpack_groups()
+        for spec in circuit._get_circuit_spec():
+            if isinstance(spec, BeamSplitter):
+                # Check it acts on adjacent modes, otherwise fail
+                if spec.mode_1 != spec.mode_2 - 1:
                     pytest.fail(
                         "Beam splitter which acts on non-adjacent modes found "
                         "in circuit spec."
@@ -367,6 +423,27 @@ class TestCircuit:
         u2 = abs(circuit.U).round(8)
         assert (u1 == u2).all()
 
+    def test_compress_mode_swap_equivalance_unitary(self):
+        """
+        Tests the circuit compress_mode_swaps method retains the circuit
+        unitary while a unitary matrix component is included.
+        """
+        # Create circuit with a few components and then mode swaps
+        circuit = Circuit(8)
+        circuit.bs(0)
+        circuit.bs(4)
+        circuit.add(Unitary(random_unitary(4)), 2)
+        circuit.mode_swaps({1: 3, 3: 5, 5: 6, 6: 1})
+        circuit.mode_swaps({0: 1, 2: 4, 1: 2, 4: 0})
+        circuit.mode_swaps({5: 3, 3: 5})
+        circuit.bs(0)
+        circuit.bs(4)
+        # Apply method and check unitary equivalence
+        u1 = abs(circuit.U).round(8)
+        circuit.compress_mode_swaps()
+        u2 = abs(circuit.U).round(8)
+        assert (u1 == u2).all()
+
     def test_compress_mode_swap_removes_components(self):
         """
         Tests the circuit compress_mode_swaps method is able to reduce it down
@@ -386,7 +463,48 @@ class TestCircuit:
         circuit.compress_mode_swaps()
         counter = 0
         for spec in circuit._get_circuit_spec():
-            if spec[0] == "mode_swaps":
+            if isinstance(spec, ModeSwaps):
+                counter += 1
+        assert counter == 2
+
+    @pytest.mark.parametrize(
+        ("component", "args"),
+        [("bs", [2, 4]), ("ps", [4, 1]), ("loss", [4, 1])],
+    )
+    def test_compress_mode_swap_blocked_by_component(self, component, args):
+        """
+        Tests the circuit compress_mode_swaps method is blocked by a range of
+        components.
+        """
+        # Create circuit with a few components and then mode swaps
+        circuit = Circuit(8)
+        circuit.mode_swaps({4: 5, 5: 6, 6: 4})
+        getattr(circuit, component)(*args)
+        circuit.mode_swaps({4: 5, 5: 6, 6: 4})
+        # Apply method and check two mode_swap components are still present
+        circuit.compress_mode_swaps()
+        counter = 0
+        for spec in circuit._get_circuit_spec():
+            if isinstance(spec, ModeSwaps):
+                counter += 1
+        assert counter == 2
+
+    @pytest.mark.parametrize("mode", [1, 3, 5])
+    def test_compress_mode_swap_blocked_by_unitary(self, mode):
+        """
+        Tests the circuit compress_mode_swaps method is blocked by a unitary
+        matrix
+        """
+        # Create circuit with a few components and then mode swaps
+        circuit = Circuit(8)
+        circuit.mode_swaps({3: 4, 4: 5, 5: 3})
+        circuit.add(Unitary(random_unitary(3)), mode)
+        circuit.mode_swaps({3: 4, 4: 5, 5: 3})
+        # Apply method and check two mode_swap components are still present
+        circuit.compress_mode_swaps()
+        counter = 0
+        for spec in circuit._get_circuit_spec():
+            if isinstance(spec, ModeSwaps):
                 counter += 1
         assert counter == 2
 
@@ -408,7 +526,7 @@ class TestCircuit:
         circuit.unpack_groups()  # unpack groups for counting
         counter = 0
         for spec in circuit._get_circuit_spec():
-            if spec[0] == "mode_swaps":
+            if isinstance(spec, ModeSwaps):
                 counter += 1
         assert counter == 2
 
@@ -523,10 +641,12 @@ class TestCircuit:
         sub_circ.herald(1, 3, 3)
         circuit.add(sub_circ, 1)
         # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
-        spec = circuit._Circuit__circuit_spec
+        spec = circuit._get_circuit_spec()
         # Get relevant elements from spec
-        assert spec[0][1][0:2] == (0, 2)
-        assert spec[1][1][0:2] == (3, 5)
+        assert spec[0].mode_1 == 0
+        assert spec[0].mode_2 == 2
+        assert spec[1].mode_1 == 3
+        assert spec[1].mode_2 == 5
 
     def test_heralded_circuit_addition_circ_modification_2(self):
         """
@@ -543,10 +663,12 @@ class TestCircuit:
         sub_circ.herald(1, 3, 3)
         circuit.add(sub_circ, 0)
         # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
-        spec = circuit._Circuit__circuit_spec
+        spec = circuit._get_circuit_spec()
         # Get relevant elements from spec
-        assert spec[0][1][0:2] == (1, 2)
-        assert spec[1][1][0:2] == (4, 5)
+        assert spec[0].mode_1 == 1
+        assert spec[0].mode_2 == 2
+        assert spec[1].mode_1 == 4
+        assert spec[1].mode_2 == 5
 
     def test_heralded_circuit_addition_circ_modification_3(self):
         """
@@ -563,10 +685,12 @@ class TestCircuit:
         sub_circ.herald(1, 1, 0)
         circuit.add(sub_circ, 1)
         # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
-        spec = circuit._Circuit__circuit_spec
+        spec = circuit._get_circuit_spec()
         # Get relevant elements from spec
-        assert spec[0][1][0:2] == (0, 3)
-        assert spec[1][1][0:2] == (4, 5)
+        assert spec[0].mode_1 == 0
+        assert spec[0].mode_2 == 3
+        assert spec[1].mode_1 == 4
+        assert spec[1].mode_2 == 5
 
     def test_heralded_circuit_addition_circ_modification_all_herald(self):
         """
@@ -585,10 +709,12 @@ class TestCircuit:
         sub_circ.herald(1, 3, 3)
         circuit.add(sub_circ, 1)
         # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
-        spec = circuit._Circuit__circuit_spec
+        spec = circuit._get_circuit_spec()
         # Get relevant elements from spec
-        assert spec[0][1][0:2] == (0, 5)
-        assert spec[1][1][0:2] == (6, 7)
+        assert spec[0].mode_1 == 0
+        assert spec[0].mode_2 == 5
+        assert spec[1].mode_1 == 6
+        assert spec[1].mode_2 == 7
 
     def test_heralded_two_circuit_addition_circ_modification(self):
         """
@@ -606,10 +732,12 @@ class TestCircuit:
         circuit.add(sub_circ, 2)
         circuit.add(sub_circ, 1)
         # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
-        spec = circuit._Circuit__circuit_spec
+        spec = circuit._get_circuit_spec()
         # Get relevant elements from spec
-        assert spec[0][1][0:2] == (0, 2)
-        assert spec[1][1][0:2] == (5, 7)
+        assert spec[0].mode_1 == 0
+        assert spec[0].mode_2 == 2
+        assert spec[1].mode_1 == 5
+        assert spec[1].mode_2 == 7
 
     def test_input_modes(self):
         """
@@ -674,8 +802,26 @@ class TestCircuit:
         # Add bs on modes
         circuit.bs(*initial_modes)
         # Then check modes are converted to correct values
-        assert circuit._Circuit__circuit_spec[0][1][0] == final_modes[0]
-        assert circuit._Circuit__circuit_spec[0][1][1] == final_modes[1]
+        assert circuit._Circuit__circuit_spec[0].mode_1 == final_modes[0]
+        assert circuit._Circuit__circuit_spec[0].mode_2 == final_modes[1]
+
+    @pytest.mark.parametrize("convention", ["Rx", "H"])
+    def test_bs_valid_convention(self, convention):
+        """
+        Checks beam splitter accepts valid conventions.
+        """
+        circuit = Circuit(3)
+        circuit.bs(0, convention=convention)
+
+    @pytest.mark.parametrize("convention", ["Rx", "H"])
+    def test_bs_valid_convention_splitting_ratio(self, convention):
+        """
+        Checks all beam splitter conventions with reflectivity of 0.5 implement
+        the intended splitting ratio.
+        """
+        circuit = Circuit(3)
+        circuit.bs(0, convention=convention)
+        assert abs(circuit.U[0, 0]) ** 2 == pytest.approx(0.5)
 
     def test_bs_invalid_convention(self):
         """
@@ -685,6 +831,25 @@ class TestCircuit:
         circuit = Circuit(3)
         with pytest.raises(ValueError):
             circuit.bs(0, convention="Not valid")
+
+    @pytest.mark.parametrize("value", [-0.5, 1.4])
+    def test_bs_invalid_reflectivity(self, value):
+        """
+        Checks a ValueError is raised if an invalid beam splitter reflectivity
+        is set.
+        """
+        circuit = Circuit(3)
+        with pytest.raises(ValueError):
+            circuit.bs(0, reflectivity=value)
+
+    def test_mode_swaps_invalid(self):
+        """
+        Checks a ValueError is raised if an invalid mode swap configuration is
+        set.
+        """
+        circuit = Circuit(3)
+        with pytest.raises(ValueError):
+            circuit.mode_swaps({0: 1})
 
     def test_get_all_params(self):
         """
@@ -734,6 +899,36 @@ class TestCircuit:
         circuit._Circuit__circuit_spec = [["test", None]]
         with pytest.raises(CircuitCompilationError):
             circuit._build()
+
+    def test_all_circuit_spec_components(self):
+        """
+        Confirms that all elements in a created circuit spec are components
+        """
+        circuit = Circuit(6)
+        circuit.bs(0, 1)
+        circuit.ps(2, 2)
+        circuit.mode_swaps({0: 1, 1: 2, 2: 0})
+        circuit.barrier()
+        circuit.loss(3, 1)
+        # Define sub-circuit to add
+        sub_circuit = Circuit(4)
+        circuit.bs(0, 1)
+        circuit.ps(2, 2)
+        circuit.mode_swaps({0: 1, 1: 2, 2: 0})
+        circuit.barrier()
+        circuit.loss(3, 1)
+        # Also include CNOT
+        circuit.add(sub_circuit, 1, group=True)
+        circuit.add(CNOT(), 1)
+        # Check all are components
+        assert all(
+            isinstance(c, Component) for c in circuit._get_circuit_spec()
+        )
+        # Unpack the circuit spec and repeat
+        circuit.unpack_groups()
+        assert all(
+            isinstance(c, Component) for c in circuit._get_circuit_spec()
+        )
 
 
 class TestUnitary:

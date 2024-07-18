@@ -172,3 +172,12 @@ class TestCompiledCircuit:
         circuit = CompiledCircuit(4)
         with pytest.raises(AttributeError):
             circuit.n_modes = 6
+
+    def test_bs_invalid_convention(self):
+        """
+        Checks a ValueError is raised if an invalid beam splitter convention is
+        set in bs.
+        """
+        circuit = CompiledCircuit(3)
+        with pytest.raises(ValueError):
+            circuit.add_bs(0, convention="Not valid")
