@@ -18,8 +18,8 @@ Dedicated unitary component for implementing unitary matrices on a circuit.
 
 import numpy as np
 
-from ..utils import check_unitary
 from .circuit import Circuit
+from .components import UnitaryMatrix
 
 
 class Unitary(Circuit):
@@ -35,20 +35,7 @@ class Unitary(Circuit):
     """
 
     def __init__(self, unitary: np.ndarray, label: str = "U") -> None:
-        # Check type of supplied unitary
-        if not isinstance(unitary, (np.ndarray, list)):
-            raise TypeError("Unitary should be a numpy array or list.")
-        unitary = np.array(unitary)
-
-        # Ensure unitary is valid
-        if not check_unitary(unitary):
-            raise ValueError("Provided matrix is not unitary.")
-
-        # Also check label is a string
-        if not isinstance(label, str):
-            raise TypeError("Label for unitary should be a string.")
-
         super().__init__(int(unitary.shape[0]))
-        self._Circuit__circuit_spec = [["unitary", (0, unitary, label)]]
+        self._Circuit__circuit_spec.append(UnitaryMatrix(0, unitary, label))
 
         return

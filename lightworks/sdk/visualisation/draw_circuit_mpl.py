@@ -19,7 +19,17 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 
+from ..circuit.components import (
+    Barrier,
+    BeamSplitter,
+    Group,
+    Loss,
+    ModeSwaps,
+    PhaseShifter,
+    UnitaryMatrix,
+)
 from ..utils import DisplayError
+from .display_utils import process_parameter_value
 
 if TYPE_CHECKING:
     from ..circuit import Circuit
@@ -43,6 +53,9 @@ class DrawCircuitMPL:
             labels which will be used to name the mode something other than
             numerical values. Can be set to None to use default values.
 
+        show_parameter_values (bool, optional) : Shows the values of parameters
+            instead of the associated labels if specified.
+
     """
 
     def __init__(
@@ -50,10 +63,12 @@ class DrawCircuitMPL:
         circuit: "Circuit",
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
+        show_parameter_values: bool = False,
     ) -> None:
         self.circuit = circuit
         self.display_loss = display_loss
         self.mode_labels = mode_labels
+        self.show_parameter_values = show_parameter_values
         self.n_modes = self.circuit.n_modes
         self.herald_modes = self.circuit._internal_modes
 
@@ -64,7 +79,7 @@ class DrawCircuitMPL:
         # Set a waveguide width and get mode number
         self.wg_width = 0.05
         # Adjust size of figure according to circuit with min size 4 and max 40
-        s = min(len(self.circuit._display_spec), 40)
+        s = min(len(self.circuit._get_circuit_spec()), 40)
         s = max(s, 4)
         # Create fig and set aspect to equal
         self.fig, self.ax = plt.subplots(figsize=(s, s), dpi=200)
@@ -95,37 +110,37 @@ class DrawCircuitMPL:
                 if i not in self.herald_modes:
                     self._add_wg(self.x_locations[i], self.y_locations[i], 0.5)
                     self.x_locations[i] += 0.5
-        # Loop over build spec and add each component
-        for spec in self.circuit._display_spec:
-            c, modes = spec[0:2]
-            params = spec[2]
-            if c == "PS":
-                self._add_ps(modes, params)
-            elif c == "BS":
-                m1, m2 = modes
-                ref = params
-                if m1 > m2:
-                    m1, m2 = m2, m1
-                self._add_bs(m1, m2, ref)
-            elif c == "LC" and self.display_loss:
-                self._add_loss(modes, params)
-            elif c == "barrier":
-                self._add_barrier(modes)
-            elif c == "mode_swaps":
-                if not modes:
+        # Loop over circuit spec and add each component
+        for spec in self.circuit._get_circuit_spec():
+            if isinstance(spec, PhaseShifter):
+                phi = process_parameter_value(
+                    spec.phi, self.show_parameter_values
+                )
+                self._add_ps(spec.mode, phi)
+            elif isinstance(spec, BeamSplitter):
+                reflectivity = process_parameter_value(
+                    spec.reflectivity, self.show_parameter_values
+                )
+                self._add_bs(spec.mode_1, spec.mode_2, reflectivity)
+            elif isinstance(spec, Loss):
+                loss = process_parameter_value(
+                    spec.loss, self.show_parameter_values
+                )
+                self._add_loss(spec.mode, loss)
+            elif isinstance(spec, Barrier):
+                self._add_barrier(spec.modes)
+            elif isinstance(spec, ModeSwaps):
+                if not spec.swaps:
                     continue
-                self._add_mode_swaps(modes)
-            elif c == "unitary":
-                m1, m2 = modes
-                if m1 > m2:
-                    m1, m2 = m2, m1
-                self._add_unitary(m1, m2, params)
-            elif c == "group":
-                m1, m2 = modes
-                if m1 > m2:
-                    m1, m2 = m2, m1
-                name, heralds = params
-                self._add_grouped_circuit(m1, m2, name, heralds)
+                self._add_mode_swaps(spec.swaps)
+            elif isinstance(spec, UnitaryMatrix):
+                self._add_unitary(
+                    spec.mode, spec.mode + spec.unitary.shape[0] - 1, spec.label
+                )
+            elif isinstance(spec, Group):
+                self._add_grouped_circuit(
+                    spec.mode_1, spec.mode_2, spec.name, spec.heralds
+                )
         # Add any final lengths as required
         final_loc = max(self.x_locations)
         # Extend final waveguide if herald included
@@ -257,6 +272,8 @@ class DrawCircuitMPL:
 
     def _add_bs(self, mode1: int, mode2: int, ref: float) -> None:
         """Add a beam splitter across to provided modes to the axis."""
+        if mode1 > mode2:
+            mode1, mode2 = mode2, mode1
         size_x = 0.5  # x beam splitter size
         con_length = 0.5  # input/output waveguide length
         offset = 0.5  # Offset of beam splitter shape from mode centres
@@ -394,6 +411,10 @@ class DrawCircuitMPL:
         con_length = 0.25  # input/output waveguide length
         min_mode = min(swaps)
         max_mode = max(swaps)
+        # Add in missing mode for swap
+        for m in range(min_mode, max_mode + 1):
+            if m not in swaps:
+                swaps[m] = m
         # Get x and y locations
         xloc = max(self.x_locations[min_mode : max_mode + 1])
         ylocs = []
@@ -494,6 +515,8 @@ class DrawCircuitMPL:
         self, mode1: int, mode2: int, name: str, heralds: dict
     ) -> None:
         """Add a grouped circuit drawing to the axis."""
+        if mode1 > mode2:
+            mode1, mode2 = mode2, mode1
         size_x = 1  # x size
         con_length = 0.5  # Input/output waveguide lengths
         extra_length = 0.5 if heralds["input"] or heralds["output"] else 0
