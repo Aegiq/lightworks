@@ -191,19 +191,22 @@ def convert_two_qubits_to_adjacent(q0: int, q1: int) -> tuple[int, int, list]:
     other, and determining the swaps required for this. The order of the two
     qubits is preserved, so if q0 > q1 then this will remain True.
     """
+    if abs(q1 - q0) == 1:
+        return (q0, q1, [])
     swaps = []
-    if abs(q1 - q0) != 1:
-        new_upper = max(q0, q1)
-        new_lower = min(q0, q1)
-        while new_upper - new_lower != 1:
-            new_upper -= 1
-            if new_upper - new_lower == 1:
-                break
-            new_lower += 1
+    new_upper = max(q0, q1)
+    new_lower = min(q0, q1)
+    while new_upper - new_lower != 1:
+        new_upper -= 1
+        if new_upper - new_lower == 1:
+            break
+        new_lower += 1
+    if min(q0, q1) != new_lower:
         swaps.append((min(q0, q1), new_lower))
+    if max(q0, q1) != new_upper:
         swaps.append((max(q0, q1), new_upper))
-        if q0 < q1:
-            q0, q1 = new_lower, new_upper
-        else:
-            q0, q1 = new_upper, new_lower
+    if q0 < q1:
+        q0, q1 = new_lower, new_upper
+    else:
+        q0, q1 = new_upper, new_lower
     return (q0, q1, swaps)
