@@ -263,6 +263,24 @@ class TestCircuit:
         # Unitary should not be modified
         assert (u_1 == u_2).all()
 
+    def test_circuit_copy_parameter_freeze_group(self):
+        """
+        Checks copy method of the circuit can be used with the freeze parameter
+        argument to create a new circuit without the Parameter objects, while
+        one of the parameters is in a group.
+        """
+        circ = Circuit(self.param_circuit.n_modes + 2)
+        circ.bs(0)
+        circ.bs(2)
+        circ.add(self.param_circuit, 1, group=True)
+        copied_circ = circ.copy(freeze_parameters=True)
+        u_1 = copied_circ.U_full
+        # Modify parameter and get new unitary from copied circuit
+        self.parameters["bs_0_0"] = 4
+        u_2 = copied_circ.U_full
+        # Unitary should not be modified
+        assert (u_1 == u_2).all()
+
     def test_circuit_ungroup(self):
         """
         Check that the unpack_groups method removes any grouped components from
@@ -442,6 +460,47 @@ class TestCircuit:
         circuit.bs(4)
         circuit.mode_swaps({0: 1, 2: 4, 1: 2, 4: 0})
         # Apply method and check only two mode_swap components are present
+        circuit.compress_mode_swaps()
+        counter = 0
+        for spec in circuit._get_circuit_spec():
+            if isinstance(spec, ModeSwaps):
+                counter += 1
+        assert counter == 2
+
+    @pytest.mark.parametrize(
+        ("component", "args"),
+        [("bs", [2, 4]), ("ps", [4, 1]), ("loss", [4, 1])],
+    )
+    def test_compress_mode_swap_blocked_by_component(self, component, args):
+        """
+        Tests the circuit compress_mode_swaps method is blocked by a range of
+        components.
+        """
+        # Create circuit with a few components and then mode swaps
+        circuit = Circuit(8)
+        circuit.mode_swaps({4: 5, 5: 6, 6: 4})
+        getattr(circuit, component)(*args)
+        circuit.mode_swaps({4: 5, 5: 6, 6: 4})
+        # Apply method and check two mode_swap components are still present
+        circuit.compress_mode_swaps()
+        counter = 0
+        for spec in circuit._get_circuit_spec():
+            if isinstance(spec, ModeSwaps):
+                counter += 1
+        assert counter == 2
+
+    @pytest.mark.parametrize("mode", [1, 3, 5])
+    def test_compress_mode_swap_blocked_by_unitary(self, mode):
+        """
+        Tests the circuit compress_mode_swaps method is blocked by a unitary
+        matrix
+        """
+        # Create circuit with a few components and then mode swaps
+        circuit = Circuit(8)
+        circuit.mode_swaps({3: 4, 4: 5, 5: 3})
+        circuit.add(Unitary(random_unitary(3)), mode)
+        circuit.mode_swaps({3: 4, 4: 5, 5: 3})
+        # Apply method and check two mode_swap components are still present
         circuit.compress_mode_swaps()
         counter = 0
         for spec in circuit._get_circuit_spec():
@@ -746,6 +805,24 @@ class TestCircuit:
         assert circuit._Circuit__circuit_spec[0].mode_1 == final_modes[0]
         assert circuit._Circuit__circuit_spec[0].mode_2 == final_modes[1]
 
+    @pytest.mark.parametrize("convention", ["Rx", "H"])
+    def test_bs_valid_convention(self, convention):
+        """
+        Checks beam splitter accepts valid conventions.
+        """
+        circuit = Circuit(3)
+        circuit.bs(0, convention=convention)
+
+    @pytest.mark.parametrize("convention", ["Rx", "H"])
+    def test_bs_valid_convention_splitting_ratio(self, convention):
+        """
+        Checks all beam splitter conventions with reflectivity of 0.5 implement
+        the intended splitting ratio.
+        """
+        circuit = Circuit(3)
+        circuit.bs(0, convention=convention)
+        assert abs(circuit.U[0, 0]) ** 2 == pytest.approx(0.5)
+
     def test_bs_invalid_convention(self):
         """
         Checks a ValueError is raised if an invalid beam splitter convention is
@@ -754,6 +831,25 @@ class TestCircuit:
         circuit = Circuit(3)
         with pytest.raises(ValueError):
             circuit.bs(0, convention="Not valid")
+
+    @pytest.mark.parametrize("value", [-0.5, 1.4])
+    def test_bs_invalid_reflectivity(self, value):
+        """
+        Checks a ValueError is raised if an invalid beam splitter reflectivity
+        is set.
+        """
+        circuit = Circuit(3)
+        with pytest.raises(ValueError):
+            circuit.bs(0, reflectivity=value)
+
+    def test_mode_swaps_invalid(self):
+        """
+        Checks a ValueError is raised if an invalid mode swap configuration is
+        set.
+        """
+        circuit = Circuit(3)
+        with pytest.raises(ValueError):
+            circuit.mode_swaps({0: 1})
 
     def test_get_all_params(self):
         """

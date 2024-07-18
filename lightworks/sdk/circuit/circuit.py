@@ -699,9 +699,7 @@ class Circuit:
         if isinstance(mode, bool):
             raise TypeError("Mode number should be an integer.")
         if not isinstance(mode, int):
-            if int(mode) == mode:
-                mode = int(mode)
-            else:
+            if int(mode) != mode:
                 raise TypeError("Mode number should be an integer.")
         if not (0 <= mode < self.n_modes):
             raise ModeRangeError(
