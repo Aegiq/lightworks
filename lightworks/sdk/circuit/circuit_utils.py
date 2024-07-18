@@ -255,9 +255,10 @@ def compress_mode_swaps(circuit_spec: list) -> list:
                 elif isinstance(spec2, Group):
                     for m in range(spec2.mode_1, spec2.mode_2 + 1):
                         blocked_modes.add(m)
-                # TODO: Test this works
                 elif isinstance(spec2, UnitaryMatrix):
-                    for m in range(spec2.mode, spec2.unitary.shape[0]):
+                    for m in range(
+                        spec2.mode, spec2.mode + spec2.unitary.shape[0]
+                    ):
                         blocked_modes.add(m)
                 elif isinstance(spec2, ModeSwaps):
                     # When a mode swap is found check if any of its mode
