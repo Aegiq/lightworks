@@ -22,7 +22,7 @@ omit = [
     "tests/*",
     "docs/*",
     "lightworks/sdk/optimisation/*",
-    "lightworks/qubit/__init__.py"
+    "lightworks/qubit/converter/__init__.py"
 ]
 
 ## mypy config
