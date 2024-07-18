@@ -1,7 +1,7 @@
 Qubit
 =====
 
-The qubit module offers tools for programming the gate-based paradigm of quantum computing within linear optic circuits, including a set of gates and a converter for moving between quantum programming languages.
+The Qubit module offers tools for programming the gate-based paradigm of quantum computing within linear optic circuits, including a set of gates and a converter for moving between quantum programming languages.
 
 .. _qubit_usage:
 
