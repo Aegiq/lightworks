@@ -171,8 +171,7 @@ class TestSamplingResult:
 class TestSimulationResult:
     """Unit tests for SimulationResult object."""
 
-    @pytest.fixture(autouse=True)
-    def setup_data(self) -> None:
+    def setup_method(self) -> None:
         """Create a variety of useful pieces of data for testing."""
         # Single input
         self.test_single_inputs = [State([1, 1, 0, 0])]
@@ -257,12 +256,12 @@ class TestSimulationResult:
         assert r[State([1, 1, 0, 0]), State([1, 0, 3, 0])] == 0.1
 
     @pytest.mark.parametrize(
-        "conv_to_probability,rtype",
+        ("conv_to_probability", "rtype"),
         [
-            [True, "probability_amplitude"],
-            [False, "probability_amplitude"],
-            [True, "probability"],
-            [False, "probability"],
+            (True, "probability_amplitude"),
+            (False, "probability_amplitude"),
+            (True, "probability"),
+            (False, "probability"),
         ],
     )
     def test_multi_input_plot(self, conv_to_probability, rtype):
@@ -288,12 +287,12 @@ class TestSimulationResult:
         matplotlib.use(original_backend)
 
     @pytest.mark.parametrize(
-        "conv_to_probability,rtype",
+        ("conv_to_probability", "rtype"),
         [
-            [True, "probability_amplitude"],
-            [False, "probability_amplitude"],
-            [True, "probability"],
-            [False, "probability"],
+            (True, "probability_amplitude"),
+            (False, "probability_amplitude"),
+            (True, "probability"),
+            (False, "probability"),
         ],
     )
     def test_single_input_plot(self, conv_to_probability, rtype):

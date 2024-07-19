@@ -26,7 +26,7 @@ class Constant(Distribution):
 
     """
 
-    def __init__(self, value: int | float) -> None:
+    def __init__(self, value: float) -> None:
         is_number(value)
         self._value = value
 

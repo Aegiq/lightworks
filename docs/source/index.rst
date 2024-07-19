@@ -6,7 +6,16 @@ Lightworks |release| Documentation
 Introduction
 ------------
 
-Lightworks is an open-source Python SDK, designed for the encoding of linear optic circuits for application in photonic quantum computing. It features a set of components which allow for the configuration of a target QPU to be defined, with powerful parametrisation and visualization tools for easy display and modification of created systems. Also provided within Lightworks is the emulator, which is a local simulation framework for the testing of a provided configuration before hardware execution, with the ability to account for the typical hardware errors seen within a system.
+Lightworks is an open-source Python SDK, designed for the encoding of linear optic circuits for application in photonic quantum computing. It features a set of components which allow for the configuration of a target QPU to be defined, with powerful parametrisation and visualization tools for easy display and modification of created systems.
+
+Structure
+^^^^^^^^^
+
+The core import of Lightworks is the SDK, which contains the components required to build and define a job, such as the Circuit & State objects. There is then a number of sub-packages included which offer different functionality, these are:
+
+* emulator : Enables local simulation of circuits, including the ability to implement complex photonic-specific error models.
+* qubit : For programming of qubit gates onto photonic circuits, also contains protocols for conversion of circuits from other languages.
+* interferometers : Replicates process of encoding a Lightworks circuit onto a QPU, and offers error modelling capability to examine the effect of errors within this.
 
 Where To Begin
 --------------
@@ -14,9 +23,6 @@ Where To Begin
 To get started, check out the :doc:`usage` section for further information on how Lightworks can be utilised, including how to :ref:`install <installation>` the project. 
 
 Once setup, there is then a set of tutorials for familiarization with the module, and some :doc:`examples/index` to demonstrate the different ways in which Lightworks can be applied. 
-
-.. note::
-   The following documentation is split into two components, the SDK and the emulator. The SDK components are those that are generally used to build and define a job, and these are directly accessible through the Lightworks import. The emulator components are the simulation tools for testing those jobs with classical computational tools, these require a separate module import.
 
 .. toctree::
    :maxdepth: 2
@@ -29,6 +35,7 @@ Once setup, there is then a set of tutorials for familiarization with the module
    tutorials/index
    sdk/index
    emulator/index
+   qubit/index
 
 .. toctree::
    :maxdepth: 2
@@ -44,6 +51,7 @@ Once setup, there is then a set of tutorials for familiarization with the module
 
    sdk_reference/index
    emulator_reference/index
+   qubit_reference/index
 
 .. toctree::
    :maxdepth: 2

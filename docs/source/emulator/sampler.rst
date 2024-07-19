@@ -18,10 +18,10 @@ As sampling is predominately how a hardware system is utilised, it is very usefu
               (3, np.pi/2, 0)]
 
     for m, t, p in to_add:
-        cnot_circuit.add_bs(m, reflectivity = 0.5)
-        cnot_circuit.add_ps(m+1, t)
-        cnot_circuit.add_bs(m, reflectivity = 0.5)
-        cnot_circuit.add_ps(m+1, p)
+        cnot_circuit.bs(m, reflectivity = 0.5)
+        cnot_circuit.ps(m+1, t)
+        cnot_circuit.bs(m, reflectivity = 0.5)
+        cnot_circuit.ps(m+1, p)
 
 Note that this CNOT gate requires a set of post-selection criteria to function correctly, but this will be discussed more later. We can view the created CNOT gate with ``display``. Mode labels can be specified to mark the ancillary (a) control qubit (c) and target qubit (t) modes.
 

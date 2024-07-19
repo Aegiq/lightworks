@@ -217,7 +217,7 @@ class Analyzer:
         for i, s in enumerate(inputs):
             out = expected[s]
             # Convert expected output to list if only one value provided
-            if type(out) == State:
+            if isinstance(out, State):
                 out = [out]
             iprobs = probabilities[i, :]
             error = 1
@@ -274,7 +274,7 @@ class Analyzer:
         # Combine all n < n_in for lossy case
         else:
             outputs = []
-            for n in range(0, n_photons + 1):
+            for n in range(n_photons + 1):
                 outputs += fock_basis(n_modes, n)
         # Filter outputs according to post selection and add heralded photons
         filtered_outputs = []

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from multimethod import multimethod
 
 from ...sdk.circuit.circuit_compiler import CompiledCircuit
@@ -101,12 +103,12 @@ def annotated_state_pdist_calc(
     for state in inputs:
         # Find all labels in a given state
         all_labels = []
-        for mode in state:  # type: ignore
+        for mode in state:
             all_labels += mode
         # For all labels break them down into the corresponding states
         if all_labels:
             results = {lab: [0] * circuit.n_modes for lab in all_labels}
-            for i, mode in enumerate(state):  # type: ignore
+            for i, mode in enumerate(state):
                 for m in mode:
                     results[m][i] += 1
             states = [State(s) for s in results.values()]
@@ -117,7 +119,7 @@ def annotated_state_pdist_calc(
         input_combinations[state] = states
     # For each of the unique inputs then need to work out the probability
     # distribution
-    unique_results = {}
+    unique_results: dict[State, Any] = {}
     for in_state in unique_inputs:
         # Calculate sub distribution and store
         unique_results[in_state[: circuit.n_modes]] = (
@@ -126,7 +128,7 @@ def annotated_state_pdist_calc(
 
     # Pre-calculate dictionary items to improve speed
     for r, pdist in unique_results.items():
-        unique_results[r] = list(pdist.items())  # type: ignore
+        unique_results[r] = list(pdist.items())
     # Then combine the results above to work out the true output
     # probability for the inputs.
     stats_dict = {}

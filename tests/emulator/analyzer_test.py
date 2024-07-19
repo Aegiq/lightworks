@@ -28,20 +28,20 @@ class TestAnalyzer:
         self.circuit = Circuit(4)
         self.lossy_circuit = Circuit(4)
         for i, m in enumerate([0, 2, 1, 2, 0, 1]):
-            self.circuit.add_bs(m)
-            self.circuit.add_ps(m, phi=i)
-            self.circuit.add_bs(m)
-            self.circuit.add_ps(m + 1, phi=3 * i)
+            self.circuit.bs(m)
+            self.circuit.ps(m, phi=i)
+            self.circuit.bs(m)
+            self.circuit.ps(m + 1, phi=3 * i)
             # lossy circuit
-            self.lossy_circuit.add_bs(m, loss=1 + 0.2 * i)
-            self.lossy_circuit.add_ps(m, phi=i)
-            self.lossy_circuit.add_bs(m, loss=0.6 + 0.1 * i)
-            self.lossy_circuit.add_ps(m + 1, phi=3 * i)
+            self.lossy_circuit.bs(m, loss=1 + 0.2 * i)
+            self.lossy_circuit.ps(m, phi=i)
+            self.lossy_circuit.bs(m, loss=0.6 + 0.1 * i)
+            self.lossy_circuit.ps(m + 1, phi=3 * i)
 
     def test_hom(self):
         """Checks basic hom and confirms probability of |2,0> is 0.5."""
         circuit = Circuit(2)
-        circuit.add_bs(0)
+        circuit.bs(0)
         analyzer = Analyzer(circuit)
         results = analyzer.analyze(State([1, 1]))
         p = results[State([2, 0])]
@@ -54,10 +54,10 @@ class TestAnalyzer:
         """
         # Build circuit
         circuit = Circuit(4)
-        circuit.add_bs(1, reflectivity=0.6)
-        circuit.add_mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
-        circuit.add_bs(0, 3, reflectivity=0.3)
-        circuit.add_bs(0)
+        circuit.bs(1, reflectivity=0.6)
+        circuit.mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
+        circuit.bs(0, 3, reflectivity=0.3)
+        circuit.bs(0)
         # And check output counts
         analyzer = Analyzer(circuit)
         results = analyzer.analyze(State([1, 0, 0, 1]))
@@ -80,7 +80,7 @@ class TestAnalyzer:
     def test_analyzer_complex(self):
         """Check analyzer result when using post-selection and heralding."""
         # Add heralding mode
-        self.circuit.add_herald(0, 3)
+        self.circuit.herald(0, 3)
         analyzer = Analyzer(self.circuit)
         # Just heralding
         results = analyzer.analyze(State([1, 0, 1]))
@@ -100,7 +100,7 @@ class TestAnalyzer:
         lossy circuit.
         """
         # Add heralding mode
-        self.lossy_circuit.add_herald(0, 3)
+        self.lossy_circuit.herald(0, 3)
         analyzer = Analyzer(self.lossy_circuit)
         # Just heralding
         results = analyzer.analyze(State([1, 0, 1]))
@@ -122,7 +122,7 @@ class TestAnalyzer:
         lossy circuit which has been added to another circuit.
         """
         # Add heralding mode
-        self.lossy_circuit.add_herald(0, 3)
+        self.lossy_circuit.herald(0, 3)
         new_circ = Circuit(
             self.lossy_circuit.n_modes
             - len(self.lossy_circuit.heralds["input"])
@@ -164,7 +164,7 @@ class TestAnalyzer:
         results = analyzer.analyze(State([1, 0, 1, 0]))
         p = results[State([1, 1, 0, 0])]
         # Update circuit and get results
-        circuit.add_bs(0)
+        circuit.bs(0)
         results = analyzer.analyze(State([1, 0, 1, 0]))
         p2 = results[State([1, 1, 0, 0])]
         assert p != p2
@@ -176,9 +176,9 @@ class TestAnalyzer:
         """
         param = Parameter(0.3)
         circuit = Circuit(4)
-        circuit.add_bs(0, reflectivity=param)
-        circuit.add_bs(2, reflectivity=param)
-        circuit.add_bs(1, reflectivity=param)
+        circuit.bs(0, reflectivity=param)
+        circuit.bs(2, reflectivity=param)
+        circuit.bs(1, reflectivity=param)
         # Create analyzer and get results
         analyzer = Analyzer(circuit)
         analyzer.set_post_selection(lambda s: s[0] == 1)

@@ -83,7 +83,7 @@ class TestSource:
         assert len(stats) == 89
 
     @pytest.mark.parametrize(
-        "value,error",
+        ("value", "error"),
         [
             (True, TypeError),
             ("0.7", TypeError),
@@ -100,7 +100,7 @@ class TestSource:
             source.purity = value
 
     @pytest.mark.parametrize(
-        "value,error",
+        ("value", "error"),
         [
             (True, TypeError),
             ("0.5", TypeError),
@@ -117,7 +117,7 @@ class TestSource:
             source.brightness = value
 
     @pytest.mark.parametrize(
-        "value,error",
+        ("value", "error"),
         [
             (True, TypeError),
             ("0.5", TypeError),
@@ -135,7 +135,7 @@ class TestSource:
             source.indistinguishability = value
 
     @pytest.mark.parametrize(
-        "value,error",
+        ("value", "error"),
         [
             (True, TypeError),
             ("0.5", TypeError),

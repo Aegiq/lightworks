@@ -97,7 +97,7 @@ class Sampler:
 
     @input_state.setter
     def input_state(self, value: State) -> None:
-        if type(value) != State:
+        if not isinstance(value, State):
             raise TypeError("A single input of type State should be provided.")
         if len(value) != self.circuit.input_modes:
             raise ModeMismatchError(

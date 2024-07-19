@@ -17,8 +17,18 @@ from typing import TYPE_CHECKING
 import drawsvg as draw
 import numpy as np
 
+from ..circuit.components import (
+    Barrier,
+    BeamSplitter,
+    Group,
+    Loss,
+    ModeSwaps,
+    PhaseShifter,
+    UnitaryMatrix,
+)
 from ..utils import DisplayError
 from .display_components_svg import DrawSVGComponents
+from .display_utils import process_parameter_value
 
 if TYPE_CHECKING:
     from ..circuit import Circuit
@@ -42,6 +52,9 @@ class DrawCircuitSVG:
             labels which will be used to name the mode something other than
             numerical values. Can be set to None to use default values.
 
+        show_parameter_values (bool, optional) : Shows the values of parameters
+            instead of the associated labels if specified.
+
     """
 
     def __init__(
@@ -49,10 +62,12 @@ class DrawCircuitSVG:
         circuit: "Circuit",
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
+        show_parameter_values: bool = False,
     ) -> None:
         self.circuit = circuit
         self.display_loss = display_loss
         self.herald_modes = self.circuit._internal_modes
+        self.show_parameter_values = show_parameter_values
         # Set a waveguide width and get mode number
         self.wg_width = 8
         self.n_modes = self.circuit.n_modes
@@ -94,7 +109,7 @@ class DrawCircuitSVG:
                 full_mode_labels.append("-")
         mode_labels = full_mode_labels
         # Adjust canvas size for long labels
-        max_len = max([len(m) for m in mode_labels])
+        max_len = max(len(m) for m in mode_labels)
         if max_len > 4:
             init_length += (max_len - 4) * 17.5
         for m, label in enumerate(mode_labels):
@@ -121,37 +136,37 @@ class DrawCircuitSVG:
                 if m not in self.herald_modes:
                     self._add_wg(self.x_locations[m], self.y_locations[m], 50)
                     self.x_locations[m] += 50
-        # Loop over each element in the build spec and add
-        for spec in self.circuit._display_spec:
-            c, modes = spec[0:2]
-            params = spec[2]
-            if c == "PS":
-                self._add_ps(modes, params)
-            elif c == "BS":  # TODO
-                m1, m2 = modes
-                ref = params
-                if m1 > m2:
-                    m1, m2 = m2, m1
-                self._add_bs(m1, m2, ref)
-            elif c == "LC" and self.display_loss:
-                self._add_loss(modes, params)
-            elif c == "barrier":
-                self._add_barrier(modes)
-            elif c == "mode_swaps":  # TODO
-                if not modes:
+        # Loop over each element in the circuit spec and add
+        for spec in self.circuit._get_circuit_spec():
+            if isinstance(spec, PhaseShifter):
+                phi = process_parameter_value(
+                    spec.phi, self.show_parameter_values
+                )
+                self._add_ps(spec.mode, phi)
+            elif isinstance(spec, BeamSplitter):
+                reflectivity = process_parameter_value(
+                    spec.reflectivity, self.show_parameter_values
+                )
+                self._add_bs(spec.mode_1, spec.mode_2, reflectivity)
+            elif isinstance(spec, Loss):
+                loss = process_parameter_value(
+                    spec.loss, self.show_parameter_values
+                )
+                self._add_loss(spec.mode, loss)
+            elif isinstance(spec, Barrier):
+                self._add_barrier(spec.modes)
+            elif isinstance(spec, ModeSwaps):
+                if not spec.swaps:
                     continue
-                self._add_mode_swaps(modes)
-            elif c == "unitary":  # TODO
-                m1, m2 = modes
-                if m1 > m2:
-                    m1, m2 = m2, m1
-                self._add_unitary(m1, m2, params)
-            elif c == "group":  # TODO
-                m1, m2 = modes
-                if m1 > m2:
-                    m1, m2 = m2, m1
-                name, heralds = params
-                self._add_grouped_circuit(m1, m2, name, heralds)
+                self._add_mode_swaps(spec.swaps)
+            elif isinstance(spec, UnitaryMatrix):
+                self._add_unitary(
+                    spec.mode, spec.mode + spec.unitary.shape[0] - 1, spec.label
+                )
+            elif isinstance(spec, Group):
+                self._add_grouped_circuit(
+                    spec.mode_1, spec.mode_2, spec.name, spec.heralds
+                )
 
         maxloc = max(self.x_locations)
         # Extend final waveguide if herald included
@@ -227,7 +242,8 @@ class DrawCircuitSVG:
 
         # Adjust size of figure to meet target scale
         target_scale = min(
-            50 + (self.n_modes - len(self.herald_modes)) * 65, 900
+            50 + (self.circuit.input_modes + 0.4 * len(self.herald_modes)) * 65,
+            900,
         )
         # target_scale = max(target_scale, 200)
         self.d.set_pixel_scale(1)
@@ -306,6 +322,8 @@ class DrawCircuitSVG:
 
     def _add_bs(self, mode1: int, mode2: int, ref: float) -> None:
         """Add a beam splitter across to provided modes to the drawing."""
+        if mode1 > mode2:
+            mode1, mode2 = mode2, mode1
         size_x = 50  # x beam splitter size
         con_length = 50  # input/output waveguide length
         offset = 50  # Offset of beam splitter shape from mode centres
@@ -472,7 +490,7 @@ class DrawCircuitSVG:
         Add a barrier which will separate different parts of the circuit. This
         is applied to the provided modes.
         """
-        max_loc = max([self.x_locations[m] for m in modes])
+        max_loc = max(self.x_locations[m] for m in modes)
         for m in modes:
             loc = self.x_locations[m]
             if loc < max_loc:
@@ -522,6 +540,8 @@ class DrawCircuitSVG:
         self, mode1: int, mode2: int, name: str, heralds: dict
     ) -> None:
         """Add a grouped_circuit representation to the drawing."""
+        if mode1 > mode2:
+            mode1, mode2 = mode2, mode1
         size_x = 100  # Drawing x size
         con_length = 50  # Input/output waveguide lengths
         extra_length = 50 if heralds["input"] or heralds["output"] else 0

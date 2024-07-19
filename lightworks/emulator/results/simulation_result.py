@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Iterable
+from typing import Any, Iterator
 
 import matplotlib.figure
 import matplotlib.pyplot as plt
@@ -158,7 +158,7 @@ class SimulationResult:
     def __str__(self) -> str:
         return str(self.dictionary)
 
-    def __iter__(self) -> Iterable:
+    def __iter__(self) -> Iterator:
         """Iterable to allow to do 'for input in SimulationResult'."""
         yield from self.dictionary
 
@@ -191,7 +191,7 @@ class SimulationResult:
             for out_state, val in self.dictionary[in_state].items():
                 new_s = State([1 if s >= 1 else 0 for s in out_state])
                 if invert:
-                    new_s = State([1 - s for s in new_s])  # type: ignore
+                    new_s = State([1 - s for s in new_s])
                 if new_s in mapped_result[in_state]:
                     mapped_result[in_state][new_s] += val
                 else:
@@ -258,7 +258,7 @@ class SimulationResult:
         conv_to_probability: bool = False,
         show: bool = True,
         state_labels: dict | None = None,
-    ) -> tuple[matplotlib.figure.Figure, plt.Axes] | None:
+    ) -> tuple[matplotlib.figure.Figure, plt.Axes | np.ndarray] | None:
         """
         Create a plot of the data contained in the result. This will either
         take the form of a heatmap or bar chart, depending on the nature of the
@@ -324,7 +324,7 @@ class SimulationResult:
                     if abs(p.real) > 0 or abs(p.imag) > 0:
                         to_print += str(p) + "*" + str(ostate) + " + "
             to_print = to_print[:-2]
-            print(to_print)
+            print(to_print)  # noqa: T201
 
         return
 
@@ -380,7 +380,7 @@ class SimulationResult:
 
     def _plot_array(
         self, conv_to_probability: bool, state_labels: dict
-    ) -> tuple[matplotlib.figure.Figure, plt.Axes]:
+    ) -> tuple[matplotlib.figure.Figure, plt.Axes | np.ndarray]:
         """
         Plots an array of the data contained within the Result object.
         """
@@ -393,7 +393,7 @@ class SimulationResult:
             state_labels[s] if s in state_labels else str(s)
             for s in self.inputs
         ]
-        # Vary process depending on result type
+        # Single plots
         if self.result_type != "probability_amplitude" or conv_to_probability:
             if self.result_type == "probability_amplitude":
                 a_data = abs(self.array) ** 2
@@ -409,25 +409,27 @@ class SimulationResult:
             ax.set_xticklabels(xlabels, rotation=90)
             ax.set_yticks(range(len(self.inputs)))
             ax.set_yticklabels(ylabels)
-        else:
-            fig, ax = plt.subplots(1, 2, figsize=(20, 6))
-            vmin = min([op(self.array).min() for op in [np.real, np.imag]])
-            vmax = min([op(self.array).max() for op in [np.real, np.imag]])
-            im = ax[0].imshow(np.real(self.array), vmin=vmin, vmax=vmax)
-            ax[0].set_title("real(result)")
-            ax[1].imshow(np.imag(self.array), vmin=vmin, vmax=vmax)
-            ax[1].set_title("imag(result)")
-            for i in range(2):
-                ax[i].set_xticks(range(len(self.outputs)))
-                ax[i].set_xticklabels(xlabels, rotation=90)
-                ax[i].set_yticks(range(len(self.inputs)))
-                ax[i].set_yticklabels(ylabels)
-            fig.colorbar(im, ax=ax.ravel().tolist())
-        return (fig, ax)
+            return fig, ax
+        # Otherwise create two plots
+        fig, axes = plt.subplots(1, 2, figsize=(20, 6))
+        axes = np.array(axes)
+        vmin = min(op(self.array).min() for op in [np.real, np.imag])
+        vmax = min(op(self.array).max() for op in [np.real, np.imag])
+        im = axes[0].imshow(np.real(self.array), vmin=vmin, vmax=vmax)
+        axes[0].set_title("real(result)")
+        axes[1].imshow(np.imag(self.array), vmin=vmin, vmax=vmax)
+        axes[1].set_title("imag(result)")
+        for i in range(2):
+            axes[i].set_xticks(range(len(self.outputs)))
+            axes[i].set_xticklabels(xlabels, rotation=90)
+            axes[i].set_yticks(range(len(self.inputs)))
+            axes[i].set_yticklabels(ylabels)
+        fig.colorbar(im, ax=axes.ravel().tolist())
+        return (fig, axes)
 
     def _plot_bar(
         self, conv_to_probability: bool, state_labels: dict
-    ) -> tuple[matplotlib.figure.Figure, plt.Axes]:
+    ) -> tuple[matplotlib.figure.Figure, plt.Axes | np.ndarray]:
         """
         Plots bar chart with data contained in Results object. This should only
         be used if there is a single input.
@@ -446,7 +448,7 @@ class SimulationResult:
 
             fig, ax = plt.subplots(figsize=(7, 6))
             x_data = range(len(d_data))
-            ax.bar(x_data, d_data.values())
+            ax.bar(x_data, list(d_data.values()))
             ax.set_xticks(x_data)
             labels = [
                 state_labels[s] if s in state_labels else str(s) for s in d_data
@@ -454,21 +456,22 @@ class SimulationResult:
             ax.set_xticklabels(labels, rotation=90)
             ax.set_xlabel("State")
             ax.set_ylabel(title)
+            return (fig, ax)
         # Plot both real and imaginary parts
-        else:
-            fig, ax = plt.subplots(1, 2, figsize=(14, 6))
-            x_data = range(len(self.dictionary[istate]))
-            ax[0].bar(x_data, np.real(list(self.dictionary[istate].values())))
-            ax[1].bar(x_data, np.imag(list(self.dictionary[istate].values())))
-            for i in range(2):
-                ax[i].set_xticks(x_data)
-                labels = [
-                    state_labels[s] if s in state_labels else str(s)
-                    for s in self.dictionary[istate]
-                ]
-                ax[i].set_xticklabels(labels, rotation=90)
-                ax[i].set_xlabel("State")
-                ax[i].axhline(0, color="black", linewidth=0.5)
-            ax[0].set_ylabel("real(amplitude)")
-            ax[1].set_ylabel("imag(amplitude)")
-        return (fig, ax)
+        fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+        axes = np.array(axes)
+        x_data = range(len(self.dictionary[istate]))
+        axes[0].bar(x_data, np.real(list(self.dictionary[istate].values())))
+        axes[1].bar(x_data, np.imag(list(self.dictionary[istate].values())))
+        for i in range(2):
+            axes[i].set_xticks(x_data)
+            labels = [
+                state_labels[s] if s in state_labels else str(s)
+                for s in self.dictionary[istate]
+            ]
+            axes[i].set_xticklabels(labels, rotation=90)
+            axes[i].set_xlabel("State")
+            axes[i].axhline(0, color="black", linewidth=0.5)
+        axes[0].set_ylabel("real(amplitude)")
+        axes[1].set_ylabel("imag(amplitude)")
+        return (fig, axes)

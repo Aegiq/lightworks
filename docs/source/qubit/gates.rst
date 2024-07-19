@@ -1,10 +1,7 @@
-Qubit Components
-================
+Qubit Gates
+===========
 
 Included within Lightworks is a set of standard photonic circuits for implementing the gates required for qubit-based paradigms of quantum computing. There is a number of the common single and two qubit gates, these gates are intended to act on dual-rail encoded qubits. More information on the exact requirements of each gate can be found below and in the class docstrings for each gate.
-
-.. note::
-    Currently, qubit support is still in development. The gates provided here are designed for addition to the linear optic circuits typically used in Lightworks, and are not able to be used in a native qubit encoding.
 
 Single Qubit Gates
 ------------------

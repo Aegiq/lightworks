@@ -19,6 +19,7 @@ after creation.
 
 from copy import copy, deepcopy
 from typing import TYPE_CHECKING, Any, Union
+from warnings import warn
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -29,7 +30,6 @@ if TYPE_CHECKING:
 
 from ..utils import (
     CircuitCompilationError,
-    DisplayError,
     ModeRangeError,
 )
 from ..visualisation import Display
@@ -40,8 +40,17 @@ from .circuit_utils import (
     check_loss,
     compress_mode_swaps,
     convert_non_adj_beamsplitters,
-    display_loss_check,
     unpack_circuit_spec,
+)
+from .components import (
+    Barrier,
+    BeamSplitter,
+    Component,
+    Group,
+    Loss,
+    ModeSwaps,
+    PhaseShifter,
+    UnitaryMatrix,
 )
 from .parameters import Parameter
 
@@ -65,7 +74,7 @@ class Circuit:
             else:
                 raise TypeError("Number of modes should be an integer.")
         self.__n_modes = n_modes
-        self.__circuit_spec: list[list] = []
+        self.__circuit_spec: list[Component] = []
         self.__in_heralds: dict[int, int] = {}
         self.__out_heralds: dict[int, int] = {}
         self.__external_in_heralds: dict[int, int] = {}
@@ -151,11 +160,6 @@ class Circuit:
         }
 
     @property
-    def _display_spec(self) -> list:
-        """The display spec for the circuit."""
-        return self._get_display_spec()
-
-    @property
     def _internal_modes(self) -> list:
         return self.__internal_modes
 
@@ -220,8 +224,8 @@ class Circuit:
         if name is None:
             spec = circuit.__circuit_spec
             # Special case where name is retrieved from previous group
-            if len(spec) == 1 and spec[0][0] == "group":
-                name = spec[0][1][1]
+            if len(spec) == 1 and isinstance(spec[0], Group):
+                name = spec[0].name
             # Otherwise default to circuit
             else:
                 name = "Circuit"
@@ -273,7 +277,7 @@ class Circuit:
                 current_mode += 1
         # Skip for cases where swaps do not alter mode structure
         if list(swaps.keys()) != list(swaps.values()):
-            spec.append(["mode_swaps", (swaps, None)])
+            spec.append(ModeSwaps(swaps))
         # Update heralds to enforce input and output are on the same mode
         new_heralds = {
             "input": circuit.heralds["input"],
@@ -291,20 +295,17 @@ class Circuit:
             self.__circuit_spec = self.__circuit_spec + add_cs
         else:
             self.__circuit_spec.append(
-                [
-                    "group",
-                    (
-                        add_cs,
-                        name,
-                        mode,
-                        mode + circuit.n_modes - 1,
-                        new_heralds,
-                    ),
-                ]
+                Group(
+                    add_cs,
+                    name,
+                    mode,
+                    mode + circuit.n_modes - 1,
+                    new_heralds,
+                )
             )
         return
 
-    def add_bs(
+    def bs(
         self,
         mode_1: int,
         mode_2: int | None = None,
@@ -344,23 +345,17 @@ class Circuit:
                 "Beam splitter must act across two different modes."
             )
         self._mode_in_range(mode_2)
+        # Validate loss before updating circuit spec
         check_loss(loss)
-        # Check correct convention is given
-        all_convs = ["Rx", "H"]
-        if convention not in all_convs:
-            msg = "Provided beam splitter convention should in ['"
-            for conv in all_convs:
-                msg += conv + ", "
-            msg = msg[:-2] + "']"
-            raise ValueError(msg)
+        # Then update circuit spec
         self.__circuit_spec.append(
-            ["bs", (mode_1, mode_2, reflectivity, convention)]
+            BeamSplitter(mode_1, mode_2, reflectivity, convention)
         )
         if isinstance(loss, Parameter) or loss > 0:
-            self.add_loss(mode_1, loss)
-            self.add_loss(mode_2, loss)
+            self.loss(mode_1, loss)
+            self.loss(mode_2, loss)
 
-    def add_ps(self, mode: int, phi: float, loss: float = 0) -> None:
+    def ps(self, mode: int, phi: float, loss: float = 0) -> None:
         """
         Applies a phase shift to a given mode in the circuit.
 
@@ -377,11 +372,11 @@ class Circuit:
         mode = self._map_mode(mode)
         self._mode_in_range(mode)
         check_loss(loss)
-        self.__circuit_spec.append(["ps", (mode, phi)])
+        self.__circuit_spec.append(PhaseShifter(mode, phi))
         if isinstance(loss, Parameter) or loss > 0:
-            self.add_loss(mode, loss)
+            self.loss(mode, loss)
 
-    def add_loss(self, mode: int, loss: float = 0) -> None:
+    def loss(self, mode: int, loss: float = 0) -> None:
         """
         Adds a loss channel to the specified mode of the circuit.
 
@@ -396,9 +391,9 @@ class Circuit:
         mode = self._map_mode(mode)
         self._mode_in_range(mode)
         check_loss(loss)
-        self.__circuit_spec.append(["loss", (mode, loss)])
+        self.__circuit_spec.append(Loss(mode, loss))
 
-    def add_barrier(self, modes: list | None = None) -> None:
+    def barrier(self, modes: list | None = None) -> None:
         """
         Adds a barrier to separate different parts of a circuit. This is
         applied to the specified modes.
@@ -410,15 +405,13 @@ class Circuit:
 
         """
         if modes is None:
-            modes = [
-                i for i in range(self.n_modes - len(self.__internal_modes))
-            ]
+            modes = list(range(self.n_modes - len(self.__internal_modes)))
         modes = [self._map_mode(i) for i in modes]
         for m in modes:
             self._mode_in_range(m)
-        self.__circuit_spec.append(["barrier", tuple([modes])])
+        self.__circuit_spec.append(Barrier(modes))
 
-    def add_mode_swaps(self, swaps: dict) -> None:
+    def mode_swaps(self, swaps: dict) -> None:
         """
         Performs swaps between a given set of modes. The keys of the dictionary
         should correspond to the initial modes and the values to the modes they
@@ -432,23 +425,15 @@ class Circuit:
                 locations that they are to be swapped to.
 
         """
-        # Remap swap dict
+        # Remap swap dict and check modes
         swaps = {
             self._map_mode(mi): self._map_mode(mo) for mi, mo in swaps.items()
         }
-        # Perform some error checking steps
-        in_modes = sorted(list(swaps.keys()))
-        out_modes = sorted(list(swaps.values()))
-        if in_modes != out_modes:
-            raise ValueError(
-                "Mode swaps not complete, dictionary keys and values should "
-                "contain the same modes."
-            )
-        for m in in_modes:
+        for m in list(swaps.keys()) + list(swaps.values()):
             self._mode_in_range(m)
-        self.__circuit_spec.append(["mode_swaps", (swaps, None)])
+        self.__circuit_spec.append(ModeSwaps(swaps))
 
-    def add_herald(
+    def herald(
         self, n_photons: int, input_mode: int, output_mode: int | None = None
     ) -> None:
         """
@@ -488,6 +473,60 @@ class Circuit:
         self.__external_in_heralds[input_mode] = n_photons
         self.__external_out_heralds[output_mode] = n_photons
 
+    def add_bs(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_bs' method has been deprecated in favour of 'bs', this is "
+            "planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.bs(*args, **kwargs)
+
+    def add_ps(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_ps' method has been deprecated in favour of 'ps', this is "
+            "planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.ps(*args, **kwargs)
+
+    def add_loss(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_loss' method has been deprecated in favour of 'loss', this "
+            "is planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.loss(*args, **kwargs)
+
+    def add_mode_swaps(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_mode_swaps' method has been deprecated in favour of "
+            "'mode_swaps', this is planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.mode_swaps(*args, **kwargs)
+
+    def add_barrier(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_barrier' method has been deprecated in favour of 'barrier', "
+            "this is planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.barrier(*args, **kwargs)
+
+    def add_herald(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
+        warn(
+            "'add_herald' method has been deprecated in favour of 'herald', "
+            "this is planned for removal in Lightworks 1.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.herald(*args, **kwargs)
+
     def display(
         self,
         show_parameter_values: bool = False,
@@ -517,19 +556,17 @@ class Circuit:
                 Should either be 'svg' or 'mpl', defaults to 'svg'.
 
         """
-        self.__show_parameter_values = show_parameter_values
         return_ = Display(
             self,
             display_loss=display_loss,
             mode_labels=mode_labels,
             display_type=display_type,
+            show_parameter_values=show_parameter_values,
         )
         if display_type == "mpl":
             plt.show()
         elif display_type == "svg":
             display.display(return_)
-        # Return show parameter value attribute to default value after display
-        self.__show_parameter_values = False
         return
 
     def get_all_params(self) -> list:
@@ -537,8 +574,8 @@ class Circuit:
         Returns all the Parameter objects used as part of creating the circuit.
         """
         all_params = []
-        for _, params in unpack_circuit_spec(self.__circuit_spec):
-            for p in params:
+        for spec in unpack_circuit_spec(self.__circuit_spec):
+            for p in spec.values():
                 if isinstance(p, Parameter) and p not in all_params:
                     all_params.append(p)
         return all_params
@@ -622,23 +659,25 @@ class Circuit:
         """
         circuit = CompiledCircuit(self.n_modes)
 
-        for cs, params in unpack_circuit_spec(self.__circuit_spec):
-            got_params = [
-                p.get() if isinstance(p, Parameter) else p for p in params
-            ]
-            if cs == "bs":
-                circuit.add_bs(*got_params)
-            elif cs == "ps":
-                circuit.add_ps(*got_params)
-            elif cs == "loss":
-                circuit.add_loss(*got_params)
-            elif cs == "barrier":
+        for spec in unpack_circuit_spec(self.__circuit_spec):
+            if isinstance(spec, BeamSplitter):
+                circuit.add_bs(
+                    spec.mode_1,
+                    spec.mode_2,
+                    spec._reflectivity,
+                    spec.convention,
+                )
+            elif isinstance(spec, PhaseShifter):
+                circuit.add_ps(spec.mode, spec._phi)
+            elif isinstance(spec, Loss):
+                circuit.add_loss(spec.mode, spec._loss)
+            elif isinstance(spec, Barrier):
                 pass
-            elif cs == "mode_swaps":
-                circuit.add_mode_swaps(got_params[0])
-            elif cs == "unitary":
-                unitary = CompiledUnitary(params[1], params[2])
-                circuit.add(unitary, params[0])
+            elif isinstance(spec, ModeSwaps):
+                circuit.add_mode_swaps(spec.swaps)
+            elif isinstance(spec, UnitaryMatrix):
+                unitary = CompiledUnitary(spec.unitary, spec.label)
+                circuit.add(unitary, spec.mode)
             else:
                 raise CircuitCompilationError(
                     "Component in circuit spec not recognised."
@@ -660,9 +699,7 @@ class Circuit:
         if isinstance(mode, bool):
             raise TypeError("Mode number should be an integer.")
         if not isinstance(mode, int):
-            if int(mode) == mode:
-                mode = int(mode)
-            else:
+            if int(mode) != mode:
                 raise TypeError("Mode number should be an integer.")
         if not (0 <= mode < self.n_modes):
             raise ModeRangeError(
@@ -705,73 +742,24 @@ class Circuit:
         ]
         return new_circuit_spec
 
-    def _get_display_spec(self) -> list:
-        """
-        Creates a parameterized version of the circuit build spec using the
-        included components.
-        """
-        display_spec = []
-        for cs, params in self.__circuit_spec:
-            # Convert parameters into labels if specified or values if not
-            if not self.__show_parameter_values:
-                cparams = [
-                    p.label
-                    if (isinstance(p, Parameter) and p.label is not None)
-                    else p.get()
-                    if isinstance(p, Parameter)
-                    else p
-                    for p in params
-                ]
-            else:
-                cparams = [
-                    p.get() if isinstance(p, Parameter) else p for p in params
-                ]
-            # Adjust build spec for each component
-            if cs == "bs":
-                display_spec.append(
-                    ("BS", [cparams[0], cparams[1]], (cparams[2]))
-                )
-            elif cs == "ps":
-                display_spec.append(("PS", cparams[0], (cparams[1])))
-            elif cs == "loss":
-                if display_loss_check(cparams[1]):
-                    display_spec.append(("LC", cparams[0], (cparams[1])))
-            elif cs == "barrier":
-                display_spec.append(("barrier", cparams[0], None))
-            elif cs == "mode_swaps":
-                display_spec.append(("mode_swaps", cparams[0], None))
-            elif cs == "unitary":
-                nm = params[1].shape[0]
-                display_spec.append(
-                    ("unitary", [cparams[0], cparams[0] + nm - 1], params[2])
-                )
-            elif cs == "group":
-                display_spec.append(
-                    ("group", [params[2], params[3]], (params[1], params[4]))
-                )
-            else:
-                raise DisplayError("Component in circuit spec not recognised.")
-
-        return display_spec
-
-    def _freeze_params(self, spec: list[list] | tuple) -> list | tuple:
+    def _freeze_params(self, circuit_spec: list[Component]) -> list[Component]:
         """
         Takes a provided circuit spec and will remove get any Parameter objects
         with their currently set values.
         """
-        new_spec = []
+        new_spec: list[Component] = []
         # Loop over spec and either call function again or add the value to the
         # new spec
-        for s in spec:
-            if isinstance(s, (list, tuple)):
-                new_spec.append(self._freeze_params(s))
-            elif isinstance(s, Parameter):
-                new_spec.append(s.get())
+        for spec in circuit_spec:
+            spec = copy(spec)  # noqa: PLW2901
+            if isinstance(spec, Group):
+                spec.circuit_spec = self._freeze_params(spec.circuit_spec)
+                new_spec.append(spec)
             else:
-                new_spec.append(s)
-        # If original spec was tuple than convert new spec to tuple
-        if isinstance(spec, tuple):
-            return tuple(new_spec)
+                for name, value in zip(spec.fields(), spec.values()):
+                    if isinstance(value, Parameter):
+                        setattr(spec, name, value.get())
+                new_spec.append(spec)
         return new_spec
 
     def _get_circuit_spec(self) -> list:

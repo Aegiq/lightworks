@@ -118,10 +118,10 @@ class Detector:
         if self.efficiency == 1 and self.p_dark == 0 and self.photon_counting:
             return in_state
         # Convert state to list
-        output = [i for i in in_state]  # type: ignore
+        output = list(in_state)
         # Account for efficiency
         if self.efficiency < 1:
-            for mode, n in enumerate(in_state):  # type: ignore
+            for mode, n in enumerate(in_state):
                 for _i in range(n):
                     if random() > self.efficiency:
                         output[mode] -= 1
@@ -136,7 +136,7 @@ class Detector:
 
         return State(output)
 
-    def _set_random_seed(self, r_seed: int | float | None) -> None:
+    def _set_random_seed(self, r_seed: float | None) -> None:
         """
         Set the random seed for the detector to produce repeatable results.
         """

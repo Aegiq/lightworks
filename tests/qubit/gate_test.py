@@ -142,6 +142,25 @@ class TestTwoQubitGates:
         # Confirm success probability is 1/9
         assert pytest.approx(abs(amp) ** 2, 1e-6) == 1 / 9
 
+    def test_CNOT_flipped(self):
+        """
+        Checks that the output of the post-selected CNOT gate is correct and
+        that the success probability is 1/9 when the target qubit is set to 0.
+        """
+        # Define all input combinations
+        states = [[1, 0, 1, 0], [1, 0, 0, 1], [0, 1, 1, 0], [0, 1, 0, 1]]
+        states = [State(s) for s in states]
+        # Calculate probability amplitudes
+        sim = Simulator(CNOT(target_qubit=0))
+        results = sim.simulate(states, states)
+        # Check that swap occurs when control qubit is 1 but not otherwise
+        amp = results[states[0], states[0]]
+        assert pytest.approx(amp, 1e-6) == results[states[2], states[2]]
+        assert pytest.approx(amp, 1e-6) == results[states[1], states[3]]
+        assert pytest.approx(amp, 1e-6) == results[states[3], states[1]]
+        # Confirm success probability is 1/9
+        assert pytest.approx(abs(amp) ** 2, 1e-6) == 1 / 9
+
     def test_CZ_heralded(self):
         """
         Checks that the output of the heralded CZ gate is correct and that the
@@ -177,6 +196,25 @@ class TestTwoQubitGates:
         assert pytest.approx(amp, 1e-6) == results[states[1], states[1]]
         assert pytest.approx(amp, 1e-6) == results[states[2], states[3]]
         assert pytest.approx(amp, 1e-6) == results[states[3], states[2]]
+        # Confirm success probability is 1/16
+        assert pytest.approx(abs(amp) ** 2, 1e-6) == 1 / 16
+
+    def test_CNOT_heralded_flipped(self):
+        """
+        Checks that the output of the heralded CNOT gate is correct and that
+        the success probability is 1/16 when the target qubit is set to 0.
+        """
+        # Define all input combinations
+        states = [[1, 0, 1, 0], [1, 0, 0, 1], [0, 1, 1, 0], [0, 1, 0, 1]]
+        states = [State(s) for s in states]
+        # Calculate probability amplitudes
+        sim = Simulator(CNOT_Heralded(target_qubit=0))
+        results = sim.simulate(states, states)
+        # Check that swap occurs when control qubit is 1 but not otherwise
+        amp = results[states[0], states[0]]
+        assert pytest.approx(amp, 1e-6) == results[states[2], states[2]]
+        assert pytest.approx(amp, 1e-6) == results[states[1], states[3]]
+        assert pytest.approx(amp, 1e-6) == results[states[3], states[1]]
         # Confirm success probability is 1/16
         assert pytest.approx(abs(amp) ** 2, 1e-6) == 1 / 16
 
@@ -231,10 +269,14 @@ class TestThreeQubitGates:
         # Confirm success probability is 1/72
         assert pytest.approx(abs(amp) ** 2, 1e-6) == 1 / 72
 
-    def test_CCNOT(self):
+    @pytest.mark.parametrize(
+        ("target", "swap_indices"), [(0, (5, 7)), (1, (6, 7)), (2, (3, 7))]
+    )
+    def test_CCNOT(self, target, swap_indices):
         """
         Checks that the output of the post-selected CCNOT gate is correct and
-        that the success probability is 1/72.
+        that the success probability is 1/72. This is checked for all possible
+        target qubits.
         """
         # Define all input combinations
         states = [
@@ -249,13 +291,18 @@ class TestThreeQubitGates:
         ]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
-        sim = Simulator(CCNOT())
+        sim = Simulator(CCNOT(target_qubit=target))
         results = sim.simulate(states, states)
         # Check swap occurs when both control qubits are 1 but not otherwise
-        amp = results[states[0], states[0]]
-        for i in [0, 1, 2, 4, 5, 6]:
-            assert pytest.approx(amp, 1e-6) == results[states[i], states[i]]
-        assert pytest.approx(amp, 1e-6) == results[states[3], states[7]]
-        assert pytest.approx(amp, 1e-6) == results[states[7], states[3]]
+        non_swapped = [i for i in range(8) if i not in swap_indices]
+        amp = results[states[non_swapped[0]], states[non_swapped[0]]]
+        for i in non_swapped:
+            assert results[states[i], states[i]] == pytest.approx(amp, 1e-6)
+        assert results[
+            states[swap_indices[0]], states[swap_indices[1]]
+        ] == pytest.approx(amp, 1e-6)
+        assert results[
+            states[swap_indices[1]], states[swap_indices[0]]
+        ] == pytest.approx(amp, 1e-6)
         # Confirm success probability is 1/72
         assert pytest.approx(abs(amp) ** 2, 1e-6) == 1 / 72

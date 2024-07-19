@@ -30,7 +30,7 @@ class TestQuickSampler:
         which should undergo HOM, producing outputs of |2,0> and |0,2>.
         """
         circuit = Circuit(2)
-        circuit.add_bs(0)
+        circuit.bs(0)
         sampler = QuickSampler(circuit, State([1, 1]))
         n_sample = 100000
         results = sampler.sample_N_outputs(n_sample, seed=21)
@@ -63,9 +63,9 @@ class TestQuickSampler:
         """
         # Build circuit
         circuit = Circuit(4)
-        circuit.add_bs(1)
-        circuit.add_mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
-        circuit.add_bs(0, 3)
+        circuit.bs(1)
+        circuit.mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
+        circuit.bs(0, 3)
         # And check output counts
         sampler = QuickSampler(circuit, State([1, 0, 0, 1]))
         results = sampler.sample_N_outputs(1000)
@@ -107,13 +107,13 @@ class TestQuickSampler:
         a lossy circuit is correct.
         """
         circuit = Circuit(4)
-        circuit.add_bs(0, loss=1.3)
-        circuit.add_bs(2, loss=2)
-        circuit.add_ps(1, 0.7, loss=0.5)
-        circuit.add_ps(3, 0.6, loss=0.5)
-        circuit.add_bs(1, loss=1.3)
-        circuit.add_bs(2, loss=2)
-        circuit.add_ps(1, 0.5, loss=0.5)
+        circuit.bs(0, loss=1.3)
+        circuit.bs(2, loss=2)
+        circuit.ps(1, 0.7, loss=0.5)
+        circuit.ps(3, 0.6, loss=0.5)
+        circuit.bs(1, loss=1.3)
+        circuit.bs(2, loss=2)
+        circuit.ps(1, 0.5, loss=0.5)
         sampler = QuickSampler(
             circuit,
             State([1, 0, 1, 0]),
@@ -131,8 +131,8 @@ class TestQuickSampler:
         circuit = Unitary(random_unitary(4))
         sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
         p1 = sampler.probability_distribution
-        circuit.add_bs(0)
-        circuit.add_bs(2)
+        circuit.bs(0)
+        circuit.bs(2)
         p2 = sampler.probability_distribution
         assert p1 != p2
 
@@ -143,9 +143,9 @@ class TestQuickSampler:
         """
         p = Parameter(0.3)
         circuit = Circuit(4)
-        circuit.add_bs(0, reflectivity=p)
-        circuit.add_bs(2, reflectivity=p)
-        circuit.add_bs(1, reflectivity=p)
+        circuit.bs(0, reflectivity=p)
+        circuit.bs(2, reflectivity=p)
+        circuit.bs(1, reflectivity=p)
         sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
         p1 = sampler.probability_distribution
         p.set(0.7)
@@ -250,8 +250,8 @@ class TestQuickSampler:
         )
         p1 = sampler.probability_distribution
         # Then find with heralding
-        circuit.add_herald(1, 0, 3)
-        circuit.add_herald(0, 2)
+        circuit.herald(1, 0, 3)
+        circuit.herald(0, 2)
         sampler = QuickSampler(circuit, State([1, 0, 0, 1]))
         p2 = sampler.probability_distribution
         for s in p2:
@@ -267,7 +267,7 @@ class TestQuickSampler:
         # First calculate distribution without heralding
         circuit = Unitary(random_unitary(6))
         for i in range(6):
-            circuit.add_loss(i, i + 1)
+            circuit.loss(i, i + 1)
         sampler = QuickSampler(
             circuit,
             State([1, 1, 0, 0, 0, 1]),
@@ -275,8 +275,8 @@ class TestQuickSampler:
         )
         p1 = sampler.probability_distribution
         # Then find with heralding
-        circuit.add_herald(1, 0, 3)
-        circuit.add_herald(0, 2)
+        circuit.herald(1, 0, 3)
+        circuit.herald(0, 2)
         sampler = QuickSampler(circuit, State([1, 0, 0, 1]))
         p2 = sampler.probability_distribution
         for s in p2:
@@ -292,7 +292,7 @@ class TestQuickSampler:
         # First calculate distribution without heralding
         circuit = Unitary(random_unitary(6))
         for i in range(6):
-            circuit.add_loss(i, i + 1)
+            circuit.loss(i, i + 1)
         sampler = QuickSampler(
             circuit,
             State([1, 1, 0, 0, 0, 1]),
@@ -300,8 +300,8 @@ class TestQuickSampler:
         )
         p1 = sampler.probability_distribution
         # Then find with heralding
-        circuit.add_herald(1, 0, 3)
-        circuit.add_herald(0, 2)
+        circuit.herald(1, 0, 3)
+        circuit.herald(0, 2)
         # Create empty circuit and add original circuit to this
         new_circuit = Circuit(4)
         new_circuit.add(circuit, 0)
@@ -319,9 +319,9 @@ class TestQuickSampler:
         """
         loss = Parameter(0)
         circuit = Circuit(4)
-        circuit.add_bs(0, loss=loss)
-        circuit.add_bs(2, loss=loss)
-        circuit.add_bs(1, loss=loss)
+        circuit.bs(0, loss=loss)
+        circuit.bs(2, loss=loss)
+        circuit.bs(1, loss=loss)
         # Initially sample
         sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
         sampler.sample_N_outputs(10000)

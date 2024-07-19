@@ -22,7 +22,7 @@ The Unitary object is a child class of Circuit, this means it behaves in the sam
     # Output: 4
 
     # Add beam splitter
-    unitary.add_bs(1)
+    unitary.bs(1)
 
     # Display
     unitary.display()
@@ -40,8 +40,8 @@ As Unitary objects are a subclass of Circuit, they are also compatible with the 
 
     circuit = lw.Circuit(6)
     for m in [0, 3, 1, 4]:
-        circuit.add_bs(m, reflectivity = 0.4)
-        circuit.add_ps(m, 1)
+        circuit.bs(m, reflectivity = 0.4)
+        circuit.ps(m, 1)
 
     unitary = lw.Unitary(lw.random_unitary(4))
 

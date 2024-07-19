@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Iterable
+from typing import Any, Iterable, Iterator
 
 import matplotlib.figure
 import matplotlib.pyplot as plt
@@ -79,7 +79,7 @@ class SamplingResult:
     def __len__(self) -> int:
         return len(self.dictionary)
 
-    def __iter__(self) -> Iterable:
+    def __iter__(self) -> Iterator:
         """Iterable to allow to do 'for output in SamplingResult'."""
         yield from self.dictionary
 
@@ -122,7 +122,7 @@ class SamplingResult:
         for out_state, val in self.dictionary.items():
             new_s = State([1 if s >= 1 else 0 for s in out_state])
             if invert:
-                new_s = State([1 - s for s in new_s])  # type: ignore
+                new_s = State([1 - s for s in new_s])
             if new_s in mapped_result:
                 mapped_result[new_s] += val
             else:
@@ -193,7 +193,7 @@ class SamplingResult:
 
         fig, ax = plt.subplots(figsize=(7, 6))
         x_data = range(len(self.dictionary))
-        ax.bar(x_data, self.dictionary.values())
+        ax.bar(x_data, list(self.dictionary.values()))
         ax.set_xticks(x_data)
         labels = [
             state_labels[s] if s in state_labels else str(s)
@@ -218,7 +218,7 @@ class SamplingResult:
         for ostate, p in self.dictionary.items():
             to_print += str(ostate) + " : " + str(p) + ", "
         to_print = to_print[:-2]
-        print(to_print)
+        print(to_print)  # noqa: T201
 
         return
 
@@ -259,5 +259,5 @@ class SamplingResult:
         # Convert array to floats when not non complex results used
         data = data.astype(int)
         # Create dataframe
-        df = pd.DataFrame(data, index=out_strings, columns=in_strings)
-        return df.transpose()
+        results = pd.DataFrame(data, index=out_strings, columns=in_strings)
+        return results.transpose()
