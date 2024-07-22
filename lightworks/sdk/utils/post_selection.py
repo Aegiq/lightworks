@@ -22,7 +22,7 @@ from typing import Callable
 from ..state import State
 
 
-class ABCPostSelection(metaclass=ABCMeta):
+class PostSelectionType(metaclass=ABCMeta):
     """
     Base class for post-selection object.
     """
@@ -32,7 +32,7 @@ class ABCPostSelection(metaclass=ABCMeta):
         """Enforces all post-selection classes have the validate method."""
 
 
-class PostSelection(ABCPostSelection):
+class PostSelection(PostSelectionType):
     """
     Post-selection
 
@@ -133,7 +133,7 @@ class Rule:
         return sum(state[m] for m in self.modes) in self.n_photons
 
 
-class PostSelectionFunction(ABCPostSelection):
+class PostSelectionFunction(PostSelectionType):
     """
     Allows for post-selection to be implemented with a provided function.
     """
@@ -158,7 +158,19 @@ class PostSelectionFunction(ABCPostSelection):
                 criteria.
 
         """
-        raise self.__function(state)
+        return self.__function(state)
+
+
+class DefaultPostSelection(PostSelectionType):
+    """
+    Provides a default post-selection function which always returns True.
+    """
+
+    def validate(self, state: State) -> bool:  # noqa: ARG002
+        """
+        Will return True regardless of provided state.
+        """
+        return True
 
 
 def check_int_or_tuple(value: int | Sequence) -> tuple:

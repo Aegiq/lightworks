@@ -14,7 +14,6 @@
 
 from collections import Counter
 from random import random
-from types import FunctionType
 from typing import Any, Callable
 
 import numpy as np
@@ -22,9 +21,10 @@ import numpy as np
 from ...sdk.circuit import Circuit
 from ...sdk.state import State
 from ...sdk.utils import add_heralds_to_state
+from ...sdk.utils.post_selection import PostSelectionType
 from ..backend import Backend
 from ..results import SamplingResult
-from ..utils import ModeMismatchError, fock_basis
+from ..utils import ModeMismatchError, fock_basis, process_post_selection
 
 
 class QuickSampler:
@@ -47,9 +47,9 @@ class QuickSampler:
         photon_counting (bool, optional) : Toggle whether or not photon number
             resolving detectors are used.
 
-        post_select (function, optional) : A function which applies a set of
-            post-selection criteria to the output state. This will be checked
-            on th
+        post_select (PostSelection | function, optional) : A PostSelection
+            object or function which applies a provided set of post-selection
+            criteria to a state.
 
     """
 
@@ -58,7 +58,7 @@ class QuickSampler:
         circuit: Circuit,
         input_state: State,
         photon_counting: bool = True,
-        post_select: Callable | None = None,
+        post_select: PostSelectionType | Callable | None = None,
     ) -> None:
         # Assign parameters to attributes
         self.circuit = circuit
@@ -101,17 +101,13 @@ class QuickSampler:
         self.__input_state = value
 
     @property
-    def post_select(self) -> Callable:
+    def post_select(self) -> PostSelectionType:
         """A function to be used for post-selection of outputs."""
         return self.__post_select
 
     @post_select.setter
-    def post_select(self, value: Callable | None) -> None:
-        if value is None:
-            value = lambda s: True  # noqa: E731
-        if not isinstance(value, FunctionType):
-            raise TypeError("Provided post_select value should be a function.")
-        self.__post_select = value
+    def post_select(self, value: PostSelectionType | Callable | None) -> None:
+        self.__post_select = process_post_selection(value)
 
     @property
     def photon_counting(self) -> bool:
@@ -143,7 +139,7 @@ class QuickSampler:
             )
             if not self.photon_counting:
                 out_states = [s for s in out_states if max(s) == 1]
-            out_states = [s for s in out_states if self.post_select(s)]
+            out_states = [s for s in out_states if self.post_select.validate(s)]
             if not out_states:
                 raise ValueError(
                     "Heralding function removed all possible outputs."
