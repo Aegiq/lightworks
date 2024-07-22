@@ -298,6 +298,19 @@ class TestPostSelection:
         p.add((4,), 1)
         assert p.modes == [1, 2, 3, 4]
 
+    def test_post_selection_duplicates(self):
+        """
+        Checks that post-selection modes attribute is able to correctly return
+        the correct values when a mode is used more than once
+        """
+        p = PostSelection(multi_rules=True)
+        p.add(1, 1)
+        assert p.modes == [1]
+        p.add((2, 1), 1)
+        assert p.modes == [1, 2]
+        p.add((2,), 1)
+        assert p.modes == [1, 2]
+
     @pytest.mark.parametrize(
         ("modes", "photons"),
         [
@@ -321,6 +334,16 @@ class TestPostSelection:
             photons = (photons,)
         assert rules[0].modes == modes
         assert rules[0].n_photons == photons
+
+    def test_post_selection_rules_length(self):
+        """
+        Confirms that rules property returns a list of the correct length.
+        """
+        p = PostSelection(multi_rules=True)
+        p.add((0, 1), 2)
+        p.add((0, 1), 2)
+        p.add((2, 3), 1)
+        assert len(p.rules) == 3
 
     @pytest.mark.parametrize("value", [-1, 0.5, ([1, 2],), "1.1"])
     def test_invalid_mode_values(self, value):
