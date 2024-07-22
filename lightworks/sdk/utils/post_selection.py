@@ -81,6 +81,12 @@ class PostSelection(PostSelectionType):
         """
         modes = check_int_or_tuple(modes)
         n_photons = check_int_or_tuple(n_photons)
+        for values, msg in zip(
+            (modes, n_photons), ("Mode numbers", "Photon numbers")
+        ):
+            for v in values:
+                if v < 0:
+                    raise ValueError(msg + " cannot be negative.")
         # Check mode doesn't already have a rule if required
         if not self.multi_rules:
             for m in modes:
@@ -93,8 +99,6 @@ class PostSelection(PostSelectionType):
                     raise ValueError(msg)
         self.__rules.append(Rule(modes, n_photons))
         for m in modes:
-            if m < 0:
-                raise ValueError("Mode numbers cannot be negative.")
             self.__modes_with_rules.add(m)
 
     def validate(self, state: State) -> bool:

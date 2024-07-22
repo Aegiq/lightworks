@@ -36,6 +36,7 @@ from lightworks.sdk.utils import (
 from lightworks.sdk.utils.post_selection import (
     DefaultPostSelection,
     PostSelectionType,
+    Rule,
 )
 
 
@@ -233,7 +234,15 @@ class TestPostSelection:
 
     @pytest.mark.parametrize(
         ("modes", "photons"),
-        [(0, 1), ((0,), (1,)), ((1, 0), 1), (0, (0, 1)), ((2, 4), (1, 2))],
+        [
+            (0, 1),
+            (0.0, 1.0),
+            ((0,), (1,)),
+            ((0.0,), (1.0,)),
+            ((1, 0), 1),
+            (0, (0, 1)),
+            ((2, 4), (1, 2)),
+        ],
     )
     def test_post_selection(self, modes, photons):
         """
@@ -276,6 +285,37 @@ class TestPostSelection:
         p.add(1, 1)
         p.add(1, 2)
 
+    def test_post_selection_modes(self):
+        """
+        Checks that post-selection modes attribute is able to correctly return
+        the correct values.
+        """
+        p = PostSelection()
+        p.add(1, 1)
+        assert p.modes == [1]
+        p.add((2, 3), 1)
+        assert p.modes == [1, 2, 3]
+        p.add((4,), 1)
+        assert p.modes == [1, 2, 3, 4]
+
+    @pytest.mark.parametrize("value", [-1, 0.5, ([1, 2],), "1.1"])
+    def test_invalid_mode_values(self, value):
+        """
+        Confirms an error is raised if an invalid mode value is provided.
+        """
+        p = PostSelection()
+        with pytest.raises((ValueError, TypeError)):
+            p.add(value, 1)
+
+    @pytest.mark.parametrize("value", [-1, 0.5, ([1, 2],), "1.1"])
+    def test_invalid_photon_values(self, value):
+        """
+        Confirms an error is raised if an invalid photon value is provided.
+        """
+        p = PostSelection()
+        with pytest.raises((ValueError, TypeError)):
+            p.add(1, value)
+
     def test_default_post_selection_always_true(self):
         """
         Checks that default post-selection always returns true by sampling a
@@ -292,3 +332,41 @@ class TestPostSelection:
         """
         with pytest.raises(TypeError):
             PostSelectionFunction(value)
+
+    def test_ps_function_equivalance(self):
+        """
+        Checks that a function assigned to PostSelectionFunction will always
+        return the same value as the function itself.
+        """
+        func = lambda s: s[1] + s[2] == 1 and s[3] == 0  # noqa: E731
+        ps = PostSelectionFunction(func)
+        # Check against known state
+        assert func(self.test_state) == ps.validate(self.test_state)
+        # Then randomly check for 100 states
+        states = [[randint(0, 1) for _j in range(6)] for _i in range(100)]
+        assert all(func(s) == ps.validate(s) for s in states)
+
+    def test_rule(self):
+        """
+        Checks a rule can be created which implements a post-selection rule on a
+        set of modes/photons.
+        """
+        Rule((1, 2), (3, 4))
+
+    @pytest.mark.parametrize(
+        ("modes", "photons"),
+        [((0,), (1,)), ((1, 0), (1,)), ((0,), (0, 1)), ((2, 4), (1, 2))],
+    )
+    def test_rule_valid(self, modes, photons):
+        """
+        Desc
+        """
+        r = Rule(modes, photons)
+        assert r.validate(self.test_state)
+
+    def test_rule_tuple(self):
+        """
+        Checks rule as_tuple method returns expected value.
+        """
+        r = Rule((1, 2), (3, 4))
+        assert r.as_tuple() == ((1, 2), (3, 4))

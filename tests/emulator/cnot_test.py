@@ -17,7 +17,7 @@
 import pytest
 from numpy import arccos, pi
 
-from lightworks import Circuit, State, PostSelection
+from lightworks import Circuit, PostSelection, State
 from lightworks.emulator import Backend, Detector, Sampler, Source
 from lightworks.qubit import CNOT
 
