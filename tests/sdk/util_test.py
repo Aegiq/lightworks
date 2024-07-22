@@ -298,6 +298,30 @@ class TestPostSelection:
         p.add((4,), 1)
         assert p.modes == [1, 2, 3, 4]
 
+    @pytest.mark.parametrize(
+        ("modes", "photons"),
+        [
+            (1, 1),
+            ((1,), (1,)),
+            ((1, 2), (1,)),
+            ((1,), (1, 2)),
+            ((2, 3), (1, 2)),
+        ],
+    )
+    def test_post_selection_rules(self, modes, photons):
+        """
+        Checks that post-selection rules content is correct.
+        """
+        p = PostSelection()
+        p.add(modes, photons)
+        rules = p.rules
+        if not isinstance(modes, tuple):
+            modes = (modes,)
+        if not isinstance(photons, tuple):
+            photons = (photons,)
+        assert rules[0].modes == modes
+        assert rules[0].n_photons == photons
+
     @pytest.mark.parametrize("value", [-1, 0.5, ([1, 2],), "1.1"])
     def test_invalid_mode_values(self, value):
         """
