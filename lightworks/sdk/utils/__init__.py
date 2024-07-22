@@ -23,3 +23,4 @@ from .matrix_utils import (
     random_unitary,
 )
 from .permutation_conversion import permutation_mat_from_swaps_dict
+from .post_selection import PostSelection, PostSelectionFunction

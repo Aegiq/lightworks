@@ -16,3 +16,11 @@ Utilities
 .. _db_loss_to_tr:
 
 .. autofunction:: lightworks.db_loss_to_transmission
+
+.. _post_selection:
+
+.. autoclass:: lightworks.PostSelection
+    :members:
+
+.. autoclass:: lightworks.PostSelectionFunction
+    :members:

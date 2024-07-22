@@ -49,6 +49,8 @@ from .sdk.circuit import Circuit, Parameter, ParameterDict, Unitary
 from .sdk.optimisation import Optimisation
 from .sdk.state import State
 from .sdk.utils import (
+    PostSelection,
+    PostSelectionFunction,
     db_loss_to_transmission,
     random_permutation,
     random_unitary,
@@ -68,6 +70,6 @@ __all__ = [
     "Circuit", "Unitary", "Display", "State", "random_unitary",
     "random_permutation", "db_loss_to_transmission", "transmission_to_db_loss",
     "Parameter", "ParameterDict", "emulator", "qubit", "Optimisation",
-    "interferometers"
+    "interferometers", "PostSelection", "PostSelectionFunction",
 ]
 # fmt: on
