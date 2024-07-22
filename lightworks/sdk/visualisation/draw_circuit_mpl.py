@@ -122,7 +122,7 @@ class DrawCircuitMPL:
                     spec.reflectivity, self.show_parameter_values
                 )
                 self._add_bs(spec.mode_1, spec.mode_2, reflectivity)
-            elif isinstance(spec, Loss):
+            elif isinstance(spec, Loss) and self.display_loss:
                 loss = process_parameter_value(
                     spec.loss, self.show_parameter_values
                 )
