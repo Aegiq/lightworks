@@ -18,6 +18,9 @@ import pytest
 from numpy import identity
 
 from lightworks import (
+    PostSelection,
+    PostSelectionFunction,
+    State,
     db_loss_to_transmission,
     random_permutation,
     random_unitary,
@@ -29,6 +32,10 @@ from lightworks.sdk.utils import (
     check_random_seed,
     check_unitary,
     permutation_mat_from_swaps_dict,
+)
+from lightworks.sdk.utils.post_selection import (
+    DefaultPostSelection,
+    PostSelectionType,
 )
 
 
@@ -196,3 +203,92 @@ class TestUtils:
         """
         with pytest.raises(TypeError):
             check_random_seed(value)
+
+
+class TestPostSelection:
+    """
+    Unit tests for post-selection object.
+    """
+
+    def setup_method(self):
+        """
+        Creates a default state for testing.
+        """
+        self.test_state = State([1, 0, 1, 0, 1, 0])
+
+    @pytest.mark.parametrize(
+        "post_select",
+        [
+            PostSelection(),
+            PostSelectionFunction(lambda s: True),
+            DefaultPostSelection(),
+        ],
+    )
+    def test_is_post_selection_type(self, post_select):
+        """
+        Checks all post-selection objects are child classes of the
+        PostSelectionType.
+        """
+        assert isinstance(post_select, PostSelectionType)
+
+    @pytest.mark.parametrize(
+        ("modes", "photons"),
+        [(0, 1), ((0,), (1,)), ((1, 0), 1), (0, (0, 1)), ((2, 4), (1, 2))],
+    )
+    def test_post_selection(self, modes, photons):
+        """
+        Tests a range of configuration of the test state and checks they all
+        return True.
+        """
+        p = PostSelection()
+        p.add(modes, photons)
+        assert p.validate(self.test_state)
+
+    @pytest.mark.parametrize(
+        ("modes", "photons"),
+        [(0, 0), ((0,), (0,)), ((1, 0), 2), (1, (1, 2)), ((2, 3), (0, 2))],
+    )
+    def test_post_selection_invalid(self, modes, photons):
+        """
+        Tests a range of configuration of the test state and checks they all
+        return False.
+        """
+        p = PostSelection()
+        p.add(modes, photons)
+        assert not p.validate(self.test_state)
+
+    def test_post_selection_duplicate(self):
+        """
+        Checks that by default post-selection does not allow for two rules on
+        the same mode.
+        """
+        p = PostSelection()
+        p.add(1, 1)
+        with pytest.raises(ValueError):
+            p.add(1, 2)
+
+    def test_post_selection_duplicate_allowed(self):
+        """
+        Checks that post-selection allows for two rules on the same mode when
+        multi_rules specified.
+        """
+        p = PostSelection(multi_rules=True)
+        p.add(1, 1)
+        p.add(1, 2)
+
+    def test_default_post_selection_always_true(self):
+        """
+        Checks that default post-selection always returns true by sampling a
+        large number of values.
+        """
+        ps = DefaultPostSelection()
+        assert all(ps.validate(self.test_state) is True for _i in range(1000))
+
+    @pytest.mark.parametrize("value", ["not_function", 1, [1, 2, 3]])
+    def test_ps_function_enforced(self, value):
+        """
+        Checks an error is raised if a non-function type is passed to
+        PostSelectionFunction.
+        """
+        with pytest.raises(TypeError):
+            PostSelectionFunction(value)
