@@ -1,6 +1,6 @@
 # Summary
 
-Provide a summary of the release here.
+This template is primarily intended for Releases, provide a summary here.
 
 ## Full list of changes
 - List of all changes included, ideally linking to PRs.
