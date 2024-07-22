@@ -17,12 +17,39 @@
 import pytest
 from numpy import arccos, pi
 
-from lightworks import Circuit, State
+from lightworks import Circuit, PostSelection, State
 from lightworks.emulator import Backend, Detector, Sampler, Source
 from lightworks.qubit import CNOT
 
+heralds = [
+    lambda s: (
+        s[0] == 0 and s[5] == 0 and s[1] + s[2] == 1 and s[3] + s[4] == 1
+    ),
+    lambda s: (s[0] + s[1] == 1 and s[2] + s[3] == 1),
+]
+# Including heralds
+post_selection = PostSelection()
+post_selection.add(0, 0)
+post_selection.add(5, 0)
+post_selection.add((1, 2), 1)
+post_selection.add((3, 4), 1)
+# Excluding heralds
+post_selection2 = PostSelection()
+post_selection2.add((0, 1), 1)
+post_selection2.add((2, 3), 1)
 
-@pytest.mark.parametrize("backend", [Backend("permanent"), Backend("slos")])
+post_selects = [post_selection, post_selection2]
+
+
+@pytest.mark.parametrize(
+    ("backend", "post_selection"),
+    [
+        (Backend("permanent"), heralds),
+        (Backend("slos"), heralds),
+        (Backend("permanent"), post_selects),
+        (Backend("slos"), post_selects),
+    ],
+)
 class TestCNOT:
     """
     Samples from a non-heralded CNOT circuit with loss, imperfect source and
@@ -30,7 +57,7 @@ class TestCNOT:
     both permanent and slos backends.
     """
 
-    def test_cnot_sample_n_inputs(self, backend):
+    def test_cnot_sample_n_inputs(self, backend, post_selection):
         """
         Checks the correct output is produced from the CNOT gate when sampling
         N inputs from the system. Note, very occasionally this test may fail
@@ -67,19 +94,14 @@ class TestCNOT:
             detector=detector,
             backend=backend,
         )
-        # Can then define the heralding required to get the correct output and
-        # generate a set of samples
-        herald = lambda s: (
-            s[0] == 0 and s[5] == 0 and s[1] + s[2] == 1 and s[3] + s[4] == 1
-        )
-        results = sampler.sample_N_inputs(20000, post_select=herald)
+        results = sampler.sample_N_inputs(20000, post_select=post_selection[0])
         # We expect the state |11> (|0,0,1,0,1,0> in mode language) with
         # reasonable fidelity, so we will assert this is measured for > 80% of
         # the total samples which met the herald condition
         eff = results[State([0, 0, 1, 0, 1, 0])] / sum(results.values())
         assert eff > 0.8
 
-    def test_cnot_sample_n_outputs(self, backend):
+    def test_cnot_sample_n_outputs(self, backend, post_selection):
         """
         Checks the correct output is produced from the CNOT gate when sampling
         N outputs from the system. Note, very occasionally this test may fail
@@ -116,19 +138,14 @@ class TestCNOT:
             detector=detector,
             backend=backend,
         )
-        # Can then define the heralding required to get the correct output and
-        # generate a set of samples
-        herald = lambda s: (
-            s[0] == 0 and s[5] == 0 and s[1] + s[2] == 1 and s[3] + s[4] == 1
-        )
-        results = sampler.sample_N_outputs(20000, post_select=herald)
+        results = sampler.sample_N_outputs(20000, post_select=post_selection[0])
         # We expect the state |11> (|0,0,1,0,1,0> in mode language) with
         # reasonable fidelity, so we will assert this is measured for > 80% of
         # the total samples which met the herald condition
         eff = results[State([0, 0, 1, 0, 1, 0])] / 20000
         assert eff > 0.8
 
-    def test_cnot_sample_n_inputs_built_in(self, backend):
+    def test_cnot_sample_n_inputs_built_in(self, backend, post_selection):
         """
         Checks the correct output is produced from the built-in CNOT gate when
         sampling N inputs from the system. Note, very occasionally this test
@@ -148,17 +165,14 @@ class TestCNOT:
             detector=detector,
             backend=backend,
         )
-        # Can then define the post-selection required to get the correct output
-        # and generate a set of samples
-        post_select = lambda s: (s[0] + s[1] == 1 and s[2] + s[3] == 1)
-        results = sampler.sample_N_inputs(20000, post_select=post_select)
+        results = sampler.sample_N_inputs(20000, post_select=post_selection[1])
         # We expect the state |11> (|0,1,0,1> in mode language) with
         # reasonable fidelity, so we will assert this is measured for > 80% of
         # the total samples which met the herald condition
         eff = results[State([0, 1, 0, 1])] / sum(results.values())
         assert eff > 0.8
 
-    def test_cnot_sample_n_outputs_built_in(self, backend):
+    def test_cnot_sample_n_outputs_built_in(self, backend, post_selection):
         """
         Checks the correct output is produced from the built-in CNOT gate when
         sampling N outputs from the system. Note, very occasionally this test
@@ -178,10 +192,7 @@ class TestCNOT:
             detector=detector,
             backend=backend,
         )
-        # Can then define the post-selection required to get the correct output
-        # and generate a set of samples
-        post_select = lambda s: (s[0] + s[1] == 1 and s[2] + s[3] == 1)
-        results = sampler.sample_N_outputs(20000, post_select=post_select)
+        results = sampler.sample_N_outputs(20000, post_select=post_selection[1])
         # We expect the state |11> (|0,1,0,1> in mode language) with
         # reasonable fidelity, so we will assert this is measured for > 80% of
         # the total samples which met the herald condition
