@@ -117,7 +117,7 @@ class TestUtils:
     def test_add_mode_to_unitary_value(self, mode):
         """
         Checks that add_mode_to_unitary function works correctly for a variety
-        of positions, producinh .
+        of positions, producing a value of 1 in the expected position.
         """
         unitary = random_unitary(6)
         new_unitary = add_mode_to_unitary(unitary, mode)
