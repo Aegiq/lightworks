@@ -18,6 +18,8 @@ from ...sdk.circuit import Circuit
 from ..gates import (
     CCNOT,
     CCZ,
+    CNOT,
+    CZ,
     SWAP,
     CNOT_Heralded,
     CZ_Heralded,
@@ -39,6 +41,7 @@ SINGLE_QUBIT_GATES_MAP = {
 }
 
 TWO_QUBIT_GATES_MAP = {"cx": CNOT_Heralded, "cz": CZ_Heralded, "swap": SWAP}
+TWO_QUBIT_GATES_MAP_PS = {"cx": CNOT, "cz": CZ}
 
 THREE_QUBIT_GATES_MAP = {"ccx": CCNOT, "ccz": CCZ}
 
@@ -49,21 +52,26 @@ ALLOWED_GATES = [
 ]
 
 
-def qiskit_converter(circuit: QuantumCircuit) -> Circuit:
+def qiskit_converter(
+    circuit: QuantumCircuit, allow_post_selection: bool = False
+) -> Circuit:
     """
     Performs conversion of a provided qiskit QuantumCircuit into a photonic
     circuit within Lightworks.
 
     Args:
 
-        circuit (QuantumCircuit) : The qiskit circuit to be converted,
+        circuit (QuantumCircuit) : The qiskit circuit to be converted.
+
+        allow_post_selection (bool, optional) : Controls whether post-selected
+            gates can be utilised within the circuit.
 
     Returns:
 
         Circuit : The created circuit within Lightworks.
 
     """
-    converter = QiskitConverter()
+    converter = QiskitConverter(allow_post_selection)
     return converter.convert(circuit)
 
 
@@ -71,7 +79,16 @@ class QiskitConverter:
     """
     Manages conversion between qiskit and lightworks circuit, adding each of the
     qubit gates into a created circuit object.
+
+    Args:
+
+        allow_post_selection (bool, optional) : Controls whether post-selected
+            gates can be utilised within the circuit.
+
     """
+
+    def __init__(self, allow_post_selection: bool = False) -> None:
+        self.allow_post_selection = allow_post_selection
 
     def convert(self, q_circuit: QuantumCircuit) -> Circuit:
         """
@@ -80,7 +97,7 @@ class QiskitConverter:
 
         Args:
 
-            q_circuit (QuantumCircuit) : The qiskit circuit to be converted,
+            q_circuit (QuantumCircuit) : The qiskit circuit to be converted.
 
         Returns:
 
