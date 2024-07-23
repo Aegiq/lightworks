@@ -56,7 +56,7 @@ class TestQiskitConversion:
         """
         circ = QuantumCircuit(3)
         getattr(circ, gate)(0, 1, 2)
-        qiskit_converter(circ)
+        qiskit_converter(circ, allow_post_selection=True)
 
     def test_four_qubit_gate(self):
         """
@@ -74,7 +74,7 @@ class TestQiskitConversion:
         """
         circ = QuantumCircuit(1)
         circ.x(0)
-        conv_circ = qiskit_converter(circ)
+        conv_circ, _ = qiskit_converter(circ)
 
         sim = Simulator(conv_circ)
         results = sim.simulate(State([1, 0]), State([0, 1]))
@@ -88,13 +88,65 @@ class TestQiskitConversion:
         """
         circ = QuantumCircuit(2)
         circ.cx(0, 1)
-        conv_circ = qiskit_converter(circ)
+        conv_circ, _ = qiskit_converter(circ)
 
         sim = Simulator(conv_circ)
         results = sim.simulate(State([0, 1, 1, 0]), State([0, 1, 0, 1]))
         assert abs(
             results[State([0, 1, 1, 0]), State([0, 1, 0, 1])]
         ) ** 2 == pytest.approx(1 / 16, 1e-6)
+
+    def test_cascaded_cnot(self):
+        """
+        Checks operation of two cascaded qubit CNOT gate produces output as
+        expected.
+        """
+        circ = QuantumCircuit(3)
+        circ.cx(0, 1)
+        circ.cx(1, 2)
+        conv_circ, _ = qiskit_converter(circ)
+
+        sim = Simulator(conv_circ)
+        results = sim.simulate(
+            State([0, 1, 1, 0, 1, 0]), State([0, 1, 0, 1, 0, 1])
+        )
+        assert abs(
+            results[State([0, 1, 1, 0, 1, 0]), State([0, 1, 0, 1, 0, 1])]
+        ) ** 2 == pytest.approx(1 / 16**2, 1e-6)
+
+    def test_cnot_post_selected(self):
+        """
+        Checks operation of two qubit post-selected CNOT gate produces output as
+        expected.
+        """
+        circ = QuantumCircuit(2)
+        circ.cx(0, 1)
+        conv_circ, _ = qiskit_converter(circ, allow_post_selection=True)
+
+        sim = Simulator(conv_circ)
+        results = sim.simulate(State([0, 1, 1, 0]), State([0, 1, 0, 1]))
+        assert abs(
+            results[State([0, 1, 1, 0]), State([0, 1, 0, 1])]
+        ) ** 2 == pytest.approx(1 / 9, 1e-6)
+
+    def test_cascaded_cnot_post_selected(self):
+        """
+        Checks operation of two cascaded qubit post-selected CNOT gate produces
+        output as expected. Both gates should be post-selected, so the success
+        probability should be 1/9*1/9 = 1/81.
+        """
+        circ = QuantumCircuit(3)
+        circ.cx(0, 1)
+        circ.cx(1, 2)
+        conv_circ, _ = qiskit_converter(circ, allow_post_selection=True)
+
+        sim = Simulator(conv_circ)
+        results = sim.simulate(
+            State([0, 1, 1, 0, 1, 0]), State([0, 1, 0, 1, 0, 1])
+        )
+        assert abs(
+            results[State([0, 1, 1, 0, 1, 0]), State([0, 1, 0, 1, 0, 1])]
+        ) ** 2 == pytest.approx(1 / 81, 1e-6)
 
     def test_bell_state(self):
         """
@@ -104,7 +156,7 @@ class TestQiskitConversion:
         circ = QuantumCircuit(2)
         circ.h(0)
         circ.cx(0, 1)
-        conv_circ = qiskit_converter(circ)
+        conv_circ, _ = qiskit_converter(circ)
 
         sim = Simulator(conv_circ)
         outputs = [State([1, 0, 1, 0]), State([0, 1, 0, 1])]
@@ -121,7 +173,7 @@ class TestQiskitConversion:
         """
         circ = QuantumCircuit(2)
         circ.cx(1, 0)
-        conv_circ = qiskit_converter(circ)
+        conv_circ, _ = qiskit_converter(circ)
 
         sim = Simulator(conv_circ)
         results = sim.simulate(State([1, 0, 0, 1]), State([0, 1, 0, 1]))
@@ -136,7 +188,7 @@ class TestQiskitConversion:
         """
         circ = QuantumCircuit(3)
         circ.cx(0, 2)
-        conv_circ = qiskit_converter(circ)
+        conv_circ, _ = qiskit_converter(circ)
 
         sim = Simulator(conv_circ)
         results = sim.simulate(
@@ -153,7 +205,7 @@ class TestQiskitConversion:
         """
         circ = QuantumCircuit(3)
         circ.cx(2, 0)
-        conv_circ = qiskit_converter(circ)
+        conv_circ, _ = qiskit_converter(circ)
 
         sim = Simulator(conv_circ)
         results = sim.simulate(
@@ -169,7 +221,7 @@ class TestQiskitConversion:
         """
         circ = QuantumCircuit(3)
         circ.ccx(0, 1, 2)
-        conv_circ = qiskit_converter(circ)
+        conv_circ, _ = qiskit_converter(circ, allow_post_selection=True)
 
         sim = Simulator(conv_circ)
         results = sim.simulate(
@@ -185,7 +237,7 @@ class TestQiskitConversion:
         """
         circ = QuantumCircuit(3)
         circ.swap(0, 2)
-        conv_circ = qiskit_converter(circ)
+        conv_circ, _ = qiskit_converter(circ)
 
         sim = Simulator(conv_circ)
         results = sim.simulate(
