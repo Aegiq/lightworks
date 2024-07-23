@@ -44,17 +44,13 @@ We then need to add the conditions for success of the gate. As mentioned, the up
 .. note::
     When heralds are applied the modes that the heralds are on are removed from the inputs and outputs used within the system. So for example, after adding the heralds above the inputs and outputs would only be specified across modes 1, 2, 3 & 4.
 
-The other condition for success of the CNOT gate is that one photon is measured across the c0 & c1 modes and another across the t0 & t1 modes. These conditions can be applied with the ``set_post_selection`` method, which can be provided with functions or lambda functions to condition the measurement output. In this case the conditions would be:
+The other condition for success of the CNOT gate is that one photon is measured across the c0 & c1 modes and another across the t0 & t1 modes. These conditions can be applied with the ``post_selection`` attribute, which can be provided with functions or a PostSelection object to condition the measurement output. In this case the conditions would be:
 
 .. code-block:: Python
 
-    analyzer.set_post_selection(lambda s: s[0] + s[1] == 1)
-    analyzer.set_post_selection(lambda s: s[2] + s[3] == 1)
+    analyzer.post_selection = lambda s: s[0] + s[1] == 1 and s[2] + s[3] == 1
 
 As the heralded modes are removed from the results, the post-selection function needs to be set so it works on the remaining modes. In principle these functions could also be combined into a single function if desired. 
-
-.. warning::
-    If multiple lambda functions are created and passed to ``set_post_selection`` using a loop this may create issues related to how lambda functions use out of scope variables. For more info see `here <https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result>`_.
 
 Once the required conditions have been defined, then the Analyzer can be utilised on an input or list of States (providing these have the same photon number) with the ``analyze`` method. In this case we will use all possible qubit inputs for the system. As discussed earlier, the heralded modes are excluded from the inputs/outputs so only 4 mode States need to provided.
 
