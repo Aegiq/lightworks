@@ -107,5 +107,6 @@ class ErrorModel:
             if hasattr(prop, "set_random_seed") and callable(
                 prop.set_random_seed
             ):
-                seed = rng.integers(2**31 - 1)
+                if seed is not None:
+                    seed = rng.integers(2**31 - 1)
                 prop.set_random_seed(seed)
