@@ -27,6 +27,7 @@ class ErrorModel:
     def __init__(self) -> None:
         self.bs_reflectivity = Constant(0.5)
         self.loss = Constant(0)
+        self.phase_offset = Constant(0)
 
         return
 
@@ -61,6 +62,17 @@ class ErrorModel:
             raise TypeError("loss should be a distribution object.")
         self._loss = distribution
 
+    @property
+    def phase_offset(self) -> Distribution:
+        """Returns currently in use phase_offset value distribution."""
+        return self._phase_offset
+
+    @phase_offset.setter
+    def phase_offset(self, distribution: Distribution) -> None:
+        if not isinstance(distribution, Distribution):
+            raise TypeError("phase_offset should be a distribution object.")
+        self._phase_offset = distribution
+
     def get_bs_reflectivity(self) -> int | float:
         """
         Returns a value for beam splitter reflectivity, which depends on the
@@ -70,10 +82,17 @@ class ErrorModel:
 
     def get_loss(self) -> int | float:
         """
-        Returns a value for loss which depends on the configuration of the error
-        model.
+        Returns a value for loss, which depends on the configuration of the
+        error model.
         """
         return self._loss.value()
+
+    def get_phase_offset(self) -> int | float:
+        """
+        Returns a value for phase offset, which depends on the configuration of
+        the error model.
+        """
+        return self._phase_offset.value()
 
     def _set_random_seed(self, r_seed: int | None) -> None:
         """
@@ -84,11 +103,10 @@ class ErrorModel:
         # different values
         rng = random.default_rng(seed)
         # Set random seed in each property if present
-        for prop in [self._bs_reflectivity, self._loss]:
+        for prop in [self._bs_reflectivity, self._loss, self._phase_offset]:
             if hasattr(prop, "set_random_seed") and callable(
                 prop.set_random_seed
             ):
                 if seed is not None:
-                    mod_seed = rng.integers(0, 2**31)
-                    seed = seed * mod_seed
+                    seed = rng.integers(2**31 - 1)
                 prop.set_random_seed(seed)
