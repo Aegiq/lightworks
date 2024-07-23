@@ -71,8 +71,14 @@ class Reck:
         # Invert unitary so reck layout starts with fewest elements on mode 0
         unitary = np.flip(circuit.U, axis=(0, 1))
         phase_map, end_phases = reck_decomposition(unitary)
-        phase_map = {k: v % (2 * np.pi) for k, v in phase_map.items()}
-        end_phases = [p % (2 * np.pi) for p in end_phases]
+        phase_map = {
+            k: (v + self.error_model.get_phase_offset()) % (2 * np.pi)
+            for k, v in phase_map.items()
+        }
+        end_phases = [
+            (p + self.error_model.get_phase_offset()) % (2 * np.pi)
+            for p in end_phases
+        ]
 
         # Build circuit with required mode number
         n_modes = circuit.n_modes

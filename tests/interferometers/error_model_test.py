@@ -109,6 +109,22 @@ class TestErrorModel:
         with pytest.raises(TypeError):
             em.loss = value
 
+    def test_phase_offset_is_distribution(self):
+        """
+        Checks that return by phase_offset property is a Distribution object.
+        """
+        assert isinstance(ErrorModel().phase_offset, Distribution)
+
+    @pytest.mark.parametrize("value", [1, True, None, "Distribution"])
+    def test_phase_offset_enforces_distribution(self, value):
+        """
+        Checks that setting phase_offset setting enforces that the value is a
+        Distribution object.
+        """
+        em = ErrorModel()
+        with pytest.raises(TypeError):
+            em.phase_offset = value
+
     @pytest.mark.parametrize("param", ["bs_reflectivity", "loss"])
     def test_parameters_in_string_and_repr(self, param):
         """
@@ -118,3 +134,21 @@ class TestErrorModel:
         em = ErrorModel()
         assert param in str(em)
         assert param in repr(em)
+
+    @pytest.mark.parametrize(
+        "value", ["bs_reflectivity", "loss", "phase_offset"]
+    )
+    def test_random_seeding(self, value):
+        """
+        Checks that set random seed produces different values when two
+        quantities are assigned to identical distributions.
+        """
+        em = ErrorModel()
+        setattr(em, value, Gaussian(0.5, 0.1))
+        # Set seed and get value twice
+        em._set_random_seed(11)
+        v1 = getattr(em, value).value()
+        em._set_random_seed(11)
+        v2 = getattr(em, value).value()
+        # Check equivalence
+        assert v1 == v2

@@ -48,6 +48,7 @@ class TestReck:
         emodel = ErrorModel()
         emodel.bs_reflectivity = Gaussian(0.5, 0.02, min_value=0, max_value=1)
         emodel.loss = TopHat(0.1, 0.2)
+        emodel.phase_offset = Gaussian(0, 0.02)
         r = Reck(emodel)
         # Create two mapped circuits
         mapped_circ = r.map(test_circ)
@@ -66,6 +67,7 @@ class TestReck:
         emodel = ErrorModel()
         emodel.bs_reflectivity = Gaussian(0.5, 0.02, min_value=0, max_value=1)
         emodel.loss = TopHat(0.1, 0.2)
+        emodel.phase_offset = Gaussian(0, 0.02)
         r = Reck(emodel)
         # Set seed and create two mapped circuits
         mapped_circ = r.map(test_circ, seed=12)
