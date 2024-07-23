@@ -132,10 +132,18 @@ class QiskitConverter:
                 self._add_single_qubit_gate(gate, *qubits)
             # Two Qubit Gates
             elif len(qubits) == 2:
-                self._add_two_qubit_gate(gate, *qubits, post_select[i])
+                self._add_two_qubit_gate(
+                    gate,
+                    *qubits,  # type: ignore[call-arg]
+                    post_select[i],
+                )
             # Three Qubit Gates
             elif len(qubits) == 3:
-                self._add_three_qubit_gate(gate, *qubits, post_select[i])
+                self._add_three_qubit_gate(
+                    gate,
+                    *qubits,  # type: ignore[call-arg]
+                    post_select[i],
+                )
             # Limit to three qubit gates
             else:
                 raise ValueError("Gates with more than 3 qubits not supported.")
@@ -275,7 +283,7 @@ def post_selection_analyzer(qc: QuantumCircuit) -> tuple[list[bool], list[int]]:
 
     """
     # First extract all qubit data from the circuit
-    gate_qubits = []
+    gate_qubits: list[list[int] | None] = []
     for inst in qc.data:
         if inst.operation.num_qubits >= 2:
             gate_qubits.append(
