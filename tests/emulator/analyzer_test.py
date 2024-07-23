@@ -14,7 +14,14 @@
 
 import pytest
 
-from lightworks import Circuit, Parameter, State, Unitary, random_unitary
+from lightworks import (
+    Circuit,
+    Parameter,
+    PostSelection,
+    State,
+    Unitary,
+    random_unitary,
+)
 from lightworks.emulator import Analyzer
 
 
@@ -87,7 +94,7 @@ class TestAnalyzer:
         p = results[State([0, 1, 1])]
         assert pytest.approx(p, 1e-8) == 0.091713377373246
         # Heralding + post-selection
-        analyzer.set_post_selection(lambda s: s[0] == 1)
+        analyzer.post_selection = lambda s: s[0] == 1
         results = analyzer.analyze(State([1, 0, 1]))
         p = results[State([1, 1, 0])]
         assert pytest.approx(p, 1e-8) == 0.002934140618653
@@ -107,7 +114,7 @@ class TestAnalyzer:
         p = results[State([0, 1, 0])]
         assert pytest.approx(p, 1e-8) == 0.062204471804458
         # Heralding + post-selection
-        analyzer.set_post_selection(lambda s: s[0] == 0)
+        analyzer.post_selection = lambda s: s[0] == 0
         results = analyzer.analyze(State([1, 0, 1]))
         p = results[State([0, 0, 1])]
         assert pytest.approx(p, 1e-8) == 0.0202286624257920
@@ -134,7 +141,7 @@ class TestAnalyzer:
         p = results[State([0, 1, 0])]
         assert pytest.approx(p, 1e-8) == 0.062204471804458
         # Heralding + post-selection
-        analyzer.set_post_selection(lambda s: s[0] == 0)
+        analyzer.post_selection = lambda s: s[0] == 0
         results = analyzer.analyze(State([1, 0, 1]))
         p = results[State([0, 0, 1])]
         assert pytest.approx(p, 1e-8) == 0.0202286624257920
@@ -160,7 +167,7 @@ class TestAnalyzer:
         circuit = Unitary(random_unitary(4))
         # Create analyzer and get results
         analyzer = Analyzer(circuit)
-        analyzer.set_post_selection(lambda s: s[0] == 1)
+        analyzer.post_selection = lambda s: s[0] == 1
         results = analyzer.analyze(State([1, 0, 1, 0]))
         p = results[State([1, 1, 0, 0])]
         # Update circuit and get results
@@ -181,7 +188,9 @@ class TestAnalyzer:
         circuit.bs(1, reflectivity=param)
         # Create analyzer and get results
         analyzer = Analyzer(circuit)
-        analyzer.set_post_selection(lambda s: s[0] == 1)
+        post_select = PostSelection()
+        post_select.add(0, 1)
+        analyzer.post_selection = post_select
         results = analyzer.analyze(State([1, 0, 1, 0]))
         p = results[State([1, 1, 0, 0])]
         # Update parameter and get results
