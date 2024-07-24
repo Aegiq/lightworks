@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from types import FunctionType
 from typing import Callable
 
 import numpy as np
@@ -20,9 +19,15 @@ import numpy as np
 from ...sdk.circuit import Circuit
 from ...sdk.state import State
 from ...sdk.utils import add_heralds_to_state
+from ...sdk.utils.post_selection import PostSelectionType
 from ..backend import Backend
 from ..results import SimulationResult
-from ..utils import ModeMismatchError, PhotonNumberError, fock_basis
+from ..utils import (
+    ModeMismatchError,
+    PhotonNumberError,
+    fock_basis,
+    process_post_selection,
+)
 
 
 class Analyzer:
@@ -50,8 +55,7 @@ class Analyzer:
     def __init__(self, circuit: Circuit) -> None:
         # Assign key parameters to attributes
         self.circuit = circuit
-        # Create empty list/dict to store other quantities
-        self.post_selects: list[Callable] = []
+        self.post_selection = None  # type: ignore
         self.__backend = Backend("permanent")
 
         return
@@ -72,20 +76,19 @@ class Analyzer:
             )
         self.__circuit = value
 
-    def set_post_selection(self, function: Callable) -> None:
+    @property
+    def post_selection(self) -> PostSelectionType:
         """
-        Add post selection functions, these should only act across the
-        non-heralded modes of the circuit.
+        Stores post-selection criteria for analysis.
         """
-        # NOTE: If multiple lambda functions are created and passed to this
-        # using a loop this may create issues related to how lambda functions
-        # use out of scope variables. See the following for more info:
-        # https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
-        if not isinstance(function, FunctionType):
-            raise TypeError("Post-selection rule should be a function.")
-        self.post_selects += [function]
+        return self.__post_selection
 
-        return
+    @post_selection.setter
+    def post_selection(
+        self, value: PostSelectionType | Callable | None
+    ) -> None:
+        value = process_post_selection(value)
+        self.__post_selection = value
 
     def analyze(
         self, inputs: State | list, expected: dict | None = None
@@ -282,10 +285,7 @@ class Analyzer:
         out_heralds = self.circuit.heralds["output"]
         for state in outputs:
             # Check output meets all post selection rules
-            for funcs in self.post_selects:
-                if not funcs(state):
-                    break
-            else:
+            if self.post_selection.validate(state):
                 fo = add_heralds_to_state(state, out_heralds)
                 filtered_outputs += [State(state)]
                 full_outputs += [fo]

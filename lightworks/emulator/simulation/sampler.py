@@ -14,18 +14,21 @@
 
 from collections import Counter
 from random import random
-from types import FunctionType
 from typing import Any, Callable
 
 import numpy as np
 
 from ...sdk.circuit import Circuit
 from ...sdk.state import State
-from ...sdk.utils import add_heralds_to_state, remove_heralds_from_state
+from ...sdk.utils import (
+    add_heralds_to_state,
+    remove_heralds_from_state,
+)
+from ...sdk.utils.post_selection import PostSelectionType
 from ..backend import Backend
 from ..components import Detector, Source
 from ..results import SamplingResult
-from ..utils import ModeMismatchError
+from ..utils import ModeMismatchError, process_post_selection
 from .probability_distribution import pdist_calc
 
 
@@ -223,7 +226,7 @@ class Sampler:
     def sample_N_inputs(  # noqa: N802
         self,
         N: int,  # noqa: N803
-        post_select: Callable | None = None,
+        post_select: PostSelectionType | Callable | None = None,
         min_detection: int = 0,
         seed: int | None = None,
     ) -> SamplingResult:
@@ -239,8 +242,9 @@ class Sampler:
 
             N (int) : The number of samples to take from the circuit.
 
-            post_select (function, optional) : A function which applies a
-                provided set of post-selection criteria to a state.
+            post_select (PostSelection | function, optional) : A PostSelection
+                object or function which applies a provided set of
+                post-selection criteria to a state.
 
             min_detection (int, optional) : Post-select on a given minimum
                 total number of photons, this should not include any heralded
@@ -256,15 +260,11 @@ class Sampler:
                 states and the number of counts for each one.
 
         """
-        # Create always true herald if one isn't provided
-        if post_select is None:
-            post_select = lambda s: True  # noqa: E731
+        post_select = process_post_selection(post_select)
         if not isinstance(min_detection, int) or isinstance(
             min_detection, bool
         ):
             raise TypeError("Post-selection value should be an integer.")
-        if not isinstance(post_select, FunctionType):
-            raise TypeError("Provided post_select value should be a function.")
         pdist = self.probability_distribution
         vals = np.zeros(len(pdist), dtype=object)
         for i, k in enumerate(pdist.keys()):
@@ -302,7 +302,7 @@ class Sampler:
                     hs = self.__full_to_heralded[state]
                 else:
                     hs = state
-                if post_select(hs) and hs.n_photons >= min_detection:
+                if post_select.validate(hs) and hs.n_photons >= min_detection:
                     filtered_samples.append(hs)
         counted = dict(Counter(filtered_samples))
         return SamplingResult(counted, self.input_state)
@@ -310,7 +310,7 @@ class Sampler:
     def sample_N_outputs(  # noqa: N802
         self,
         N: int,  # noqa: N803
-        post_select: Callable | None = None,
+        post_select: PostSelectionType | Callable | None = None,
         min_detection: int = 0,
         seed: int | None = None,
     ) -> SamplingResult:
@@ -324,8 +324,9 @@ class Sampler:
 
             N (int) : The number of samples that are to be returned.
 
-            post_select (function, optional) : A function which applies a
-                provided set of post-selection criteria to a state.
+            post_select (PostSelection | function, optional) : A PostSelection
+                object or function which applies a provided set of
+                post-selection criteria to a state.
 
             min_detection (int, optional) : Post-select on a given minimum
                 total number of photons, this should not include any heralded
@@ -341,15 +342,11 @@ class Sampler:
                 states and the number of counts for each one.
 
         """
-        # Create always true post_select if one isn't provided
-        if post_select is None:
-            post_select = lambda s: True  # noqa: E731
+        post_select = process_post_selection(post_select)
         if not isinstance(min_detection, int) or isinstance(
             min_detection, bool
         ):
             raise TypeError("Post-selection value should be an integer.")
-        if not isinstance(post_select, FunctionType):
-            raise TypeError("Provided post_select value should be a function.")
         pdist = self.probability_distribution
         # Check no detector dark counts included
         if self.detector.p_dark != 0:
@@ -386,7 +383,9 @@ class Sampler:
                     new_s = s
                 # Check state meets min detection and post-selection criteria
                 # across remaining modes
-                if new_s.n_photons >= min_detection and post_select(new_s):
+                if new_s.n_photons >= min_detection and post_select.validate(
+                    new_s
+                ):
                     if new_s in new_dist:
                         new_dist[new_s] += p
                     else:

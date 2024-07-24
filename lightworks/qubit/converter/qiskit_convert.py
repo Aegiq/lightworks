@@ -15,9 +15,12 @@
 from qiskit import QuantumCircuit
 
 from ...sdk.circuit import Circuit
+from ...sdk.utils import PostSelection
 from ..gates import (
     CCNOT,
     CCZ,
+    CNOT,
+    CZ,
     SWAP,
     CNOT_Heralded,
     CZ_Heralded,
@@ -39,6 +42,7 @@ SINGLE_QUBIT_GATES_MAP = {
 }
 
 TWO_QUBIT_GATES_MAP = {"cx": CNOT_Heralded, "cz": CZ_Heralded, "swap": SWAP}
+TWO_QUBIT_GATES_MAP_PS = {"cx": CNOT, "cz": CZ}
 
 THREE_QUBIT_GATES_MAP = {"ccx": CCNOT, "ccz": CCZ}
 
@@ -49,21 +53,26 @@ ALLOWED_GATES = [
 ]
 
 
-def qiskit_converter(circuit: QuantumCircuit) -> Circuit:
+def qiskit_converter(
+    circuit: QuantumCircuit, allow_post_selection: bool = False
+) -> tuple[Circuit, PostSelection | None]:
     """
     Performs conversion of a provided qiskit QuantumCircuit into a photonic
     circuit within Lightworks.
 
     Args:
 
-        circuit (QuantumCircuit) : The qiskit circuit to be converted,
+        circuit (QuantumCircuit) : The qiskit circuit to be converted.
+
+        allow_post_selection (bool, optional) : Controls whether post-selected
+            gates can be utilised within the circuit.
 
     Returns:
 
         Circuit : The created circuit within Lightworks.
 
     """
-    converter = QiskitConverter()
+    converter = QiskitConverter(allow_post_selection)
     return converter.convert(circuit)
 
 
@@ -71,16 +80,27 @@ class QiskitConverter:
     """
     Manages conversion between qiskit and lightworks circuit, adding each of the
     qubit gates into a created circuit object.
+
+    Args:
+
+        allow_post_selection (bool, optional) : Controls whether post-selected
+            gates can be utilised within the circuit.
+
     """
 
-    def convert(self, q_circuit: QuantumCircuit) -> Circuit:
+    def __init__(self, allow_post_selection: bool = False) -> None:
+        self.allow_post_selection = allow_post_selection
+
+    def convert(
+        self, q_circuit: QuantumCircuit
+    ) -> tuple[Circuit, PostSelection | None]:
         """
         Performs conversion of a provided qiskit QuantumCircuit into a photonic
         circuit within Lightworks.
 
         Args:
 
-            q_circuit (QuantumCircuit) : The qiskit circuit to be converted,
+            q_circuit (QuantumCircuit) : The qiskit circuit to be converted.
 
         Returns:
 
@@ -94,8 +114,12 @@ class QiskitConverter:
         self.circuit = Circuit(n_qubits * 2)
         self.modes = {i: (2 * i, 2 * i + 1) for i in range(n_qubits)}
 
-        has_three_qubit = False
-        for inst in q_circuit.data:
+        if self.allow_post_selection:
+            post_select, ps_qubits = post_selection_analyzer(q_circuit)
+        else:
+            post_select = [False] * len(q_circuit.data)
+
+        for i, inst in enumerate(q_circuit.data):
             gate = inst.operation.name
             qubits = [
                 inst.qubits[i]._index for i in range(inst.operation.num_qubits)
@@ -103,29 +127,38 @@ class QiskitConverter:
             if gate not in ALLOWED_GATES:
                 msg = f"Unsupported gate '{gate}' included in circuit."
                 raise ValueError(msg)
-            three_qubit_msg = (
-                "When a three qubit gate is included then this must be the only"
-                " multi-qubit gate in the circuit."
-            )
             # Single Qubit Gates
             if len(qubits) == 1:
                 self._add_single_qubit_gate(gate, *qubits)
             # Two Qubit Gates
             elif len(qubits) == 2:
-                if has_three_qubit:
-                    raise ValueError(three_qubit_msg)
-                self._add_two_qubit_gate(gate, *qubits)
+                self._add_two_qubit_gate(
+                    gate,
+                    *qubits,  # type: ignore[call-arg]
+                    post_select[i],
+                )
             # Three Qubit Gates
             elif len(qubits) == 3:
-                if has_three_qubit:
-                    raise ValueError(three_qubit_msg)
-                has_three_qubit = True
-                self._add_three_qubit_gate(gate, *qubits)
+                self._add_three_qubit_gate(
+                    gate,
+                    *qubits,  # type: ignore[call-arg]
+                    post_select[i],
+                )
             # Limit to three qubit gates
             else:
                 raise ValueError("Gates with more than 3 qubits not supported.")
 
-        return self.circuit
+        if self.allow_post_selection:
+            if ps_qubits:
+                ps_rules = PostSelection()
+                for q in ps_qubits:
+                    ps_rules.add(self.modes[q], 1)
+            else:
+                ps_rules = None
+        else:
+            ps_rules = None
+
+        return (self.circuit, ps_rules)
 
     def _add_single_qubit_gate(self, gate: str, qubit: int) -> None:
         """
@@ -133,7 +166,9 @@ class QiskitConverter:
         """
         self.circuit.add(SINGLE_QUBIT_GATES_MAP[gate], self.modes[qubit][0])
 
-    def _add_two_qubit_gate(self, gate: str, q0: int, q1: int) -> None:
+    def _add_two_qubit_gate(
+        self, gate: str, q0: int, q1: int, post_selection: bool = False
+    ) -> None:
         """
         Adds a provided two qubit gate within an instruction to a circuit on
         the correct modes.
@@ -143,12 +178,17 @@ class QiskitConverter:
                 TWO_QUBIT_GATES_MAP["swap"](self.modes[q0], self.modes[q1]), 0
             )
         elif gate in ["cx", "cz"]:
+            mapper = (
+                TWO_QUBIT_GATES_MAP
+                if not post_selection
+                else TWO_QUBIT_GATES_MAP_PS
+            )
             q0, q1, to_swap = convert_two_qubits_to_adjacent(q0, q1)
             if gate == "cx":
                 target = q1 - min([q0, q1])
-                add_circ = TWO_QUBIT_GATES_MAP["cx"](target)
+                add_circ = mapper["cx"](target)
             else:
-                add_circ = TWO_QUBIT_GATES_MAP["cz"]()
+                add_circ = mapper["cz"]()
             add_mode = self.modes[min([q0, q1])][0]
             for swap_qs in to_swap:
                 self._add_two_qubit_gate("swap", swap_qs[0], swap_qs[1])
@@ -160,13 +200,21 @@ class QiskitConverter:
             raise ValueError(msg)
 
     def _add_three_qubit_gate(
-        self, gate: str, q0: int, q1: int, q2: int
+        self, gate: str, q0: int, q1: int, q2: int, post_selection: bool = False
     ) -> None:
         """
         Adds a provided three qubit gate within an instruction to a circuit on
         the correct modes.
         """
         if gate in ["ccx", "ccz"]:
+            if not post_selection:
+                raise ValueError(
+                    "Three qubit gates can only be used with post-selection. "
+                    "Ensure allow_post_selection is True to enable this. The "
+                    "location of the gate may also need to be towards the end "
+                    "of the circuit as a result of requirements on "
+                    "post-selection.."
+                )
             all_qubits = [q0, q1, q2]
             if max(all_qubits) - min(all_qubits) != 2:
                 raise ValueError(
@@ -196,6 +244,7 @@ def convert_two_qubits_to_adjacent(q0: int, q1: int) -> tuple[int, int, list]:
     swaps = []
     new_upper = max(q0, q1)
     new_lower = min(q0, q1)
+    # Bring modes closer together until they are adjacent
     while new_upper - new_lower != 1:
         new_upper -= 1
         if new_upper - new_lower == 1:
@@ -210,3 +259,52 @@ def convert_two_qubits_to_adjacent(q0: int, q1: int) -> tuple[int, int, list]:
     else:
         q0, q1 = new_upper, new_lower
     return (q0, q1, swaps)
+
+
+def post_selection_analyzer(qc: QuantumCircuit) -> tuple[list[bool], list[int]]:
+    """
+    Implements a basic algorithm to try to determine which gates can have
+    post-selection and which require heralding. This is not necessarily optimal,
+    but should at least reduce heralding requirements.
+
+    Args:
+
+        qc (QuantumCircuit) : The qiskit circuit to be analysed.
+
+    Returns:
+
+        list[bool] : A list of length elements in the circuit that indicates if
+            each element is compatible with post-selection. This will include
+            any single qubit gates, even though post-selection is not relevant
+            here.
+
+        list[int] : A list of integers indicating which qubits need a
+            post-selection rule to be applied.
+
+    """
+    # First extract all qubit data from the circuit
+    gate_qubits: list[list[int] | None] = []
+    for inst in qc.data:
+        if inst.operation.num_qubits >= 2:
+            gate_qubits.append(
+                [
+                    inst.qubits[i]._index
+                    for i in range(inst.operation.num_qubits)
+                ]
+            )
+        else:
+            gate_qubits.append(None)
+
+    post_selection = []
+    has_ps = []
+    # Work backwards through gates
+    for gate in reversed(gate_qubits):
+        if gate is None:
+            post_selection.append(False)
+            break
+        can_ps = not all(q in has_ps for q in gate)
+        post_selection.append(can_ps)
+        has_ps += gate
+    # Return if a gate can have post-selection and all modes which will require
+    # it.
+    return list(reversed(post_selection)), list(set(has_ps))

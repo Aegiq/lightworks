@@ -14,7 +14,14 @@
 
 import pytest
 
-from lightworks import Circuit, Parameter, State, Unitary, random_unitary
+from lightworks import (
+    Circuit,
+    Parameter,
+    PostSelection,
+    State,
+    Unitary,
+    random_unitary,
+)
 from lightworks.emulator import (
     Backend,
     Detector,
@@ -585,9 +592,10 @@ class TestSamplerCalculationBackends:
         sampler = Sampler(
             circuit, State([1, 1, 0, 1, 0, 0]), backend=backend, source=source
         )
-        results = sampler.sample_N_outputs(
-            50000, post_select=lambda s: s[1] == 1 and s[3] == 0
-        )
+        post_select = PostSelection()
+        post_select.add(1, 1)
+        post_select.add(3, 0)
+        results = sampler.sample_N_outputs(50000, post_select=post_select)
         # Then add and re-sample
         circuit.herald(1, 0, 1)
         circuit.herald(0, 2, 3)
