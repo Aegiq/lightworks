@@ -17,7 +17,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import MCXGate
 
 from lightworks import State
-from lightworks.emulator import Simulator
+from lightworks.emulator import Sampler, Simulator
 from lightworks.qubit.converter import qiskit_converter
 from lightworks.qubit.converter.qiskit_convert import (
     SINGLE_QUBIT_GATES_MAP,
@@ -246,3 +246,54 @@ class TestQiskitConversion:
         assert abs(
             results[State([0, 1, 0, 0, 2, 3]), State([2, 3, 0, 0, 0, 1])]
         ) ** 2 == pytest.approx(1, 1e-6)
+
+    def test_complex_converter(self):
+        """
+        Tests conversion of a more complex qiskit circuit.
+        """
+        circ = QuantumCircuit(4)
+        circ.x(0)
+        circ.cx(0, 1)
+        circ.y(0)
+        circ.h(1)
+        circ.cx(1, 2)
+        circ.y(0)
+        circ.z(2)
+        circ.h(1)
+        circ.cx(2, 3)
+        qiskit_converter(circ, allow_post_selection=True)
+
+    def test_post_selection(self):
+        """
+        Checks that post-selection object returned by the converter is able to
+        create the required transformation.
+        """
+        circ = QuantumCircuit(2)
+        circ.cx(0, 1)
+        conv_circ, post_select = qiskit_converter(
+            circ, allow_post_selection=True
+        )
+        # Run sampler and check results
+        n_samples = 10000
+        sampler = Sampler(conv_circ, State([0, 1, 1, 0]))
+        results = sampler.sample_N_outputs(n_samples, post_select=post_select)
+        assert results[State([0, 1, 0, 1])] == n_samples
+
+    def test_post_selection_rules(self):
+        """
+        Checks that post-selection objected returned by the converter contains
+        rules on the correct modes.
+        """
+        circ = QuantumCircuit(2)
+        circ.cx(0, 1)
+        _, post_select = qiskit_converter(circ, allow_post_selection=True)
+
+        r1_found = False
+        r2_found = False
+        for rule in post_select.rules:
+            if rule.modes == (0, 1) and rule.n_photons == (1,):
+                r1_found = True
+            if rule.modes == (2, 3) and rule.n_photons == (1,):
+                r2_found = True
+        assert r1_found
+        assert r2_found
