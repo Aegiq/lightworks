@@ -341,6 +341,6 @@ def build_random_qiskit_circuit(n_qubits):
     for _i in range(randint(10, 20)):
         gate = choice(gates)
         # Create unique list of qubits for each gate
-        qubits = sample(range(0, n_qubits), len(gate))
+        qubits = sample(range(n_qubits), len(gate))
         getattr(circuit, gate)(*qubits)
     return circuit
