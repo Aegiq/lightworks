@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from random import choice, randint, sample
+
 import pytest
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import MCXGate
@@ -23,6 +25,8 @@ from lightworks.qubit.converter.qiskit_convert import (
     SINGLE_QUBIT_GATES_MAP,
     THREE_QUBIT_GATES_MAP,
     TWO_QUBIT_GATES_MAP,
+    convert_two_qubits_to_adjacent,
+    post_selection_analyzer,
 )
 
 
@@ -297,3 +301,46 @@ class TestQiskitConversion:
                 r2_found = True
         assert r1_found
         assert r2_found
+
+    @pytest.mark.parametrize(
+        ("q0", "q1"), [(0, 1), (1, 0), (2, 4), (4, 2), (2, 5), (5, 2)]
+    )
+    def test_convert_two_qubits_to_adjacent(self, q0, q1):
+        """
+        Checks that convert_two_qubits_to_adjacent function returns values with
+        a difference of 1 and retains the correct order.
+        """
+        new_q0, new_q1, _ = convert_two_qubits_to_adjacent(q0, q1)
+        assert abs(new_q1 - new_q0) == 1
+        if q1 > q0:
+            assert new_q1 > new_q0
+        else:
+            assert new_q1 < new_q0
+
+    @pytest.mark.parametrize("n_qubits", [3, 4, 5])
+    def test_post_selection_analyzer(self, n_qubits):
+        """
+        Checks that post-selection analyzer returns the correct number of
+        elements.
+        """
+        circuit = build_random_qiskit_circuit(n_qubits)
+        post_selects, _ = post_selection_analyzer(circuit)
+        assert len(post_selects) == len(circuit.data)
+
+
+def build_random_qiskit_circuit(n_qubits):
+    """
+    Builds a random qiskit circuit for testing
+    """
+    if n_qubits < 2:
+        raise ValueError("Number of qubits should be at least two")
+    gates = ["x", "y", "z", "cx", "cz"]
+    if n_qubits >= 3:
+        gates += ["ccx", "ccz"]
+    circuit = QuantumCircuit(n_qubits)
+    for _i in range(randint(10, 20)):
+        gate = choice(gates)
+        # Create unique list of qubits for each gate
+        qubits = sample(range(0, n_qubits), len(gate))
+        getattr(circuit, gate)(*qubits)
+    return circuit
