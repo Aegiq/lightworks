@@ -301,7 +301,7 @@ def post_selection_analyzer(qc: QuantumCircuit) -> tuple[list[bool], list[int]]:
     for gate in reversed(gate_qubits):
         if gate is None:
             post_selection.append(False)
-            break
+            continue
         can_ps = not all(q in has_ps for q in gate)
         post_selection.append(can_ps)
         has_ps += gate
