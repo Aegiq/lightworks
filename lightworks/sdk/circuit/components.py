@@ -163,7 +163,7 @@ class Group(Component):
     mode_2: int
     heralds: dict
 
-    def get_unitary(self, n_modes: int) -> None:  # noqa: ARG002
+    def get_unitary(self, n_modes: int) -> None:  # type: ignore[override] # noqa: ARG002
         return None
 
 

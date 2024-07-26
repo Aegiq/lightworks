@@ -658,7 +658,7 @@ class Circuit:
         """
         circuit = CompiledCircuit(self.n_modes)
 
-        for spec in unpack_circuit_spec(self.__circuit_spec):
+        for spec in self.__circuit_spec:
             circuit.add(spec)
 
         heralds = self.heralds

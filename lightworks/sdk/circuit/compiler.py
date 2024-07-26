@@ -17,7 +17,7 @@ from copy import copy
 import numpy as np
 
 from ..utils import ModeRangeError
-from .components import Component, Loss
+from .components import Component, Group, Loss
 
 
 class CompiledCircuit:
@@ -68,7 +68,11 @@ class CompiledCircuit:
                 self._unitary, (0, 1), "constant", constant_values=0
             )
             self._unitary[-1, -1] = 1 + 0j
-        self._unitary = spec.get_unitary(self.total_modes) @ self._unitary
+        if isinstance(spec, Group):
+            for s in spec.circuit_spec:
+                self.add(s)
+        else:
+            self._unitary = spec.get_unitary(self.total_modes) @ self._unitary
 
     def add_herald(
         self, n_photons: int, input_mode: int, output_mode: int | None = None
