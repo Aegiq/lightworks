@@ -16,6 +16,7 @@
 
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 import pytest
 
 from lightworks import (
@@ -43,10 +44,17 @@ class TestDisplay:
             self.circuit.bs(m, loss=2)
             self.circuit.ps(m + 1, phi=3 * i)
             self.circuit.loss(m, loss=1)
+        self.circuit.bs(0, 3)
+        self.circuit.bs(3, 0)
+        self.circuit.ps(m + 1, np.pi / 2)
+        self.circuit.ps(m + 1, np.pi / 4)
+        self.circuit.barrier([1, 2, 3])
+        self.circuit.mode_swaps({})
         self.circuit.mode_swaps({0: 2, 2: 1, 1: 0})
         self.circuit.herald(1, 0, 0)
         self.circuit.add(Unitary(random_unitary(3, seed=1)), 1)
         self.circuit.add(Unitary(random_unitary(3, seed=1)), 0, group=True)
+        self.circuit.barrier()
         circuit2 = Circuit(2)
         circuit2.bs(0)
         circuit2.ps(1, 2)
