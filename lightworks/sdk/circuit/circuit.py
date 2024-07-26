@@ -33,7 +33,6 @@ from ..utils import (
     ModeRangeError,
 )
 from ..visualisation import Display
-from .circuit_compiler import CompiledCircuit, CompiledUnitary
 from .circuit_utils import (
     add_empty_mode_to_circuit_spec,
     add_modes_to_circuit_spec,
@@ -42,6 +41,7 @@ from .circuit_utils import (
     convert_non_adj_beamsplitters,
     unpack_circuit_spec,
 )
+from .compiler import CompiledCircuit
 from .components import (
     Barrier,
     BeamSplitter,
@@ -50,7 +50,6 @@ from .components import (
     Loss,
     ModeSwaps,
     PhaseShifter,
-    UnitaryMatrix,
 )
 from .parameters import Parameter
 
@@ -660,28 +659,8 @@ class Circuit:
         circuit = CompiledCircuit(self.n_modes)
 
         for spec in unpack_circuit_spec(self.__circuit_spec):
-            if isinstance(spec, BeamSplitter):
-                circuit.add_bs(
-                    spec.mode_1,
-                    spec.mode_2,
-                    spec._reflectivity,
-                    spec.convention,
-                )
-            elif isinstance(spec, PhaseShifter):
-                circuit.add_ps(spec.mode, spec._phi)
-            elif isinstance(spec, Loss):
-                circuit.add_loss(spec.mode, spec._loss)
-            elif isinstance(spec, Barrier):
-                pass
-            elif isinstance(spec, ModeSwaps):
-                circuit.add_mode_swaps(spec.swaps)
-            elif isinstance(spec, UnitaryMatrix):
-                unitary = CompiledUnitary(spec.unitary, spec.label)
-                circuit.add(unitary, spec.mode)
-            else:
-                raise CircuitCompilationError(
-                    "Component in circuit spec not recognised."
-                )
+            circuit.add(spec)
+
         heralds = self.heralds
         for i, o in zip(heralds["input"], heralds["output"]):
             circuit.add_herald(heralds["input"][i], i, o)
