@@ -12,9 +12,106 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import numpy as np
+import pytest
+
+from lightworks import Parameter, random_unitary
+from lightworks.sdk.circuit.compiler import CompiledCircuit
+from lightworks.sdk.circuit.components import (
+    Barrier,
+    BeamSplitter,
+    Group,
+    Loss,
+    ModeSwaps,
+    PhaseShifter,
+    UnitaryMatrix,
+)
+
 
 class TestCompiledCircuit:
     """
     Unit tests to confirm correct functioning of the CompiledCircuit class when
     various operations are performed.
     """
+
+    def test_creation(self):
+        """
+        Checks creation of a compiled circuit doesn't raise any issues.
+        """
+        CompiledCircuit(10)
+
+    def test_creation_modes(self):
+        """
+        Checks number of modes are correct on creation of a circuit.
+        """
+        c = CompiledCircuit(10)
+        assert c.n_modes == 10
+        assert c.loss_modes == 00
+        assert c.n_modes == c.total_modes
+
+    def test_default_array_type(self):
+        """
+        Checks that default array type is complex.
+        """
+        c = CompiledCircuit(10)
+        assert c.U_full.dtype == complex
+
+    @pytest.mark.parametrize(
+        "component",
+        [
+            Barrier(list(range(4))),
+            BeamSplitter(1, 3, 0.4, "Rx"),
+            Loss(1, 0.5),
+            ModeSwaps({0: 2, 2: 1, 1: 0}),
+            PhaseShifter(3, 0.6),
+            UnitaryMatrix(1, random_unitary(4), ""),
+        ],
+    )
+    def test_component_addition(self, component):
+        """
+        Confirms each component can be added to a circuit and the configured
+        unitary matches that from the component.
+        """
+        c = CompiledCircuit(5)
+        c.add(component)
+        assert (
+            c.U_full.round(8) == component.get_unitary(c.total_modes).round(8)
+        ).all()
+
+    def test_component_addition_group(self):
+        """
+        Confirms a group can be added to the circuit and that the unitary
+        matches that which is manually calculated.
+        """
+        spec = [
+            BeamSplitter(1, 2, 0.6, "Rx"),
+            PhaseShifter(3, 0.6),
+            Loss(1, 0.5),
+            ModeSwaps({0: 2, 2: 1, 1: 0}),
+        ]
+        group = Group(spec, "test", 1, 3, {})
+        c = CompiledCircuit(5)
+        c.add(group)
+        # Find expected unitary from components individually
+        expected = np.identity(c.total_modes)
+        for s in spec:
+            expected = s.get_unitary(c.total_modes) @ expected
+        assert (c.U_full.round(8) == expected.round(8)).all()
+
+    def test_parameter_support(self):
+        """
+        Confirms a parameter can be assigned to a component and it changes the
+        produced circuit.
+        """
+        param = Parameter(0.9)
+        bs = BeamSplitter(1, 3, param, "H")
+        # Get first unitary
+        c = CompiledCircuit(4)
+        c.add(bs)
+        u1 = c.U_full
+        # Then update parameter and get second
+        param.set(0.3)
+        c = CompiledCircuit(4)
+        c.add(bs)
+        u2 = c.U_full
+        assert (u1.round(8) != u2.round(8)).any()

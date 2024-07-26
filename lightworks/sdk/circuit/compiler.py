@@ -17,7 +17,7 @@ from copy import copy
 import numpy as np
 
 from ..utils import ModeRangeError
-from .components import Component, Group, Loss
+from .components import Barrier, Component, Group, Loss
 
 
 class CompiledCircuit:
@@ -35,7 +35,7 @@ class CompiledCircuit:
     def __init__(self, n_modes: int) -> None:
         self._n_modes = n_modes
         self._loss_modes = 0
-        self._unitary = np.identity(n_modes)
+        self._unitary = np.identity(n_modes, dtype=complex)
         self._in_heralds: dict[int, int] = {}
         self._out_heralds: dict[int, int] = {}
 
@@ -72,12 +72,14 @@ class CompiledCircuit:
         if isinstance(spec, Loss):
             self._loss_modes += 1
             self._unitary = np.pad(
-                self._unitary, (0, 1), "constant", constant_values=0
+                self._unitary, (0, 1), "constant", constant_values=0j
             )
             self._unitary[-1, -1] = 1 + 0j
         if isinstance(spec, Group):
             for s in spec.circuit_spec:
                 self.add(s)
+        elif isinstance(spec, Barrier):
+            pass
         else:
             self._unitary = spec.get_unitary(self.total_modes) @ self._unitary
 
