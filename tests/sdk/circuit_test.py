@@ -574,7 +574,7 @@ class TestCircuit:
         """
         circuit = Circuit(4)
         with pytest.raises(TypeError):
-            circuit.herald(value)
+            circuit.herald(value, 0)
 
     @pytest.mark.parametrize("modes", [[1], [2], [1, 2]])
     def test_herald_duplicate(self, modes):

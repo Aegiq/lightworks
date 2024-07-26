@@ -26,6 +26,7 @@ from lightworks.sdk.circuit.components import (
     PhaseShifter,
     UnitaryMatrix,
 )
+from lightworks.sdk.utils import ModeRangeError
 
 
 class TestCompiledCircuit:
@@ -115,3 +116,80 @@ class TestCompiledCircuit:
         c.add(bs)
         u2 = c.U_full
         assert (u1.round(8) != u2.round(8)).any()
+
+    def test_herald(self):
+        """
+        Confirms that heralding being added to a circuit works as expected and
+        is reflected in the heralds attribute.
+        """
+        circuit = CompiledCircuit(4)
+        circuit.add_herald(1, 0, 2)
+        # Check heralds added
+        assert 0 in circuit.heralds["input"]
+        assert 2 in circuit.heralds["output"]
+        # Check photon number is correct
+        assert circuit.heralds["input"][0] == 1
+        assert circuit.heralds["output"][2] == 1
+
+    def test_herald_single_value(self):
+        """
+        Confirms that heralding being added to a circuit works as expected and
+        is reflected in the heralds attribute, when only a single mode is set
+        """
+        circuit = CompiledCircuit(4)
+        circuit.add_herald(2, 1)
+        # Check heralds added
+        assert 1 in circuit.heralds["input"]
+        assert 1 in circuit.heralds["output"]
+        # Check photon number is correct
+        assert circuit.heralds["input"][1] == 2
+        assert circuit.heralds["output"][1] == 2
+
+    @pytest.mark.parametrize("value", [2.5, "2", True])
+    def test_herald_invalid_photon_number(self, value):
+        """
+        Checks error is raised when a non-integer photon number is provided to
+        the herald method.
+        """
+        circuit = CompiledCircuit(4)
+        with pytest.raises(TypeError):
+            circuit.add_herald(value, 0)
+
+    @pytest.mark.parametrize("value", [2.5, 6, True])
+    def test_herald_invalid_mode_number(self, value):
+        """
+        Checks error is raised when a non-integer mode number is provided to
+        the herald method.
+        """
+        circuit = CompiledCircuit(4)
+        with pytest.raises((TypeError, ModeRangeError)):
+            circuit.add_herald(0, value)
+
+    @pytest.mark.parametrize("value", [2.5, 6, True])
+    def test_herald_invalid_mode_number_output(self, value):
+        """
+        Checks error is raised when a non-integer output mode number is provided
+        to the herald method.
+        """
+        circuit = CompiledCircuit(4)
+        with pytest.raises((TypeError, ModeRangeError)):
+            circuit.add_herald(0, 0, value)
+
+    def test_herald_duplicate_value(self):
+        """
+        Checks error is raised if a duplicate mode is provided to the herald.
+        """
+        circuit = CompiledCircuit(4)
+        circuit.add_herald(0, 0)
+        with pytest.raises(ValueError):
+            circuit.add_herald(0, 0)
+
+    def test_herald_duplicate_value_output(self):
+        """
+        Checks error is raised if a duplicate output mode is provided to the
+        herald.
+        """
+        circuit = CompiledCircuit(4)
+        circuit.add_herald(0, 0, 1)
+        with pytest.raises(ValueError):
+            circuit.add_herald(0, 1, 1)

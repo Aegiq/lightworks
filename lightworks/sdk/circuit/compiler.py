@@ -119,19 +119,15 @@ class CompiledCircuit:
         self._in_heralds[input_mode] = n_photons
         self._out_heralds[output_mode] = n_photons
 
-    def _mode_in_range(self, mode: int) -> bool:
+    def _mode_in_range(self, mode: int) -> None:
         """
         Check a mode exists within the created circuit and also confirm it
         is an integer.
         """
-        if not isinstance(mode, int):
-            if int(mode) == mode:
-                mode = int(mode)
-            else:
-                raise TypeError("Mode number should be an integer.")
-        if 0 <= mode < self.n_modes:
-            return True
-        raise ModeRangeError(
-            "Selected mode(s) is not within the range of the created "
-            "circuit."
-        )
+        if not isinstance(mode, int) or isinstance(mode, bool):
+            raise TypeError("Mode number should be an integer.")
+        if not 0 <= mode < self.n_modes:
+            raise ModeRangeError(
+                "Selected mode(s) is not within the range of the created "
+                "circuit."
+            )
