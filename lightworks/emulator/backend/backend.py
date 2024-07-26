@@ -14,7 +14,7 @@
 
 from numpy import ndarray
 
-from ...sdk.circuit.circuit_compiler import CompiledCircuit
+from ...sdk.circuit.compiler import CompiledCircuit
 from ...sdk.state import State
 from ..utils import BackendError, fock_basis
 from .permanent import Permanent
