@@ -47,7 +47,9 @@ class TestDisplay:
         self.circuit.bs(0, 3)
         self.circuit.bs(3, 0)
         self.circuit.ps(m + 1, np.pi / 2)
+        self.circuit.ps(m + 1, 5 * np.pi / 2)
         self.circuit.ps(m + 1, np.pi / 4)
+        self.circuit.ps(m + 1, 7 * np.pi / 4)
         self.circuit.barrier([1, 2, 3])
         self.circuit.mode_swaps({})
         self.circuit.mode_swaps({0: 2, 2: 1, 1: 0})
@@ -64,9 +66,21 @@ class TestDisplay:
         self.circuit.add(circuit2, 1, group=True)
 
     def test_circuit_display_method(self):
-        """Checks that the display method works without any errors arising."""
+        """
+        Checks that the display method works without any errors arising.
+        """
         try:
             self.circuit.display(display_loss=True)
+        except:
+            pytest.fail("Exception occurred during display operation.")
+
+    def test_circuit_display_method_no_loss(self):
+        """
+        Checks that the display method works without any errors arising when
+        display loss is False.
+        """
+        try:
+            self.circuit.display(display_loss=False)
         except:
             pytest.fail("Exception occurred during display operation.")
 
@@ -130,3 +144,13 @@ class TestDisplay:
             self.circuit.display(display_type="not_valid")
         with pytest.raises(DisplayError):
             Display(self.circuit, display_type="not_valid")
+
+    @pytest.mark.parametrize("display_type", ["svg", "mpl"])
+    def test_incorrect_mode_labels(self, display_type):
+        """
+        Checks an error is raised in the dimension of the mode labels setting is
+        incorrect.
+        """
+        labels = ["1"] * 20
+        with pytest.raises(DisplayError):
+            self.circuit.display(display_type=display_type, mode_labels=labels)
