@@ -1,5 +1,5 @@
 CompiledCircuit
 ===============
 
-.. autoclass:: lightworks.sdk.circuit.circuit_compiler.CompiledCircuit
+.. autoclass:: lightworks.sdk.circuit.compiler.CompiledCircuit
     :members:

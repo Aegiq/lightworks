@@ -22,7 +22,14 @@ from .components import Component, Group, Loss
 
 class CompiledCircuit:
     """
-    New Compiler
+    Builds up the unitary representation of a particular circuit, combining
+    provided components from a circuit spec.
+
+    Args:
+
+        n_modes (int) : The number of modes in a circuit. This should not
+            include any required loss modes.
+
     """
 
     def __init__(self, n_modes: int) -> None:
@@ -34,17 +41,17 @@ class CompiledCircuit:
 
     @property
     def n_modes(self) -> int:
-        """Number of real modes."""
+        """The number of modes in the circuit."""
         return self._n_modes
 
     @property
     def loss_modes(self) -> int:
-        """Number of loss modes."""
+        """The current number of loss modes in the circuit."""
         return self._loss_modes
 
     @property
     def total_modes(self) -> int:
-        """Total number of modes."""
+        """The total number of modes, including real and loss modes."""
         return self.n_modes + self.loss_modes
 
     @property
