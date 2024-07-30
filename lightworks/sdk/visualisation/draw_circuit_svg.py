@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import drawsvg as draw
 import numpy as np
-from multimethod import multimethod
 
 from ..circuit.components import (
     Barrier,
@@ -139,7 +138,35 @@ class DrawCircuitSVG:
                     self.x_locations[m] += 50
         # Loop over each element in the circuit spec and add
         for spec in self.circuit._get_circuit_spec():
-            self._add(spec)
+            if isinstance(spec, PhaseShifter):
+                phi = process_parameter_value(
+                    spec.phi, self.show_parameter_values
+                )
+                self._add_ps(spec.mode, phi)
+            elif isinstance(spec, BeamSplitter):
+                reflectivity = process_parameter_value(
+                    spec.reflectivity, self.show_parameter_values
+                )
+                self._add_bs(spec.mode_1, spec.mode_2, reflectivity)
+            elif isinstance(spec, Loss) and self.display_loss:
+                loss = process_parameter_value(
+                    spec.loss, self.show_parameter_values
+                )
+                self._add_loss(spec.mode, loss)
+            elif isinstance(spec, Barrier):
+                self._add_barrier(spec.modes)
+            elif isinstance(spec, ModeSwaps):
+                if not spec.swaps:
+                    continue
+                self._add_mode_swaps(spec.swaps)
+            elif isinstance(spec, UnitaryMatrix):
+                self._add_unitary(
+                    spec.mode, spec.mode + spec.unitary.shape[0] - 1, spec.label
+                )
+            elif isinstance(spec, Group):
+                self._add_grouped_circuit(
+                    spec.mode_1, spec.mode_2, spec.name, spec.heralds
+                )
 
         maxloc = max(self.x_locations)
         # Extend final waveguide if herald included
@@ -226,32 +253,19 @@ class DrawCircuitSVG:
         return self.d
 
     def _add_wg(self, x: float, y: float, length: float) -> None:
-        """
-        Add a waveguide to the drawing.
-        """
+        """Add a waveguide to the drawing."""
         # Add a waveguide of the required length to the drawing spec
         self.draw_spec += [("wg", (x - 0.05, y, length + 0.1))]
 
         return
 
-    @multimethod
-    def _add(self, spec: Any) -> None:  # noqa: ARG002
-        """
-        Catch all for any components which may not have been implemented.
-        """
-        raise ValueError("Unrecognised component in circuit spec.")
-
-    @_add.register
-    def _add_ps(self, spec: PhaseShifter) -> None:
-        """
-        Add a phase shifter to the drawing.
-        """
-        phi = process_parameter_value(spec.phi, self.show_parameter_values)
+    def _add_ps(self, mode: int, phi: float) -> None:
+        """Add a phase shifter to the drawing."""
         size = 50
         con_length = 50
         # Get current x and y locations for the mode
-        xloc = self.x_locations[spec.mode]
-        yloc = self.y_locations[spec.mode]
+        xloc = self.x_locations[mode]
+        yloc = self.y_locations[mode]
         # Input waveguide
         self._add_wg(xloc, yloc, con_length)
         xloc += con_length
@@ -302,19 +316,12 @@ class DrawCircuitSVG:
         xloc += size
         # Output waveguide
         self._add_wg(xloc, yloc, con_length)
-        self.x_locations[spec.mode] = xloc + con_length
+        self.x_locations[mode] = xloc + con_length
 
         return
 
-    @_add.register
-    def _add_bs(self, spec: BeamSplitter) -> None:
-        """
-        Add a beam splitter across to provided modes to the drawing.
-        """
-        mode1, mode2 = spec.mode_1, spec.mode_2
-        ref = process_parameter_value(
-            spec.reflectivity, self.show_parameter_values
-        )
+    def _add_bs(self, mode1: int, mode2: int, ref: float) -> None:
+        """Add a beam splitter across to provided modes to the drawing."""
         if mode1 > mode2:
             mode1, mode2 = mode2, mode1
         size_x = 50  # x beam splitter size
@@ -387,12 +394,8 @@ class DrawCircuitSVG:
 
         return
 
-    @_add.register
-    def _add_unitary(self, spec: UnitaryMatrix) -> None:
-        """
-        Add a unitary matrix representation to the drawing.
-        """
-        mode1, mode2 = spec.mode, spec.mode + spec.unitary.shape[0] - 1
+    def _add_unitary(self, mode1: int, mode2: int, label: str) -> None:
+        """Add a unitary matrix representation to the drawing."""
         size_x = 100  # Unitary x size
         con_length = 50  # Input/output waveguide lengths
         offset = 50  # Offset of unitary square from modes
@@ -415,13 +418,13 @@ class DrawCircuitSVG:
             ("unitary", (xloc, yloc, size_x, size_y, offset / 2))
         ]
         s = 25 if self.n_modes > 2 else 20
-        s = 35 if len(spec.label) == 1 else s
-        r = 270 if len(spec.label) > 2 else 0
+        s = 35 if len(label) == 1 else s
+        r = 270 if len(label) > 2 else 0
         self.draw_spec += [
             (
                 "text",
                 (
-                    spec.label,
+                    label,
                     xloc + size_x / 2,
                     yloc + (size_y - offset) / 2,
                     r,
@@ -440,20 +443,13 @@ class DrawCircuitSVG:
 
         return
 
-    @_add.register
-    def _add_loss(self, spec: Loss) -> None:
-        """
-        Add a loss channel to the specified mode.
-        """
-        # Don't add if not enabled
-        if not self.display_loss:
-            return
-        loss = process_parameter_value(spec.loss, self.show_parameter_values)
+    def _add_loss(self, mode: int, loss: float | str) -> None:
+        """Add a loss channel to the specified mode."""
         size = 50
         con_length = 50
         # Get current x and y locations for the mode
-        xloc = self.x_locations[spec.mode]
-        yloc = self.y_locations[spec.mode]
+        xloc = self.x_locations[mode]
+        yloc = self.y_locations[mode]
         # Input waveguide
         self._add_wg(xloc, yloc, con_length)
         xloc += con_length
@@ -485,18 +481,17 @@ class DrawCircuitSVG:
         xloc += size
         # Output waveguide
         self._add_wg(xloc, yloc, con_length)
-        self.x_locations[spec.mode] = xloc + con_length
+        self.x_locations[mode] = xloc + con_length
 
         return
 
-    @_add.register
-    def _add_barrier(self, spec: Barrier) -> None:
+    def _add_barrier(self, modes: list) -> None:
         """
         Add a barrier which will separate different parts of the circuit. This
         is applied to the provided modes.
         """
-        max_loc = max(self.x_locations[m] for m in spec.modes)
-        for m in spec.modes:
+        max_loc = max(self.x_locations[m] for m in modes)
+        for m in modes:
             loc = self.x_locations[m]
             if loc < max_loc:
                 self._add_wg(loc, self.y_locations[m], max_loc - loc)
@@ -504,15 +499,8 @@ class DrawCircuitSVG:
 
         return
 
-    @_add.register
-    def _add_mode_swaps(self, spec: ModeSwaps) -> None:
-        """
-        Add mode swaps between provided modes to the drawing.
-        """
-        # Skip any empty elements
-        if not spec.swaps:
-            return
-        swaps = dict(spec.swaps)  # Make copy of swaps
+    def _add_mode_swaps(self, swaps: dict) -> None:
+        """Add mode swaps between provided modes to the drawing."""
         con_length = 25  # input/output waveguide length
         min_mode = min(swaps)
         max_mode = max(swaps)
@@ -548,19 +536,15 @@ class DrawCircuitSVG:
 
         return
 
-    @_add.register
-    def _add_grouped_circuit(self, spec: Group) -> None:
-        """
-        Add a grouped_circuit representation to the drawing.
-        """
-        mode1, mode2 = spec.mode_1, spec.mode_2
+    def _add_grouped_circuit(
+        self, mode1: int, mode2: int, name: str, heralds: dict
+    ) -> None:
+        """Add a grouped_circuit representation to the drawing."""
         if mode1 > mode2:
             mode1, mode2 = mode2, mode1
         size_x = 100  # Drawing x size
         con_length = 50  # Input/output waveguide lengths
-        extra_length = (
-            50 if spec.heralds["input"] or spec.heralds["output"] else 0
-        )
+        extra_length = 50 if heralds["input"] or heralds["output"] else 0
         offset = 50  # Offset of square from modes
         size_y = offset + self.y_locations[mode2] - self.y_locations[mode1]
         # Get x and y positions
@@ -577,7 +561,7 @@ class DrawCircuitSVG:
                 self._add_wg(
                     xloc, self.y_locations[i], con_length + extra_length
                 )
-            elif i - mode1 in spec.heralds["input"]:
+            elif i - mode1 in heralds["input"]:
                 self._add_wg(
                     xloc + extra_length, self.y_locations[i], con_length
                 )
@@ -585,13 +569,13 @@ class DrawCircuitSVG:
         # Add unitary shape and U label
         self.draw_spec += [("group", (xloc, yloc, size_x, size_y, offset / 2))]
         s = 25 if self.n_modes > 2 else 20
-        s = 35 if len(spec.name) == 1 else s
-        r = 270 if len(spec.name) > 2 else 0
+        s = 35 if len(name) == 1 else s
+        r = 270 if len(name) > 2 else 0
         self.draw_spec += [
             (
                 "text",
                 (
-                    spec.name,
+                    name,
                     xloc + size_x / 2,
                     yloc + (size_y - offset) / 2,
                     r,
@@ -608,14 +592,14 @@ class DrawCircuitSVG:
                 self._add_wg(
                     xloc, self.y_locations[i], con_length + extra_length
                 )
-            elif i - mode1 in spec.heralds["output"]:
+            elif i - mode1 in heralds["output"]:
                 self._add_wg(xloc, self.y_locations[i], con_length)
             self.x_locations[i] = xloc + con_length + extra_length
 
         # Modify provided heralds by mode offset and then add at locations
         shifted_heralds = {
-            "input": {m + mode1: n for m, n in spec.heralds["input"].items()},
-            "output": {m + mode1: n for m, n in spec.heralds["output"].items()},
+            "input": {m + mode1: n for m, n in heralds["input"].items()},
+            "output": {m + mode1: n for m, n in heralds["output"].items()},
         }
         self._add_heralds(
             shifted_heralds, xloc - size_x - con_length, xloc + con_length
@@ -626,9 +610,7 @@ class DrawCircuitSVG:
     def _add_heralds(
         self, heralds: dict, start_loc: float, end_loc: float
     ) -> None:
-        """
-        Adds display of all heralds to circuit.
-        """
+        """Adds display of all heralds to circuit."""
         size = 25
         # Input heralds
         for mode, num in heralds["input"].items():
