@@ -17,10 +17,12 @@ from .exceptions import *
 from .heralding_utils import add_heralds_to_state, remove_heralds_from_state
 from .matrix_utils import (
     add_mode_to_unitary,
-    check_random_seed,
     check_unitary,
-    random_permutation,
-    random_unitary,
 )
 from .permutation_conversion import permutation_mat_from_swaps_dict
 from .post_selection import PostSelection, PostSelectionFunction
+from .random import (
+    process_random_seed,
+    random_permutation,
+    random_unitary,
+)
