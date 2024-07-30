@@ -22,7 +22,7 @@ class Constant(Distribution):
 
     Args:
 
-        value (int | float) : The constant value to use.
+        value (float) : The constant value to use.
 
     """
 
@@ -36,6 +36,6 @@ class Constant(Distribution):
     def __repr__(self) -> str:
         return "lightworks.interferometers.dists." + str(self)
 
-    def value(self) -> int | float:
+    def value(self) -> float:
         """Returns set constant value."""
         return self._value
