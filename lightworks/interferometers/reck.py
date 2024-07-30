@@ -21,7 +21,8 @@ from .error_model import ErrorModel
 
 class Reck:
     """
-    Used for mapping a provided Circuit to a Reck interferometer.
+    Maps a provided Circuit to a Reck interferometer, implementing the
+    configured error model across all components.
 
     Args:
 
