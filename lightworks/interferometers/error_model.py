@@ -14,7 +14,7 @@
 
 from numpy import random
 
-from ..sdk.utils import check_random_seed
+from ..sdk.utils import process_random_seed
 from .dists import Constant, Distribution
 
 
@@ -98,7 +98,7 @@ class ErrorModel:
         """
         Set the random seed for the error_model to produce repeatable results.
         """
-        seed = check_random_seed(r_seed)
+        seed = process_random_seed(r_seed)
         # Create a rng to modify the seed by, ensuring two distributions produce
         # different values
         rng = random.default_rng(seed)
