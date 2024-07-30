@@ -20,14 +20,19 @@ import numpy as np
 from ..utils import check_unitary, permutation_mat_from_swaps_dict
 from .parameters import Parameter
 
-# ruff: noqa: ANN202, ANN204, D101, D102
-
 
 @dataclass(slots=False)
 class Component(metaclass=ABCMeta):
+    """
+    Generic baseclass for all components. Implements a number of useful methods.
+    """
+
     @abstractmethod
     def get_unitary(self, n_modes: int) -> np.ndarray:
-        """Returns unitary matrix for component of size n_modes."""
+        """
+        Returns a unitary matrix corresponding to the transformation implemented
+        by the component with size n_modes.
+        """
 
     def fields(self) -> list:
         """Returns a list of all field from the component dataclass."""
@@ -40,6 +45,11 @@ class Component(metaclass=ABCMeta):
 
 @dataclass(slots=True)
 class BeamSplitter(Component):
+    """
+    Configurable beam splitter element between two assigned modes, with support
+    for a number of different conventions.
+    """
+
     mode_1: int
     mode_2: int
     reflectivity: float | Parameter
@@ -49,6 +59,10 @@ class BeamSplitter(Component):
         self.validate()
 
     def validate(self) -> None:
+        """
+        Validates that convention and reflectivity values of the beam splitter
+        are valid.
+        """
         # Validate reflectivity
         if not isinstance(self.reflectivity, Parameter):
             if not 0 <= self.reflectivity <= 1:
@@ -68,7 +82,7 @@ class BeamSplitter(Component):
             return self.reflectivity.get()
         return self.reflectivity
 
-    def get_unitary(self, n_modes: int) -> np.ndarray:
+    def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
         self.validate()
         theta = np.arccos(self._reflectivity**0.5)
         unitary = np.identity(n_modes, dtype=complex)
@@ -87,6 +101,10 @@ class BeamSplitter(Component):
 
 @dataclass(slots=True)
 class PhaseShifter(Component):
+    """
+    Implements a phase shift on the assigned mode.
+    """
+
     mode: int
     phi: float | Parameter
 
@@ -96,7 +114,7 @@ class PhaseShifter(Component):
             return self.phi.get()
         return self.phi
 
-    def get_unitary(self, n_modes: int) -> np.ndarray:
+    def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
         unitary = np.identity(n_modes, dtype=complex)
         unitary[self.mode, self.mode] = np.exp(1j * self._phi)
         return unitary
@@ -104,10 +122,16 @@ class PhaseShifter(Component):
 
 @dataclass(slots=True)
 class Loss(Component):
+    """
+    Induces a loss on the selected circuit mode. This requires creation of
+    additional loss modes in the unitary matrix.
+    """
+
     mode: int
     loss: float | Parameter
 
     def validate(self) -> None:
+        """Validates loss value is >= 0."""
         if self._loss < 0:
             raise ValueError("Provided loss values should be greater than 0.")
 
@@ -117,7 +141,7 @@ class Loss(Component):
             return self.loss.get()
         return self.loss
 
-    def get_unitary(self, n_modes: int) -> np.ndarray:
+    def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
         self.validate()
         transmission = 10 ** (-self._loss / 10)
         # Assumes loss mode to use is last mode in circuit
@@ -131,14 +155,22 @@ class Loss(Component):
 
 @dataclass(slots=True)
 class Barrier(Component):
+    """
+    Adds a barrier across selected circuit modes.
+    """
+
     modes: list
 
-    def get_unitary(self, n_modes: int) -> np.ndarray:
+    def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
         return np.identity(n_modes, dtype=complex)
 
 
 @dataclass(slots=True)
 class ModeSwaps(Component):
+    """
+    Performs ideal swaps between selected modes of the circuit.
+    """
+
     swaps: dict
 
     def __post_init__(self) -> None:
@@ -151,24 +183,32 @@ class ModeSwaps(Component):
                 "contain the same modes."
             )
 
-    def get_unitary(self, n_modes: int) -> np.ndarray:
+    def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
         return permutation_mat_from_swaps_dict(self.swaps, n_modes)
 
 
 @dataclass(slots=True)
 class Group(Component):
+    """
+    Stores a group of components which have been added to a circuit.
+    """
+
     circuit_spec: list
     name: str
     mode_1: int
     mode_2: int
     heralds: dict
 
-    def get_unitary(self, n_modes: int) -> None:  # type: ignore[override] # noqa: ARG002
+    def get_unitary(self, n_modes: int) -> None:  # type: ignore[override] # noqa: ARG002, D102
         return None
 
 
 @dataclass(slots=True)
 class UnitaryMatrix(Component):
+    """
+    Implements a unitary transformation across a subset of circuit modes.
+    """
+
     mode: int
     unitary: np.ndarray
     label: str
@@ -187,7 +227,7 @@ class UnitaryMatrix(Component):
         if not isinstance(self.label, str):
             raise TypeError("Label for unitary should be a string.")
 
-    def get_unitary(self, n_modes: int) -> np.ndarray:
+    def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
         unitary = np.identity(n_modes, dtype=complex)
         nm = self.unitary.shape[0]
         unitary[self.mode : self.mode + nm, self.mode : self.mode + nm] = (

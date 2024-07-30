@@ -71,6 +71,10 @@ def qiskit_converter(
 
         Circuit : The created circuit within Lightworks.
 
+        PostSelection | None : If post-selection rules are required for the
+            created circuit, then an object which implements these will be
+            returned, otherwise it will be None.
+
     """
     converter = QiskitConverter(allow_post_selection)
     return converter.convert(circuit)
