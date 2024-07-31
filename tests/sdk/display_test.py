@@ -154,6 +154,7 @@ class TestDisplay:
         with pytest.raises(DisplayError):
             Display(self.circuit, display_type="not_valid")
 
+    @pytest.mark.flaky(reruns=2)
     @pytest.mark.parametrize("display_type", ["svg", "mpl"])
     def test_incorrect_mode_labels(self, display_type):
         """

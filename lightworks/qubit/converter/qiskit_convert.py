@@ -71,6 +71,10 @@ def qiskit_converter(
 
         Circuit : The created circuit within Lightworks.
 
+        PostSelection | None : If post-selection rules are required for the
+            created circuit, then an object which implements these will be
+            returned, otherwise it will be None.
+
     """
     converter = QiskitConverter(allow_post_selection)
     return converter.convert(circuit)
@@ -105,6 +109,10 @@ class QiskitConverter:
         Returns:
 
             Circuit : The created circuit within Lightworks.
+
+            PostSelection | None : If post-selection rules are required for the
+                created circuit, then an object which implements these will be
+                returned, otherwise it will be None.
 
         """
         if not isinstance(q_circuit, QuantumCircuit):
@@ -162,7 +170,7 @@ class QiskitConverter:
 
     def _add_single_qubit_gate(self, gate: str, qubit: int) -> None:
         """
-        Adds a single qubit gate to the provided qubit on the circuit.
+        Adds a single qubit gate to the selected qubit on the circuit.
         """
         self.circuit.add(SINGLE_QUBIT_GATES_MAP[gate], self.modes[qubit][0])
 
@@ -170,8 +178,7 @@ class QiskitConverter:
         self, gate: str, q0: int, q1: int, post_selection: bool = False
     ) -> None:
         """
-        Adds a provided two qubit gate within an instruction to a circuit on
-        the correct modes.
+        Adds a two qubit gate to the circuit on the selected qubits.
         """
         if gate == "swap":
             self.circuit.add(
@@ -203,8 +210,7 @@ class QiskitConverter:
         self, gate: str, q0: int, q1: int, q2: int, post_selection: bool = False
     ) -> None:
         """
-        Adds a provided three qubit gate within an instruction to a circuit on
-        the correct modes.
+        Adds a three qubit gate to the circuit on the selected qubits.
         """
         if gate in ["ccx", "ccz"]:
             if not post_selection:
@@ -233,11 +239,29 @@ class QiskitConverter:
             raise ValueError(msg)
 
 
-def convert_two_qubits_to_adjacent(q0: int, q1: int) -> tuple[int, int, list]:
+def convert_two_qubits_to_adjacent(
+    q0: int, q1: int
+) -> tuple[int, int, list[tuple]]:
     """
     Takes two qubit indices and converts these so that they are adjacent to each
     other, and determining the swaps required for this. The order of the two
     qubits is preserved, so if q0 > q1 then this will remain True.
+
+    Args:
+
+        q0 (int) : First qubit which a gate acts on.
+
+        q1 (int) : The second qubit which the gate acts on.
+
+    Returns:
+
+        int : The new first qubit which the gate should act on.
+
+        int : The new second qubit which the gate should act on.
+
+        list[tuple] : Pairs of qubits which swap gates should be applied to
+            ensure the gate can act on the right qubits.
+
     """
     if abs(q1 - q0) == 1:
         return (q0, q1, [])

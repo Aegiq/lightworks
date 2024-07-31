@@ -451,7 +451,7 @@ class Sampler:
             "indistinguishability",
             "probability_threshold",
         ]:
-            vals.append(self.source.__getattribute__(prop))  # noqa: PERF401
+            vals.append(getattr(self.source, prop))  # noqa: PERF401
         return vals
 
     def _convert_to_continuous(self, dist: dict) -> dict:

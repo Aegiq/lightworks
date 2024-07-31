@@ -24,9 +24,9 @@ class TopHat(Distribution):
 
     Args:
 
-        min_value (int | float) : The minimum value of the distribution.
+        min_value (float) : The minimum value of the distribution.
 
-        max_value (int | float) : The maximum value of the distribution.
+        max_value (float) : The maximum value of the distribution.
 
     """
 
@@ -47,7 +47,7 @@ class TopHat(Distribution):
     def __repr__(self) -> str:
         return "lightworks.interferometers.dists." + str(self)
 
-    def value(self) -> int | float:
+    def value(self) -> float:
         """Returns random value from within set range."""
         return (
             self._min_value

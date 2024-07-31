@@ -73,21 +73,21 @@ class ErrorModel:
             raise TypeError("phase_offset should be a distribution object.")
         self._phase_offset = distribution
 
-    def get_bs_reflectivity(self) -> int | float:
+    def get_bs_reflectivity(self) -> float:
         """
         Returns a value for beam splitter reflectivity, which depends on the
         configuration of the error model.
         """
         return self._bs_reflectivity.value()
 
-    def get_loss(self) -> int | float:
+    def get_loss(self) -> float:
         """
         Returns a value for loss, which depends on the configuration of the
         error model.
         """
         return self._loss.value()
 
-    def get_phase_offset(self) -> int | float:
+    def get_phase_offset(self) -> float:
         """
         Returns a value for phase offset, which depends on the configuration of
         the error model.
