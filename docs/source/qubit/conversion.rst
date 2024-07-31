@@ -45,6 +45,9 @@ The Lightworks circuit is then created by providing this circuit directly to the
 
 From this circuit, there are a couple of things to note. The first is that the first CNOT (acting on qubits 0 & 2) has been replaced by a CNOT and two swap gates. This occurs because the photonic CNOT gate must act on adjacent modes, so the converter will automatically include swaps to ensure this is the case. In some cases this may lead to circuits which are non-optimal, and so a lower depth circuit may be possible by manually including swap components in these cases. The other thing to note is that in the second CNOT gate, the text '(1, 0)' is included in the gate label, this is used to indicate that the lower qubit modes (those representing qubit two) are acting as the control qubit and the upper modes are acting as the target qubit. These labels will always be relative to the smaller of first qubit which the gate is acting on instead of showing absolute qubit numbers.
 
+Post-selection
+^^^^^^^^^^^^^^
+
 By default, the ``qiskit_converter`` will produce circuits which do not require any post-selection, however it is possible to change this behaviour, which may be desirable as the post-selected versions of gates tend to be more resource efficient. This is achieved with the ``allow_post_selection`` option.
 
 .. code-block:: Python
@@ -75,4 +78,4 @@ When used, a ``PostSelection`` object will also be returned, which can then be p
 
 .. note::
 
-    The converter supports inclusion of a CCZ or CCX/Toffoli gate, but when added this must be the only multi-qubit gate in the system. Additionally, post-selection must be applied on the results to get the correct values from the system. 
+    The converter supports inclusion of a CCZ or CCX/Toffoli gate, but currently only the post-selected version of this gate is implemented within Lightworks. This means it will usually have to be placed toward the end of any circuit which features multi-qubit gates. An error will be raised by the algorithm if it is unable to find a compatible configuration with these gates.
