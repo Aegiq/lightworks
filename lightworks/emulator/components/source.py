@@ -334,7 +334,7 @@ class Source:
         # Get distribution for each photon and combine with mode distribution
         for _i in range(n_photons):
             calc_dist = self._single_photon_distribution()
-            if mode_dist == []:
+            if not mode_dist:
                 mode_dist = calc_dist
             else:
                 new_dist = [
