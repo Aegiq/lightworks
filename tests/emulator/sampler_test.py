@@ -20,6 +20,7 @@ from lightworks import (
     PostSelection,
     State,
     Unitary,
+    db_loss_to_transmission,
     random_unitary,
 )
 from lightworks.emulator import (
@@ -279,7 +280,7 @@ class TestSamplerCalculationBackends:
         |2,0> and |0,2>.
         """
         circuit = Circuit(2)
-        circuit.bs(0, loss=1)
+        circuit.bs(0, loss=0.1)
         sampler = Sampler(circuit, State([1, 1]), backend=backend)
         n_sample = 100000
         results = sampler.sample_N_outputs(n_sample, seed=54, min_detection=2)
@@ -370,13 +371,13 @@ class TestSamplerCalculationBackends:
         """
         # Build circuit
         circuit = Circuit(4)
-        circuit.bs(0, loss=1)
-        circuit.bs(2, loss=2)
-        circuit.ps(1, 0.3, loss=0.5)
-        circuit.ps(3, 0.3, loss=0.5)
-        circuit.bs(1, loss=1)
-        circuit.bs(2, loss=2)
-        circuit.ps(1, 0.3, loss=0.5)
+        circuit.bs(0, loss=1 - db_loss_to_transmission(1))
+        circuit.bs(2, loss=1 - db_loss_to_transmission(2))
+        circuit.ps(1, 0.3, loss=1 - db_loss_to_transmission(0.5))
+        circuit.ps(3, 0.3, loss=1 - db_loss_to_transmission(0.5))
+        circuit.bs(1, loss=1 - db_loss_to_transmission(1))
+        circuit.bs(2, loss=1 - db_loss_to_transmission(2))
+        circuit.ps(1, 0.3, loss=1 - db_loss_to_transmission(0.5))
         # Sample from circuit
         sampler = Sampler(circuit, State([1, 0, 1, 0]), backend=backend)
         p = sampler.probability_distribution[State([0, 1, 1, 0])]
@@ -391,13 +392,13 @@ class TestSamplerCalculationBackends:
         """
         # Build circuit
         circuit = Circuit(4)
-        circuit.bs(0, loss=1)
-        circuit.bs(2, loss=2)
-        circuit.ps(1, 0.3, loss=0.5)
-        circuit.ps(3, 0.3, loss=0.5)
-        circuit.bs(1, loss=1)
-        circuit.bs(2, loss=2)
-        circuit.ps(1, 0.3, loss=0.5)
+        circuit.bs(0, loss=1 - db_loss_to_transmission(1))
+        circuit.bs(2, loss=1 - db_loss_to_transmission(2))
+        circuit.ps(1, 0.3, loss=1 - db_loss_to_transmission(0.5))
+        circuit.ps(3, 0.3, loss=1 - db_loss_to_transmission(0.5))
+        circuit.bs(1, loss=1 - db_loss_to_transmission(1))
+        circuit.bs(2, loss=1 - db_loss_to_transmission(2))
+        circuit.ps(1, 0.3, loss=1 - db_loss_to_transmission(0.5))
         # Sample from circuit
         source = Source(purity=0.9, brightness=0.9, indistinguishability=0.9)
         sampler = Sampler(
@@ -558,7 +559,7 @@ class TestSamplerCalculationBackends:
         """
         circuit = Unitary(random_unitary(6))
         for i in range(6):
-            circuit.loss(i, i + 1)
+            circuit.loss(i, (i + 1) / 10)
         # Sampler without built-in heralds
         sampler = Sampler(circuit, State([1, 1, 0, 1, 0, 0]), backend=backend)
         results = sampler.sample_N_outputs(
@@ -585,7 +586,7 @@ class TestSamplerCalculationBackends:
         """
         circuit = Unitary(random_unitary(6))
         for i in range(6):
-            circuit.loss(i, i + 1)
+            circuit.loss(i, (i + 1) / 10)
         # Define source to use
         source = Source(purity=0.9, brightness=0.9, indistinguishability=0.9)
         # Sampler without built-in heralds

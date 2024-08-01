@@ -24,7 +24,12 @@ from ...sdk.utils import add_heralds_to_state, process_random_seed
 from ...sdk.utils.post_selection import PostSelectionType
 from ..backend import Backend
 from ..results import SamplingResult
-from ..utils import ModeMismatchError, fock_basis, process_post_selection
+from ..utils import (
+    EmulatorError,
+    ModeMismatchError,
+    fock_basis,
+    process_post_selection,
+)
 
 
 class QuickSampler:
@@ -146,6 +151,12 @@ class QuickSampler:
                 )
             # Find the probability distribution
             pdist = self._calculate_probabiltiies(out_states)
+            # Check some states are found
+            if not pdist:
+                raise EmulatorError(
+                    "No valid outputs found with the provided QuickSampler "
+                    "configuration."
+                )
             # Then assign calculated distribution to attribute
             self.__probability_distribution = pdist
             self.__calculation_values = self._gen_calculation_values()

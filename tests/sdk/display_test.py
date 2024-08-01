@@ -25,6 +25,7 @@ from lightworks import (
     DisplayError,
     Parameter,
     Unitary,
+    db_loss_to_transmission,
     random_unitary,
 )
 
@@ -41,9 +42,9 @@ class TestDisplay:
         for i, m in enumerate([0, 2, 1, 2, 0, 1]):
             self.circuit.bs(m)
             self.circuit.ps(m, phi=Parameter(i, label=f"p{i}"))
-            self.circuit.bs(m, loss=2)
+            self.circuit.bs(m, loss=1 - db_loss_to_transmission(2))
             self.circuit.ps(m + 1, phi=3 * i)
-            self.circuit.loss(m, loss=1)
+            self.circuit.loss(m, loss=1 - db_loss_to_transmission(1))
             self.circuit.loss(m, loss=Parameter(1, label="test"))
         self.circuit.bs(0, 3)
         self.circuit.bs(3, 0)
@@ -154,7 +155,7 @@ class TestDisplay:
         with pytest.raises(DisplayError):
             Display(self.circuit, display_type="not_valid")
 
-    @pytest.mark.flaky(reruns=2)
+    @pytest.mark.flaky(reruns=3)
     @pytest.mark.parametrize("display_type", ["svg", "mpl"])
     def test_incorrect_mode_labels(self, display_type):
         """

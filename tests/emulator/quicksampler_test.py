@@ -14,7 +14,14 @@
 
 import pytest
 
-from lightworks import Circuit, Parameter, State, Unitary, random_unitary
+from lightworks import (
+    Circuit,
+    Parameter,
+    State,
+    Unitary,
+    db_loss_to_transmission,
+    random_unitary,
+)
 from lightworks.emulator import ModeMismatchError, QuickSampler, Sampler
 
 
@@ -107,13 +114,13 @@ class TestQuickSampler:
         a lossy circuit is correct.
         """
         circuit = Circuit(4)
-        circuit.bs(0, loss=1.3)
-        circuit.bs(2, loss=2)
-        circuit.ps(1, 0.7, loss=0.5)
-        circuit.ps(3, 0.6, loss=0.5)
-        circuit.bs(1, loss=1.3)
-        circuit.bs(2, loss=2)
-        circuit.ps(1, 0.5, loss=0.5)
+        circuit.bs(0, loss=1 - db_loss_to_transmission(1.3))
+        circuit.bs(2, loss=1 - db_loss_to_transmission(2))
+        circuit.ps(1, 0.7, loss=1 - db_loss_to_transmission(0.5))
+        circuit.ps(3, 0.6, loss=1 - db_loss_to_transmission(0.5))
+        circuit.bs(1, loss=1 - db_loss_to_transmission(1.3))
+        circuit.bs(2, loss=1 - db_loss_to_transmission(2))
+        circuit.ps(1, 0.5, loss=1 - db_loss_to_transmission(0.5))
         sampler = QuickSampler(
             circuit,
             State([1, 0, 1, 0]),
@@ -267,7 +274,7 @@ class TestQuickSampler:
         # First calculate distribution without heralding
         circuit = Unitary(random_unitary(6))
         for i in range(6):
-            circuit.loss(i, i + 1)
+            circuit.loss(i, (i + 1) / 20)
         sampler = QuickSampler(
             circuit,
             State([1, 1, 0, 0, 0, 1]),
@@ -292,7 +299,7 @@ class TestQuickSampler:
         # First calculate distribution without heralding
         circuit = Unitary(random_unitary(6))
         for i in range(6):
-            circuit.loss(i, i + 1)
+            circuit.loss(i, (i + 1) / 20)
         sampler = QuickSampler(
             circuit,
             State([1, 1, 0, 0, 0, 1]),
@@ -326,5 +333,5 @@ class TestQuickSampler:
         sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
         sampler.sample_N_outputs(10000)
         # Add loss and resample
-        loss.set(1)
+        loss.set(0.6)
         sampler.sample_N_outputs(10000)
