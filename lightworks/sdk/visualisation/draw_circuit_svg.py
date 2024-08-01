@@ -467,7 +467,7 @@ class DrawCircuitSVG:
         ]
         # Add loss label
         if not isinstance(loss, str):
-            loss = str(round(loss, 4)) + " dB"
+            loss = str(round(loss, 4))
         self.draw_spec += [
             (
                 "text",

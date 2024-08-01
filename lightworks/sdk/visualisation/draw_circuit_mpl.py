@@ -370,7 +370,7 @@ class DrawCircuitMPL:
             size=8,
         )
         if not isinstance(loss, str):
-            loss_text = f"$loss = {round(loss, 4)} dB$"
+            loss_text = f"$loss = {round(loss, 4)}$"
         else:
             loss_text = "$loss =$ " + loss
         self.ax.text(
