@@ -32,18 +32,6 @@ Generates an NxN permutation matrix, which is a unitary matrix with only values 
     # Create 8x8 matrix with random seed to return the same matrix
     U = lw.random_permutation(8, seed = 4)
 
-:func:`lightworks.transmission_to_db_loss`
-------------------------------------------
-
-Converts a decimal transmission value into a positive dB loss, which can be used with the circuit loss elements.
-
-.. code-block:: Python
-
-    # Convert 70% transmission into loss 
-    loss = lw.transmission_to_db_loss(0.7)
-    print(loss)
-    # Output: 1.5490195998574319
-
 :func:`lightworks.db_loss_to_transmission`
 ------------------------------------------
 
@@ -55,3 +43,15 @@ Converts a positive dB loss into a decimal transmission value.
     transmission = lw.db_loss_to_transmission(3)
     print(transmission)
     # Output: 0.5011872336272722
+
+:func:`lightworks.transmission_to_db_loss`
+------------------------------------------
+
+Converts a decimal transmission value into a positive dB loss, which can be used with the circuit loss elements.
+
+.. code-block:: Python
+
+    # Convert 70% transmission into loss 
+    loss = lw.transmission_to_db_loss(0.7)
+    print(loss)
+    # Output: 1.5490195998574319
