@@ -3,8 +3,6 @@ Circuit
 
 The :doc:`../sdk_reference/circuit` is one of the key components of Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
 
-.. note that somewhere here there will need to be a note on what loss is and how it is included.
-
 Building Circuits
 -----------------
 
@@ -96,7 +94,7 @@ When using the emulator to simulate a circuit, it is also possible to include lo
     circuit.bs(1, reflectivity = 0.4, convention = "H", loss = 0.3)
 
 .. warning:: 
-    All losses in Lightworks should be provided as a decimal loss value, meaning loss = 0 corresponds to a ideal non-lossy component and loss = 1 will block all photons on a mode. It is also possible to specify loss in terms of dB using the include ``db_loss_to_transmission`` function, for example, to include a 3 dB loss the following would be valid, noting that 1 - is used to convert from transmission to loss.
+    All losses in Lightworks should be provided as a decimal loss value, meaning loss = 0 corresponds to a ideal non-lossy component and loss = 1 will block all photons on a mode. It is also possible to specify loss in terms of dB using the include ``db_loss_to_transmission`` function, for example, to include a 3 dB loss the following would be valid, noting that ``1 - transmission`` is used to convert from transmission to loss.
 
   .. code-block:: Python
 
@@ -162,8 +160,8 @@ When adding a barrier, a list of the modes which it should be applied to is prov
     # Apply to all circuit modes
     circuit.barrier()
     
-    # Apply to modes 0, 2, 4
-    circuit.barrier([0,2,4])
+    # Apply to modes 0, 2 & 4
+    circuit.barrier([0, 2, 4])
 
 Visualization
 -------------
