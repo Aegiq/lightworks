@@ -131,9 +131,11 @@ class Loss(Component):
     loss: float | Parameter
 
     def validate(self) -> None:
-        """Validates loss value is >= 0."""
-        if self._loss < 0:
-            raise ValueError("Provided loss values should be greater than 0.")
+        """Validates loss value is within allowed range."""
+        if not 0 <= self._loss <= 1:
+            raise ValueError(
+                "Provided loss values should be in the range [0,1]."
+            )
 
     @property
     def _loss(self) -> float:
@@ -143,7 +145,7 @@ class Loss(Component):
 
     def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
         self.validate()
-        transmission = 10 ** (-self._loss / 10)
+        transmission = 1 - self._loss
         # Assumes loss mode to use is last mode in circuit
         unitary = np.identity(n_modes, dtype=complex)
         unitary[self.mode, self.mode] = transmission**0.5

@@ -327,7 +327,7 @@ class Circuit:
                 beam splitter. Defaults to 0.5.
 
             loss (float, optional) : The loss of the beam splitter, this should
-                be positive and given in dB.
+                be provided as a decimal value in the range [0,1].
 
             convention (str, optional) : The convention to use for the beam
                 splitter, should be either "Rx" (the default value) or "H".
@@ -364,7 +364,7 @@ class Circuit:
             phi (float) : The angular phase shift to apply.
 
             loss (float, optional) : The loss of the phase shifter, this should
-                be positive and given in dB.
+                be provided as a decimal value in the range [0,1].
 
         """
         mode = self._map_mode(mode)
@@ -383,7 +383,7 @@ class Circuit:
             mode (int) : The mode on which the loss channel acts.
 
             loss (float, optional) : The loss applied to the selected mode,
-                this should be positive and given in dB.
+                this should be provided as a decimal value in the range [0,1].
 
         """
         mode = self._map_mode(mode)
