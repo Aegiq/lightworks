@@ -6,13 +6,13 @@ The Lightworks Qubit module contains methods for converting between quantum prog
 Qiskit
 ------
 
-The :func:`lightworks.qubit.converter.qiskit_converter` function can be used to perform conversion between a provided qiskit `QuantumCircuit <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit>`_ and a lightworks :doc:`../sdk_reference/circuit`.
+The :func:`lightworks.qubit.qiskit_converter` function can be used to perform conversion between a provided qiskit `QuantumCircuit <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit>`_ and a lightworks :doc:`../sdk_reference/circuit`.
 
-To use this, it should be first be imported from the converter module of Qubit. This will raise an error if the qiskit requirements are not installed, for mode info see :ref:`Qubit Usage <qubit_usage>` 
+To use this, it should be first be imported from Qubit. An exception will be raised if attempting to use the converter without the qiskit requirements installed, for mode info see :ref:`Qubit Usage <qubit_usage>` 
 
 .. code-block:: Python
 
-    from lightworks.qubit.converter import qiskit_converter
+    from lightworks.qubit import qiskit_converter
     from qiskit import QuantumCircuit
 
 To demonstrate the converter, a qiskit QuantumCircuit should then be defined. In this case a 3 qubit circuit is chosen with a Hadamard, X-gate and 2 CNOTs.  

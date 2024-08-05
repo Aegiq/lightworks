@@ -15,7 +15,6 @@
 from random import randint, random, seed
 
 import pytest
-from numpy import round
 
 from lightworks import (
     Circuit,
@@ -138,8 +137,8 @@ class TestCircuit:
             c2.ps(m, i, loss=0.1)
         c1.add(c2, 1)
         # Check unitary equivalence
-        u_1 = round(circ_comp.U_full, 8)
-        u_2 = round(c1.U_full, 8)
+        u_1 = circ_comp.U_full.round(8)
+        u_2 = c1.U_full.round(8)
         assert (u_1 == u_2).all()
 
     def test_smaller_circuit_addition_grouped(self):
@@ -177,8 +176,8 @@ class TestCircuit:
         c2.add(c2, 0, group=False)
         c1.add(c2, 1, group=True)
         # Check unitary equivalence
-        u_1 = round(circ_comp.U_full, 8)
-        u_2 = round(c1.U_full, 8)
+        u_1 = circ_comp.U_full.round(8)
+        u_2 = c1.U_full.round(8)
         assert (u_1 == u_2).all()
 
     def test_barrier_inclusion(self):

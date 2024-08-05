@@ -24,6 +24,7 @@ quantum programming languages.
 
 # ruff: noqa: F405
 
+from .converter.qiskit_convert import qiskit_converter
 from .gates import *
 
 __all__ = [
@@ -40,4 +41,5 @@ __all__ = [
     "SWAP",
     "CCZ",
     "CCNOT",
+    "qiskit_converter",
 ]

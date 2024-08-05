@@ -21,7 +21,7 @@ from .matrix_utils import (
 )
 from .permutation_conversion import permutation_mat_from_swaps_dict
 from .post_selection import PostSelection, PostSelectionFunction
-from .random import (
+from .random_utils import (
     process_random_seed,
     random_permutation,
     random_unitary,
