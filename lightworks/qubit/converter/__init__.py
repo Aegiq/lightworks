@@ -12,15 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ...sdk.utils import LightworksError
+QISKIT_INSTALLED = True
 
 try:
-    from .qiskit_convert import qiskit_converter
+    import qiskit
 except ModuleNotFoundError as e:
     if "qiskit" in str(e):
-        raise LightworksError(
-            "Lightworks qiskit optional requirements not installed this can be "
-            "achieved with 'pip install lightworks[qiskit]'."
-        ) from e
+        QISKIT_INSTALLED = False
     else:
         raise

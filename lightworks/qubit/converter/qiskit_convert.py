@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from qiskit import QuantumCircuit
-
 from ...sdk.circuit import Circuit
-from ...sdk.utils import PostSelection
+from ...sdk.utils import LightworksError, PostSelection
 from ..gates import (
     CCNOT,
     CCZ,
@@ -31,6 +29,10 @@ from ..gates import (
     Y,
     Z,
 )
+from . import QISKIT_INSTALLED
+
+if QISKIT_INSTALLED:
+    from qiskit import QuantumCircuit
 
 SINGLE_QUBIT_GATES_MAP = {
     "h": H(),
@@ -54,7 +56,7 @@ ALLOWED_GATES = [
 
 
 def qiskit_converter(
-    circuit: QuantumCircuit, allow_post_selection: bool = False
+    circuit: "QuantumCircuit", allow_post_selection: bool = False
 ) -> tuple[Circuit, PostSelection | None]:
     """
     Performs conversion of a provided qiskit QuantumCircuit into a photonic
@@ -96,7 +98,7 @@ class QiskitConverter:
         self.allow_post_selection = allow_post_selection
 
     def convert(
-        self, q_circuit: QuantumCircuit
+        self, q_circuit: "QuantumCircuit"
     ) -> tuple[Circuit, PostSelection | None]:
         """
         Performs conversion of a provided qiskit QuantumCircuit into a photonic
@@ -115,6 +117,12 @@ class QiskitConverter:
                 returned, otherwise it will be None.
 
         """
+        if not QISKIT_INSTALLED:
+            raise LightworksError(
+                "Lightworks qiskit optional requirements not installed, "
+                "this can be achieved with 'pip install lightworks[qiskit]'."
+            )
+
         if not isinstance(q_circuit, QuantumCircuit):
             raise TypeError("Circuit to convert must be a qiskit circuit.")
 
@@ -285,7 +293,9 @@ def convert_two_qubits_to_adjacent(
     return (q0, q1, swaps)
 
 
-def post_selection_analyzer(qc: QuantumCircuit) -> tuple[list[bool], list[int]]:
+def post_selection_analyzer(
+    qc: "QuantumCircuit",
+) -> tuple[list[bool], list[int]]:
     """
     Implements a basic algorithm to try to determine which gates can have
     post-selection and which require heralding. This is not necessarily optimal,
