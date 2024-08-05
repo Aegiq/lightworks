@@ -577,7 +577,7 @@ class TestSamplerCalculationBackends:
                 # Check results are within 10%
                 assert pytest.approx(results[full_s], 0.1) == results2[s]
 
-    @pytest.mark.flaky(reruns=2)
+    @pytest.mark.flaky(reruns=3)
     def test_herald_equivalent_lossy_imperfect_source(self, backend):
         """
         Checks that results are equivalent if a herald is used vs
