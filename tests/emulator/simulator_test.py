@@ -19,7 +19,7 @@ from lightworks import (
     Parameter,
     State,
     Unitary,
-    db_loss_to_transmission,
+    db_loss_to_decimal,
     random_unitary,
 )
 from lightworks.emulator import ModeMismatchError, PhotonNumberError, Simulator
@@ -107,12 +107,12 @@ class TestSimulator:
         one input/output.
         """
         circ = Circuit(4)
-        circ.bs(0, loss=1 - db_loss_to_transmission(2))
+        circ.bs(0, loss=db_loss_to_decimal(2))
         circ.ps(1, phi=0.3)
-        circ.bs(1, loss=1 - db_loss_to_transmission(2))
-        circ.bs(2, loss=1 - db_loss_to_transmission(2))
+        circ.bs(1, loss=db_loss_to_decimal(2))
+        circ.bs(2, loss=db_loss_to_decimal(2))
         circ.ps(1, phi=0.5)
-        circ.bs(1, loss=1 - db_loss_to_transmission(2))
+        circ.bs(1, loss=db_loss_to_decimal(2))
         sim = Simulator(circ)
         results = sim.simulate(State([2, 0, 0, 0]), State([0, 1, 1, 0]))
         x = results.array[0, 0]

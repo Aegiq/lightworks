@@ -21,10 +21,10 @@ from lightworks import (
     PostSelection,
     PostSelectionFunction,
     State,
-    db_loss_to_transmission,
+    db_loss_to_decimal,
+    decimal_to_db_loss,
     random_permutation,
     random_unitary,
-    transmission_to_db_loss,
 )
 from lightworks.sdk.utils import (
     add_heralds_to_state,
@@ -93,15 +93,15 @@ class TestUtils:
         assert abs(unitary[3, 2]) ** 2 == 1
 
     def test_db_loss_to_decimal_conv(self):
-        """Test conversion from db loss to a decimal transmission value."""
-        r = db_loss_to_transmission(0.5)
+        """Test conversion from db loss to a decimal loss value."""
+        r = 1 - db_loss_to_decimal(0.5)
         assert r == pytest.approx(0.8912509381337456, 1e-8)
 
     def test_decimal_to_db_loss_conv(self):
         """
-        Tests conversion between a decimal transmission and db loss value.
+        Tests conversion between a decimal loss and db loss value.
         """
-        r = transmission_to_db_loss(0.75)
+        r = decimal_to_db_loss(0.25)
         assert r == pytest.approx(1.2493873660829995, 1e-8)
 
     def test_seeded_random(self):

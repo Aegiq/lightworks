@@ -51,10 +51,10 @@ from .sdk.state import State
 from .sdk.utils import (
     PostSelection,
     PostSelectionFunction,
-    db_loss_to_transmission,
+    db_loss_to_decimal,
+    decimal_to_db_loss,
     random_permutation,
     random_unitary,
-    transmission_to_db_loss,
 )
 from .sdk.utils.exceptions import *
 from .sdk.visualisation import Display
@@ -68,7 +68,7 @@ except ModuleNotFoundError:
 # fmt: off
 __all__ = [
     "Circuit", "Unitary", "Display", "State", "random_unitary",
-    "random_permutation", "db_loss_to_transmission", "transmission_to_db_loss",
+    "random_permutation", "db_loss_to_decimal", "decimal_to_db_loss",
     "Parameter", "ParameterDict", "emulator", "qubit", "Optimisation",
     "interferometers", "PostSelection", "PostSelectionFunction",
 ]

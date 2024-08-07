@@ -19,7 +19,7 @@ from lightworks import (
     Parameter,
     State,
     Unitary,
-    db_loss_to_transmission,
+    db_loss_to_decimal,
     random_unitary,
 )
 from lightworks.emulator import ModeMismatchError, QuickSampler, Sampler
@@ -114,13 +114,13 @@ class TestQuickSampler:
         a lossy circuit is correct.
         """
         circuit = Circuit(4)
-        circuit.bs(0, loss=1 - db_loss_to_transmission(1.3))
-        circuit.bs(2, loss=1 - db_loss_to_transmission(2))
-        circuit.ps(1, 0.7, loss=1 - db_loss_to_transmission(0.5))
-        circuit.ps(3, 0.6, loss=1 - db_loss_to_transmission(0.5))
-        circuit.bs(1, loss=1 - db_loss_to_transmission(1.3))
-        circuit.bs(2, loss=1 - db_loss_to_transmission(2))
-        circuit.ps(1, 0.5, loss=1 - db_loss_to_transmission(0.5))
+        circuit.bs(0, loss=db_loss_to_decimal(1.3))
+        circuit.bs(2, loss=db_loss_to_decimal(2))
+        circuit.ps(1, 0.7, loss=db_loss_to_decimal(0.5))
+        circuit.ps(3, 0.6, loss=db_loss_to_decimal(0.5))
+        circuit.bs(1, loss=db_loss_to_decimal(1.3))
+        circuit.bs(2, loss=db_loss_to_decimal(2))
+        circuit.ps(1, 0.5, loss=db_loss_to_decimal(0.5))
         sampler = QuickSampler(
             circuit,
             State([1, 0, 1, 0]),

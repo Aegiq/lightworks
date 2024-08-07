@@ -20,11 +20,10 @@ emulator.
 from math import log10
 
 
-def db_loss_to_transmission(loss: float) -> float:
+def db_loss_to_decimal(loss: float) -> float:
     """
-    Function to convert from a given dB loss into the equivalent transmission
-    value as a percentage. Note this function does not support conversion of
-    gain values.
+    Function to convert from a given dB loss into the equivalent loss value in
+    decimal form. Note this function does not support conversion of gain values.
 
     Args:
 
@@ -32,23 +31,23 @@ def db_loss_to_transmission(loss: float) -> float:
 
     Returns:
 
-        float : The calculated transmission as a decimal.
+        float : The calculated loss as a decimal.
 
     """
     # Standardize loss format
     loss = -abs(loss)
-    return 10 ** (loss / 10)
+    return 1 - 10 ** (loss / 10)
 
 
-def transmission_to_db_loss(transmission: float) -> float:
+def decimal_to_db_loss(loss: float) -> float:
     """
-    Function to convert from a transmission into dB loss. This dB loss will be
+    Function to convert from a decimal into dB loss. This dB loss will be
     returned as a positive value.
 
     Args:
 
-        transmission (float) : The transmission value as a decimal, this should
-            be in the range (0,1].
+        loss (float) : The loss value as a decimal, this should be in the range
+            [0,1).
 
     Returns:
 
@@ -56,9 +55,9 @@ def transmission_to_db_loss(transmission: float) -> float:
 
     Raises:
 
-        ValueError: Raised in cases where transmission is not in range (0,1].
+        ValueError: Raised in cases where transmission is not in range [0,1).
 
     """
-    if transmission <= 0 or transmission > 1:
-        raise ValueError("Transmission value should be in range (0,1].")
-    return abs(10 * log10(transmission))
+    if loss < 0 or loss >= 1:
+        raise ValueError("Transmission value should be in range [0,1).")
+    return abs(10 * log10(1 - loss))
