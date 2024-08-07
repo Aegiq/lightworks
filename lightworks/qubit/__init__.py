@@ -28,6 +28,7 @@ from .converter.qiskit_convert import qiskit_converter
 from .gates import *
 
 __all__ = [
+    "I",
     "H",
     "X",
     "Y",

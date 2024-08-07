@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# ruff: noqa: D101, N802, I001
+# ruff: noqa: N802, I001
 
 import numpy as np
 import pytest
@@ -22,12 +22,28 @@ from lightworks.emulator import Simulator
 
 # fmt: off
 from lightworks.qubit import (
-    CCNOT, CCZ, CNOT, CZ, SWAP, CNOT_Heralded, CZ_Heralded, H, S, T, X, Y, Z,
+    CCNOT, CCZ, CNOT, CZ, SWAP, CNOT_Heralded, CZ_Heralded, I, H, S, T, X, Y, Z,
 )
 # fmt: on
 
 
 class TestSingleQubitGates:
+    """
+    Unit tests for all single qubit gates.
+    """
+
+    def test_I(self):
+        """Checks that the output from the I gate is correct."""
+        sim = Simulator(I())
+        # Input |1,0>
+        results = sim.simulate(State([1, 0]))
+        assert pytest.approx(results[State([1, 0])], 1e-6) == 1
+        assert pytest.approx(results[State([0, 1])], 1e-6) == 0
+        # Input |0,1>
+        results = sim.simulate(State([0, 1]))
+        assert pytest.approx(results[State([1, 0])], 1e-6) == 0
+        assert pytest.approx(results[State([0, 1])], 1e-6) == 1
+
     def test_hadamard(self):
         """Checks that the output from the Hadamard gate is correct."""
         sim = Simulator(H())
@@ -104,6 +120,10 @@ class TestSingleQubitGates:
 
 
 class TestTwoQubitGates:
+    """
+    Unit tests for all single two gates.
+    """
+
     def test_CZ(self):
         """
         Checks that the output of the post-selected CZ gate is correct and that
@@ -241,6 +261,10 @@ class TestTwoQubitGates:
 
 
 class TestThreeQubitGates:
+    """
+    Unit tests for all three qubit gates.
+    """
+
     def test_CCZ(self):
         """
         Checks that the output of the post-selected CCZ gate is correct and
