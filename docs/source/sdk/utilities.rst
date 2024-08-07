@@ -42,7 +42,7 @@ Converts a positive dB loss into a decimal loss value, which can be used with th
     # Convert 3dB loss into decimal
     loss = lw.db_loss_to_decimal(3)
     print(loss)
-    # Output: 0.5011872336272722
+    # Output: 0.49881276637272776
 
 :func:`lightworks.decimal_to_db_loss`
 ------------------------------------------
