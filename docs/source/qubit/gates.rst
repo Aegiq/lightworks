@@ -14,6 +14,11 @@ The following single qubit gates are currently implemented:
 
     * - Gate
       - Matrix
+    * - I
+      - .. math:: \begin{bmatrix}
+                      1 & 0 \\
+                      0 & 1 \\
+                  \end{bmatrix}
     * - H
       - .. math:: \frac{1}{\sqrt{2}}\begin{bmatrix}
                       1 & 1 \\
