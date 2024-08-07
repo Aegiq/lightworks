@@ -22,7 +22,7 @@ from lightworks import (
     Parameter,
     ParameterDict,
     Unitary,
-    db_loss_to_transmission,
+    db_loss_to_decimal,
     random_unitary,
 )
 from lightworks.qubit import CNOT
@@ -60,7 +60,7 @@ class TestCircuit:
                 self.param_circuit.ps(j, self.parameters[f"ps_{i}_{j}"])
                 self.param_circuit.bs(j)
                 self.param_circuit.ps(j + 1, self.parameters[f"bs_{i}_{j}"])
-                self.param_circuit.bs(j, loss=1 - db_loss_to_transmission(0.1))
+                self.param_circuit.bs(j, loss=db_loss_to_decimal(0.1))
 
     def test_resultant_unitary(self):
         """
@@ -206,7 +206,7 @@ class TestCircuit:
         """Test combination of a circuit and unitary objects."""
         circ = Circuit(6)
         for i, m in enumerate([0, 2, 4, 1, 3, 2]):
-            circ.bs(m, loss=1 - db_loss_to_transmission(0.2))
+            circ.bs(m, loss=db_loss_to_decimal(0.2))
             circ.ps(m, i)
         u1 = Unitary(random_unitary(6, seed=1))
         u2 = Unitary(random_unitary(4, seed=2))
@@ -858,7 +858,7 @@ class TestCircuit:
         """
         p1 = Parameter(0.5)
         p2 = Parameter(2)
-        p3 = Parameter(1 - db_loss_to_transmission(3))
+        p3 = Parameter(db_loss_to_decimal(3))
         # Create circuit with parameters
         circuit = Circuit(4)
         circuit.bs(0, reflectivity=p1)
@@ -876,7 +876,7 @@ class TestCircuit:
         """
         p1 = Parameter(0.5)
         p2 = Parameter(2)
-        p3 = Parameter(1 - db_loss_to_transmission(3))
+        p3 = Parameter(db_loss_to_decimal(3))
         # Create sub-circuit with parameters
         sub_circuit = Circuit(4)
         sub_circuit.bs(0, reflectivity=p1)
@@ -966,8 +966,8 @@ class TestUnitary:
         u = Unitary(random_unitary(6, seed=95))
         circ = Circuit(4)
         circ.bs(0)
-        circ.bs(2, loss=1 - db_loss_to_transmission(0.5))
-        circ.bs(1, loss=1 - db_loss_to_transmission(0.2))
+        circ.bs(2, loss=db_loss_to_decimal(0.5))
+        circ.bs(1, loss=db_loss_to_decimal(0.2))
         u.add(circ, 1)
         assert u.U[0, 0] == pytest.approx(
             -0.27084817086493 - 0.176576418865914j, 1e-8

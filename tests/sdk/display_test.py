@@ -25,7 +25,7 @@ from lightworks import (
     DisplayError,
     Parameter,
     Unitary,
-    db_loss_to_transmission,
+    db_loss_to_decimal,
     random_unitary,
 )
 
@@ -42,9 +42,9 @@ class TestDisplay:
         for i, m in enumerate([0, 2, 1, 2, 0, 1]):
             self.circuit.bs(m)
             self.circuit.ps(m, phi=Parameter(i, label=f"p{i}"))
-            self.circuit.bs(m, loss=1 - db_loss_to_transmission(2))
+            self.circuit.bs(m, loss=db_loss_to_decimal(2))
             self.circuit.ps(m + 1, phi=3 * i)
-            self.circuit.loss(m, loss=1 - db_loss_to_transmission(1))
+            self.circuit.loss(m, loss=db_loss_to_decimal(1))
             self.circuit.loss(m, loss=Parameter(1, label="test"))
         self.circuit.bs(0, 3)
         self.circuit.bs(3, 0)
