@@ -281,6 +281,32 @@ class TestCircuit:
         # Unitary should not be modified
         assert (u_1 == u_2).all()
 
+    def test_circuit_copy_preserves_heralds(self):
+        """
+        Tests that circuit copy method is able to correctly copy over the
+        heralding data.
+        """
+        circ = CNOT()
+        circ.add(CNOT(), 0)
+        circ_copy = circ.copy()
+        # Check circuit has heralds and that they are identical
+        assert circ_copy.heralds
+        assert circ.heralds == circ_copy.heralds
+
+    def test_circuit_copy_preserves_internal_modes(self):
+        """
+        Tests that circuit copy method is able to correctly copy over the
+        internal mode data used for storing heralds.
+        """
+        circ = CNOT()
+        circ.add(CNOT(), 0)
+        circ_copy = circ.copy()
+        # Check circuit has internal modes and that they are preserved
+        assert circ_copy._Circuit__internal_modes
+        assert (
+            circ._Circuit__internal_modes == circ_copy._Circuit__internal_modes
+        )
+
     def test_circuit_ungroup(self):
         """
         Check that the unpack_groups method removes any grouped components from
