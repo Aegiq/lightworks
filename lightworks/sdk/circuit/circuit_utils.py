@@ -20,7 +20,6 @@ Contains a number of different utility functions for modifying circuits.
 
 from copy import copy
 from numbers import Number
-from typing import Any
 
 from ..utils import add_mode_to_unitary
 from .components import (
@@ -322,25 +321,14 @@ def combine_mode_swap_dicts(swaps1: dict, swaps2: dict) -> dict:
     return {m1: m2 for m1, m2 in new_swaps.items() if m1 != m2}
 
 
-def check_loss(loss: float | Parameter) -> bool:
+def check_loss(loss: float | Parameter) -> None:
     """
-    Check that loss is positive and toggle _loss_included if not already
-    done.
+    Check that loss is assigned to a positive value.
     """
     if isinstance(loss, Parameter):
         loss = loss.get()
     if not isinstance(loss, Number) or isinstance(loss, bool):
         raise TypeError("Loss value should be numerical or a Parameter.")
-    if loss < 0:  # type: ignore
-        raise ValueError("Provided loss values should be greater than 0.")
-    return True
-
-
-def display_loss_check(loss: Any) -> bool:
-    """
-    Checks whether a loss element should be shown when using the display
-    function.
-    """
-    if isinstance(loss, str):
-        return True
-    return bool(loss > 0)
+    if not 0 <= loss <= 1:  # type: ignore
+        raise ValueError("Provided loss values should be in the range [0,1].")
+    return

@@ -12,5 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Lightworks Interferometers
+==========================
+
+For the simulation of noisy interferometric circuits, enabling various
+quantities of the circuit to be assigned to variable error distributions.
+"""
+
 from .error_model import ErrorModel
 from .reck import Reck

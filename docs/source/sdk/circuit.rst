@@ -3,8 +3,6 @@ Circuit
 
 The :doc:`../sdk_reference/circuit` is one of the key components of Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
 
-.. note that somewhere here there will need to be a note on what loss is and how it is included.
-
 Building Circuits
 -----------------
 
@@ -89,25 +87,25 @@ Where :math:`\theta = 2\cos^{-1}(\sqrt{\text{reflectivity}})`. As an example, if
 
     circuit.bs(1, reflectivity = 0.4, convention = "H")
 
-When using the emulator to simulate a circuit, it is also possible to include loss for components with the ``loss`` option, this will be included as a separate loss element on each of the two modes that the beam splitter acts over. If we therefore wanted to extend the function call above to include a beam splitter loss of 0.3 dB then it would look like:
+When using the emulator to simulate a circuit, it is also possible to include loss for components with the ``loss`` option, this will be included as a separate loss element on each of the two modes that the beam splitter acts over. If we therefore wanted to extend the function call above to include a beam splitter loss of 30% then it would look like:
 
 .. code-block:: Python
 
     circuit.bs(1, reflectivity = 0.4, convention = "H", loss = 0.3)
 
 .. warning:: 
-    All losses in Lightworks should be provided as a positive dB loss value. To provide loss as a decimal transmission value instead, the ``transmission_to_db_loss`` function can be used. For a transmission of 80%, the function call above would therefore look like:
+    All losses in Lightworks should be provided as a decimal loss value, meaning loss = 0 corresponds to a ideal non-lossy component and loss = 1 will block all photons on a mode. It is also possible to specify loss in terms of dB using the include ``db_loss_to_decimal`` function, for example, to include a 3 dB loss the following would be valid.
 
   .. code-block:: Python
 
-    circuit.bs(1, reflectivity = 0.4, convention = "H", loss = lw.transmission_to_db_loss(0.8))
+    circuit.bs(1, reflectivity = 0.4, convention = "H", loss = 1 - lw.db_loss_to_decimal(3))
 
 .. _phaseshifter:
 
 Phase Shifter
 ^^^^^^^^^^^^^
 
-A phase shifter acts to apply a phase to a single mode of the circuit. They are added to the circuit with the ``ps`` method, which requires the mode number it will act on and the phase shift that is to be applied. A phase shifter can also optionally introduce a loss on the mode if this is required. As an example of this, if we wanted to add a phase shift of 2 on mode 1 of the circuit, and include a 0.5 dB loss, then the method call should look like:
+A phase shifter acts to apply a phase to a single mode of the circuit. They are added to the circuit with the ``ps`` method, which requires the mode number it will act on and the phase shift that is to be applied. A phase shifter can also optionally introduce a loss on the mode if this is required. As an example of this, if we wanted to add a phase shift of 2 on mode 1 of the circuit, and include a 50% loss, then the method call should look like:
 
 .. code-block:: Python
 
@@ -140,13 +138,13 @@ This would map 0 :math:`\rightarrow` 2, 2 :math:`\rightarrow` 3, 3 :math:`\right
 Loss Element
 ^^^^^^^^^^^^
 
-A loss element is used to implement a dedicated source of loss to a mode of a photonic circuit. They are added through the ``loss`` method, which requires the mode to implement the loss on and the value of the loss in dB. It is important to note that adding loss elements to a circuit will introduce additional invisible modes to the circuit. This will increase runtime when simulating a circuit, so users should endeavour to minimize additional loss elements where possible. 
+A loss element is used to implement a dedicated source of loss to a mode of a photonic circuit. They are added through the ``loss`` method, which requires the mode to implement the loss on and the value of the loss as a decimal. It is important to note that adding loss elements to a circuit will introduce additional invisible modes to the circuit. This will increase runtime when simulating a circuit, so users should endeavour to minimize additional loss elements where possible. 
 
-To add a loss component on mode 1 of a circuit, with a value of 3dB, the method call should look like:
+To add a loss component on mode 1 of a circuit, with a value of 10%, the method call should look like:
 
 .. code-block:: Python
 
-    circuit.loss(1, 3)
+    circuit.loss(1, 0.1)
 
 .. _barriers:
 
@@ -162,8 +160,8 @@ When adding a barrier, a list of the modes which it should be applied to is prov
     # Apply to all circuit modes
     circuit.barrier()
     
-    # Apply to modes 0, 2, 4
-    circuit.barrier([0,2,4])
+    # Apply to modes 0, 2 & 4
+    circuit.barrier([0, 2, 4])
 
 Visualization
 -------------
@@ -175,9 +173,9 @@ Once a circuit has been created, the configuration can be viewed with the ``disp
     circuit = lw.Circuit(4)
   
     circuit.bs(0, reflectivity = 0.4)
-    circuit.loss(0, 1)
+    circuit.loss(0, 0.1)
     circuit.barrier()
-    circuit.bs(2, loss = 2)
+    circuit.bs(2, loss = 0.2)
     circuit.ps(0, 2)
     circuit.mode_swaps({0:2,2:1,1:0})
 

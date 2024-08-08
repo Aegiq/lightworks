@@ -25,5 +25,5 @@ class Distribution(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def value(self) -> int | float:
+    def value(self) -> float:
         """Returns a value from the distribution on request."""

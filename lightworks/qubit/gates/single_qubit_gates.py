@@ -23,6 +23,17 @@ import numpy as np
 from ...sdk.circuit import Unitary
 
 
+class I(Unitary):  # noqa: E742
+    """
+    Implements the identity gate across a pair of modes corresponding to a
+    dual-rail encoded qubit.
+    """
+
+    def __init__(self) -> None:
+        unitary = np.array([[1, 0], [0, 1]])
+        super().__init__(unitary, "I")
+
+
 class H(Unitary):
     """
     Implements a Hadamard across a pair of modes corresponding to a dual-rail

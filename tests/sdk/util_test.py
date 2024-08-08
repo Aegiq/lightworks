@@ -21,17 +21,17 @@ from lightworks import (
     PostSelection,
     PostSelectionFunction,
     State,
-    db_loss_to_transmission,
+    db_loss_to_decimal,
+    decimal_to_db_loss,
     random_permutation,
     random_unitary,
-    transmission_to_db_loss,
 )
 from lightworks.sdk.utils import (
     add_heralds_to_state,
     add_mode_to_unitary,
-    check_random_seed,
     check_unitary,
     permutation_mat_from_swaps_dict,
+    process_random_seed,
 )
 from lightworks.sdk.utils.post_selection import (
     DefaultPostSelection,
@@ -93,15 +93,15 @@ class TestUtils:
         assert abs(unitary[3, 2]) ** 2 == 1
 
     def test_db_loss_to_decimal_conv(self):
-        """Test conversion from db loss to a decimal transmission value."""
-        r = db_loss_to_transmission(0.5)
+        """Test conversion from db loss to a decimal loss value."""
+        r = 1 - db_loss_to_decimal(0.5)
         assert r == pytest.approx(0.8912509381337456, 1e-8)
 
     def test_decimal_to_db_loss_conv(self):
         """
-        Tests conversion between a decimal transmission and db loss value.
+        Tests conversion between a decimal loss and db loss value.
         """
-        r = transmission_to_db_loss(0.75)
+        r = decimal_to_db_loss(0.25)
         assert r == pytest.approx(1.2493873660829995, 1e-8)
 
     def test_seeded_random(self):
@@ -197,13 +197,22 @@ class TestUtils:
         s_new = add_heralds_to_state(s, {})
         assert id(s) != id(s_new)
 
-    @pytest.mark.parametrize("value", [0.5, 3.2, "1.1", "seed", [1], (1,)])
-    def test_check_random_seed(self, value):
+    @pytest.mark.parametrize("value", [1, 3, 2.0, None])
+    def test_process_random_seed(self, value):
+        """
+        Confirms that process_random_seed allows valid values
+        """
+        process_random_seed(value)
+
+    @pytest.mark.parametrize(
+        "value", [0.5, 3.2, "1.1", "seed", [1], (1,), True, False]
+    )
+    def test_process_random_seed_invalid(self, value):
         """
         Confirms that check_random_seed detects invalid seeds.
         """
         with pytest.raises(TypeError):
-            check_random_seed(value)
+            process_random_seed(value)
 
 
 class TestPostSelection:
@@ -334,6 +343,14 @@ class TestPostSelection:
             photons = (photons,)
         assert rules[0].modes == modes
         assert rules[0].n_photons == photons
+
+    def test_post_selection_no_rules(self):
+        """
+        Confirms post-selection object still functions when no rules have been
+        provided.
+        """
+        p = PostSelection()
+        assert p.validate(self.test_state)
 
     def test_post_selection_rules_length(self):
         """

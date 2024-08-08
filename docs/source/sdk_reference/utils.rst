@@ -11,13 +11,13 @@ Utilities
 
 .. _tr_to_db_loss:
 
-.. autofunction:: lightworks.transmission_to_db_loss
-
-.. _db_loss_to_tr:
-
-.. autofunction:: lightworks.db_loss_to_transmission
+.. autofunction:: lightworks.db_loss_to_decimal
 
 .. _post_selection:
+
+.. autofunction:: lightworks.decimal_to_db_loss
+
+.. _db_loss_to_tr:
 
 .. autoclass:: lightworks.PostSelection
     :members:

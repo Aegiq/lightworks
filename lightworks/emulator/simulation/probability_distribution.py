@@ -16,7 +16,7 @@ from typing import Any
 
 from multimethod import multimethod
 
-from ...sdk.circuit.circuit_compiler import CompiledCircuit
+from ...sdk.circuit.compiler import CompiledCircuit
 from ...sdk.state import State
 from ..backend import Backend
 from ..state import AnnotatedState

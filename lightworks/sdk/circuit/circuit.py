@@ -19,7 +19,6 @@ after creation.
 
 from copy import copy, deepcopy
 from typing import TYPE_CHECKING, Any, Union
-from warnings import warn
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -33,7 +32,6 @@ from ..utils import (
     ModeRangeError,
 )
 from ..visualisation import Display
-from .circuit_compiler import CompiledCircuit, CompiledUnitary
 from .circuit_utils import (
     add_empty_mode_to_circuit_spec,
     add_modes_to_circuit_spec,
@@ -42,6 +40,7 @@ from .circuit_utils import (
     convert_non_adj_beamsplitters,
     unpack_circuit_spec,
 )
+from .compiler import CompiledCircuit
 from .components import (
     Barrier,
     BeamSplitter,
@@ -50,7 +49,6 @@ from .components import (
     Loss,
     ModeSwaps,
     PhaseShifter,
-    UnitaryMatrix,
 )
 from .parameters import Parameter
 
@@ -79,7 +77,6 @@ class Circuit:
         self.__out_heralds: dict[int, int] = {}
         self.__external_in_heralds: dict[int, int] = {}
         self.__external_out_heralds: dict[int, int] = {}
-        self.__show_parameter_values = False
         self.__internal_modes: list[int] = []
 
         return
@@ -329,7 +326,7 @@ class Circuit:
                 beam splitter. Defaults to 0.5.
 
             loss (float, optional) : The loss of the beam splitter, this should
-                be positive and given in dB.
+                be provided as a decimal value in the range [0,1].
 
             convention (str, optional) : The convention to use for the beam
                 splitter, should be either "Rx" (the default value) or "H".
@@ -366,7 +363,7 @@ class Circuit:
             phi (float) : The angular phase shift to apply.
 
             loss (float, optional) : The loss of the phase shifter, this should
-                be positive and given in dB.
+                be provided as a decimal value in the range [0,1].
 
         """
         mode = self._map_mode(mode)
@@ -385,7 +382,7 @@ class Circuit:
             mode (int) : The mode on which the loss channel acts.
 
             loss (float, optional) : The loss applied to the selected mode,
-                this should be positive and given in dB.
+                this should be provided as a decimal value in the range [0,1].
 
         """
         mode = self._map_mode(mode)
@@ -473,60 +470,6 @@ class Circuit:
         self.__external_in_heralds[input_mode] = n_photons
         self.__external_out_heralds[output_mode] = n_photons
 
-    def add_bs(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
-        warn(
-            "'add_bs' method has been deprecated in favour of 'bs', this is "
-            "planned for removal in Lightworks 1.6.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.bs(*args, **kwargs)
-
-    def add_ps(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
-        warn(
-            "'add_ps' method has been deprecated in favour of 'ps', this is "
-            "planned for removal in Lightworks 1.6.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.ps(*args, **kwargs)
-
-    def add_loss(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
-        warn(
-            "'add_loss' method has been deprecated in favour of 'loss', this "
-            "is planned for removal in Lightworks 1.6.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.loss(*args, **kwargs)
-
-    def add_mode_swaps(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
-        warn(
-            "'add_mode_swaps' method has been deprecated in favour of "
-            "'mode_swaps', this is planned for removal in Lightworks 1.6.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.mode_swaps(*args, **kwargs)
-
-    def add_barrier(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
-        warn(
-            "'add_barrier' method has been deprecated in favour of 'barrier', "
-            "this is planned for removal in Lightworks 1.6.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.barrier(*args, **kwargs)
-
-    def add_herald(self, *args: Any, **kwargs: Any) -> None:  # noqa: D102
-        warn(
-            "'add_herald' method has been deprecated in favour of 'herald', "
-            "this is planned for removal in Lightworks 1.6.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self.herald(*args, **kwargs)
-
     def display(
         self,
         show_parameter_values: bool = False,
@@ -608,6 +551,7 @@ class Circuit:
         new_circ.__out_heralds = copy(self.__out_heralds)
         new_circ.__external_in_heralds = copy(self.__external_in_heralds)
         new_circ.__external_out_heralds = copy(self.__external_out_heralds)
+        new_circ.__internal_modes = copy(self.__internal_modes)
         return new_circ
 
     def unpack_groups(self) -> None:
@@ -659,29 +603,9 @@ class Circuit:
         """
         circuit = CompiledCircuit(self.n_modes)
 
-        for spec in unpack_circuit_spec(self.__circuit_spec):
-            if isinstance(spec, BeamSplitter):
-                circuit.add_bs(
-                    spec.mode_1,
-                    spec.mode_2,
-                    spec._reflectivity,
-                    spec.convention,
-                )
-            elif isinstance(spec, PhaseShifter):
-                circuit.add_ps(spec.mode, spec._phi)
-            elif isinstance(spec, Loss):
-                circuit.add_loss(spec.mode, spec._loss)
-            elif isinstance(spec, Barrier):
-                pass
-            elif isinstance(spec, ModeSwaps):
-                circuit.add_mode_swaps(spec.swaps)
-            elif isinstance(spec, UnitaryMatrix):
-                unitary = CompiledUnitary(spec.unitary, spec.label)
-                circuit.add(unitary, spec.mode)
-            else:
-                raise CircuitCompilationError(
-                    "Component in circuit spec not recognised."
-                )
+        for spec in self.__circuit_spec:
+            circuit.add(spec)
+
         heralds = self.heralds
         for i, o in zip(heralds["input"], heralds["output"]):
             circuit.add_herald(heralds["input"][i], i, o)

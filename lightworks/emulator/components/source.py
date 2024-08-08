@@ -334,7 +334,7 @@ class Source:
         # Get distribution for each photon and combine with mode distribution
         for _i in range(n_photons):
             calc_dist = self._single_photon_distribution()
-            if mode_dist == []:
+            if not mode_dist:
                 mode_dist = calc_dist
             else:
                 new_dist = [
@@ -359,7 +359,10 @@ class Source:
     def _single_photon_distribution(self) -> list[tuple[list, float]]:
         """
         Calculates the distribution for a single photon with imperfect
-        properties.
+        properties. This uses the probabilities as shown on page 15 of
+        arXiv:2211.15626v1. It is assumed that the distinguishable and
+        multi-photon components are independent between different single photon
+        distributions.
         """
         # Define some useful quantities
         nu = self.brightness
@@ -379,21 +382,16 @@ class Source:
         dpc = self._counter
         mpc = self._counter + 1
         self._counter += 2
-        # Loop through all entries and add if each probability is non-zero
-        to_add: list[tuple[float, list]] = [
-            (c0, []),
-            (c1, [0]),
-            (c1d, [dpc]),
-            (c1dp, [mpc]),
-            (c12d, [0, mpc]),
-            (c1d2d, [dpc, mpc]),
+        # Collect all possible supported entries
+        to_add = [
+            ([], c0),
+            ([0], c1),
+            ([dpc], c1d),
+            ([mpc], c1dp),
+            ([0, mpc], c12d),
+            ([dpc, mpc], c1d2d),
         ]
-        out: list[tuple[list, float]] = []
-        for p, s in to_add:
-            if p > 0:
-                out += [(s, p)]
-
-        return out
+        return [(s, p) for s, p in to_add if p > 0]
 
 
 def group_empty_modes(state: State) -> tuple[dict, list]:
@@ -434,10 +432,8 @@ def purity_to_prob(purity: float) -> float:
     if purity < 1:
         g2 = 1 - purity
         b = 2 * (1 - (1 / g2))
-        p1 = 1 - (-b - (b**2 - 4) ** 0.5) / 2
-    else:
-        p1 = 1
-    return p1
+        return 1 - (-b - (b**2 - 4) ** 0.5) / 2
+    return 1
 
 
 def quantity_check(value: float, name: str) -> None:

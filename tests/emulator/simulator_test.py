@@ -14,7 +14,14 @@
 
 import pytest
 
-from lightworks import Circuit, Parameter, State, Unitary, random_unitary
+from lightworks import (
+    Circuit,
+    Parameter,
+    State,
+    Unitary,
+    db_loss_to_decimal,
+    random_unitary,
+)
 from lightworks.emulator import ModeMismatchError, PhotonNumberError, Simulator
 
 
@@ -100,12 +107,12 @@ class TestSimulator:
         one input/output.
         """
         circ = Circuit(4)
-        circ.bs(0, loss=2)
+        circ.bs(0, loss=db_loss_to_decimal(2))
         circ.ps(1, phi=0.3)
-        circ.bs(1, loss=2)
-        circ.bs(2, loss=2)
+        circ.bs(1, loss=db_loss_to_decimal(2))
+        circ.bs(2, loss=db_loss_to_decimal(2))
         circ.ps(1, phi=0.5)
-        circ.bs(1, loss=2)
+        circ.bs(1, loss=db_loss_to_decimal(2))
         sim = Simulator(circ)
         results = sim.simulate(State([2, 0, 0, 0]), State([0, 1, 1, 0]))
         x = results.array[0, 0]
@@ -278,10 +285,10 @@ class TestSimulator:
         unitary = random_unitary(6)
         circuit = Unitary(unitary)
         for i in range(6):
-            circuit.loss(i, i + 1)
+            circuit.loss(i, (i + 1) / 10)
         circuit_herald = Unitary(unitary)
         for i in range(6):
-            circuit_herald.loss(i, i + 1)
+            circuit_herald.loss(i, (i + 1) / 10)
         circuit_herald.herald(0, 2, 2)
         circuit_herald.herald(1, 1, 3)
         # Simulate both with equivalent inputs
@@ -305,10 +312,10 @@ class TestSimulator:
         unitary = random_unitary(6)
         circuit = Unitary(unitary)
         for i in range(6):
-            circuit.loss(i, i + 1)
+            circuit.loss(i, (i + 1) / 10)
         sub_circuit = Unitary(unitary)
         for i in range(6):
-            sub_circuit.loss(i, i + 1)
+            sub_circuit.loss(i, (i + 1) / 10)
         sub_circuit.herald(0, 2, 2)
         sub_circuit.herald(1, 1, 3)
         circuit_herald = Circuit(4)
