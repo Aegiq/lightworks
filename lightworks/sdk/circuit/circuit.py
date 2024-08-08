@@ -77,7 +77,6 @@ class Circuit:
         self.__out_heralds: dict[int, int] = {}
         self.__external_in_heralds: dict[int, int] = {}
         self.__external_out_heralds: dict[int, int] = {}
-        self.__show_parameter_values = False
         self.__internal_modes: list[int] = []
 
         return
@@ -552,6 +551,7 @@ class Circuit:
         new_circ.__out_heralds = copy(self.__out_heralds)
         new_circ.__external_in_heralds = copy(self.__external_in_heralds)
         new_circ.__external_out_heralds = copy(self.__external_out_heralds)
+        new_circ.__internal_modes = copy(self.__internal_modes)
         return new_circ
 
     def unpack_groups(self) -> None:
