@@ -22,7 +22,7 @@ The following single qubit gates are currently implemented:
     * - H
       - .. math:: \frac{1}{\sqrt{2}}\begin{bmatrix}
                       1 & 1 \\
-                      1 & 1 \\
+                      1 & -1 \\
                   \end{bmatrix}
     * - X
       - .. math:: \begin{bmatrix}
