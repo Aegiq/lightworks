@@ -46,7 +46,7 @@ exclude = [
 line-length = 80
 indent-width = 4
 
-[tool.lint.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
 
 [tool.ruff.lint]
@@ -70,7 +70,6 @@ ignore = [
     "D205",
     "D212",
     "D400",
-    "D401",
     "D407",
     "D412",
     "D415",

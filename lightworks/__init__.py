@@ -43,7 +43,7 @@ Key objects:
 
 """
 
-from . import emulator, interferometers, qubit
+from . import emulator, interferometers, qubit, tomography
 from .__version import __version__
 from .sdk.circuit import Circuit, Parameter, ParameterDict, Unitary
 from .sdk.optimisation import Optimisation
@@ -70,6 +70,6 @@ __all__ = [
     "Circuit", "Unitary", "Display", "State", "random_unitary",
     "random_permutation", "db_loss_to_decimal", "decimal_to_db_loss",
     "Parameter", "ParameterDict", "emulator", "qubit", "Optimisation",
-    "interferometers", "PostSelection", "PostSelectionFunction",
+    "interferometers", "PostSelection", "PostSelectionFunction", "tomography"
 ]
 # fmt: on

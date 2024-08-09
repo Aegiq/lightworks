@@ -222,7 +222,7 @@ class ParameterDict:
         Removes the parameter associated with the provided key from the
         ParameterDict.
 
-        Raises
+        Raises:
 
             KeyError : Raised in cases where the key to remove does not exit in
                 the ParameterDict.
