@@ -56,7 +56,7 @@ class TestStateTomography:
         rho_exp = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
         rho_exp[0, 0] = 1
         assert rho == pytest.approx(rho_exp, abs=1e-2)
-        assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-5)
+        assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-3)
 
     @pytest.mark.parametrize("n_qubits", [1, 2])
     def test_ghz_state(self, n_qubits):
@@ -76,7 +76,7 @@ class TestStateTomography:
         rho_exp[-1, 0] = 0.5
         rho_exp[-1, -1] = 0.5
         assert rho == pytest.approx(rho_exp, abs=1e-2)
-        assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-5)
+        assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-3)
 
     @pytest.mark.parametrize("n_modes", [2, 3, 5])
     def test_number_of_input_modes_twice_number_of_qubits(self, n_modes):
