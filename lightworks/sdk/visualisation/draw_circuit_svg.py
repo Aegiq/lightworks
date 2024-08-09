@@ -164,7 +164,7 @@ class DrawCircuitSVG:
         """
         Draws the circuit as defined in the initial class class:
 
-        Returns
+        Returns:
 
             draw.Drawing : The created drawing with all circuit components.
 
