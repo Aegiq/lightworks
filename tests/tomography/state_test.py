@@ -75,3 +75,20 @@ class TestStateTomography:
         rho_exp[-1, 0] = 0.5
         rho_exp[-1, -1] = 0.5
         assert rho == pytest.approx(rho_exp, abs=1e-2)
+
+    @pytest.mark.parametrize("n_modes", [2, 3, 5])
+    def test_number_of_input_modes_2_number_of_qubits(self, n_modes):
+        """
+        Checks that number of input modes must be twice number of qubits,
+        corresponding to dual rail encoding.
+        """
+        with pytest.raises(ValueError):
+            StateTomography(2, Circuit(n_modes))
+
+    @pytest.mark.parametrize("value", [Circuit(4), 4, None])
+    def test_experiment_must_be_function(self, value):
+        """
+        Checks value of experiment must be a function.
+        """
+        with pytest.raises(TypeError):
+            State(2, Circuit(4), value)
