@@ -56,6 +56,7 @@ class TestStateTomography:
         rho_exp = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
         rho_exp[0, 0] = 1
         assert rho == pytest.approx(rho_exp, abs=1e-2)
+        assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-5)
 
     @pytest.mark.parametrize("n_qubits", [1, 2])
     def test_ghz_state(self, n_qubits):
@@ -75,6 +76,7 @@ class TestStateTomography:
         rho_exp[-1, 0] = 0.5
         rho_exp[-1, -1] = 0.5
         assert rho == pytest.approx(rho_exp, abs=1e-2)
+        assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-5)
 
     @pytest.mark.parametrize("n_modes", [2, 3, 5])
     def test_number_of_input_modes_twice_number_of_qubits(self, n_modes):
@@ -92,3 +94,11 @@ class TestStateTomography:
         """
         with pytest.raises(TypeError):
             State(2, Circuit(4), value)
+
+    def test_density_mat_before_calc(self):
+        """
+        Checks an error is raised
+        """
+        tomo = StateTomography(2, Circuit(4), experiment)
+        with pytest.raises(AttributeError):
+            tomo.rho  # noqa: B018

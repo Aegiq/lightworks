@@ -16,22 +16,24 @@ from types import FunctionType
 from typing import Callable
 
 import numpy as np
+from scipy.linalg import sqrtm
 
 from .. import qubit
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
 
-Y_MEASUREMENT = Circuit(2)
-Y_MEASUREMENT.add(qubit.S())
-Y_MEASUREMENT.add(qubit.Z())
-Y_MEASUREMENT.add(qubit.H())
+_y_measure = Circuit(2)
+_y_measure.add(qubit.S())
+_y_measure.add(qubit.Z())
+_y_measure.add(qubit.H())
 
 MEASUREMENT_MAPPING = {
     "I": qubit.I(),
     "X": qubit.H(),
-    "Y": Y_MEASUREMENT,
+    "Y": _y_measure,
     "Z": qubit.I(),
 }
+
 PAULI_MAPPING = {
     "I": np.array([[1, 0], [0, 1]]),
     "X": np.array([[0, 1], [1, 0]]),
@@ -95,6 +97,18 @@ class StateTomography:
                 "qubit modes."
             )
 
+    @property
+    def rho(self) -> np.ndarray:
+        """
+        The most recently calculated density matrix.
+        """
+        if not hasattr(self, "_rho"):
+            raise AttributeError(
+                "Density matrix has not yet been calculated, this can be "
+                "achieved with the process method."
+            )
+        return self._rho
+
     def process(self) -> np.ndarray:
         """
         Performs the state tomography process with the configured elements to
@@ -146,7 +160,28 @@ class StateTomography:
             # Updated density matrix
             rho += total * mat
 
-        return rho
+        # Assign to attribute then return
+        self._rho = rho
+        return self._rho
+
+    def fidelity(self, rho_exp: np.ndarray) -> float:
+        """
+        Calculates the fidelity of the quantum state against the expected
+        density matrix for the state.
+
+        Args:
+
+            rho_exp (np.ndarray) : The expected density matrix.
+
+        Returns:
+
+            float : The calculated fidelity value.
+
+        """
+        rho_exp = np.array(rho_exp)
+        rho_root = sqrtm(self._rho)
+        inner = rho_root @ rho_exp @ rho_root
+        return abs(np.trace(sqrtm(inner)))
 
     def _create_circuit(self, measurement_operators: list) -> Circuit:
         """
