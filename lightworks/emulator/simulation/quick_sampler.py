@@ -176,7 +176,7 @@ class QuickSampler:
         """
         Function to sample a state from the provided distribution.
 
-        Returns
+        Returns:
 
             State : The sampled output state from the circuit.
 

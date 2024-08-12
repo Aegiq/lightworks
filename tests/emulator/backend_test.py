@@ -213,8 +213,8 @@ class TestSlos:
         """Check hom result and ensure returned value is as expected."""
         unitary = np.array([[1, 1j], [1j, 1]]) * 1 / (2**0.5)
         r = SLOS.calculate(unitary, State([1, 1]))
-        assert r[(1, 1)] == 0
-        assert r[(2, 0)] == pytest.approx(0.7071067811865475j)
+        assert r[1, 1] == 0
+        assert r[2, 0] == pytest.approx(0.7071067811865475j)
 
     def test_known_result(self):
         """
@@ -222,6 +222,6 @@ class TestSlos:
         """
         unitary = random_unitary(6, seed=23)
         r = SLOS.calculate(unitary, State([1, 0, 1, 0, 1, 0]))
-        assert r[(1, 1, 1, 0, 0, 0)] == pytest.approx(
+        assert r[1, 1, 1, 0, 0, 0] == pytest.approx(
             -0.0825807219472892 + 0.0727188703263498j
         )

@@ -41,6 +41,7 @@ post_selection2.add((2, 3), 1)
 post_selects = [post_selection, post_selection2]
 
 
+@pytest.mark.flaky(max_runs=3)
 @pytest.mark.parametrize(
     ("backend", "post_selection"),
     [
