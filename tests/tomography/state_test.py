@@ -102,24 +102,24 @@ class TestStateTomography:
         """
         Checks value of n_qubits must be an integer.
         """
-        with pytest.raises(TypeError):
-            State(value, Circuit(4), experiment)
+        with pytest.raises(TypeError, match="qubits"):
+            StateTomography(value, Circuit(4), experiment)
 
     @pytest.mark.parametrize("value", [Circuit(4).U, [1, 2, 3], None, True])
     def test_base_circuit_must_be_circuit(self, value):
         """
         Checks value of base_circuit must be a Circuit object.
         """
-        with pytest.raises(TypeError):
-            State(2, value, experiment)
+        with pytest.raises(TypeError, match="circuit"):
+            StateTomography(2, value, experiment)
 
     @pytest.mark.parametrize("value", [Circuit(4), 4, None])
     def test_experiment_must_be_function(self, value):
         """
         Checks value of experiment must be a function.
         """
-        with pytest.raises(TypeError):
-            State(2, Circuit(4), value)
+        with pytest.raises(TypeError, match="experiment"):
+            StateTomography(2, Circuit(4), value)
 
     def test_density_mat_before_calc(self):
         """
