@@ -61,7 +61,7 @@ class StateTomography:
 
         self._n_qubits = n_qubits
         self._base_circuit = base_circuit
-        self._experiment = experiment
+        self.experiment = experiment
 
     @property
     def base_circuit(self) -> Circuit:
