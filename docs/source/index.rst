@@ -16,6 +16,7 @@ The core import of Lightworks is the SDK, which contains the components required
 * emulator : Enables local simulation of circuits, including the ability to implement complex photonic-specific error models.
 * qubit : For programming of qubit gates onto photonic circuits, also contains protocols for conversion of circuits from other languages.
 * interferometers : Replicates process of encoding a Lightworks circuit onto a QPU, and offers error modelling capability to examine the effect of errors within this.
+* tomography : Routines for performing quantum tomography on a circuit.
 
 Where To Begin
 --------------
