@@ -66,6 +66,12 @@ class StateTomography:
     def __init__(
         self, n_qubits: int, base_circuit: Circuit, experiment: Callable
     ) -> None:
+        # Type check inputs
+        if not isinstance(n_qubits, int) or isinstance(n_qubits, bool):
+            raise TypeError("Number of qubits should be an integer.")
+        if not isinstance(base_circuit, Circuit):
+            raise TypeError("Base circuit should be a circuit object.")
+
         if 2 * n_qubits != base_circuit.input_modes:
             msg = (
                 "Number of circuit input modes does not match the amount "
@@ -111,6 +117,7 @@ class StateTomography:
                 "of circuits and returns a list of results containing only the "
                 "qubit modes."
             )
+        self._experiment = value
 
     @property
     def rho(self) -> np.ndarray:
