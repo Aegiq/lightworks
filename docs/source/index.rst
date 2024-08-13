@@ -36,6 +36,8 @@ Once setup, there is then a set of tutorials for familiarization with the module
    sdk/index
    emulator/index
    qubit/index
+   interferometers/index
+   tomography/index
 
 .. toctree::
    :maxdepth: 2

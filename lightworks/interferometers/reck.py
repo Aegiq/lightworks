@@ -26,8 +26,9 @@ class Reck:
 
     Args:
 
-        error_model (ErrorModel) : An error model object which implements
-            variation of the interferometer parameters.
+        error_model (ErrorModel | None) : An error model object which implements
+            variation of the interferometer parameters. If not specified then
+            an ideal system will be assumed.
 
     """
 

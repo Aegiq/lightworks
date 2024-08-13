@@ -32,7 +32,7 @@ def experiment(circuits):
         post_selection.add((2 * i, 2 * i + 1), 1)
     results = []
     for circ in circuits:
-        sampler = Sampler(circ, State([1, 0] * n_qubits))
+        sampler = Sampler(circ, State([1, 0] * n_qubits), backend="slos")
         results.append(
             sampler.sample_N_outputs(n_samples, post_select=post_selection)
         )
@@ -104,3 +104,13 @@ class TestStateTomography:
         tomo = StateTomography(2, Circuit(4), experiment)
         with pytest.raises(AttributeError):
             tomo.rho  # noqa: B018
+
+    def test_base_circuit_unmodified(self):
+        """
+        Confirms base circuit is unmodified when performing single qubit
+        tomography.
+        """
+        base_circ = Circuit(2)
+        original_unitary = base_circ.U_full
+        StateTomography(1, base_circ, experiment)
+        assert pytest.approx(original_unitary) == base_circ.U
