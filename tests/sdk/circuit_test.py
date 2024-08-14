@@ -15,7 +15,6 @@
 from random import randint, random, seed
 
 import pytest
-from numpy import round
 
 from lightworks import (
     Circuit,
@@ -23,6 +22,7 @@ from lightworks import (
     Parameter,
     ParameterDict,
     Unitary,
+    db_loss_to_decimal,
     random_unitary,
 )
 from lightworks.qubit import CNOT
@@ -60,7 +60,7 @@ class TestCircuit:
                 self.param_circuit.ps(j, self.parameters[f"ps_{i}_{j}"])
                 self.param_circuit.bs(j)
                 self.param_circuit.ps(j + 1, self.parameters[f"bs_{i}_{j}"])
-                self.param_circuit.bs(j, loss=0.1)
+                self.param_circuit.bs(j, loss=db_loss_to_decimal(0.1))
 
     def test_resultant_unitary(self):
         """
@@ -137,8 +137,8 @@ class TestCircuit:
             c2.ps(m, i, loss=0.1)
         c1.add(c2, 1)
         # Check unitary equivalence
-        u_1 = round(circ_comp.U_full, 8)
-        u_2 = round(c1.U_full, 8)
+        u_1 = circ_comp.U_full.round(8)
+        u_2 = c1.U_full.round(8)
         assert (u_1 == u_2).all()
 
     def test_smaller_circuit_addition_grouped(self):
@@ -176,8 +176,8 @@ class TestCircuit:
         c2.add(c2, 0, group=False)
         c1.add(c2, 1, group=True)
         # Check unitary equivalence
-        u_1 = round(circ_comp.U_full, 8)
-        u_2 = round(c1.U_full, 8)
+        u_1 = circ_comp.U_full.round(8)
+        u_2 = c1.U_full.round(8)
         assert (u_1 == u_2).all()
 
     def test_barrier_inclusion(self):
@@ -206,7 +206,7 @@ class TestCircuit:
         """Test combination of a circuit and unitary objects."""
         circ = Circuit(6)
         for i, m in enumerate([0, 2, 4, 1, 3, 2]):
-            circ.bs(m, loss=0.2)
+            circ.bs(m, loss=db_loss_to_decimal(0.2))
             circ.ps(m, i)
         u1 = Unitary(random_unitary(6, seed=1))
         u2 = Unitary(random_unitary(4, seed=2))
@@ -280,6 +280,32 @@ class TestCircuit:
         u_2 = copied_circ.U_full
         # Unitary should not be modified
         assert (u_1 == u_2).all()
+
+    def test_circuit_copy_preserves_heralds(self):
+        """
+        Tests that circuit copy method is able to correctly copy over the
+        heralding data.
+        """
+        circ = CNOT()
+        circ.add(CNOT(), 0)
+        circ_copy = circ.copy()
+        # Check circuit has heralds and that they are identical
+        assert circ_copy.heralds
+        assert circ.heralds == circ_copy.heralds
+
+    def test_circuit_copy_preserves_internal_modes(self):
+        """
+        Tests that circuit copy method is able to correctly copy over the
+        internal mode data used for storing heralds.
+        """
+        circ = CNOT()
+        circ.add(CNOT(), 0)
+        circ_copy = circ.copy()
+        # Check circuit has internal modes and that they are preserved
+        assert circ_copy._Circuit__internal_modes
+        assert (
+            circ._Circuit__internal_modes == circ_copy._Circuit__internal_modes
+        )
 
     def test_circuit_ungroup(self):
         """
@@ -574,7 +600,7 @@ class TestCircuit:
         """
         circuit = Circuit(4)
         with pytest.raises(TypeError):
-            circuit.herald(value)
+            circuit.herald(value, 0)
 
     @pytest.mark.parametrize("modes", [[1], [2], [1, 2]])
     def test_herald_duplicate(self, modes):
@@ -858,7 +884,7 @@ class TestCircuit:
         """
         p1 = Parameter(0.5)
         p2 = Parameter(2)
-        p3 = Parameter(3)
+        p3 = Parameter(db_loss_to_decimal(3))
         # Create circuit with parameters
         circuit = Circuit(4)
         circuit.bs(0, reflectivity=p1)
@@ -876,7 +902,7 @@ class TestCircuit:
         """
         p1 = Parameter(0.5)
         p2 = Parameter(2)
-        p3 = Parameter(3)
+        p3 = Parameter(db_loss_to_decimal(3))
         # Create sub-circuit with parameters
         sub_circuit = Circuit(4)
         sub_circuit.bs(0, reflectivity=p1)
@@ -966,8 +992,8 @@ class TestUnitary:
         u = Unitary(random_unitary(6, seed=95))
         circ = Circuit(4)
         circ.bs(0)
-        circ.bs(2, loss=0.5)
-        circ.bs(1, loss=0.2)
+        circ.bs(2, loss=db_loss_to_decimal(0.5))
+        circ.bs(1, loss=db_loss_to_decimal(0.2))
         u.add(circ, 1)
         assert u.U[0, 0] == pytest.approx(
             -0.27084817086493 - 0.176576418865914j, 1e-8

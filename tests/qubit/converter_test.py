@@ -20,7 +20,7 @@ from qiskit.circuit.library import MCXGate
 
 from lightworks import State
 from lightworks.emulator import Sampler, Simulator
-from lightworks.qubit.converter import qiskit_converter
+from lightworks.qubit import qiskit_converter
 from lightworks.qubit.converter.qiskit_convert import (
     SINGLE_QUBIT_GATES_MAP,
     THREE_QUBIT_GATES_MAP,

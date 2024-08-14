@@ -14,17 +14,22 @@
 
 from collections import Counter
 from random import random
-from typing import Any, Callable
+from typing import Callable
 
 import numpy as np
 
 from ...sdk.circuit import Circuit
 from ...sdk.state import State
-from ...sdk.utils import add_heralds_to_state
+from ...sdk.utils import add_heralds_to_state, process_random_seed
 from ...sdk.utils.post_selection import PostSelectionType
 from ..backend import Backend
 from ..results import SamplingResult
-from ..utils import ModeMismatchError, fock_basis, process_post_selection
+from ..utils import (
+    EmulatorError,
+    ModeMismatchError,
+    fock_basis,
+    process_post_selection,
+)
 
 
 class QuickSampler:
@@ -146,6 +151,12 @@ class QuickSampler:
                 )
             # Find the probability distribution
             pdist = self._calculate_probabiltiies(out_states)
+            # Check some states are found
+            if not pdist:
+                raise EmulatorError(
+                    "No valid outputs found with the provided QuickSampler "
+                    "configuration."
+                )
             # Then assign calculated distribution to attribute
             self.__probability_distribution = pdist
             self.__calculation_values = self._gen_calculation_values()
@@ -165,7 +176,7 @@ class QuickSampler:
         """
         Function to sample a state from the provided distribution.
 
-        Returns
+        Returns:
 
             State : The sampled output state from the circuit.
 
@@ -207,7 +218,7 @@ class QuickSampler:
         for i, k in enumerate(pdist.keys()):
             vals[i] = k
         # Generate N random samples and then process and count output states
-        rng = np.random.default_rng(self._check_random_seed(seed))
+        rng = np.random.default_rng(process_random_seed(seed))
         samples = rng.choice(vals, p=list(pdist.values()), size=N)
         counted = dict(Counter(samples))
         return SamplingResult(counted, self.input_state)
@@ -293,12 +304,3 @@ class QuickSampler:
             pcon += p
             cdist[s] = pcon
         return cdist
-
-    def _check_random_seed(self, seed: Any) -> int | None:
-        """Process a supplied random seed."""
-        if not isinstance(seed, (int, type(None))):
-            if int(seed) == seed:
-                seed = int(seed)
-            else:
-                raise TypeError("Random seed must be an integer.")
-        return seed

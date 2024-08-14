@@ -12,13 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Lightworks Qubit
+================
+
+Enables the implementation of the gate-based paradigm of quantum computing
+within linear optic photonic circuits. There is a number of gates, both single
+and multi-qubit, and a set of converters for performing conversion from other
+quantum programming languages.
+"""
+
 # ruff: noqa: F405
 
+from .converter.qiskit_convert import qiskit_converter
 from .gates import *
 
-# fmt: off
 __all__ = [
-    "H", "X", "Y", "Z", "S", "T", "CZ", "CNOT", "CZ_Heralded", "CNOT_Heralded",
-    "SWAP", "CCZ", "CCNOT"
+    "I",
+    "H",
+    "X",
+    "Y",
+    "Z",
+    "S",
+    "T",
+    "CZ",
+    "CNOT",
+    "CZ_Heralded",
+    "CNOT_Heralded",
+    "SWAP",
+    "CCZ",
+    "CCNOT",
+    "qiskit_converter",
 ]
-# fmt: on

@@ -14,7 +14,7 @@
 
 from collections import Counter
 from random import random
-from typing import Any, Callable
+from typing import Callable
 
 import numpy as np
 
@@ -22,6 +22,7 @@ from ...sdk.circuit import Circuit
 from ...sdk.state import State
 from ...sdk.utils import (
     add_heralds_to_state,
+    process_random_seed,
     remove_heralds_from_state,
 )
 from ...sdk.utils.post_selection import PostSelectionType
@@ -209,7 +210,7 @@ class Sampler:
         """
         Function to sample a state from the provided distribution.
 
-        Returns
+        Returns:
 
             State : The sampled output state from the circuit.
 
@@ -270,7 +271,7 @@ class Sampler:
         for i, k in enumerate(pdist.keys()):
             vals[i] = k
         # Generate N random samples and then process and count output states
-        rng = np.random.default_rng(self._check_random_seed(seed))
+        rng = np.random.default_rng(process_random_seed(seed))
         samples = rng.choice(vals, p=list(pdist.values()), size=N)
         filtered_samples = []
         # Get heralds and pre-calculate items
@@ -404,7 +405,7 @@ class Sampler:
         for i, k in enumerate(pdist.keys()):
             vals[i] = k
         # Generate N random samples and then process and count output states
-        rng = np.random.default_rng(self._check_random_seed(seed))
+        rng = np.random.default_rng(process_random_seed(seed))
         samples = rng.choice(vals, p=probs, size=N)
         # Count states and convert to results object
         counted = dict(Counter(samples))
@@ -450,7 +451,7 @@ class Sampler:
             "indistinguishability",
             "probability_threshold",
         ]:
-            vals.append(self.source.__getattribute__(prop))  # noqa: PERF401
+            vals.append(getattr(self.source, prop))  # noqa: PERF401
         return vals
 
     def _convert_to_continuous(self, dist: dict) -> dict:
@@ -464,12 +465,3 @@ class Sampler:
             pcon += p
             cdist[s] = pcon / total
         return cdist
-
-    def _check_random_seed(self, seed: Any) -> int | None:
-        """Process a supplied random seed."""
-        if not isinstance(seed, (int, type(None))):
-            if int(seed) == seed:
-                seed = int(seed)
-            else:
-                raise TypeError("Random seed must be an integer.")
-        return seed

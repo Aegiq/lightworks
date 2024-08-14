@@ -91,6 +91,6 @@ class CCNOT(Circuit):
 
         super().__init__(6)
 
-        controls = tuple([i for i in range(3) if i != target_qubit])
+        controls = tuple(i for i in range(3) if i != target_qubit)
         name = f"CCNOT ({controls}, {target_qubit})"
         self.add(circ, 0, group=True, name=name)

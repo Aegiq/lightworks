@@ -12,10 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from qiskit import QuantumCircuit
-
 from ...sdk.circuit import Circuit
-from ...sdk.utils import PostSelection
+from ...sdk.utils import LightworksError, PostSelection
 from ..gates import (
     CCNOT,
     CCZ,
@@ -31,6 +29,10 @@ from ..gates import (
     Y,
     Z,
 )
+from . import QISKIT_INSTALLED
+
+if QISKIT_INSTALLED:
+    from qiskit import QuantumCircuit
 
 SINGLE_QUBIT_GATES_MAP = {
     "h": H(),
@@ -54,7 +56,7 @@ ALLOWED_GATES = [
 
 
 def qiskit_converter(
-    circuit: QuantumCircuit, allow_post_selection: bool = False
+    circuit: "QuantumCircuit", allow_post_selection: bool = False
 ) -> tuple[Circuit, PostSelection | None]:
     """
     Performs conversion of a provided qiskit QuantumCircuit into a photonic
@@ -70,6 +72,10 @@ def qiskit_converter(
     Returns:
 
         Circuit : The created circuit within Lightworks.
+
+        PostSelection | None : If post-selection rules are required for the
+            created circuit, then an object which implements these will be
+            returned, otherwise it will be None.
 
     """
     converter = QiskitConverter(allow_post_selection)
@@ -92,7 +98,7 @@ class QiskitConverter:
         self.allow_post_selection = allow_post_selection
 
     def convert(
-        self, q_circuit: QuantumCircuit
+        self, q_circuit: "QuantumCircuit"
     ) -> tuple[Circuit, PostSelection | None]:
         """
         Performs conversion of a provided qiskit QuantumCircuit into a photonic
@@ -106,7 +112,17 @@ class QiskitConverter:
 
             Circuit : The created circuit within Lightworks.
 
+            PostSelection | None : If post-selection rules are required for the
+                created circuit, then an object which implements these will be
+                returned, otherwise it will be None.
+
         """
+        if not QISKIT_INSTALLED:
+            raise LightworksError(
+                "Lightworks qiskit optional requirements not installed, "
+                "this can be achieved with 'pip install lightworks[qiskit]'."
+            )
+
         if not isinstance(q_circuit, QuantumCircuit):
             raise TypeError("Circuit to convert must be a qiskit circuit.")
 
@@ -162,7 +178,7 @@ class QiskitConverter:
 
     def _add_single_qubit_gate(self, gate: str, qubit: int) -> None:
         """
-        Adds a single qubit gate to the provided qubit on the circuit.
+        Adds a single qubit gate to the selected qubit on the circuit.
         """
         self.circuit.add(SINGLE_QUBIT_GATES_MAP[gate], self.modes[qubit][0])
 
@@ -170,8 +186,7 @@ class QiskitConverter:
         self, gate: str, q0: int, q1: int, post_selection: bool = False
     ) -> None:
         """
-        Adds a provided two qubit gate within an instruction to a circuit on
-        the correct modes.
+        Adds a two qubit gate to the circuit on the selected qubits.
         """
         if gate == "swap":
             self.circuit.add(
@@ -203,8 +218,7 @@ class QiskitConverter:
         self, gate: str, q0: int, q1: int, q2: int, post_selection: bool = False
     ) -> None:
         """
-        Adds a provided three qubit gate within an instruction to a circuit on
-        the correct modes.
+        Adds a three qubit gate to the circuit on the selected qubits.
         """
         if gate in ["ccx", "ccz"]:
             if not post_selection:
@@ -233,11 +247,29 @@ class QiskitConverter:
             raise ValueError(msg)
 
 
-def convert_two_qubits_to_adjacent(q0: int, q1: int) -> tuple[int, int, list]:
+def convert_two_qubits_to_adjacent(
+    q0: int, q1: int
+) -> tuple[int, int, list[tuple]]:
     """
     Takes two qubit indices and converts these so that they are adjacent to each
     other, and determining the swaps required for this. The order of the two
     qubits is preserved, so if q0 > q1 then this will remain True.
+
+    Args:
+
+        q0 (int) : First qubit which a gate acts on.
+
+        q1 (int) : The second qubit which the gate acts on.
+
+    Returns:
+
+        int : The new first qubit which the gate should act on.
+
+        int : The new second qubit which the gate should act on.
+
+        list[tuple] : Pairs of qubits which swap gates should be applied to
+            ensure the gate can act on the right qubits.
+
     """
     if abs(q1 - q0) == 1:
         return (q0, q1, [])
@@ -261,7 +293,9 @@ def convert_two_qubits_to_adjacent(q0: int, q1: int) -> tuple[int, int, list]:
     return (q0, q1, swaps)
 
 
-def post_selection_analyzer(qc: QuantumCircuit) -> tuple[list[bool], list[int]]:
+def post_selection_analyzer(
+    qc: "QuantumCircuit",
+) -> tuple[list[bool], list[int]]:
     """
     Implements a basic algorithm to try to determine which gates can have
     post-selection and which require heralding. This is not necessarily optimal,

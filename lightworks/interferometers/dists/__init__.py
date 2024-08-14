@@ -16,3 +16,5 @@ from .constant import Constant
 from .distribution import Distribution
 from .gaussian import Gaussian
 from .top_hat import TopHat
+
+__all__ = ["Constant", "Distribution", "Gaussian", "TopHat"]

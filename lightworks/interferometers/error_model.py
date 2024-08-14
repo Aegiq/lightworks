@@ -14,7 +14,7 @@
 
 from numpy import random
 
-from ..sdk.utils import check_random_seed
+from ..sdk.utils import process_random_seed
 from .dists import Constant, Distribution
 
 
@@ -73,21 +73,21 @@ class ErrorModel:
             raise TypeError("phase_offset should be a distribution object.")
         self._phase_offset = distribution
 
-    def get_bs_reflectivity(self) -> int | float:
+    def get_bs_reflectivity(self) -> float:
         """
         Returns a value for beam splitter reflectivity, which depends on the
         configuration of the error model.
         """
         return self._bs_reflectivity.value()
 
-    def get_loss(self) -> int | float:
+    def get_loss(self) -> float:
         """
         Returns a value for loss, which depends on the configuration of the
         error model.
         """
         return self._loss.value()
 
-    def get_phase_offset(self) -> int | float:
+    def get_phase_offset(self) -> float:
         """
         Returns a value for phase offset, which depends on the configuration of
         the error model.
@@ -98,7 +98,7 @@ class ErrorModel:
         """
         Set the random seed for the error_model to produce repeatable results.
         """
-        seed = check_random_seed(r_seed)
+        seed = process_random_seed(r_seed)
         # Create a rng to modify the seed by, ensuring two distributions produce
         # different values
         rng = random.default_rng(seed)

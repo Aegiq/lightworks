@@ -31,15 +31,15 @@ class Gaussian(Distribution):
 
     Args:
 
-        center (int | float) : The center (mean) of the Gaussian distribution.
+        center (float) : The center (mean) of the Gaussian distribution.
 
-        deviation (int | float) : The standard deviation of the distribution.
+        deviation (float) : The standard deviation of the distribution.
 
-        min_value (int | float | None) : The minimum allowed value for the
+        min_value (float | None) : The minimum allowed value for the
             distribution. Defaults to None, which will assign the min value to
             be - infinity.
 
-        max_value (int | float | None) : The maximum allowed value for the
+        max_value (float | None) : The maximum allowed value for the
             distribution. Defaults to None, which will assign the max value to
             be + infinity.
 
@@ -82,7 +82,7 @@ class Gaussian(Distribution):
     def __repr__(self) -> str:
         return "lightworks.interferometers.dists." + str(self)
 
-    def value(self) -> int | float:
+    def value(self) -> float:
         """Returns random value from the Gaussian distribution."""
         val = self._rng.normal(self._center, self._deviation)
         # Recalculate value until valid.
