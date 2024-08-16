@@ -16,11 +16,11 @@ from types import FunctionType
 from typing import Callable
 
 import numpy as np
-from scipy.linalg import sqrtm
 
 from .. import qubit
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
+from .utils import state_fidelity
 
 _y_measure = Circuit(2)
 _y_measure.add(qubit.S())
@@ -197,8 +197,8 @@ class StateTomography:
 
     def fidelity(self, rho_exp: np.ndarray) -> float:
         """
-        Calculates the fidelity of the quantum state against the expected
-        density matrix for the state.
+        Calculates the fidelity of the calculated quantum state against the
+        expected density matrix for the state.
 
         Args:
 
@@ -209,10 +209,7 @@ class StateTomography:
             float : The calculated fidelity value.
 
         """
-        rho_exp = np.array(rho_exp)
-        rho_root = sqrtm(self.rho)
-        inner = rho_root @ rho_exp @ rho_root
-        return abs(np.trace(sqrtm(inner)))
+        return state_fidelity(self.rho, rho_exp)
 
     def _create_circuit(self, measurement_operators: list) -> Circuit:
         """
