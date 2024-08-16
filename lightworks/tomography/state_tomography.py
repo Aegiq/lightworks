@@ -61,10 +61,17 @@ class StateTomography:
             tomography experiments. This should accept a list of circuits and
             return a list of results to process.
 
+        experiment_args (list | None) : Optionally provide additional arguments
+            which will be passed directly to the experiment function.
+
     """
 
     def __init__(
-        self, n_qubits: int, base_circuit: Circuit, experiment: Callable
+        self,
+        n_qubits: int,
+        base_circuit: Circuit,
+        experiment: Callable,
+        experiment_args: list | None = None,
     ) -> None:
         # Type check inputs
         if not isinstance(n_qubits, int) or isinstance(n_qubits, bool):
@@ -83,6 +90,7 @@ class StateTomography:
         self._n_qubits = n_qubits
         self._base_circuit = base_circuit
         self.experiment = experiment
+        self.experiment_args = experiment_args
 
     @property
     def base_circuit(self) -> Circuit:
@@ -156,7 +164,8 @@ class StateTomography:
             )
             for gates in combinations
         ]
-        all_results = self.experiment(circuits)
+        args = self.experiment_args if self.experiment_args is not None else []
+        all_results = self.experiment(circuits, *args)
 
         # Process results to find density matrix
         rho = np.zeros((2**self.n_qubits, 2**self.n_qubits), dtype=complex)

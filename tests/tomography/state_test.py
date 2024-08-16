@@ -47,6 +47,13 @@ def experiment(circuits):
     return results
 
 
+def experiment_args(circuits, arg1, arg2):  # noqa: ARG001
+    """
+    For testing ability to provided arguments to an experiment.
+    """
+    return experiment(circuits)
+
+
 class TestStateTomography:
     """
     Unit tests for state tomography class.
@@ -172,3 +179,12 @@ class TestStateTomography:
         tomo = StateTomography(2, Circuit(4), experiment)
         with pytest.raises(ValueError):
             tomo._create_circuit("XYZ")
+
+    def test_experiment_args(self):
+        """
+        Checks that experiment arguments can be provided to StateTomography.
+        """
+        tomo = StateTomography(
+            2, Circuit(4), experiment_args, experiment_args=[1, 2]
+        )
+        tomo.process()
