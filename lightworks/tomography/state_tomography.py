@@ -192,8 +192,8 @@ class StateTomography:
             rho += total * mat
 
         # Assign to attribute then return
-        self._rho = rho
-        return self._rho
+        self._rho: np.ndarray = rho
+        return self.rho
 
     def fidelity(self, rho_exp: np.ndarray) -> float:
         """
@@ -210,7 +210,7 @@ class StateTomography:
 
         """
         rho_exp = np.array(rho_exp)
-        rho_root = sqrtm(self._rho)
+        rho_root = sqrtm(self.rho)
         inner = rho_root @ rho_exp @ rho_root
         return abs(np.trace(sqrtm(inner)))
 
