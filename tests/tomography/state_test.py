@@ -28,9 +28,9 @@ from lightworks.tomography import StateTomography
 from lightworks.tomography.state_tomography import MEASUREMENT_MAPPING
 
 
-def experiment(circuits):
+def experiment_args(circuits, input_state):
     """
-    Experiment function for testing state tomography functionality is correct.
+    Experiment function with ability to specify the input state used.
     """
     # Find number of qubits using available input modes.
     n_qubits = int(circuits[0].input_modes / 2)
@@ -40,11 +40,19 @@ def experiment(circuits):
         post_selection.add((2 * i, 2 * i + 1), 1)
     results = []
     for circ in circuits:
-        sampler = Sampler(circ, State([1, 0] * n_qubits), backend="slos")
+        sampler = Sampler(circ, input_state, backend="slos")
         results.append(
             sampler.sample_N_outputs(n_samples, post_select=post_selection)
         )
     return results
+
+
+def experiment(circuits):
+    """
+    Experiment function for testing state tomography functionality is correct.
+    """
+    n_qubits = int(circuits[0].input_modes / 2)
+    return experiment_args(circuits, State([1, 0] * n_qubits))
 
 
 class TestStateTomography:
@@ -123,11 +131,21 @@ class TestStateTomography:
 
     def test_density_mat_before_calc(self):
         """
-        Checks an error is raised
+        Checks an error is raised if the rho attribute is called before
+        tomography is performed.
         """
         tomo = StateTomography(2, Circuit(4), experiment)
         with pytest.raises(AttributeError):
             tomo.rho  # noqa: B018
+
+    def test_fidleity_before_calc(self):
+        """
+        Checks an error is raised if a user attempts to calculate fidelity
+        before performing tomography.
+        """
+        tomo = StateTomography(2, Circuit(4), experiment)
+        with pytest.raises(AttributeError):
+            tomo.fidelity(np.identity(2))
 
     def test_base_circuit_unmodified(self):
         """
@@ -172,3 +190,16 @@ class TestStateTomography:
         tomo = StateTomography(2, Circuit(4), experiment)
         with pytest.raises(ValueError):
             tomo._create_circuit("XYZ")
+
+    def test_experiment_args(self):
+        """
+        Checks that experiment arguments can be provided to StateTomography.
+        """
+        tomo = StateTomography(
+            1, Circuit(2), experiment_args, experiment_args=[State([1, 0])]
+        )
+        rho = tomo.process()
+        rho_exp = np.zeros((2, 2), dtype=complex)
+        rho_exp[0, 0] = 1
+        assert rho == pytest.approx(rho_exp, abs=1e-2)
+        assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-3)

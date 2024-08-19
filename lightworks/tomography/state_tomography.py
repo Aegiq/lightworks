@@ -16,11 +16,11 @@ from types import FunctionType
 from typing import Callable
 
 import numpy as np
-from scipy.linalg import sqrtm
 
 from .. import qubit
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
+from .utils import state_fidelity
 
 _y_measure = Circuit(2)
 _y_measure.add(qubit.S())
@@ -61,10 +61,17 @@ class StateTomography:
             tomography experiments. This should accept a list of circuits and
             return a list of results to process.
 
+        experiment_args (list | None) : Optionally provide additional arguments
+            which will be passed directly to the experiment function.
+
     """
 
     def __init__(
-        self, n_qubits: int, base_circuit: Circuit, experiment: Callable
+        self,
+        n_qubits: int,
+        base_circuit: Circuit,
+        experiment: Callable,
+        experiment_args: list | None = None,
     ) -> None:
         # Type check inputs
         if not isinstance(n_qubits, int) or isinstance(n_qubits, bool):
@@ -83,6 +90,7 @@ class StateTomography:
         self._n_qubits = n_qubits
         self._base_circuit = base_circuit
         self.experiment = experiment
+        self.experiment_args = experiment_args
 
     @property
     def base_circuit(self) -> Circuit:
@@ -156,7 +164,8 @@ class StateTomography:
             )
             for gates in combinations
         ]
-        all_results = self.experiment(circuits)
+        args = self.experiment_args if self.experiment_args is not None else []
+        all_results = self.experiment(circuits, *args)
 
         # Process results to find density matrix
         rho = np.zeros((2**self.n_qubits, 2**self.n_qubits), dtype=complex)
@@ -183,13 +192,13 @@ class StateTomography:
             rho += total * mat
 
         # Assign to attribute then return
-        self._rho = rho
-        return self._rho
+        self._rho: np.ndarray = rho
+        return self.rho
 
     def fidelity(self, rho_exp: np.ndarray) -> float:
         """
-        Calculates the fidelity of the quantum state against the expected
-        density matrix for the state.
+        Calculates the fidelity of the calculated quantum state against the
+        expected density matrix for the state.
 
         Args:
 
@@ -200,10 +209,7 @@ class StateTomography:
             float : The calculated fidelity value.
 
         """
-        rho_exp = np.array(rho_exp)
-        rho_root = sqrtm(self._rho)
-        inner = rho_root @ rho_exp @ rho_root
-        return abs(np.trace(sqrtm(inner)))
+        return state_fidelity(self.rho, rho_exp)
 
     def _create_circuit(self, measurement_operators: list) -> Circuit:
         """
