@@ -1,7 +1,7 @@
 Contributing
 ============
 
-To contribute to Lightworks, please fork the repo and then merge changes back via a pull request, in the first instance the target for this should be the main branch. Before opening the pull request, all unit tests should be run using `pytest <https://pytest.org/>`_ and these should all pass unless there is good justification otherwise (e.g. the new feature changes core functionality). Additionally, unit tests should be written for all new features to ensure correct functionality of these.
+To contribute to Lightworks, please fork the repo and then merge changes back via a pull request to the main branch. Before opening the pull request, all unit tests should be run using `pytest <https://pytest.org/>`_ and these should all pass unless there is good justification otherwise (e.g. the new feature changes core functionality). Additionally, unit tests should be written for all new features to ensure correct functionality of these.
 
 Code Style
 ----------
