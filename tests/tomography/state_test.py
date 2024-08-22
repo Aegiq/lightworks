@@ -62,7 +62,7 @@ class TestStateTomography:
     Unit tests for state tomography class.
     """
 
-    @pytest.mark.parametrize("n_qubits", [1, 2])
+    @pytest.mark.parametrize("n_qubits", [1, 2, 3])
     def test_basic_state(self, n_qubits):
         """
         Checks correct density matrix is produced when performing tomography on
@@ -76,7 +76,7 @@ class TestStateTomography:
         assert rho == pytest.approx(rho_exp, abs=1e-2)
         assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-3)
 
-    @pytest.mark.parametrize("n_qubits", [1, 2])
+    @pytest.mark.parametrize("n_qubits", [1, 2, 3])
     def test_ghz_state(self, n_qubits):
         """
         Checks correct density matrix is produced when performing tomography on
