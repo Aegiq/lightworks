@@ -157,20 +157,25 @@ class StateTomography:
                 g1 + g2 for g1 in combinations for g2 in MEASUREMENT_MAPPING
             ]
 
+        result_mapping = {c: c.replace("I", "Z") for c in combinations}
+        measurements = list(set(result_mapping.values()))
+
         # Generate all circuits and run experiment
         circuits = [
             self._create_circuit(
                 [self._get_measurement_operator(g) for g in gates]
             )
-            for gates in combinations
+            for gates in measurements
         ]
         args = self.experiment_args if self.experiment_args is not None else []
         all_results = self.experiment(circuits, *args)
+        results_dict = dict(zip(measurements, all_results))
 
         # Process results to find density matrix
         rho = np.zeros((2**self.n_qubits, 2**self.n_qubits), dtype=complex)
-        for i, gates in enumerate([[*c] for c in combinations]):
-            results = all_results[i]
+        for comb in combinations:
+            gates = [*comb]
+            results = results_dict[result_mapping[comb]]
             total = 0
             n_counts = 0
             for s, c in results.items():
