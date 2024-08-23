@@ -51,7 +51,7 @@ class ProcessTomography:
         self.experiment = experiment
         self.experiment_args = experiment_args
 
-    def process(self) -> np.ndarray:
+    def process(self) -> dict[str, np.ndarray]:
         """
         Desc
         """
@@ -59,36 +59,44 @@ class ProcessTomography:
         for _ in range(self.n_qubits - 1):
             all_inputs = [i1 + i2 for i1 in all_inputs for i2 in TOMO_INPUTS]
 
+        results = self._run_required_experiments(all_inputs)
+
+        return self._calculate_density_matrices(results)
+
+    def _run_required_experiments(
+        self, inputs: list[str]
+    ) -> dict[str, dict[str, dict]]:
+        """
+        Runs all required experiments to find density matrices for a provided
+        set of inputs.
+        """
         req_measurements, result_mapping = StateTomo._get_required_measurements(
             self.n_qubits
         )
-
+        # Determine required input states and circuits
         all_circuits = []
         all_input_states = []
-
-        for in_state in all_inputs:
+        for in_state in inputs:
             for meas in req_measurements:
                 circ, state = self._create_circuit_and_input(in_state, meas)
                 all_circuits.append(circ)
                 all_input_states.append(state)
-
-        experiment_args = (
-            self.experiment_args if self.experiment_args is not None else []
-        )
-
+        # Run all required experiments
         results = self.experiment(
-            all_circuits, all_input_states, *experiment_args
+            all_circuits,
+            all_input_states,
+            *(self.experiment_args if self.experiment_args is not None else []),
         )
-
-        # Sorted results into each input/measurement combination
-        n_per_in = len(req_measurements)
+        # Sort results into each input/measurement combination
+        num_per_in = len(req_measurements)
         sorted_results = {
             in_state: dict(
                 zip(
-                    req_measurements, results[n_per_in * i : n_per_in * (i + 1)]
+                    req_measurements,
+                    results[num_per_in * i : num_per_in * (i + 1)],
                 )
             )
-            for i, in_state in enumerate(all_inputs)
+            for i, in_state in enumerate(inputs)
         }
         # Expand results to include all of the required measurements
         full_results = {}
@@ -98,10 +106,18 @@ class ProcessTomography:
                 for meas in StateTomo._get_all_measurements(self.n_qubits)
             }
             full_results[in_state] = full_res
+        return full_results
 
+    def _calculate_density_matrices(
+        self, results: dict[str, dict[str, dict]]
+    ) -> dict[str, np.ndarray]:
+        """
+        Calculates density matrices for each input and set of results in the
+        provided dictionary.
+        """
         return {
             in_state: StateTomo._calculate_density_matrix(self.n_qubits, res)
-            for in_state, res in full_results.items()
+            for in_state, res in results.items()
         }
 
     def _create_circuit_and_input(

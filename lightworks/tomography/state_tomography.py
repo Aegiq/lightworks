@@ -162,8 +162,10 @@ class StateTomography:
             )
             for gates in req_measurements
         ]
-        args = self.experiment_args if self.experiment_args is not None else []
-        all_results = self.experiment(circuits, *args)
+        all_results = self.experiment(
+            circuits,
+            *(self.experiment_args if self.experiment_args is not None else []),
+        )
 
         # Convert results into dictionary and then mapping to full set of
         # measurements
