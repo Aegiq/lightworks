@@ -194,10 +194,21 @@ class StateTomography:
         """
         return state_fidelity(self.rho, rho_exp)
 
-    def _create_circuit(self, measurement_operators: list) -> Circuit:
+    def _create_circuit(self, measurement_operators: list[Circuit]) -> Circuit:
         """
         Creates a copy of the assigned base circuit and applies the list of
         measurement circuits to each pair of dual-rail encoded qubits.
+
+        Args:
+
+            measurement_operators (list) : A list of 2 mode circuits which act
+                as measurement operators to apply to the system.
+
+        Returns:
+
+            Circuit : A modified copy of the base circuit with required
+                operations.
+
         """
         circuit = self.base_circuit.copy()
         # Check number of circuits is correct
@@ -219,8 +230,24 @@ class StateTomography:
     ) -> np.ndarray:
         """
         Calculates the density matrix using a provided dictionary of results
-        data. The keys of this dictionary should be the measurement basis and
-        the values the results.
+        data.
+
+        Args:
+
+            n_qubits (int) : The number of dual-rail encoded qubits to calculate
+                the density matrix for.
+
+            results (Result | dict) : Result containing measured output states
+                and counts. The keys of this dictionary should be the
+                measurement basis and the values should be the results. Each
+                result can be one of the returned Result objects used within
+                lightworks, or alternatively may just be a dictionary.
+
+        Returns:
+
+            np.ndarray : The calculated density matrix.
+
+
         """
         # Process results to find density matrix
         rho = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
@@ -237,6 +264,13 @@ class StateTomography:
                         multiplier *= 1
                     elif s[2 * j : 2 * j + 2] == State([0, 1]):
                         multiplier *= -1
+                    else:
+                        msg = (
+                            f"An invalid state {s[2 * j : 2 * j + 2]} was found"
+                            " in the results. This does not correspond to a "
+                            "valid value for dual-rail encoded qubits."
+                        )
+                        raise ValueError(msg)
                 total += multiplier * c
             total /= (2**n_qubits) * n_counts
             # Calculate tensor product of the operators used
@@ -251,6 +285,15 @@ class StateTomography:
     def _get_all_measurements(n_qubits: int) -> list[str]:
         """
         Returns all measurements required for a state tomography of n qubits.
+
+        Args:
+
+            n_qubits (int) : The number of qubits used in the tomography.
+
+        Returns:
+
+            list : A list of the measurement combinations for tomography.
+
         """
         # Find all measurement combinations
         measurements = list(MEASUREMENT_MAPPING.keys())
@@ -267,6 +310,19 @@ class StateTomography:
         measurements in the I basis can be replaced with a Z measurement.
         A dictionary which maps the full measurements to the reduced basis is
         also returned.
+
+        Args:
+
+            n_qubits (int) : The number of qubits used in the tomography.
+
+        Returns:
+
+            list : A list of the minimum required measurement combinations for
+                tomography.
+
+            dict : A mapping between the full set of measurement operators and
+                the required minimum set.
+
         """
         mapping = {
             c: c.replace("I", "Z")
@@ -280,6 +336,16 @@ class StateTomography:
         """
         Returns the circuit required to transform between a measurement into the
         Z basis.
+
+        Args:
+
+            measurement (str) : The single qubit observable being measured.
+
+        Returns:
+
+            Circuit : Implements transformation between required measurement
+                basis and the Z basis.
+
         """
         if measurement not in MEASUREMENT_MAPPING:
             raise ValueError("Provided measurement value not recognised.")
@@ -289,6 +355,15 @@ class StateTomography:
     def _get_pauli_matrix(measurement: str) -> np.ndarray:
         """
         Returns the pauli matrix associated with an observable.
+
+        Args:
+
+            measurement (str) : The single qubit observable being measured.
+
+        Returns:
+
+            np.ndarray : The pauli matrix associated with this observable.
+
         """
         if measurement not in PAULI_MAPPING:
             raise ValueError("Provided measurement value not recognised.")
