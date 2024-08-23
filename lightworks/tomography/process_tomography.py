@@ -20,6 +20,7 @@ from .. import qubit
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
 from .state_tomography import StateTomography as StateTomo
+from .utils import process_fidelity
 
 TOMO_INPUTS = ["0", "1", "+", "R"]
 
@@ -51,6 +52,16 @@ class ProcessTomography:
         self.experiment = experiment
         self.experiment_args = experiment_args
 
+    @property
+    def chi(self) -> np.ndarray:
+        """Returns the calculate chi matrix for a circuit."""
+        if not hasattr(self, "_chi"):
+            raise AttributeError(
+                "Chi has not yet been calculated, this can be achieved with the"
+                "process method."
+            )
+        return self._chi
+
     def process(self) -> dict[str, np.ndarray]:
         """
         Desc
@@ -62,6 +73,13 @@ class ProcessTomography:
         results = self._run_required_experiments(all_inputs)
 
         return self._calculate_density_matrices(results)
+
+    def fidelity(self, chi_exp: np.ndarray) -> float:
+        """
+        Calculates fidelity of the calculated chi matrix compared to the
+        expected one.
+        """
+        return process_fidelity(self.chi, chi_exp)
 
     def _run_required_experiments(
         self, inputs: list[str]

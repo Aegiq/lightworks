@@ -42,3 +42,12 @@ def state_fidelity(rho: np.ndarray, rho_exp: np.ndarray) -> float:
         raise ValueError(msg)
     inner = rho_root @ rho_exp @ rho_root
     return abs(np.trace(sqrtm(inner)))
+
+
+def process_fidelity(chi: np.ndarray, chi_exp: np.ndarray) -> float:
+    """
+    Desc
+    """
+    chi * chi_exp
+    raise NotImplementedError("Fidelity not yet implemented.")
+    return 0
