@@ -19,5 +19,6 @@ Lightworks Tomography
 A set of tools for quantum state & process tomography on a system.
 """
 
+from .process_tomography import ProcessTomography
 from .state_tomography import StateTomography
 from .utils import state_fidelity
