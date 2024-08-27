@@ -426,7 +426,7 @@ class Circuit:
         swaps = {
             self._map_mode(mi): self._map_mode(mo) for mi, mo in swaps.items()
         }
-        for m in list(swaps.keys()) + list(swaps.values()):
+        for m in [*swaps.keys(), *swaps.values()]:
             self._mode_in_range(m)
         self.__circuit_spec.append(ModeSwaps(swaps))
 
