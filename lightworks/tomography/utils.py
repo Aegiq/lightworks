@@ -23,7 +23,7 @@ def state_fidelity(rho: np.ndarray, rho_exp: np.ndarray) -> float:
 
     Args:
 
-        rho (np.ndarray) : The density matrix of the quantum state.
+        rho (np.ndarray) : The calculated density matrix of the quantum state.
 
         rho_exp (np.ndarray) : The expected density matrix.
 
@@ -34,10 +34,10 @@ def state_fidelity(rho: np.ndarray, rho_exp: np.ndarray) -> float:
     """
     rho_exp = np.array(rho_exp)
     rho_root = sqrtm(np.array(rho))
-    if rho_exp.shape != rho_root.shape:
+    if rho_root.shape != rho_exp.shape:
         msg = (
             "Mismatch in dimensions between provided density matrices, "
-            f"{rho_root.shape} & {rho_root.shape}."
+            f"{rho_root.shape} & {rho_exp.shape}."
         )
         raise ValueError(msg)
     inner = rho_root @ rho_exp @ rho_root
@@ -46,8 +46,24 @@ def state_fidelity(rho: np.ndarray, rho_exp: np.ndarray) -> float:
 
 def process_fidelity(chi: np.ndarray, chi_exp: np.ndarray) -> float:
     """
-    Desc
+    Calculates the fidelity of a process compared to an expected chi matrix.
+
+    Args:
+
+        chi (np.ndarray) : The calculated chi matrix for the process.
+
+        chi_exp (np.ndarray) : The expected chi matrix.
+
+    Returns:
+
+        float : The calculated fidelity value.
+
     """
-    chi * chi_exp
+    if chi.shape != chi_exp.shape:
+        msg = (
+            "Mismatch in dimensions between provided density matrices, "
+            f"{chi.shape} & {chi_exp.shape}."
+        )
+        raise ValueError(msg)
     raise NotImplementedError("Fidelity not yet implemented.")
     return 0

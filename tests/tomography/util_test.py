@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 from lightworks import random_unitary
-from lightworks.tomography import state_fidelity
+from lightworks.tomography import process_fidelity, state_fidelity
 
 
 class TestUtils:
@@ -37,7 +37,7 @@ class TestUtils:
         Validate that fidelity value is always 1 when using two identical
         matrices.
         """
-        rho = np.array(rho)
+        rho = np.array(rho, dtype=complex)
         assert state_fidelity(rho, rho) == pytest.approx(1, 1e-6)
 
     def test_state_fidelity_dim_mismatch(self):
@@ -47,3 +47,27 @@ class TestUtils:
         """
         with pytest.raises(ValueError, match="dimensions"):
             state_fidelity(random_unitary(3), random_unitary(4))
+
+    @pytest.mark.parametrize(
+        "rho",
+        [
+            [[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+            [[0, 0, 0, 0], [0, 0.5, 0, 0.5], [0, 0, 0, 0], [0, 0.5, 0, 0.5]],
+            [[0, 0, 0, 0], [0, 0.5, 0, 0.5j], [0, 0, 0, 0], [0, -0.5j, 0, 0.5]],
+        ],
+    )
+    def test_process_fidelity(self, rho):
+        """
+        Validate that fidelity value is always 1 when using two identical
+        matrices.
+        """
+        rho = np.array(rho, dtype=complex)
+        assert process_fidelity(rho, rho) == pytest.approx(1, 1e-6)
+
+    def test_process_fidelity_dim_mismatch(self):
+        """
+        Check an error is raised if there is a mismatch in dimensions between
+        density matrices.
+        """
+        with pytest.raises(ValueError, match="dimensions"):
+            process_fidelity(random_unitary(3), random_unitary(4))

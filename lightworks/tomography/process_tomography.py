@@ -33,6 +33,12 @@ INPUT_MAPPING: dict[str, tuple[State, Circuit]] = {
     "+": (State([1, 0]), qubit.H()),
     "R": (State([1, 0]), r_transform),
 }
+BASIS_MAPPING: dict[str, list] = {
+    "0": [1, 0],
+    "1": [0, 1],
+    "+": [2**-0.5, 2**-0.5],
+    "R": [2**-0.5, 1j * 2**-0.5],
+}
 
 
 class ProcessTomography:
@@ -62,7 +68,7 @@ class ProcessTomography:
             )
         return self._chi
 
-    def process(self) -> dict[str, np.ndarray]:
+    def process(self) -> np.ndarray:
         """
         Desc
         """
@@ -72,7 +78,47 @@ class ProcessTomography:
 
         results = self._run_required_experiments(all_inputs)
 
-        return self._calculate_density_matrices(results)
+        rhos_full = self._calculate_density_matrices(results)
+        rhos = [rhos_full[in_s] for in_s in all_inputs]
+
+        transform = self._calculate_transform_matrix(self.n_qubits, all_inputs)
+
+        rhos_t = [
+            sum(transform[i][j] * rhos[j] for j in range(len(rhos)))
+            for i in range(len(rhos))
+        ]
+        full_mat = np.zeros(
+            (2 ** (2 * self.n_qubits), 2 ** (2 * self.n_qubits)), dtype=complex
+        )
+
+        for i in range(2**self.n_qubits):
+            for j in range(2**self.n_qubits):
+                mat = rhos_t[2**self.n_qubits * i + j]
+                full_mat[
+                    2**self.n_qubits * i : 2**self.n_qubits * (i + 1),
+                    2**self.n_qubits * j : 2**self.n_qubits * (j + 1),
+                ] = mat[:, :]
+
+        x_mat = np.array([[0, 1], [1, 0]])
+        a_mat = 0.5 * (
+            np.kron(np.array([[1, 0], [0, -1]]), np.identity(2))
+            + np.kron(x_mat, x_mat)
+        )
+        if self.n_qubits == 1:
+            k_mat = a_mat
+        elif self.n_qubits == 2:
+            m_mat = np.array(
+                [[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]]
+            )
+            a2_mat = np.kron(a_mat, a_mat)
+            p_mat = np.kron(np.identity(2), np.kron(m_mat, np.identity(2)))
+            k_mat = p_mat @ a2_mat
+        else:
+            raise NotImplementedError("Not yet generalized.")
+
+        self._chi = k_mat.T @ full_mat @ k_mat
+
+        return self.chi
 
     def fidelity(self, chi_exp: np.ndarray) -> float:
         """
@@ -137,6 +183,33 @@ class ProcessTomography:
             in_state: StateTomo._calculate_density_matrix(self.n_qubits, res)
             for in_state, res in results.items()
         }
+
+    def _calculate_transform_matrix(
+        self, n_qubits: int, inputs: list[str]
+    ) -> np.ndarray:
+        """
+        Calculates the matrix required to transform between input basis and
+        pauli basis.
+        """
+        basis = []
+        for in_state in inputs:
+            in_vector = np.array(BASIS_MAPPING[in_state[0]], dtype=complex)
+            for i in range(n_qubits - 1):
+                in_vector = np.kron(in_vector, BASIS_MAPPING[in_state[i + 1]])
+            basis.append(np.outer(in_vector, np.conj(in_vector.T)))
+        basis_vectors = np.column_stack([m.flatten() for m in basis])
+
+        transform = np.zeros(
+            (2 ** (2 * n_qubits), 2 ** (2 * n_qubits)), dtype=complex
+        )
+        for i in range(len(inputs)):
+            target_rho = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
+            target_rho[int(i / 2**n_qubits), i % (2**n_qubits)] = 1
+
+            mu = np.linalg.solve(basis_vectors, target_rho.flatten())
+            transform[i, :] = mu[:]
+
+        return transform
 
     def _create_circuit_and_input(
         self, input_op: str, output_op: str
