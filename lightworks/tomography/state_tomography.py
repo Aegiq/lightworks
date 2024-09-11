@@ -253,35 +253,42 @@ class StateTomography:
         """
         # Process results to find density matrix
         rho = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
-        for comb, res in results.items():
-            gates = [*comb]
-            total = 0
-            n_counts = 0
-            for s, c in res.items():
-                n_counts += c
-                # Adjust multiplier to account for variation in eigenvalues
-                multiplier = 1
-                for j, gate in enumerate(gates):
-                    if gate == "I" or s[2 * j : 2 * j + 2] == State([1, 0]):
-                        multiplier *= 1
-                    elif s[2 * j : 2 * j + 2] == State([0, 1]):
-                        multiplier *= -1
-                    else:
-                        msg = (
-                            f"An invalid state {s[2 * j : 2 * j + 2]} was found"
-                            " in the results. This does not correspond to a "
-                            "valid value for dual-rail encoded qubits."
-                        )
-                        raise ValueError(msg)
-                total += multiplier * c
-            total /= (2**n_qubits) * n_counts
+        for measurement, result in results.items():
+            expectation = StateTomography._calculate_expectation_value(
+                n_qubits, measurement, result
+            )
             # Calculate tensor product of the operators used
-            mat = StateTomography._get_pauli_matrix(gates[0])
-            for g in gates[1:]:
+            mat = StateTomography._get_pauli_matrix(measurement[0])
+            for g in measurement[1:]:
                 mat = np.kron(mat, StateTomography._get_pauli_matrix(g))
             # Updated density matrix
-            rho += total * mat
+            rho += expectation * mat
         return rho
+
+    @staticmethod
+    def _calculate_expectation_value(
+        n_qubits: int, measurement: str, results: dict[str, dict]
+    ) -> float:
+        expectation = 0
+        n_counts = 0
+        for state, counts in results.items():
+            n_counts += counts
+            # Adjust multiplier to account for variation in eigenvalues
+            multiplier = 1
+            for j, gate in enumerate(measurement):
+                if gate == "I" or state[2 * j : 2 * j + 2] == State([1, 0]):
+                    multiplier *= 1
+                elif state[2 * j : 2 * j + 2] == State([0, 1]):
+                    multiplier *= -1
+                else:
+                    msg = (
+                        f"An invalid state {state[2 * j : 2 * j + 2]} was found"
+                        " in the results. This does not correspond to a valid "
+                        "value for dual-rail encoded qubits."
+                    )
+                    raise ValueError(msg)
+            expectation += multiplier * counts
+        return expectation / ((2**n_qubits) * n_counts)
 
     @staticmethod
     def _get_all_measurements(n_qubits: int) -> list[str]:
