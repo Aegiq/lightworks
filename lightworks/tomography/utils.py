@@ -67,3 +67,21 @@ def process_fidelity(chi: np.ndarray, chi_exp: np.ndarray) -> float:
         raise ValueError(msg)
     raise NotImplementedError("Fidelity not yet implemented.")
     return 0
+
+
+def density_from_state(state: list | np.ndarray) -> np.ndarray:
+    """
+    Calculates the expected density matrix from a given state.
+
+    Args:
+
+        state (list | np.ndarray) : The vector representation of the state for
+            which the density matrix should be calculated.
+
+    Returns:
+
+        np.ndarray : The calculated density matrix.
+
+    """
+    state = np.array(state)
+    return np.outer(state, np.conj(state.T))
