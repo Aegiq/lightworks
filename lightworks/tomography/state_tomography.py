@@ -255,8 +255,9 @@ class StateTomography:
         rho = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
         for measurement, result in results.items():
             expectation = StateTomography._calculate_expectation_value(
-                n_qubits, measurement, result
+                measurement, result
             )
+            expectation /= 2**n_qubits
             # Calculate tensor product of the operators used
             mat = StateTomography._get_pauli_matrix(measurement[0])
             for g in measurement[1:]:
@@ -267,8 +268,24 @@ class StateTomography:
 
     @staticmethod
     def _calculate_expectation_value(
-        n_qubits: int, measurement: str, results: dict[str, dict]
+        measurement: str, results: dict[str, dict]
     ) -> float:
+        """
+        Calculates the expectation value for a given measurement and set of
+        results.
+
+        Args:
+
+            measurement (str) : The measurement operator used for the
+                computation.
+
+            results (dict) : A dictionary of measured output states and counts.
+
+        Returns:
+
+            float : The calculated expectation value.
+
+        """
         expectation = 0
         n_counts = 0
         for state, counts in results.items():
@@ -288,7 +305,7 @@ class StateTomography:
                     )
                     raise ValueError(msg)
             expectation += multiplier * counts
-        return expectation / ((2**n_qubits) * n_counts)
+        return expectation / n_counts
 
     @staticmethod
     def _get_all_measurements(n_qubits: int) -> list[str]:
