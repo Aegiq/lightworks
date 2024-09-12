@@ -23,6 +23,12 @@ from lightworks.tomography import (
     state_fidelity,
 )
 
+U_CNOT = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]
+U_CCNOT = np.identity(8)
+U_CCNOT[6:, :] = U_CCNOT[7:5:-1, :]
+U_CCZ = np.identity(8)
+U_CCZ[7, 7] = -1
+
 
 class TestUtils:
     """
@@ -59,6 +65,8 @@ class TestUtils:
             choi_from_unitary([[0, 1], [1, 0]]),
             choi_from_unitary([[0, -1j], [1j, 0]]),
             choi_from_unitary([[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]]),
+            choi_from_unitary(U_CNOT),
+            choi_from_unitary(U_CCNOT),
         ],
     )
     def test_process_fidelity(self, choi):
