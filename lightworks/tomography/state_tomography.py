@@ -20,7 +20,7 @@ import numpy as np
 from .. import qubit
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
-from .utils import state_fidelity
+from .utils import PAULI_MAPPING, state_fidelity
 
 _y_measure = Circuit(2)
 _y_measure.add(qubit.S())
@@ -32,13 +32,6 @@ MEASUREMENT_MAPPING = {
     "X": qubit.H(),
     "Y": _y_measure,
     "Z": qubit.I(),
-}
-
-PAULI_MAPPING = {
-    "I": np.array([[1, 0], [0, 1]]),
-    "X": np.array([[0, 1], [1, 0]]),
-    "Y": np.array([[0, -1j], [1j, 0]]),
-    "Z": np.array([[1, 0], [0, -1]]),
 }
 
 
@@ -268,7 +261,7 @@ class StateTomography:
 
     @staticmethod
     def _calculate_expectation_value(
-        measurement: str, results: dict[str, dict]
+        measurement: str, results: dict[str, int]
     ) -> float:
         """
         Calculates the expectation value for a given measurement and set of

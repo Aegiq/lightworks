@@ -17,6 +17,7 @@ import pytest
 
 from lightworks import random_unitary
 from lightworks.tomography import (
+    choi_from_unitary,
     density_from_state,
     process_fidelity,
     state_fidelity,
@@ -53,19 +54,19 @@ class TestUtils:
             state_fidelity(random_unitary(3), random_unitary(4))
 
     @pytest.mark.parametrize(
-        "rho",
+        "choi",
         [
-            [[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
-            [[0, 0, 0, 0], [0, 0.5, 0, 0.5], [0, 0, 0, 0], [0, 0.5, 0, 0.5]],
-            [[0, 0, 0, 0], [0, 0.5, 0, 0.5j], [0, 0, 0, 0], [0, -0.5j, 0, 0.5]],
+            choi_from_unitary([[0, 1], [1, 0]]),
+            choi_from_unitary([[0, -1j], [1j, 0]]),
+            choi_from_unitary([[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]]),
         ],
     )
-    def test_process_fidelity(self, rho):
+    def test_process_fidelity(self, choi):
         """
         Validate that fidelity value is always 1 when using two identical
         matrices.
         """
-        rho = np.array(rho, dtype=complex)
+        rho = np.array(choi, dtype=complex)
         assert process_fidelity(rho, rho) == pytest.approx(1, 1e-6)
 
     def test_process_fidelity_dim_mismatch(self):
@@ -78,7 +79,7 @@ class TestUtils:
 
     def test_basic_density_matrix_calc(self):
         """
-        Desc
+        Checks the density matrix of the two qubit state |00> is correct.
         """
         rho = density_from_state([1, 0, 0, 0])
         assert (
@@ -90,12 +91,29 @@ class TestUtils:
 
     def test_bell_state_density_matrix_calc(self):
         """
-        desc
+        Checks the calculated density matrix for a bell state is correct.
         """
         rho = density_from_state([2**-0.5, 0, 0, 2**-0.5])
         assert (
             rho.round(5)
             == np.array(
                 [[0.5, 0, 0, 0.5], [0, 0, 0, 0], [0, 0, 0, 0], [0.5, 0, 0, 0.5]]
+            )
+        ).all()
+
+    def test_hadamard_choi(self):
+        """
+        Checks that the calculated choi matrix for the hadamard gate is correct.
+        """
+        choi = choi_from_unitary([[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]])
+        assert (
+            choi.round(5)
+            == np.array(
+                [
+                    [0.5, 0.5, 0.5, -0.5],
+                    [0.5, 0.5, 0.5, -0.5],
+                    [0.5, 0.5, 0.5, -0.5],
+                    [-0.5, -0.5, -0.5, 0.5],
+                ]
             )
         ).all()

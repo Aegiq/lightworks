@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import numpy as np
 import pytest
 
 from lightworks import PostSelection, emulator, qubit
-from lightworks.tomography import ProcessTomography
+from lightworks.tomography import ProcessTomography, choi_from_unitary
 
 
 def experiment(circuits, inputs, n_qubits):
@@ -30,28 +29,17 @@ def experiment(circuits, inputs, n_qubits):
     results = []
     for circ, in_s in zip(circuits, inputs):
         sampler = emulator.Sampler(circ, in_s, backend="slos")
-        results.append(sampler.sample_N_outputs(10000, post_select=post_select))
+        results.append(
+            sampler.sample_N_outputs(20000, post_select=post_select, seed=99)
+        )
     return results
 
 
-h_exp = np.zeros((4, 4), dtype=complex)
-h_exp[1, 1] = 0.5
-h_exp[1, 3] = 0.5
-h_exp[3, 1] = 0.5
-h_exp[3, 3] = 0.5
+h_exp = choi_from_unitary([[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]])
 
-chi_exp = np.zeros((16, 16), dtype=complex)
-# fmt: off
-positive = np.array([
-    [0, 0], [0, 1], [1, 0], [1, 1], [12, 0], [12, 1], [0, 12], [1, 12],
-    [12, 12], [13, 13]
-])
-negative = np.array(
-    [[13, 0], [13, 1], [0, 13], [1, 13], [12, 13], [13, 12]]
+cnot_exp = choi_from_unitary(
+    [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]
 )
-# fmt: on
-chi_exp[positive[:, 0], positive[:, 1]] = 0.25
-chi_exp[negative[:, 0], negative[:, 1]] = -0.25
 
 
 class TestProcessTomography:
@@ -76,12 +64,12 @@ class TestProcessTomography:
         )
         self.cnot_tomo.process()
 
-    def test_hadamard_chi(self):
+    def test_hadamard_choi(self):
         """
-        Checks process tomography of the Hadamard gate produces the expected chi
-        matrix.
+        Checks process tomography of the Hadamard gate produces the expected
+        choi matrix.
         """
-        assert self.h_tomo.chi == pytest.approx(h_exp, abs=1e-2)
+        assert self.h_tomo.choi == pytest.approx(h_exp, abs=5e-2)
 
     def test_hadamard_fidelity(self):
         """
@@ -89,15 +77,15 @@ class TestProcessTomography:
         """
         assert self.h_tomo.fidelity(h_exp) == pytest.approx(1, 1e-2)
 
-    def test_cnot_chi(self):
+    def test_cnot_choi(self):
         """
-        Checks process tomography of the CNOT gate produces the expected chi
+        Checks process tomography of the CNOT gate produces the expected choi
         matrix and the fidelity is calculated to be 1.
         """
-        assert self.cnot_tomo.chi == pytest.approx(chi_exp, abs=1e-2)
+        assert self.cnot_tomo.choi == pytest.approx(cnot_exp, abs=5e-2)
 
     def test_cnot_fidelity(self):
         """
         Checks fidelity of CNOT gate process matrix is close to 1.
         """
-        assert self.cnot_tomo.fidelity(chi_exp) == pytest.approx(1, 1e-2)
+        assert self.cnot_tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)

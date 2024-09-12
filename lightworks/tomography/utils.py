@@ -15,6 +15,13 @@
 import numpy as np
 from scipy.linalg import sqrtm
 
+PAULI_MAPPING: dict[str, np.ndarray] = {
+    "I": np.array([[1, 0], [0, 1]]),
+    "X": np.array([[0, 1], [1, 0]]),
+    "Y": np.array([[0, -1j], [1j, 0]]),
+    "Z": np.array([[1, 0], [0, -1]]),
+}
+
 
 def state_fidelity(rho: np.ndarray, rho_exp: np.ndarray) -> float:
     """
@@ -65,8 +72,8 @@ def process_fidelity(chi: np.ndarray, chi_exp: np.ndarray) -> float:
             f"{chi.shape} & {chi_exp.shape}."
         )
         raise ValueError(msg)
-    raise NotImplementedError("Fidelity not yet implemented.")
-    return 0
+    n_qubits = np.emath.logn(4, chi.shape[0])
+    return state_fidelity(chi / 2**n_qubits, chi_exp / 2**n_qubits)
 
 
 def density_from_state(state: list | np.ndarray) -> np.ndarray:
@@ -85,3 +92,21 @@ def density_from_state(state: list | np.ndarray) -> np.ndarray:
     """
     state = np.array(state)
     return np.outer(state, np.conj(state.T))
+
+
+def choi_from_unitary(unitary: np.ndarray) -> np.ndarray:
+    """
+    Calculates the expected choi matrix from a given unitary representation of a
+    process.
+
+    Args:
+
+        unitary (np.ndarray) : The unitary representation of the gate.
+
+    Returns:
+
+        np.ndarray : The calculated choi matix.
+
+    """
+    unitary = np.array(unitary)
+    return np.outer(unitary.flatten(), np.conj(unitary.flatten()))

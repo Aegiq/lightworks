@@ -21,4 +21,18 @@ A set of tools for quantum state & process tomography on a system.
 
 from .process_tomography import ProcessTomography
 from .state_tomography import StateTomography
-from .utils import density_from_state, process_fidelity, state_fidelity
+from .utils import (
+    choi_from_unitary,
+    density_from_state,
+    process_fidelity,
+    state_fidelity,
+)
+
+__all__ = [
+    "ProcessTomography",
+    "StateTomography",
+    "choi_from_unitary",
+    "density_from_state",
+    "process_fidelity",
+    "state_fidelity",
+]
