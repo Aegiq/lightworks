@@ -51,29 +51,29 @@ def state_fidelity(rho: np.ndarray, rho_exp: np.ndarray) -> float:
     return abs(np.trace(sqrtm(inner)))
 
 
-def process_fidelity(chi: np.ndarray, chi_exp: np.ndarray) -> float:
+def process_fidelity(choi: np.ndarray, choi_exp: np.ndarray) -> float:
     """
-    Calculates the fidelity of a process compared to an expected chi matrix.
+    Calculates the fidelity of a process compared to an expected choi matrix.
 
     Args:
 
-        chi (np.ndarray) : The calculated chi matrix for the process.
+        choi (np.ndarray) : The calculated choi matrix for the process.
 
-        chi_exp (np.ndarray) : The expected chi matrix.
+        choi_exp (np.ndarray) : The expected choi matrix.
 
     Returns:
 
         float : The calculated fidelity value.
 
     """
-    if chi.shape != chi_exp.shape:
+    if choi.shape != choi_exp.shape:
         msg = (
             "Mismatch in dimensions between provided density matrices, "
-            f"{chi.shape} & {chi_exp.shape}."
+            f"{choi.shape} & {choi_exp.shape}."
         )
         raise ValueError(msg)
-    n_qubits = np.emath.logn(4, chi.shape[0])
-    return state_fidelity(chi / 2**n_qubits, chi_exp / 2**n_qubits)
+    n_qubits = int(np.emath.logn(4, choi.shape[0]))
+    return state_fidelity(choi / 2**n_qubits, choi_exp / 2**n_qubits)
 
 
 def density_from_state(state: list | np.ndarray) -> np.ndarray:
@@ -105,7 +105,7 @@ def choi_from_unitary(unitary: np.ndarray) -> np.ndarray:
 
     Returns:
 
-        np.ndarray : The calculated choi matix.
+        np.ndarray : The calculated choi matrix.
 
     """
     unitary = np.array(unitary)
