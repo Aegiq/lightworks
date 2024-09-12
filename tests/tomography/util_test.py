@@ -67,6 +67,7 @@ class TestUtils:
             choi_from_unitary([[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]]),
             choi_from_unitary(U_CNOT),
             choi_from_unitary(U_CCNOT),
+            choi_from_unitary(U_CCZ),
         ],
     )
     def test_process_fidelity(self, choi):
