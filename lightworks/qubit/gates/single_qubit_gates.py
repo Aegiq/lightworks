@@ -98,3 +98,51 @@ class T(Unitary):
     def __init__(self) -> None:
         unitary = np.array([[1, 0], [0, np.exp(1j * np.pi / 4)]])
         super().__init__(unitary, "T")
+
+
+class Rx(Unitary):
+    """
+    Implements a Rx gate across a pair of modes corresponding to a dual-rail
+    encoded qubit.
+    """
+
+    def __init__(self, theta: float) -> None:
+        unitary = np.array(
+            [
+                [np.cos(theta / 2), -1j * np.sin(theta / 2)],
+                [-1j * np.sin(theta / 2), np.cos(theta / 2)],
+            ]
+        )
+        super().__init__(unitary, f"Rx({round(theta, 3)})")
+
+
+class Ry(Unitary):
+    """
+    Implements a Ry gate across a pair of modes corresponding to a dual-rail
+    encoded qubit.
+    """
+
+    def __init__(self, theta: float) -> None:
+        unitary = np.array(
+            [
+                [np.cos(theta / 2), -np.sin(theta / 2)],
+                [np.sin(theta / 2), np.cos(theta / 2)],
+            ]
+        )
+        super().__init__(unitary, f"Ry({round(theta, 3)})")
+
+
+class Rz(Unitary):
+    """
+    Implements a Rz gate across a pair of modes corresponding to a dual-rail
+    encoded qubit.
+    """
+
+    def __init__(self, theta: float) -> None:
+        unitary = np.array(
+            [
+                [np.exp(-1j * theta / 2), 0],
+                [0, np.exp(1j * theta / 2)],
+            ]
+        )
+        super().__init__(unitary, f"Rz({round(theta, 3)})")
