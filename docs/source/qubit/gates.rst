@@ -49,6 +49,21 @@ The following single qubit gates are currently implemented:
                       1 & 0 \\
                       0 & \exp(i\pi/4) \\
                   \end{bmatrix}
+    * - Rx
+      - .. math:: \begin{bmatrix}
+                      \cos(\theta/2) & -i\sin(\theta/2) \\
+                      -i\sin(\theta/2) & \cos(\theta/2) \\
+                  \end{bmatrix}
+    * - Ry
+      - .. math:: \begin{bmatrix}
+                      \cos(\theta/2) & -\sin(\theta/2) \\
+                      \sin(\theta/2) & \cos(\theta/2) \\
+                  \end{bmatrix}
+    * - Rz
+      - .. math:: \begin{bmatrix}
+                      \exp(-i\theta/2) & 0 \\
+                      0 & \exp(i\theta/2) \\
+                  \end{bmatrix}
 
 To create a new gate, it needs to be called from the qubit sub-module of Lightworks. For example, a Hadamard gate can be created with:
 
@@ -56,7 +71,7 @@ To create a new gate, it needs to be called from the qubit sub-module of Lightwo
 
     H = lw.qubit.H()
 
-These gates are functionally Circuits, and so can also be added and combined with the other Circuits in the same way. In the following, we create a 4 mode circuit to define two qubits (a & b) and then applying X, Y & Z gates to one qubit and H, S & T to the other.
+These gates are functionally Circuits, and so can also be added and combined with the other Circuits in the same way. In the following, we create a 4 mode circuit to define two qubits (a & b) and then apply X, Y & Z gates to one qubit and H, S & T to the other.
 
 .. code-block:: Python
 
