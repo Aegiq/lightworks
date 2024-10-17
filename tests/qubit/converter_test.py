@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from random import choice, randint, sample
+from random import choice, randint, random, sample
 
 import pytest
 from qiskit import QuantumCircuit
@@ -22,6 +22,7 @@ from lightworks import State
 from lightworks.emulator import Sampler, Simulator
 from lightworks.qubit import qiskit_converter
 from lightworks.qubit.converter.qiskit_convert import (
+    ROTATION_GATES_MAP,
     SINGLE_QUBIT_GATES_MAP,
     THREE_QUBIT_GATES_MAP,
     TWO_QUBIT_GATES_MAP,
@@ -42,6 +43,15 @@ class TestQiskitConversion:
         """
         circ = QuantumCircuit(1)
         getattr(circ, gate)(0)
+        qiskit_converter(circ)
+
+    @pytest.mark.parametrize("gate", list(ROTATION_GATES_MAP.keys()))
+    def test_all_rotation_qubit_gates(self, gate):
+        """
+        Checks all expected rotation qubit gates can be converted.
+        """
+        circ = QuantumCircuit(1)
+        getattr(circ, gate)(6.28 * random(), 0)
         qiskit_converter(circ)
 
     @pytest.mark.parametrize("gate", list(TWO_QUBIT_GATES_MAP.keys()))
@@ -333,7 +343,7 @@ def build_random_qiskit_circuit(n_qubits):
     Builds a random qiskit circuit for testing
     """
     if n_qubits < 2:
-        raise ValueError("Number of qubits should be at least two")
+        raise ValueError("Number of qubits should be at least two.")
     gates = ["x", "y", "z", "cx", "cz"]
     if n_qubits >= 3:
         gates += ["ccx", "ccz"]
