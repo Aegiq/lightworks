@@ -153,7 +153,12 @@ class ProcessTomography:
             all_inputs = [i1 + i2 for i1 in all_inputs for i2 in TOMO_INPUTS]
         results = self._run_required_experiments(all_inputs)
         # Get expectation values using results
-        lambdas = self._calculate_expectation_values(results)
+        lambdas = {
+            (in_state, measurement): StateTomo._calculate_expectation_value(
+                measurement, res
+            )
+            for (in_state, measurement), res in results.items()
+        }
         # Find all pauli and density matrices for multi-qubit states
         full_paulis = dict(PAULI_MAPPING)
         full_rhos = dict(RHOS_MAPPING)
@@ -190,20 +195,6 @@ class ProcessTomography:
         expected one.
         """
         return process_fidelity(self.choi, choi_exp)
-
-    def _calculate_expectation_values(
-        self, results: dict[tuple[str, str], dict]
-    ) -> dict[tuple[str, str], float]:
-        """
-        Calculates the expectation values from a set of results containing,
-        input states, observables and measurement data for each.
-        """
-        return {
-            (in_state, measurement): StateTomo._calculate_expectation_value(
-                measurement, res
-            )
-            for (in_state, measurement), res in results.items()
-        }
 
     def _run_required_experiments(
         self, inputs: list[str]
