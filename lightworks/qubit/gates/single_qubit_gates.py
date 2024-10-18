@@ -89,6 +89,17 @@ class S(Unitary):
         super().__init__(unitary, "S")
 
 
+class Sadj(Unitary):
+    """
+    Implements the adjoint S gate across a pair of modes corresponding to a
+    dual-rail encoded qubit.
+    """
+
+    def __init__(self) -> None:
+        unitary = np.array([[1, 0], [0, -1j]])
+        super().__init__(unitary, "S_adj")
+
+
 class T(Unitary):
     """
     Implements a T gate across a pair of modes corresponding to a dual-rail
@@ -100,10 +111,58 @@ class T(Unitary):
         super().__init__(unitary, "T")
 
 
+class Tadj(Unitary):
+    """
+    Implements the adjoint T gate across a pair of modes corresponding to a
+    dual-rail encoded qubit.
+    """
+
+    def __init__(self) -> None:
+        unitary = np.array([[1, 0], [0, np.exp(-1j * np.pi / 4)]])
+        super().__init__(unitary, "T_adj")
+
+
+class SX(Unitary):
+    """
+    Implements a SX gate across a pair of modes corresponding to a dual-rail
+    encoded qubit.
+    """
+
+    def __init__(self) -> None:
+        unitary = 0.5 * np.array([[1 + 1j, 1 - 1j], [1 - 1j, 1 + 1j]])
+        super().__init__(unitary, "SX")
+
+
+class P(Unitary):
+    """
+    Implements a phase gate with phase theta across a pair of modes
+    corresponding to a dual-rail encoded qubit.
+
+    Args:
+
+        theta (float) : The phase angle implemented on the qubit.
+
+    """
+
+    def __init__(self, theta: float) -> None:
+        unitary = np.array(
+            [
+                [1, 0],
+                [0, np.exp(1j * theta)],
+            ]
+        )
+        super().__init__(unitary, f"P({round(theta, 3)})")
+
+
 class Rx(Unitary):
     """
-    Implements a Rx gate across a pair of modes corresponding to a dual-rail
-    encoded qubit.
+    Implements a Rx gate with angle theta across a pair of modes corresponding
+    to a dual-rail encoded qubit.
+
+    Args:
+
+        theta (float) : The rotation angle of the gate.
+
     """
 
     def __init__(self, theta: float) -> None:
@@ -118,8 +177,13 @@ class Rx(Unitary):
 
 class Ry(Unitary):
     """
-    Implements a Ry gate across a pair of modes corresponding to a dual-rail
-    encoded qubit.
+    Implements a Ry gate with angle theta across a pair of modes corresponding
+    to a dual-rail encoded qubit.
+
+    Args:
+
+        theta (float) : The rotation angle of the gate.
+
     """
 
     def __init__(self, theta: float) -> None:
@@ -134,8 +198,13 @@ class Ry(Unitary):
 
 class Rz(Unitary):
     """
-    Implements a Rz gate across a pair of modes corresponding to a dual-rail
-    encoded qubit.
+    Implements a Rz gate with angle theta across a pair of modes corresponding
+    to a dual-rail encoded qubit.
+
+    Args:
+
+        theta (float) : The rotation angle of the gate.
+
     """
 
     def __init__(self, theta: float) -> None:

@@ -20,14 +20,18 @@ from ..gates import (
     CNOT,
     CZ,
     SWAP,
+    SX,
     CNOT_Heralded,
     CZ_Heralded,
     H,
+    P,
     Rx,
     Ry,
     Rz,
     S,
+    Sadj,
     T,
+    Tadj,
     X,
     Y,
     Z,
@@ -43,9 +47,12 @@ SINGLE_QUBIT_GATES_MAP = {
     "y": Y(),
     "z": Z(),
     "s": S(),
+    "sdg": Sadj(),
     "t": T(),
+    "tdg": Tadj(),
+    "sx": SX(),
 }
-ROTATION_GATES_MAP = {"rx": Rx, "ry": Ry, "rz": Rz}
+ROTATION_GATES_MAP = {"rx": Rx, "ry": Ry, "rz": Rz, "p": P}
 
 TWO_QUBIT_GATES_MAP = {"cx": CNOT_Heralded, "cz": CZ_Heralded, "swap": SWAP}
 TWO_QUBIT_GATES_MAP_PS = {"cx": CNOT, "cz": CZ}
