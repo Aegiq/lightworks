@@ -14,6 +14,21 @@
 
 # ruff: noqa: F401
 
-from .single_qubit_gates import H, I, Rx, Ry, Rz, S, T, X, Y, Z
+from .single_qubit_gates import (
+    SX,
+    H,
+    I,
+    P,
+    Rx,
+    Ry,
+    Rz,
+    S,
+    Sadj,
+    T,
+    Tadj,
+    X,
+    Y,
+    Z,
+)
 from .three_qubit_gates import CCNOT, CCZ
 from .two_qubit_gates import CNOT, CZ, SWAP, CNOT_Heralded, CZ_Heralded

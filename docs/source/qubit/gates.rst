@@ -39,15 +39,35 @@ The following single qubit gates are currently implemented:
                       1 & 0 \\
                       0 & -1 \\
                   \end{bmatrix}
+    * - Sx
+      - .. math:: \frac{1}{2} \begin{bmatrix}
+                      1+i & 1-i \\
+                      1-i & 1+i \\
+                  \end{bmatrix}
     * - S
       - .. math:: \begin{bmatrix}
                       1 & 0 \\
                       0 & i \\
                   \end{bmatrix}
+    * - Sadj
+      - .. math:: \begin{bmatrix}
+                      1 & 0 \\
+                      0 & -i \\
+                  \end{bmatrix}
     * - T
       - .. math:: \begin{bmatrix}
                       1 & 0 \\
                       0 & \exp(i\pi/4) \\
+                  \end{bmatrix}
+    * - Tadj
+      - .. math:: \begin{bmatrix}
+                      1 & 0 \\
+                      0 & \exp(-i\pi/4) \\
+                  \end{bmatrix}
+    * - P
+      - .. math:: \begin{bmatrix}
+                      1 & 0 \\
+                      0 & \exp(i\theta) \\
                   \end{bmatrix}
     * - Rx
       - .. math:: \begin{bmatrix}
