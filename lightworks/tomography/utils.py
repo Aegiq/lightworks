@@ -110,3 +110,18 @@ def choi_from_unitary(unitary: np.ndarray) -> np.ndarray:
     """
     unitary = np.array(unitary)
     return np.outer(unitary.flatten(), np.conj(unitary.flatten()))
+
+
+def vec(mat: np.ndarray) -> np.ndarray:
+    """
+    Applies flatten operation to a provided matrix to convert it into a vector.
+    """
+    return mat.flatten()
+
+
+def unvec(mat: np.ndarray) -> np.ndarray:
+    """
+    Takes a provided vector and converts it into a square matrix.
+    """
+    dim = int(mat.shape[0] ** 0.5)
+    return mat.reshape(dim, dim)
