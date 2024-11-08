@@ -21,46 +21,40 @@ import numpy as np
 from .. import qubit
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
-from .utils import unvec, vec
+from .utils import process_fidelity, unvec, vec
 
-TOMO_INPUTS = ["0", "1", "+", "-", "R", "L"]
+TOMO_INPUTS = ["X0", "X1", "Y0", "Y1", "Z0", "Z1"]
 
 r_transform = qubit.H()
 r_transform.add(qubit.S())
-
 INPUT_MAPPING: dict[str, tuple[State, Circuit]] = {
-    "0": (State([1, 0]), qubit.I()),
-    "1": (State([0, 1]), qubit.I()),
-    "+": (State([1, 0]), qubit.H()),
-    "-": (State([0, 1]), qubit.H()),
-    "R": (State([1, 0]), r_transform),
-    "L": (State([0, 1]), r_transform),
+    "X0": (State([1, 0]), qubit.H()),
+    "X1": (State([0, 1]), qubit.H()),
+    "Y0": (State([1, 0]), r_transform),
+    "Y1": (State([0, 1]), r_transform),
+    "Z0": (State([1, 0]), qubit.I()),
+    "Z1": (State([0, 1]), qubit.I()),
 }
-RHOS_MAPPING: dict[str, np.ndarray] = {
-    "0": np.array([[1, 0], [0, 0]]),
-    "1": np.array([[0, 0], [0, 1]]),
-    "+": np.array([[0.5, 0.5], [0.5, 0.5]]),
-    "-": np.array([[0.5, -0.5], [-0.5, 0.5]]),
-    "R": np.array([[0.5, -0.5j], [0.5j, 0.5]]),
-    "L": np.array([[0.5, 0.5j], [-0.5j, 0.5]]),
+RHO_MAPPING: dict[str, np.ndarray] = {
+    "X0": np.array([[1, 1], [1, 1]]) / 2,
+    "X1": np.array([[1, -1], [-1, 1]]) / 2,
+    "Y0": np.array([[1, -1j], [1j, 1]]) / 2,
+    "Y1": np.array([[1, 1j], [-1j, 1]]) / 2,
+    "Z0": np.array([[1, 0], [0, 0]]),
+    "Z1": np.array([[0, 0], [0, 1]]),
+    "I0": np.array([[1, 0], [0, 1]]),
+    "I1": np.array([[1, 0], [0, 1]]),
 }
-MEAS_OPS: dict[str, np.ndarray] = {
-    "X+": np.array([[1, 1], [1, 1]]) / 2,
-    "X-": np.array([[1, -1], [-1, 1]]) / 2,
-    "Y+": np.array([[1, -1j], [1j, 1]]) / 2,
-    "Y-": np.array([[1, 1j], [-1j, 1]]) / 2,
-    "Z+": np.array([[1, 0], [0, 0]]),
-    "Z-": np.array([[0, 0], [0, 1]]),
-}
+
 _y_measure = Circuit(2)
 _y_measure.add(qubit.S())
 _y_measure.add(qubit.Z())
 _y_measure.add(qubit.H())
-
 MEASUREMENT_MAPPING = {
     "X": qubit.H(),
     "Y": _y_measure,
     "Z": qubit.I(),
+    "I": qubit.I(),
 }
 
 
@@ -136,8 +130,8 @@ class ProcessTomographyMLE:
         """Returns the calculate choi matrix for a circuit."""
         if not hasattr(self, "_choi"):
             raise AttributeError(
-                "Chi has not yet been calculated, this can be achieved with the"
-                "process method."
+                "Choi matrix has not yet been calculated, this can be achieved "
+                "with the process method."
             )
         return self._choi
 
@@ -154,7 +148,7 @@ class ProcessTomographyMLE:
                 n_counts += c
                 # Adjust multiplier to account for variation in eigenvalues
                 multiplier = 1
-                for j, gate in enumerate(meas):
+                for j, gate in enumerate(meas.split(",")):
                     if gate == "I" or s[2 * j : 2 * j + 2] == State([1, 0]):
                         multiplier *= 1
                     elif s[2 * j : 2 * j + 2] == State([0, 1]):
@@ -163,19 +157,22 @@ class ProcessTomographyMLE:
 
             nij[in_state, meas] = total / n_counts
 
-        nij = {k: v for k, v in nij.items() if "I" not in k}
-
         n_vec = []
-        for i in self._generate_all_inputs():
-            for j in self._generate_all_measurements_full():
-                if j[1] == "+":
-                    val = (1 + nij[i, j[0]]) / 2
-                    n_vec.append(val)
-                    n_vec.append(1 - val)
+        for n in nij.values():
+            n_vec.append((1 + n) / 2)
+            n_vec.append((1 - n) / 2)
         n_vec = np.array(n_vec) / len(nij)
-        mle = MLETomographyAlgorithm(self.n_qubits)
 
-        return mle.pgdb(n_vec)
+        mle = MLETomographyAlgorithm(self.n_qubits)
+        self._choi = mle.pgdb(n_vec)
+        return self.choi
+
+    def fidelity(self, choi_exp: np.ndarray) -> float:
+        """
+        Calculates fidelity of the calculated choi matrix compared to the
+        expected one.
+        """
+        return process_fidelity(self.choi, choi_exp)
 
     def _run_required_experiments(self) -> dict:
         all_inputs = self._generate_all_inputs()
@@ -212,36 +209,36 @@ class ProcessTomographyMLE:
         in_state = State([])
         circ = Circuit(self.base_circuit.input_modes)
         # Input operation
-        for i, op in enumerate(input_op):
+        for i, op in enumerate(input_op.split(",")):
             in_state += INPUT_MAPPING[op][0]
             circ.add(INPUT_MAPPING[op][1], 2 * i)
         # Add base circuit
         circ.add(self.base_circuit)
         # Measurement operation
-        for i, op in enumerate(output_op):
+        for i, op in enumerate(output_op.split(",")):
             circ.add(MEASUREMENT_MAPPING[op], 2 * i)
         return circ, in_state
 
     def _generate_all_inputs(self) -> list:
         all_inputs = list(TOMO_INPUTS)
         for _ in range(self.n_qubits - 1):
-            all_inputs = [i1 + i2 for i1 in all_inputs for i2 in TOMO_INPUTS]
+            all_inputs = [
+                i1 + "," + i2 for i1 in all_inputs for i2 in TOMO_INPUTS
+            ]
         return all_inputs
 
     def _generate_all_measurements(self) -> list:
         all_measurements = list(MEASUREMENT_MAPPING.keys())
         for _ in range(self.n_qubits - 1):
             all_measurements = [
-                i1 + i2 for i1 in all_measurements for i2 in MEASUREMENT_MAPPING
+                i1 + "," + i2
+                for i1 in all_measurements
+                for i2 in MEASUREMENT_MAPPING
             ]
-        return all_measurements
-
-    def _generate_all_measurements_full(self) -> list:
-        all_measurements = list(MEAS_OPS.keys())
-        for _ in range(self.n_qubits - 1):
-            all_measurements = [
-                i1 + i2 for i1 in all_measurements for i2 in MEAS_OPS
-            ]
+        # Remove all identity measurement as this is trivial
+        all_measurements.pop(
+            all_measurements.index(",".join("I" * self.n_qubits))
+        )
         return all_measurements
 
 
@@ -254,19 +251,22 @@ class MLETomographyAlgorithm:
         self.n_qubits = n_qubits
         self.stop_threshold = stop_threshold
 
-        self._all_rhos = dict(RHOS_MAPPING)
-        self._all_meas = dict(MEAS_OPS)
+        self._all_rhos = dict(RHO_MAPPING)
+        self._input_basis = list(TOMO_INPUTS)
+        self._meas_basis = list(MEASUREMENT_MAPPING.keys())
         for _ in range(n_qubits - 1):
             self._all_rhos = {
                 s1 + s2: np.kron(p1, p2)
                 for s1, p1 in self._all_rhos.items()
-                for s2, p2 in RHOS_MAPPING.items()
+                for s2, p2 in RHO_MAPPING.items()
             }
-            self._all_meas = {
-                s1 + s2: np.kron(p1, p2)
-                for s1, p1 in self._all_meas.items()
-                for s2, p2 in MEAS_OPS.items()
-            }
+            self._input_basis = [
+                i + j for i in self._input_basis for j in TOMO_INPUTS
+            ]
+            self._meas_basis = [
+                i + j for i in self._meas_basis for j in MEASUREMENT_MAPPING
+            ]
+        self._meas_basis.pop(self._meas_basis.index("I" * n_qubits))
 
         self._a_matrix = self._a_mat()
 
@@ -315,13 +315,22 @@ class MLETomographyAlgorithm:
         """
         Desc
         """
-        dim1 = len(self._all_rhos) * len(self._all_meas)
+        dim1 = len(self._input_basis) * len(self._meas_basis) * 2
         dim2 = 2 ** (4 * self.n_qubits)
         a_mat = np.zeros((dim1, dim2), dtype=complex)
-        for i, in_s in enumerate(self._all_rhos):
-            for j, meas in enumerate(self._all_meas):
-                a_mat[len(self._all_meas) * i + j, :] = vec(
-                    np.kron(self._all_rhos[in_s], self._all_meas[meas].T)
+        for i, in_s in enumerate(self._input_basis):
+            for j, meas in enumerate(self._meas_basis):
+                a_mat[2 * (len(self._meas_basis) * i + j), :] = vec(
+                    np.kron(
+                        self._all_rhos[in_s],
+                        self._all_rhos["0".join(meas) + "0"].T,
+                    )
+                )[:]
+                a_mat[2 * (len(self._meas_basis) * i + j) + 1, :] = vec(
+                    np.kron(
+                        self._all_rhos[in_s],
+                        self._all_rhos["1".join(meas) + "1"].T,
+                    )
                 )[:]
         return a_mat / (2 ** (2 * self.n_qubits))
 

@@ -133,8 +133,8 @@ class ProcessTomography:
         """Returns the calculate choi matrix for a circuit."""
         if not hasattr(self, "_choi"):
             raise AttributeError(
-                "Chi has not yet been calculated, this can be achieved with the"
-                "process method."
+                "Choi matrix has not yet been calculated, this can be achieved "
+                "with the process method."
             )
         return self._choi
 
