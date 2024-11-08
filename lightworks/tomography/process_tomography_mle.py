@@ -13,19 +13,17 @@
 # limitations under the License.
 
 import warnings
-from types import FunctionType
-from typing import Callable
 
 import numpy as np
 
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
+from .process_tomography import ProcessTomography
 from .utils import (
     INPUT_MAPPING,
     MEASUREMENT_MAPPING,
     PAULI_MAPPING,
     RHO_MAPPING,
-    process_fidelity,
     unvec,
     vec,
 )
@@ -34,82 +32,10 @@ TOMO_INPUTS = ["X+", "X-", "Y+", "Y-", "Z+", "Z-"]
 TOMO_MEASUREMENTS = ["X", "Y", "Z", "I"]
 
 
-class ProcessTomographyMLE:
+class MLEProcessTomography(ProcessTomography):
     """
     Desc
     """
-
-    def __init__(
-        self,
-        n_qubits: int,
-        base_circuit: Circuit,
-        experiment: Callable,
-        experiment_args: list | None = None,
-    ) -> None:
-        # Type check inputs
-        if not isinstance(n_qubits, int) or isinstance(n_qubits, bool):
-            raise TypeError("Number of qubits should be an integer.")
-        if not isinstance(base_circuit, Circuit):
-            raise TypeError("Base circuit should be a circuit object.")
-
-        if 2 * n_qubits != base_circuit.input_modes:
-            msg = (
-                "Number of circuit input modes does not match the amount "
-                "required for the specified number of qubits, expected "
-                f"{2 * n_qubits}."
-            )
-            raise ValueError(msg)
-
-        self._n_qubits = n_qubits
-        self._base_circuit = base_circuit
-        self.experiment = experiment
-        self.experiment_args = experiment_args
-        self._choi: np.ndarray
-
-    @property
-    def base_circuit(self) -> Circuit:
-        """
-        The base circuit which is to be modified as part of the tomography
-        calculations.
-        """
-        return self._base_circuit
-
-    @property
-    def n_qubits(self) -> int:
-        """
-        The number of qubits within the system.
-        """
-        return self._n_qubits
-
-    @property
-    def experiment(self) -> Callable:
-        """
-        A function to call which runs the required experiments. This should
-        accept a list of circuits as a single argument and then return a list
-        of the corresponding results, with each result being a dictionary or
-        Results object containing output states and counts.
-        """
-        return self._experiment
-
-    @experiment.setter
-    def experiment(self, value: Callable) -> None:
-        if not isinstance(value, FunctionType):
-            raise TypeError(
-                "Provided experiment should be a function which accepts a list "
-                "of circuits and returns a list of results containing only the "
-                "qubit modes."
-            )
-        self._experiment = value
-
-    @property
-    def choi(self) -> np.ndarray:
-        """Returns the calculate choi matrix for a circuit."""
-        if not hasattr(self, "_choi"):
-            raise AttributeError(
-                "Choi matrix has not yet been calculated, this can be achieved "
-                "with the process method."
-            )
-        return self._choi
 
     def process(self) -> np.ndarray:
         """
@@ -142,13 +68,6 @@ class ProcessTomographyMLE:
         mle = MLETomographyAlgorithm(self.n_qubits)
         self._choi = mle.pgdb(n_vec_a)
         return self.choi
-
-    def fidelity(self, choi_exp: np.ndarray) -> float:
-        """
-        Calculates fidelity of the calculated choi matrix compared to the
-        expected one.
-        """
-        return process_fidelity(self.choi, choi_exp)
 
     def _run_required_experiments(self) -> dict:
         all_inputs = self._generate_all_inputs()
