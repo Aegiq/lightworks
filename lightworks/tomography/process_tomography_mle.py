@@ -21,9 +21,10 @@ import numpy as np
 from .. import qubit
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
-from .utils import process_fidelity, unvec, vec
+from .utils import MEASUREMENT_MAPPING, process_fidelity, unvec, vec
 
 TOMO_INPUTS = ["X0", "X1", "Y0", "Y1", "Z0", "Z1"]
+TOMO_MEASUREMENTS = ["X", "Y", "Z", "I"]
 
 r_transform = qubit.H()
 r_transform.add(qubit.S())
@@ -44,17 +45,6 @@ RHO_MAPPING: dict[str, np.ndarray] = {
     "Z1": np.array([[0, 0], [0, 1]]),
     "I0": np.array([[1, 0], [0, 1]]),
     "I1": np.array([[1, 0], [0, 1]]),
-}
-
-_y_measure = Circuit(2)
-_y_measure.add(qubit.S())
-_y_measure.add(qubit.Z())
-_y_measure.add(qubit.H())
-MEASUREMENT_MAPPING = {
-    "X": qubit.H(),
-    "Y": _y_measure,
-    "Z": qubit.I(),
-    "I": qubit.I(),
 }
 
 
@@ -228,12 +218,12 @@ class ProcessTomographyMLE:
         return all_inputs
 
     def _generate_all_measurements(self) -> list:
-        all_measurements = list(MEASUREMENT_MAPPING.keys())
+        all_measurements = list(TOMO_MEASUREMENTS)
         for _ in range(self.n_qubits - 1):
             all_measurements = [
                 i1 + "," + i2
                 for i1 in all_measurements
-                for i2 in MEASUREMENT_MAPPING
+                for i2 in TOMO_MEASUREMENTS
             ]
         # Remove all identity measurement as this is trivial
         all_measurements.pop(
@@ -253,7 +243,7 @@ class MLETomographyAlgorithm:
 
         self._all_rhos = dict(RHO_MAPPING)
         self._input_basis = list(TOMO_INPUTS)
-        self._meas_basis = list(MEASUREMENT_MAPPING.keys())
+        self._meas_basis = list(TOMO_MEASUREMENTS)
         for _ in range(n_qubits - 1):
             self._all_rhos = {
                 s1 + s2: np.kron(p1, p2)
@@ -264,7 +254,7 @@ class MLETomographyAlgorithm:
                 i + j for i in self._input_basis for j in TOMO_INPUTS
             ]
             self._meas_basis = [
-                i + j for i in self._meas_basis for j in MEASUREMENT_MAPPING
+                i + j for i in self._meas_basis for j in TOMO_MEASUREMENTS
             ]
         self._meas_basis.pop(self._meas_basis.index("I" * n_qubits))
 

@@ -17,22 +17,9 @@ from typing import Callable
 
 import numpy as np
 
-from .. import qubit
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
-from .utils import PAULI_MAPPING, state_fidelity
-
-_y_measure = Circuit(2)
-_y_measure.add(qubit.S())
-_y_measure.add(qubit.Z())
-_y_measure.add(qubit.H())
-
-MEASUREMENT_MAPPING = {
-    "I": qubit.I(),
-    "X": qubit.H(),
-    "Y": _y_measure,
-    "Z": qubit.I(),
-}
+from .utils import MEASUREMENT_MAPPING, PAULI_MAPPING, state_fidelity
 
 
 class StateTomography:

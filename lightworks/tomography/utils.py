@@ -15,11 +15,25 @@
 import numpy as np
 from scipy.linalg import sqrtm
 
+from .. import qubit
+from ..sdk.circuit import Circuit
+
 PAULI_MAPPING: dict[str, np.ndarray] = {
     "I": np.array([[1, 0], [0, 1]]),
     "X": np.array([[0, 1], [1, 0]]),
     "Y": np.array([[0, -1j], [1j, 0]]),
     "Z": np.array([[1, 0], [0, -1]]),
+}
+
+_y_measure = Circuit(2)
+_y_measure.add(qubit.S())
+_y_measure.add(qubit.Z())
+_y_measure.add(qubit.H())
+MEASUREMENT_MAPPING = {
+    "X": qubit.H(),
+    "Y": _y_measure,
+    "Z": qubit.I(),
+    "I": qubit.I(),
 }
 
 
