@@ -157,10 +157,10 @@ class ProcessTomographyMLE:
         for n in nij.values():
             n_vec.append((1 + n) / 2)
             n_vec.append((1 - n) / 2)
-        n_vec = np.array(n_vec) / len(nij)
+        n_vec_a = np.array(n_vec) / len(nij)
 
         mle = MLETomographyAlgorithm(self.n_qubits)
-        self._choi = mle.pgdb(n_vec)
+        self._choi = mle.pgdb(n_vec_a)
         return self.choi
 
     def fidelity(self, choi_exp: np.ndarray) -> float:
@@ -292,7 +292,7 @@ class MLETomographyAlgorithm:
                 )
                 - choi
             )
-            alpha = 1
+            alpha = 1.0
             new_cost = self._cost(choi + alpha * mod, n_vec)
             thresh_value = gamma * np.trace(
                 mod @ np.conj(self._gradient(choi.T, n_vec))
