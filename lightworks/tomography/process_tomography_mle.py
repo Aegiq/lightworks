@@ -21,7 +21,13 @@ import numpy as np
 from .. import qubit
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
-from .utils import MEASUREMENT_MAPPING, process_fidelity, unvec, vec
+from .utils import (
+    MEASUREMENT_MAPPING,
+    PAULI_MAPPING,
+    process_fidelity,
+    unvec,
+    vec,
+)
 
 TOMO_INPUTS = ["X0", "X1", "Y0", "Y1", "Z0", "Z1"]
 TOMO_MEASUREMENTS = ["X", "Y", "Z", "I"]
@@ -242,6 +248,7 @@ class MLETomographyAlgorithm:
         self.stop_threshold = stop_threshold
 
         self._all_rhos = dict(RHO_MAPPING)
+        self._all_pauli = dict(PAULI_MAPPING)
         self._input_basis = list(TOMO_INPUTS)
         self._meas_basis = list(TOMO_MEASUREMENTS)
         for _ in range(n_qubits - 1):
@@ -249,6 +256,11 @@ class MLETomographyAlgorithm:
                 s1 + s2: np.kron(p1, p2)
                 for s1, p1 in self._all_rhos.items()
                 for s2, p2 in RHO_MAPPING.items()
+            }
+            self._all_pauli = {
+                s1 + s2: np.kron(p1, p2)
+                for s1, p1 in self._all_pauli.items()
+                for s2, p2 in PAULI_MAPPING.items()
             }
             self._input_basis = [
                 i + j for i in self._input_basis for j in TOMO_INPUTS
@@ -308,19 +320,15 @@ class MLETomographyAlgorithm:
         dim1 = len(self._input_basis) * len(self._meas_basis) * 2
         dim2 = 2 ** (4 * self.n_qubits)
         a_mat = np.zeros((dim1, dim2), dtype=complex)
+        id_mat = np.identity(2**self.n_qubits, dtype=complex)
         for i, in_s in enumerate(self._input_basis):
             for j, meas in enumerate(self._meas_basis):
+                obs = self._all_pauli[meas]
                 a_mat[2 * (len(self._meas_basis) * i + j), :] = vec(
-                    np.kron(
-                        self._all_rhos[in_s],
-                        self._all_rhos["0".join(meas) + "0"].T,
-                    )
+                    np.kron(self._all_rhos[in_s], ((id_mat + obs) / 2).T)
                 )[:]
                 a_mat[2 * (len(self._meas_basis) * i + j) + 1, :] = vec(
-                    np.kron(
-                        self._all_rhos[in_s],
-                        self._all_rhos["1".join(meas) + "1"].T,
-                    )
+                    np.kron(self._all_rhos[in_s], ((id_mat - obs) / 2).T)
                 )[:]
         return a_mat / (2 ** (2 * self.n_qubits))
 
