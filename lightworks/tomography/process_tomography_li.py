@@ -17,6 +17,7 @@ import numpy as np
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
 from .state_tomography import StateTomography as StateTomo
+from .utils import _get_required_tomo_measurements, _get_tomo_measurements
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
@@ -114,7 +115,7 @@ class LIProcessTomography(ProcessTomography):
         Runs all required experiments to find density matrices for a provided
         set of inputs.
         """
-        req_measurements, result_mapping = StateTomo._get_required_measurements(
+        req_measurements, result_mapping = _get_required_tomo_measurements(
             self.n_qubits
         )
         # Determine required input states and circuits
@@ -145,6 +146,6 @@ class LIProcessTomography(ProcessTomography):
         # Expand results to include all of the required measurements
         full_results = {}
         for in_state, res in sorted_results.items():
-            for meas in StateTomo._get_all_measurements(self.n_qubits):
+            for meas in _get_tomo_measurements(self.n_qubits):
                 full_results[in_state, meas] = res[result_mapping[meas]]
         return full_results

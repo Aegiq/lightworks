@@ -19,10 +19,9 @@ import numpy as np
 from ..sdk.state import State
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
-from .utils import unvec, vec
+from .utils import _get_tomo_measurements, unvec, vec
 
 TOMO_INPUTS = ["X+", "X-", "Y+", "Y-", "Z+", "Z-"]
-TOMO_MEASUREMENTS = ["X", "Y", "Z", "I"]
 
 
 class MLEProcessTomography(ProcessTomography):
@@ -114,13 +113,7 @@ class MLEProcessTomography(ProcessTomography):
         return all_inputs
 
     def _generate_all_measurements(self) -> list:
-        all_measurements = list(TOMO_MEASUREMENTS)
-        for _ in range(self.n_qubits - 1):
-            all_measurements = [
-                i1 + "," + i2
-                for i1 in all_measurements
-                for i2 in TOMO_MEASUREMENTS
-            ]
+        all_measurements = _get_tomo_measurements(self.n_qubits)
         # Remove all identity measurement as this is trivial
         all_measurements.pop(
             all_measurements.index(",".join("I" * self.n_qubits))
@@ -140,7 +133,6 @@ class MLETomographyAlgorithm:
         self._all_rhos = dict(RHO_MAPPING)
         self._all_pauli = dict(PAULI_MAPPING)
         self._input_basis = list(TOMO_INPUTS)
-        self._meas_basis = list(TOMO_MEASUREMENTS)
         for _ in range(n_qubits - 1):
             self._all_rhos = {
                 s1 + s2: np.kron(p1, p2)
@@ -148,17 +140,17 @@ class MLETomographyAlgorithm:
                 for s2, p2 in RHO_MAPPING.items()
             }
             self._all_pauli = {
-                s1 + s2: np.kron(p1, p2)
+                s1 + "," + s2: np.kron(p1, p2)
                 for s1, p1 in self._all_pauli.items()
                 for s2, p2 in PAULI_MAPPING.items()
             }
             self._input_basis = [
                 i + j for i in self._input_basis for j in TOMO_INPUTS
             ]
-            self._meas_basis = [
-                i + j for i in self._meas_basis for j in TOMO_MEASUREMENTS
-            ]
-        self._meas_basis.pop(self._meas_basis.index("I" * n_qubits))
+        self._meas_basis = _get_tomo_measurements(n_qubits)
+        self._meas_basis.pop(
+            self._meas_basis.index(",".join("I" * self.n_qubits))
+        )
 
         self._a_matrix = self._a_mat()
 

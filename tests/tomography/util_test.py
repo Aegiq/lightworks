@@ -22,6 +22,10 @@ from lightworks.tomography import (
     process_fidelity,
     state_fidelity,
 )
+from lightworks.tomography.utils import (
+    _get_required_tomo_measurements,
+    _get_tomo_measurements,
+)
 
 U_CNOT = np.array(
     [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]], dtype=complex
@@ -133,3 +137,19 @@ class TestUtils:
                 ]
             )
         ).all()
+
+    @pytest.mark.parametrize("n_qubits", [1, 3])
+    def test_number_of_measurements(self, n_qubits):
+        """
+        Confirms that the number of measurements for a full tomography is
+        4^n_qubits.
+        """
+        assert len(_get_tomo_measurements(n_qubits)) == 4**n_qubits
+
+    @pytest.mark.parametrize("n_qubits", [1, 3])
+    def test_number_of_required_measurements(self, n_qubits):
+        """
+        Confirms that the number of required measurements for a tomography is
+        3^n_qubits.
+        """
+        assert len(_get_required_tomo_measurements(n_qubits)[0]) == 3**n_qubits

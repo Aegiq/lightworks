@@ -20,7 +20,11 @@ import numpy as np
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
 from .mappings import MEASUREMENT_MAPPING, PAULI_MAPPING
-from .utils import state_fidelity
+from .utils import (
+    _get_required_tomo_measurements,
+    _get_tomo_measurements,
+    state_fidelity,
+)
 
 
 class StateTomography:
@@ -132,17 +136,14 @@ class StateTomography:
                 process.
 
         """
-        req_measurements, result_mapping = (
-            StateTomography._get_required_measurements(self.n_qubits)
+        req_measurements, result_mapping = _get_required_tomo_measurements(
+            self.n_qubits
         )
 
         # Generate all circuits and run experiment
         circuits = [
             self._create_circuit(
-                [
-                    StateTomography._get_measurement_operator(g)
-                    for g in gates.split(",")
-                ]
+                [MEASUREMENT_MAPPING[g] for g in gates.split(",")]
             )
             for gates in req_measurements
         ]
@@ -156,7 +157,7 @@ class StateTomography:
         results_dict = dict(zip(req_measurements, all_results))
         results_dict = {
             c: results_dict[result_mapping[c]]
-            for c in StateTomography._get_all_measurements(self.n_qubits)
+            for c in _get_tomo_measurements(self.n_qubits)
         }
 
         self._rho = StateTomography._calculate_density_matrix(
@@ -244,9 +245,9 @@ class StateTomography:
             expectation /= 2**n_qubits
             # Calculate tensor product of the operators used
             ops = measurement.split(",")
-            mat = StateTomography._get_pauli_matrix(ops[0])
+            mat = PAULI_MAPPING[ops[0]]
             for g in ops[1:]:
-                mat = np.kron(mat, StateTomography._get_pauli_matrix(g))
+                mat = np.kron(mat, PAULI_MAPPING[g])
             # Updated density matrix
             rho += expectation * mat
         return rho
@@ -291,93 +292,3 @@ class StateTomography:
                     raise ValueError(msg)
             expectation += multiplier * counts
         return expectation / n_counts
-
-    @staticmethod
-    def _get_all_measurements(n_qubits: int) -> list[str]:
-        """
-        Returns all measurements required for a state tomography of n qubits.
-
-        Args:
-
-            n_qubits (int) : The number of qubits used in the tomography.
-
-        Returns:
-
-            list : A list of the measurement combinations for tomography.
-
-        """
-        # Find all measurement combinations
-        measurements = list(MEASUREMENT_MAPPING.keys())
-        for _i in range(n_qubits - 1):
-            measurements = [
-                g1 + "," + g2
-                for g1 in measurements
-                for g2 in MEASUREMENT_MAPPING
-            ]
-        return measurements
-
-    @staticmethod
-    def _get_required_measurements(n_qubits: int) -> tuple[list, dict]:
-        """
-        Calculates reduced list of required measurements assuming that any
-        measurements in the I basis can be replaced with a Z measurement.
-        A dictionary which maps the full measurements to the reduced basis is
-        also returned.
-
-        Args:
-
-            n_qubits (int) : The number of qubits used in the tomography.
-
-        Returns:
-
-            list : A list of the minimum required measurement combinations for
-                tomography.
-
-            dict : A mapping between the full set of measurement operators and
-                the required minimum set.
-
-        """
-        mapping = {
-            c: c.replace("I", "Z")
-            for c in StateTomography._get_all_measurements(n_qubits)
-        }
-        req_measurements = list(set(mapping.values()))
-        return req_measurements, mapping
-
-    @staticmethod
-    def _get_measurement_operator(measurement: str) -> Circuit:
-        """
-        Returns the circuit required to transform between a measurement into the
-        Z basis.
-
-        Args:
-
-            measurement (str) : The single qubit observable being measured.
-
-        Returns:
-
-            Circuit : Implements transformation between required measurement
-                basis and the Z basis.
-
-        """
-        if measurement not in MEASUREMENT_MAPPING:
-            raise ValueError("Provided measurement value not recognised.")
-        return MEASUREMENT_MAPPING[measurement]
-
-    @staticmethod
-    def _get_pauli_matrix(measurement: str) -> np.ndarray:
-        """
-        Returns the pauli matrix associated with an observable.
-
-        Args:
-
-            measurement (str) : The single qubit observable being measured.
-
-        Returns:
-
-            np.ndarray : The pauli matrix associated with this observable.
-
-        """
-        if measurement not in PAULI_MAPPING:
-            raise ValueError("Provided measurement value not recognised.")
-        return PAULI_MAPPING[measurement]

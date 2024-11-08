@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 import numpy as np
+from multimethod import multimethod
 from scipy.linalg import sqrtm
+
+from .mappings import MEASUREMENT_MAPPING
 
 
 def state_fidelity(rho: np.ndarray, rho_exp: np.ndarray) -> float:
@@ -118,3 +123,78 @@ def unvec(mat: np.ndarray) -> np.ndarray:
     """
     dim = int(mat.shape[0] ** 0.5)
     return mat.reshape(dim, dim)
+
+
+@multimethod
+def combine_all(value: Any, n: int) -> None:  # noqa: ARG001
+    """
+    Combines all elements of provided value with itself n number of times.
+    """
+    raise TypeError("combine_all method not implemented for provided type.")
+
+
+@combine_all.register
+def _combine_all_list(value: list, n: int) -> list:
+    result = list(value)
+    for _ in range(n - 1):
+        result = [v1 + v1 for v1 in result for v2 in value]
+    return result
+
+
+@combine_all.register
+def _combine_all_dict_mat(value: dict[Any, np.ndarray], n: int) -> dict:
+    result = dict(value)
+    for _ in range(n - 1):
+        result = {
+            k1 + k2: v1 + v2
+            for k1, v1 in result.items()
+            for k2, v2 in value.items()
+        }
+    return result
+
+
+def _get_tomo_measurements(n_qubits: int) -> list[str]:
+    """
+    Returns all measurements required for a state tomography of n qubits.
+
+    Args:
+
+        n_qubits (int) : The number of qubits used in the tomography.
+
+    Returns:
+
+        list : A list of the measurement combinations for tomography.
+
+    """
+    # Find all measurement combinations
+    measurements = list(MEASUREMENT_MAPPING.keys())
+    for _i in range(n_qubits - 1):
+        measurements = [
+            g1 + "," + g2 for g1 in measurements for g2 in MEASUREMENT_MAPPING
+        ]
+    return measurements
+
+
+def _get_required_tomo_measurements(n_qubits: int) -> tuple[list, dict]:
+    """
+    Calculates reduced list of required measurements assuming that any
+    measurements in the I basis can be replaced with a Z measurement.
+    A dictionary which maps the full measurements to the reduced basis is
+    also returned.
+
+    Args:
+
+        n_qubits (int) : The number of qubits used in the tomography.
+
+    Returns:
+
+        list : A list of the minimum required measurement combinations for
+            tomography.
+
+        dict : A mapping between the full set of measurement operators and
+            the required minimum set.
+
+    """
+    mapping = {c: c.replace("I", "Z") for c in _get_tomo_measurements(n_qubits)}
+    req_measurements = list(set(mapping.values()))
+    return req_measurements, mapping
