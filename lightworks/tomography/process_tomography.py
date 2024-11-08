@@ -20,7 +20,8 @@ import numpy as np
 
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
-from .utils import INPUT_MAPPING, MEASUREMENT_MAPPING, process_fidelity
+from .mappings import INPUT_MAPPING, MEASUREMENT_MAPPING
+from .utils import process_fidelity
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 

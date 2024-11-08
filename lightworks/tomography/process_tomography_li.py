@@ -14,9 +14,9 @@
 
 import numpy as np
 
+from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
 from .state_tomography import StateTomography as StateTomo
-from .utils import PAULI_MAPPING, RHO_MAPPING
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 

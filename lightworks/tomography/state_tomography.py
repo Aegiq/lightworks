@@ -19,7 +19,8 @@ import numpy as np
 
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
-from .utils import MEASUREMENT_MAPPING, PAULI_MAPPING, state_fidelity
+from .mappings import MEASUREMENT_MAPPING, PAULI_MAPPING
+from .utils import state_fidelity
 
 
 class StateTomography:

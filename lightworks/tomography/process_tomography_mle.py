@@ -17,13 +17,9 @@ import warnings
 import numpy as np
 
 from ..sdk.state import State
+from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
-from .utils import (
-    PAULI_MAPPING,
-    RHO_MAPPING,
-    unvec,
-    vec,
-)
+from .utils import unvec, vec
 
 TOMO_INPUTS = ["X+", "X-", "Y+", "Y-", "Z+", "Z-"]
 TOMO_MEASUREMENTS = ["X", "Y", "Z", "I"]
