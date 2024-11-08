@@ -12,18 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from abc import ABCMeta, abstractmethod
 from types import FunctionType
 from typing import Callable
 
 import numpy as np
 
 from ..sdk.circuit import Circuit
-from .utils import process_fidelity
+from ..sdk.state import State
+from .utils import INPUT_MAPPING, MEASUREMENT_MAPPING, process_fidelity
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
 
-class ProcessTomography:
+class ProcessTomography(metaclass=ABCMeta):
     """
     Process tomography base class.
     """
@@ -100,9 +102,35 @@ class ProcessTomography:
             )
         return self._choi
 
+    @abstractmethod
+    def process(self) -> np.ndarray:
+        """
+        Performs tomography using the selected algorithm.
+        """
+
     def fidelity(self, choi_exp: np.ndarray) -> float:
         """
         Calculates fidelity of the calculated choi matrix compared to the
         expected one.
         """
         return process_fidelity(self.choi, choi_exp)
+
+    def _create_circuit_and_input(
+        self, input_op: str, output_op: str
+    ) -> tuple[Circuit, State]:
+        """
+        Creates the required circuit and input state to achieve a provided input
+        and output operation.
+        """
+        in_state = State([])
+        circ = Circuit(self.base_circuit.input_modes)
+        # Input operation
+        for i, op in enumerate(input_op.split(",")):
+            in_state += INPUT_MAPPING[op][0]
+            circ.add(INPUT_MAPPING[op][1], 2 * i)
+        # Add base circuit
+        circ.add(self.base_circuit)
+        # Measurement operation
+        for i, op in enumerate(output_op.split(",")):
+            circ.add(MEASUREMENT_MAPPING[op], 2 * i)
+        return circ, in_state

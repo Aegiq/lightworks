@@ -14,19 +14,17 @@
 
 import numpy as np
 
-from ..sdk.circuit import Circuit
-from ..sdk.state import State
 from .process_tomography import ProcessTomography
 from .state_tomography import StateTomography as StateTomo
-from .utils import INPUT_MAPPING, PAULI_MAPPING, RHO_MAPPING
+from .utils import PAULI_MAPPING, RHO_MAPPING
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
 
 class LIProcessTomography(ProcessTomography):
     """
-    Generates the required configurations for the calculation of the choi matrix
-    representation of a process.
+    Runs quantum process tomography using the linear inversion estimation
+    method.
 
     Args:
 
@@ -150,23 +148,3 @@ class LIProcessTomography(ProcessTomography):
             for meas in StateTomo._get_all_measurements(self.n_qubits):
                 full_results[in_state, meas] = res[result_mapping[meas]]
         return full_results
-
-    def _create_circuit_and_input(
-        self, input_op: str, output_op: str
-    ) -> tuple[Circuit, State]:
-        """
-        Creates the required circuit and input state to achieve a provided input
-        and output operation.
-        """
-        in_state = State([])
-        circ = Circuit(self.base_circuit.input_modes)
-        # Input operation
-        for i, op in enumerate(input_op.split(",")):
-            in_state += INPUT_MAPPING[op][0]
-            circ.add(INPUT_MAPPING[op][1], 2 * i)
-        # Add base circuit
-        circ.add(self.base_circuit)
-        # Measurement operation
-        for i, op in enumerate(output_op.split(",")):
-            circ.add(StateTomo._get_measurement_operator(op), 2 * i)
-        return circ, in_state
