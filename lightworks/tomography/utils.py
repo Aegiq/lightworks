@@ -134,19 +134,19 @@ def combine_all(value: Any, n: int) -> None:  # noqa: ARG001
 
 
 @combine_all.register
-def _combine_all_list(value: list, n: int) -> list:
+def _combine_all_list(value: list[str], n: int) -> list:
     result = list(value)
     for _ in range(n - 1):
-        result = [v1 + v1 for v1 in result for v2 in value]
+        result = [v1 + "," + v2 for v1 in result for v2 in value]
     return result
 
 
 @combine_all.register
-def _combine_all_dict_mat(value: dict[Any, np.ndarray], n: int) -> dict:
+def _combine_all_dict_mat(value: dict[str, np.ndarray], n: int) -> dict:
     result = dict(value)
     for _ in range(n - 1):
         result = {
-            k1 + k2: v1 + v2
+            k1 + "," + k2: np.kron(v1, v2)
             for k1, v1 in result.items()
             for k2, v2 in value.items()
         }
@@ -166,13 +166,7 @@ def _get_tomo_measurements(n_qubits: int) -> list[str]:
         list : A list of the measurement combinations for tomography.
 
     """
-    # Find all measurement combinations
-    measurements = list(MEASUREMENT_MAPPING.keys())
-    for _i in range(n_qubits - 1):
-        measurements = [
-            g1 + "," + g2 for g1 in measurements for g2 in MEASUREMENT_MAPPING
-        ]
-    return measurements
+    return combine_all(list(MEASUREMENT_MAPPING.keys()), n_qubits)
 
 
 def _get_required_tomo_measurements(n_qubits: int) -> tuple[list, dict]:

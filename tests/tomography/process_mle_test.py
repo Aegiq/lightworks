@@ -59,16 +59,11 @@ class TestMLEProcessTomography:
         )
         self.h_tomo.process()
         # CNOT tomography
-        try:
-            n_qubits = 2
-            circ = qubit.CNOT()
-            cnot_tomo = MLEProcessTomography(
-                n_qubits, circ, experiment, [n_qubits]
-            )
-            cnot_tomo.process()
-            self.cnot_tomo = cnot_tomo
-        except:  # noqa: S110, E722
-            pass
+        n_qubits = 2
+        circ = qubit.CNOT()
+        cnot_tomo = MLEProcessTomography(n_qubits, circ, experiment, [n_qubits])
+        cnot_tomo.process()
+        self.cnot_tomo = cnot_tomo
 
     def test_hadamard_choi(self):
         """

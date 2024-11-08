@@ -19,7 +19,7 @@ import numpy as np
 from ..sdk.state import State
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
-from .utils import _get_tomo_measurements, unvec, vec
+from .utils import _get_tomo_measurements, combine_all, unvec, vec
 
 TOMO_INPUTS = ["X+", "X-", "Y+", "Y-", "Z+", "Z-"]
 
@@ -80,7 +80,7 @@ class MLEProcessTomography(ProcessTomography):
         return self.choi
 
     def _run_required_experiments(self) -> dict:
-        all_inputs = self._generate_all_inputs()
+        all_inputs = combine_all(TOMO_INPUTS, self.n_qubits)
         all_measurements = self._generate_all_measurements()
         # Determine required input states and circuits
         all_circuits = []
@@ -104,14 +104,6 @@ class MLEProcessTomography(ProcessTomography):
             for j, meas in enumerate(all_measurements)
         }
 
-    def _generate_all_inputs(self) -> list:
-        all_inputs = list(TOMO_INPUTS)
-        for _ in range(self.n_qubits - 1):
-            all_inputs = [
-                i1 + "," + i2 for i1 in all_inputs for i2 in TOMO_INPUTS
-            ]
-        return all_inputs
-
     def _generate_all_measurements(self) -> list:
         all_measurements = _get_tomo_measurements(self.n_qubits)
         # Remove all identity measurement as this is trivial
@@ -130,23 +122,9 @@ class MLETomographyAlgorithm:
         self.n_qubits = n_qubits
         self.stop_threshold = stop_threshold
 
-        self._all_rhos = dict(RHO_MAPPING)
-        self._all_pauli = dict(PAULI_MAPPING)
-        self._input_basis = list(TOMO_INPUTS)
-        for _ in range(n_qubits - 1):
-            self._all_rhos = {
-                s1 + s2: np.kron(p1, p2)
-                for s1, p1 in self._all_rhos.items()
-                for s2, p2 in RHO_MAPPING.items()
-            }
-            self._all_pauli = {
-                s1 + "," + s2: np.kron(p1, p2)
-                for s1, p1 in self._all_pauli.items()
-                for s2, p2 in PAULI_MAPPING.items()
-            }
-            self._input_basis = [
-                i + j for i in self._input_basis for j in TOMO_INPUTS
-            ]
+        self._all_rhos = combine_all(RHO_MAPPING, self.n_qubits)
+        self._all_pauli = combine_all(PAULI_MAPPING, self.n_qubits)
+        self._input_basis = combine_all(TOMO_INPUTS, self.n_qubits)
         self._meas_basis = _get_tomo_measurements(n_qubits)
         self._meas_basis.pop(
             self._meas_basis.index(",".join("I" * self.n_qubits))
