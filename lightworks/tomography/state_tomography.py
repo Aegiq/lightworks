@@ -138,7 +138,10 @@ class StateTomography:
         # Generate all circuits and run experiment
         circuits = [
             self._create_circuit(
-                [StateTomography._get_measurement_operator(g) for g in gates]
+                [
+                    StateTomography._get_measurement_operator(g)
+                    for g in gates.split(",")
+                ]
             )
             for gates in req_measurements
         ]
@@ -239,8 +242,9 @@ class StateTomography:
             )
             expectation /= 2**n_qubits
             # Calculate tensor product of the operators used
-            mat = StateTomography._get_pauli_matrix(measurement[0])
-            for g in measurement[1:]:
+            ops = measurement.split(",")
+            mat = StateTomography._get_pauli_matrix(ops[0])
+            for g in ops[1:]:
                 mat = np.kron(mat, StateTomography._get_pauli_matrix(g))
             # Updated density matrix
             rho += expectation * mat
@@ -272,7 +276,7 @@ class StateTomography:
             n_counts += counts
             # Adjust multiplier to account for variation in eigenvalues
             multiplier = 1
-            for j, gate in enumerate(measurement):
+            for j, gate in enumerate(measurement.split(",")):
                 if gate == "I" or state[2 * j : 2 * j + 2] == State([1, 0]):
                     multiplier *= 1
                 elif state[2 * j : 2 * j + 2] == State([0, 1]):
@@ -305,7 +309,9 @@ class StateTomography:
         measurements = list(MEASUREMENT_MAPPING.keys())
         for _i in range(n_qubits - 1):
             measurements = [
-                g1 + g2 for g1 in measurements for g2 in MEASUREMENT_MAPPING
+                g1 + "," + g2
+                for g1 in measurements
+                for g2 in MEASUREMENT_MAPPING
             ]
         return measurements
 

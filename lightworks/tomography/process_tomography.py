@@ -21,25 +21,12 @@ from .. import qubit
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
 from .state_tomography import StateTomography as StateTomo
-from .utils import PAULI_MAPPING, process_fidelity
+from .utils import INPUT_MAPPING, PAULI_MAPPING, RHO_MAPPING, process_fidelity
 
-TOMO_INPUTS = ["0", "1", "+", "R"]
+TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
 r_transform = qubit.H()
 r_transform.add(qubit.S())
-
-INPUT_MAPPING: dict[str, tuple[State, Circuit]] = {
-    "0": (State([1, 0]), qubit.I()),
-    "1": (State([0, 1]), qubit.I()),
-    "+": (State([1, 0]), qubit.H()),
-    "R": (State([1, 0]), r_transform),
-}
-RHOS_MAPPING: dict[str, np.ndarray] = {
-    "0": np.array([[1, 0], [0, 0]]),
-    "1": np.array([[0, 0], [0, 1]]),
-    "+": np.array([[0.5, 0.5], [0.5, 0.5]]),
-    "R": np.array([[0.5, -0.5j], [0.5j, 0.5]]),
-}
 
 
 class ProcessTomography:
@@ -150,23 +137,25 @@ class ProcessTomography:
         """
         all_inputs = list(TOMO_INPUTS)
         for _ in range(self.n_qubits - 1):
-            all_inputs = [i1 + i2 for i1 in all_inputs for i2 in TOMO_INPUTS]
+            all_inputs = [
+                i1 + "," + i2 for i1 in all_inputs for i2 in TOMO_INPUTS
+            ]
         results = self._run_required_experiments(all_inputs)
         # Get expectation values using results
         lambdas = self._calculate_expectation_values(results)
         # Find all pauli and density matrices for multi-qubit states
         full_paulis = dict(PAULI_MAPPING)
-        full_rhos = dict(RHOS_MAPPING)
+        full_rhos = dict(RHO_MAPPING)
         for _ in range(self.n_qubits - 1):
             full_paulis = {
-                k1 + k2: np.kron(v1, v2)
+                k1 + "," + k2: np.kron(v1, v2)
                 for k1, v1 in full_paulis.items()
                 for k2, v2 in PAULI_MAPPING.items()
             }
             full_rhos = {
-                k1 + k2: np.kron(v1, v2)
+                k1 + "," + k2: np.kron(v1, v2)
                 for k1, v1 in full_rhos.items()
-                for k2, v2 in RHOS_MAPPING.items()
+                for k2, v2 in RHO_MAPPING.items()
             }
         # Determine the transformation matrix to perform linear inversion
         dim = 2**self.n_qubits
@@ -257,12 +246,12 @@ class ProcessTomography:
         in_state = State([])
         circ = Circuit(self.base_circuit.input_modes)
         # Input operation
-        for i, op in enumerate(input_op):
+        for i, op in enumerate(input_op.split(",")):
             in_state += INPUT_MAPPING[op][0]
             circ.add(INPUT_MAPPING[op][1], 2 * i)
         # Add base circuit
         circ.add(self.base_circuit)
         # Measurement operation
-        for i, op in enumerate(output_op):
+        for i, op in enumerate(output_op.split(",")):
             circ.add(StateTomo._get_measurement_operator(op), 2 * i)
         return circ, in_state

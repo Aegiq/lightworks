@@ -18,40 +18,20 @@ from typing import Callable
 
 import numpy as np
 
-from .. import qubit
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
 from .utils import (
+    INPUT_MAPPING,
     MEASUREMENT_MAPPING,
     PAULI_MAPPING,
+    RHO_MAPPING,
     process_fidelity,
     unvec,
     vec,
 )
 
-TOMO_INPUTS = ["X0", "X1", "Y0", "Y1", "Z0", "Z1"]
+TOMO_INPUTS = ["X+", "X-", "Y+", "Y-", "Z+", "Z-"]
 TOMO_MEASUREMENTS = ["X", "Y", "Z", "I"]
-
-r_transform = qubit.H()
-r_transform.add(qubit.S())
-INPUT_MAPPING: dict[str, tuple[State, Circuit]] = {
-    "X0": (State([1, 0]), qubit.H()),
-    "X1": (State([0, 1]), qubit.H()),
-    "Y0": (State([1, 0]), r_transform),
-    "Y1": (State([0, 1]), r_transform),
-    "Z0": (State([1, 0]), qubit.I()),
-    "Z1": (State([0, 1]), qubit.I()),
-}
-RHO_MAPPING: dict[str, np.ndarray] = {
-    "X0": np.array([[1, 1], [1, 1]]) / 2,
-    "X1": np.array([[1, -1], [-1, 1]]) / 2,
-    "Y0": np.array([[1, -1j], [1j, 1]]) / 2,
-    "Y1": np.array([[1, 1j], [-1j, 1]]) / 2,
-    "Z0": np.array([[1, 0], [0, 0]]),
-    "Z1": np.array([[0, 0], [0, 1]]),
-    "I0": np.array([[1, 0], [0, 1]]),
-    "I1": np.array([[1, 0], [0, 1]]),
-}
 
 
 class ProcessTomographyMLE:
