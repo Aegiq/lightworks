@@ -142,7 +142,7 @@ class ProcessTomography(metaclass=ABCMeta):
 
     def _run_required_experiments(
         self, inputs: list[str]
-    ) -> dict[tuple[str, str], dict[str, int]]:
+    ) -> dict[tuple[str, str], dict[State, int]]:
         """
         Runs all required experiments to find density matrices for a provided
         set of inputs.
