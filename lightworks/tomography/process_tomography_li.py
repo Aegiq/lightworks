@@ -16,8 +16,7 @@ import numpy as np
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
-from .state_tomography import StateTomography as StateTomo
-from .utils import combine_all
+from .utils import _calculate_expectation_value, combine_all
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
@@ -56,11 +55,7 @@ class LIProcessTomography(ProcessTomography):
             np.ndarray : The calculated choi matrix for the process.
 
         """
-        all_inputs = list(TOMO_INPUTS)
-        for _ in range(self.n_qubits - 1):
-            all_inputs = [
-                i1 + "," + i2 for i1 in all_inputs for i2 in TOMO_INPUTS
-            ]
+        all_inputs = combine_all(TOMO_INPUTS, self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         # Get expectation values using results
         lambdas = self._calculate_expectation_values(results)
@@ -91,7 +86,7 @@ class LIProcessTomography(ProcessTomography):
         input states, observables and measurement data for each.
         """
         return {
-            (in_state, measurement): StateTomo._calculate_expectation_value(
+            (in_state, measurement): _calculate_expectation_value(
                 measurement, res
             )
             for (in_state, measurement), res in results.items()

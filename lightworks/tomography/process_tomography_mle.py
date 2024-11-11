@@ -16,10 +16,15 @@ import warnings
 
 import numpy as np
 
-from ..sdk.state import State
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
-from .utils import _get_tomo_measurements, combine_all, unvec, vec
+from .utils import (
+    _calculate_expectation_value,
+    _get_tomo_measurements,
+    combine_all,
+    unvec,
+    vec,
+)
 
 TOMO_INPUTS = ["X+", "X-", "Y+", "Y-", "Z+", "Z-"]
 
@@ -58,20 +63,7 @@ class MLEProcessTomography(ProcessTomography):
             # Remove trivial measurement here
             if meas == ",".join("I" * self.n_qubits):
                 continue
-            total = 0
-            n_counts = 0
-            for s, c in result.items():
-                n_counts += c
-                # Adjust multiplier to account for variation in eigenvalues
-                multiplier = 1
-                for j, gate in enumerate(meas.split(",")):
-                    if gate == "I" or s[2 * j : 2 * j + 2] == State([1, 0]):
-                        multiplier *= 1
-                    elif s[2 * j : 2 * j + 2] == State([0, 1]):
-                        multiplier *= -1
-                total += multiplier * c
-
-            nij[in_state, meas] = total / n_counts
+            nij[in_state, meas] = _calculate_expectation_value(meas, result)
 
         n_vec = []
         for n in nij.values():

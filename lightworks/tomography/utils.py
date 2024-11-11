@@ -18,6 +18,8 @@ import numpy as np
 from multimethod import multimethod
 from scipy.linalg import sqrtm
 
+from lightworks.sdk.state import State
+
 from .mappings import MEASUREMENT_MAPPING
 
 
@@ -208,3 +210,44 @@ def _get_required_tomo_measurements(
     }
     req_measurements = list(set(mapping.values()))
     return req_measurements, mapping
+
+
+def _calculate_expectation_value(
+    measurement: str, results: dict[State, int]
+) -> float:
+    """
+    Calculates the expectation value for a given measurement and set of
+    results.
+
+    Args:
+
+        measurement (str) : The measurement operator used for the
+            computation.
+
+        results (dict) : A dictionary of measured output states and counts.
+
+    Returns:
+
+        float : The calculated expectation value.
+
+    """
+    expectation = 0
+    n_counts = 0
+    for state, counts in results.items():
+        n_counts += counts
+        # Adjust multiplier to account for variation in eigenvalues
+        multiplier = 1
+        for j, gate in enumerate(measurement.split(",")):
+            if gate == "I" or state[2 * j : 2 * j + 2] == State([1, 0]):
+                multiplier *= 1
+            elif state[2 * j : 2 * j + 2] == State([0, 1]):
+                multiplier *= -1
+            else:
+                msg = (
+                    f"An invalid state {state[2 * j : 2 * j + 2]} was found"
+                    " in the results. This does not correspond to a valid "
+                    "value for dual-rail encoded qubits."
+                )
+                raise ValueError(msg)
+        expectation += multiplier * counts
+    return expectation / n_counts
