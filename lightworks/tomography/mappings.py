@@ -25,6 +25,7 @@ PAULI_MAPPING: dict[str, np.ndarray] = {
     "Z": np.array([[1, 0], [0, -1]]),
 }
 
+# Pre-calculated density matrices for different quantum states
 RHO_MAPPING: dict[str, np.ndarray] = {
     "X+": np.array([[1, 1], [1, 1]]) / 2,
     "X-": np.array([[1, -1], [-1, 1]]) / 2,
@@ -34,6 +35,8 @@ RHO_MAPPING: dict[str, np.ndarray] = {
     "Z-": np.array([[0, 0], [0, 1]]),
 }
 
+# Details the actual input state and transformation required to achieve a target
+# input
 r_transform = qubit.H()
 r_transform.add(qubit.S())
 INPUT_MAPPING: dict[str, tuple[State, Circuit]] = {
@@ -45,6 +48,7 @@ INPUT_MAPPING: dict[str, tuple[State, Circuit]] = {
     "Z-": (State([0, 1]), qubit.I()),
 }
 
+# Details transformations required for different measurement types
 _y_measure = Circuit(2)
 _y_measure.add(qubit.S())
 _y_measure.add(qubit.Z())

@@ -137,6 +137,9 @@ def combine_all(value: Any, n: int) -> None:  # noqa: ARG001
 
 @combine_all.register
 def _combine_all_list(value: list[str], n: int) -> list:
+    """
+    Sums values within list.
+    """
     result = list(value)
     for _ in range(n - 1):
         result = [v1 + "," + v2 for v1 in result for v2 in value]
@@ -145,6 +148,10 @@ def _combine_all_list(value: list[str], n: int) -> list:
 
 @combine_all.register
 def _combine_all_dict_mat(value: dict[str, np.ndarray], n: int) -> dict:
+    """
+    Sums keys of dictionary and performs tensor products of the dictionary
+    values.
+    """
     result = dict(value)
     for _ in range(n - 1):
         result = {
