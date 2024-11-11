@@ -20,11 +20,18 @@ from ..gates import (
     CNOT,
     CZ,
     SWAP,
+    SX,
     CNOT_Heralded,
     CZ_Heralded,
     H,
+    P,
+    Rx,
+    Ry,
+    Rz,
     S,
+    Sadj,
     T,
+    Tadj,
     X,
     Y,
     Z,
@@ -40,8 +47,12 @@ SINGLE_QUBIT_GATES_MAP = {
     "y": Y(),
     "z": Z(),
     "s": S(),
+    "sdg": Sadj(),
     "t": T(),
+    "tdg": Tadj(),
+    "sx": SX(),
 }
+ROTATION_GATES_MAP = {"rx": Rx, "ry": Ry, "rz": Rz, "p": P}
 
 TWO_QUBIT_GATES_MAP = {"cx": CNOT_Heralded, "cz": CZ_Heralded, "swap": SWAP}
 TWO_QUBIT_GATES_MAP_PS = {"cx": CNOT, "cz": CZ}
@@ -50,6 +61,7 @@ THREE_QUBIT_GATES_MAP = {"ccx": CCNOT, "ccz": CCZ}
 
 ALLOWED_GATES = [
     *SINGLE_QUBIT_GATES_MAP,
+    *ROTATION_GATES_MAP,
     *TWO_QUBIT_GATES_MAP,
     *THREE_QUBIT_GATES_MAP,
 ]
@@ -145,7 +157,11 @@ class QiskitConverter:
                 raise ValueError(msg)
             # Single Qubit Gates
             if len(qubits) == 1:
-                self._add_single_qubit_gate(gate, *qubits)
+                if gate in SINGLE_QUBIT_GATES_MAP:
+                    self._add_single_qubit_gate(gate, *qubits)
+                else:
+                    theta = inst.operation.params[0]
+                    self._add_single_qubit_rotation_gate(gate, theta, *qubits)
             # Two Qubit Gates
             elif len(qubits) == 2:
                 self._add_two_qubit_gate(
@@ -181,6 +197,14 @@ class QiskitConverter:
         Adds a single qubit gate to the selected qubit on the circuit.
         """
         self.circuit.add(SINGLE_QUBIT_GATES_MAP[gate], self.modes[qubit][0])
+
+    def _add_single_qubit_rotation_gate(
+        self, gate: str, theta: float, qubit: int
+    ) -> None:
+        """
+        Adds a single qubit gate to the selected qubit on the circuit.
+        """
+        self.circuit.add(ROTATION_GATES_MAP[gate](theta), self.modes[qubit][0])
 
     def _add_two_qubit_gate(
         self, gate: str, q0: int, q1: int, post_selection: bool = False

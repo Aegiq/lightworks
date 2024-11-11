@@ -16,6 +16,7 @@
 
 import numpy as np
 import pytest
+from random import random
 
 from lightworks import State
 from lightworks.emulator import Simulator
@@ -23,6 +24,7 @@ from lightworks.emulator import Simulator
 # fmt: off
 from lightworks.qubit import (
     CCNOT, CCZ, CNOT, CZ, SWAP, CNOT_Heralded, CZ_Heralded, I, H, S, T, X, Y, Z,
+    SX, Sadj, Tadj, P
 )
 # fmt: on
 
@@ -104,6 +106,10 @@ class TestSingleQubitGates:
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1j
 
+    def test_Sadj(self):
+        """Checks that Sadj gate is hermitian conjugate of S."""
+        assert pytest.approx(S().U, 1e-8) == np.conj(Sadj().U).T
+
     def test_T(self):
         """Checks that the output from the T gate is correct."""
         sim = Simulator(T())
@@ -117,6 +123,35 @@ class TestSingleQubitGates:
         assert pytest.approx(results[State([0, 1])], 1e-6) == np.exp(
             1j * np.pi / 4
         )
+
+    def test_Tadj(self):
+        """Checks that Tadj gate is hermitian conjugate of S."""
+        assert pytest.approx(T().U, 1e-8) == np.conj(Tadj().U).T
+
+    def test_SX(self):
+        """Checks that the output from the SX gate is correct."""
+        sim = Simulator(SX())
+        # Input |1,0>
+        results = sim.simulate(State([1, 0]))
+        assert pytest.approx(results[State([1, 0])], 1e-6) == 1 / 2 * (1 + 1j)
+        assert pytest.approx(results[State([0, 1])], 1e-6) == 1 / 2 * (1 - 1j)
+        # Input |0,1>
+        results = sim.simulate(State([0, 1]))
+        assert pytest.approx(results[State([1, 0])], 1e-6) == 1 / 2 * (1 - 1j)
+        assert pytest.approx(results[State([0, 1])], 1e-6) == 1 / 2 * (1 + 1j)
+
+    def test_P(self):
+        """Checks that the output from the phase gate is correct."""
+        phase = 6.28 * random()
+        sim = Simulator(P(phase))
+        # Input |1,0>
+        results = sim.simulate(State([1, 0]))
+        assert pytest.approx(results[State([1, 0])], 1e-6) == 1
+        assert pytest.approx(results[State([0, 1])], 1e-6) == 0
+        # Input |0,1>
+        results = sim.simulate(State([0, 1]))
+        assert pytest.approx(results[State([1, 0])], 1e-6) == 0
+        assert pytest.approx(results[State([0, 1])], 1e-6) == np.exp(1j * phase)
 
 
 class TestTwoQubitGates:
