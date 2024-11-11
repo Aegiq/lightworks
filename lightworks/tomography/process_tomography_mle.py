@@ -50,6 +50,7 @@ class MLEProcessTomography(ProcessTomography):
 
         experiment_args (list | None) : Optionally provide additional arguments
             which will be passed directly to the experiment function.
+
     """
 
     def process(self) -> np.ndarray:
