@@ -21,7 +21,11 @@ import numpy as np
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
 from .mappings import INPUT_MAPPING, MEASUREMENT_MAPPING
-from .utils import process_fidelity
+from .utils import (
+    _get_required_tomo_measurements,
+    _get_tomo_measurements,
+    process_fidelity,
+)
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
@@ -135,3 +139,45 @@ class ProcessTomography(metaclass=ABCMeta):
         for i, op in enumerate(output_op.split(",")):
             circ.add(MEASUREMENT_MAPPING[op], 2 * i)
         return circ, in_state
+
+    def _run_required_experiments(
+        self, inputs: list[str]
+    ) -> dict[tuple[str, str], dict[str, int]]:
+        """
+        Runs all required experiments to find density matrices for a provided
+        set of inputs.
+        """
+        req_measurements, result_mapping = _get_required_tomo_measurements(
+            self.n_qubits
+        )
+        # Determine required input states and circuits
+        all_circuits = []
+        all_input_states = []
+        for in_state in inputs:
+            for meas in req_measurements:
+                circ, state = self._create_circuit_and_input(in_state, meas)
+                all_circuits.append(circ)
+                all_input_states.append(state)
+        # Run all required experiments
+        results = self.experiment(
+            all_circuits,
+            all_input_states,
+            *(self.experiment_args if self.experiment_args is not None else []),
+        )
+        # Sort results into each input/measurement combination
+        num_per_in = len(req_measurements)
+        sorted_results = {
+            in_state: dict(
+                zip(
+                    req_measurements,
+                    results[num_per_in * i : num_per_in * (i + 1)],
+                )
+            )
+            for i, in_state in enumerate(inputs)
+        }
+        # Expand results to include all of the required measurements
+        full_results = {}
+        for in_state, res in sorted_results.items():
+            for meas in _get_tomo_measurements(self.n_qubits):
+                full_results[in_state, meas] = res[result_mapping[meas]]
+        return full_results

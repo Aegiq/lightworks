@@ -17,7 +17,7 @@ import numpy as np
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
 from .state_tomography import StateTomography as StateTomo
-from .utils import _get_required_tomo_measurements, _get_tomo_measurements
+from .utils import combine_all
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
@@ -65,19 +65,8 @@ class LIProcessTomography(ProcessTomography):
         # Get expectation values using results
         lambdas = self._calculate_expectation_values(results)
         # Find all pauli and density matrices for multi-qubit states
-        full_paulis = dict(PAULI_MAPPING)
-        full_rhos = dict(RHO_MAPPING)
-        for _ in range(self.n_qubits - 1):
-            full_paulis = {
-                k1 + "," + k2: np.kron(v1, v2)
-                for k1, v1 in full_paulis.items()
-                for k2, v2 in PAULI_MAPPING.items()
-            }
-            full_rhos = {
-                k1 + "," + k2: np.kron(v1, v2)
-                for k1, v1 in full_rhos.items()
-                for k2, v2 in RHO_MAPPING.items()
-            }
+        full_paulis = combine_all(PAULI_MAPPING, self.n_qubits)
+        full_rhos = combine_all(RHO_MAPPING, self.n_qubits)
         # Determine the transformation matrix to perform linear inversion
         dim = 2**self.n_qubits
         transform_matrix = np.zeros((dim**4, dim**4), dtype=complex)
@@ -107,45 +96,3 @@ class LIProcessTomography(ProcessTomography):
             )
             for (in_state, measurement), res in results.items()
         }
-
-    def _run_required_experiments(
-        self, inputs: list[str]
-    ) -> dict[tuple[str, str], dict[str, int]]:
-        """
-        Runs all required experiments to find density matrices for a provided
-        set of inputs.
-        """
-        req_measurements, result_mapping = _get_required_tomo_measurements(
-            self.n_qubits
-        )
-        # Determine required input states and circuits
-        all_circuits = []
-        all_input_states = []
-        for in_state in inputs:
-            for meas in req_measurements:
-                circ, state = self._create_circuit_and_input(in_state, meas)
-                all_circuits.append(circ)
-                all_input_states.append(state)
-        # Run all required experiments
-        results = self.experiment(
-            all_circuits,
-            all_input_states,
-            *(self.experiment_args if self.experiment_args is not None else []),
-        )
-        # Sort results into each input/measurement combination
-        num_per_in = len(req_measurements)
-        sorted_results = {
-            in_state: dict(
-                zip(
-                    req_measurements,
-                    results[num_per_in * i : num_per_in * (i + 1)],
-                )
-            )
-            for i, in_state in enumerate(inputs)
-        }
-        # Expand results to include all of the required measurements
-        full_results = {}
-        for in_state, res in sorted_results.items():
-            for meas in _get_tomo_measurements(self.n_qubits):
-                full_results[in_state, meas] = res[result_mapping[meas]]
-        return full_results

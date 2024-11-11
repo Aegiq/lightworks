@@ -51,9 +51,13 @@ class MLEProcessTomography(ProcessTomography):
         """
         Desc
         """
-        results = self._run_required_experiments()
+        all_inputs = combine_all(TOMO_INPUTS, self.n_qubits)
+        results = self._run_required_experiments(all_inputs)
         nij = {}
         for (in_state, meas), result in results.items():
+            # Remove trivial measurement here
+            if meas == ",".join("I" * self.n_qubits):
+                continue
             total = 0
             n_counts = 0
             for s, c in result.items():
@@ -78,33 +82,6 @@ class MLEProcessTomography(ProcessTomography):
         mle = MLETomographyAlgorithm(self.n_qubits)
         self._choi = mle.pgdb(n_vec_a)
         return self.choi
-
-    def _run_required_experiments(self) -> dict:
-        all_inputs = combine_all(TOMO_INPUTS, self.n_qubits)
-        all_measurements = _get_tomo_measurements(
-            self.n_qubits, remove_trivial=True
-        )
-        # Determine required input states and circuits
-        all_circuits = []
-        all_input_states = []
-        for in_state in all_inputs:
-            for meas in all_measurements:
-                circ, state = self._create_circuit_and_input(in_state, meas)
-                all_circuits.append(circ)
-                all_input_states.append(state)
-        # Run all required experiments
-        results = self.experiment(
-            all_circuits,
-            all_input_states,
-            *(self.experiment_args if self.experiment_args is not None else []),
-        )
-        # Sort results into each input/measurement combination
-        num_per_in = len(all_measurements)
-        return {
-            (in_state, meas): results[num_per_in * i + j]
-            for i, in_state in enumerate(all_inputs)
-            for j, meas in enumerate(all_measurements)
-        }
 
 
 class MLETomographyAlgorithm:

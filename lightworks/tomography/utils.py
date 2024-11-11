@@ -173,7 +173,7 @@ def _get_tomo_measurements(
     """
     all_meas = combine_all(list(MEASUREMENT_MAPPING.keys()), n_qubits)
     if remove_trivial:
-        all_meas.index(",".join("I" * n_qubits))
+        all_meas.pop(all_meas.index(",".join("I" * n_qubits)))
     return all_meas
 
 
