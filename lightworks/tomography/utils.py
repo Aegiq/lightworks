@@ -153,7 +153,9 @@ def _combine_all_dict_mat(value: dict[str, np.ndarray], n: int) -> dict:
     return result
 
 
-def _get_tomo_measurements(n_qubits: int) -> list[str]:
+def _get_tomo_measurements(
+    n_qubits: int, remove_trivial: bool = False
+) -> list[str]:
     """
     Returns all measurements required for a state tomography of n qubits.
 
@@ -161,15 +163,23 @@ def _get_tomo_measurements(n_qubits: int) -> list[str]:
 
         n_qubits (int) : The number of qubits used in the tomography.
 
+        remove_trivial (bool) : Allows for removal of the trivial I*n_qubits
+            measurement when this is not required
+
     Returns:
 
         list : A list of the measurement combinations for tomography.
 
     """
-    return combine_all(list(MEASUREMENT_MAPPING.keys()), n_qubits)
+    all_meas = combine_all(list(MEASUREMENT_MAPPING.keys()), n_qubits)
+    if remove_trivial:
+        all_meas.index(",".join("I" * n_qubits))
+    return all_meas
 
 
-def _get_required_tomo_measurements(n_qubits: int) -> tuple[list, dict]:
+def _get_required_tomo_measurements(
+    n_qubits: int, remove_trivial: bool = False
+) -> tuple[list, dict]:
     """
     Calculates reduced list of required measurements assuming that any
     measurements in the I basis can be replaced with a Z measurement.
@@ -180,6 +190,9 @@ def _get_required_tomo_measurements(n_qubits: int) -> tuple[list, dict]:
 
         n_qubits (int) : The number of qubits used in the tomography.
 
+        remove_trivial (bool) : Allows for removal of the trivial I*n_qubits
+            measurement when this is not required
+
     Returns:
 
         list : A list of the minimum required measurement combinations for
@@ -189,6 +202,9 @@ def _get_required_tomo_measurements(n_qubits: int) -> tuple[list, dict]:
             the required minimum set.
 
     """
-    mapping = {c: c.replace("I", "Z") for c in _get_tomo_measurements(n_qubits)}
+    mapping = {
+        c: c.replace("I", "Z")
+        for c in _get_tomo_measurements(n_qubits, remove_trivial=remove_trivial)
+    }
     req_measurements = list(set(mapping.values()))
     return req_measurements, mapping

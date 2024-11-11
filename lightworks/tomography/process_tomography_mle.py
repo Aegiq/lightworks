@@ -81,7 +81,9 @@ class MLEProcessTomography(ProcessTomography):
 
     def _run_required_experiments(self) -> dict:
         all_inputs = combine_all(TOMO_INPUTS, self.n_qubits)
-        all_measurements = self._generate_all_measurements()
+        all_measurements = _get_tomo_measurements(
+            self.n_qubits, remove_trivial=True
+        )
         # Determine required input states and circuits
         all_circuits = []
         all_input_states = []
@@ -104,14 +106,6 @@ class MLEProcessTomography(ProcessTomography):
             for j, meas in enumerate(all_measurements)
         }
 
-    def _generate_all_measurements(self) -> list:
-        all_measurements = _get_tomo_measurements(self.n_qubits)
-        # Remove all identity measurement as this is trivial
-        all_measurements.pop(
-            all_measurements.index(",".join("I" * self.n_qubits))
-        )
-        return all_measurements
-
 
 class MLETomographyAlgorithm:
     """
@@ -125,10 +119,7 @@ class MLETomographyAlgorithm:
         self._all_rhos = combine_all(RHO_MAPPING, self.n_qubits)
         self._all_pauli = combine_all(PAULI_MAPPING, self.n_qubits)
         self._input_basis = combine_all(TOMO_INPUTS, self.n_qubits)
-        self._meas_basis = _get_tomo_measurements(n_qubits)
-        self._meas_basis.pop(
-            self._meas_basis.index(",".join("I" * self.n_qubits))
-        )
+        self._meas_basis = _get_tomo_measurements(n_qubits, remove_trivial=True)
 
         self._a_matrix = self._a_mat()
 
