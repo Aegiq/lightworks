@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from abc import ABCMeta, abstractmethod
-from types import FunctionType
+from types import FunctionType, MethodType
 from typing import Callable
 
 import numpy as np
@@ -108,7 +108,7 @@ class ProcessTomography(metaclass=ABCMeta):
 
     @experiment.setter
     def experiment(self, value: Callable) -> None:
-        if not isinstance(value, FunctionType):
+        if not isinstance(value, (FunctionType, MethodType)):
             raise TypeError(
                 "Provided experiment should be a function which accepts a list "
                 "of circuits and returns a list of results containing only the "

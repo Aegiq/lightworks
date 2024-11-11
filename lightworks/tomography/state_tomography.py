@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from types import FunctionType
+from types import FunctionType, MethodType
 from typing import Callable
 
 import numpy as np
@@ -105,7 +105,7 @@ class StateTomography:
 
     @experiment.setter
     def experiment(self, value: Callable) -> None:
-        if not isinstance(value, FunctionType):
+        if not isinstance(value, (FunctionType, MethodType)):
             raise TypeError(
                 "Provided experiment should be a function which accepts a list "
                 "of circuits and returns a list of results containing only the "
