@@ -15,7 +15,7 @@
 import pytest
 
 from lightworks import PostSelection, emulator, qubit
-from lightworks.tomography import ProcessTomography, choi_from_unitary
+from lightworks.tomography import MLEProcessTomography, choi_from_unitary
 
 
 def experiment(circuits, inputs, n_qubits):
@@ -42,9 +42,9 @@ cnot_exp = choi_from_unitary(
 )
 
 
-class TestProcessTomography:
+class TestMLEProcessTomography:
     """
-    Unit tests for ProcessTomography routine.
+    Unit tests for MLEProcessTomography routine.
     """
 
     def setup_class(self):
@@ -54,15 +54,16 @@ class TestProcessTomography:
         # Hadamard tomography
         n_qubits = 1
         circ = qubit.H()
-        self.h_tomo = ProcessTomography(n_qubits, circ, experiment, [n_qubits])
+        self.h_tomo = MLEProcessTomography(
+            n_qubits, circ, experiment, [n_qubits]
+        )
         self.h_tomo.process()
         # CNOT tomography
         n_qubits = 2
         circ = qubit.CNOT()
-        self.cnot_tomo = ProcessTomography(
-            n_qubits, circ, experiment, [n_qubits]
-        )
-        self.cnot_tomo.process()
+        cnot_tomo = MLEProcessTomography(n_qubits, circ, experiment, [n_qubits])
+        cnot_tomo.process()
+        self.cnot_tomo = cnot_tomo
 
     def test_hadamard_choi(self):
         """

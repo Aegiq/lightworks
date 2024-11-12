@@ -150,7 +150,7 @@ class Simulator:
             outputs = [State(s) for s in outputs]
         # Otherwise check provided outputs
         else:
-            if type(outputs) is State:
+            if isinstance(outputs, State):
                 outputs = [outputs]
             # Check type and dimension is correct
             for state in outputs:

@@ -19,7 +19,8 @@ Lightworks Tomography
 A set of tools for quantum state & process tomography on a system.
 """
 
-from .process_tomography import ProcessTomography
+from .process_tomography_li import LIProcessTomography
+from .process_tomography_mle import MLEProcessTomography
 from .state_tomography import StateTomography
 from .utils import (
     choi_from_unitary,
@@ -29,8 +30,9 @@ from .utils import (
 )
 
 __all__ = [
-    "ProcessTomography",
     "StateTomography",
+    "LIProcessTomography",
+    "MLEProcessTomography",
     "choi_from_unitary",
     "density_from_state",
     "process_fidelity",

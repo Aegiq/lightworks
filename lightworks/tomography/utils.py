@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 import numpy as np
+from multimethod import multimethod
 from scipy.linalg import sqrtm
 
-PAULI_MAPPING: dict[str, np.ndarray] = {
-    "I": np.array([[1, 0], [0, 1]]),
-    "X": np.array([[0, 1], [1, 0]]),
-    "Y": np.array([[0, -1j], [1j, 0]]),
-    "Z": np.array([[1, 0], [0, -1]]),
-}
+from lightworks.sdk.state import State
+
+from .mappings import MEASUREMENT_MAPPING
 
 
 def state_fidelity(rho: np.ndarray, rho_exp: np.ndarray) -> float:
@@ -110,3 +110,151 @@ def choi_from_unitary(unitary: np.ndarray) -> np.ndarray:
     """
     unitary = np.array(unitary)
     return np.outer(unitary.flatten(), np.conj(unitary.flatten()))
+
+
+def vec(mat: np.ndarray) -> np.ndarray:
+    """
+    Applies flatten operation to a provided matrix to convert it into a vector.
+    """
+    return mat.flatten()
+
+
+def unvec(mat: np.ndarray) -> np.ndarray:
+    """
+    Takes a provided vector and converts it into a square matrix.
+    """
+    dim = int(mat.shape[0] ** 0.5)
+    return mat.reshape(dim, dim)
+
+
+@multimethod
+def combine_all(value: Any, n: int) -> None:  # noqa: ARG001
+    """
+    Combines all elements of provided value with itself n number of times.
+    """
+    raise TypeError("combine_all method not implemented for provided type.")
+
+
+@combine_all.register
+def _combine_all_list(value: list[str], n: int) -> list:
+    """
+    Sums values within list.
+    """
+    result = list(value)
+    for _ in range(n - 1):
+        result = [v1 + "," + v2 for v1 in result for v2 in value]
+    return result
+
+
+@combine_all.register
+def _combine_all_dict_mat(value: dict[str, np.ndarray], n: int) -> dict:
+    """
+    Sums keys of dictionary and performs tensor products of the dictionary
+    values.
+    """
+    result = dict(value)
+    for _ in range(n - 1):
+        result = {
+            k1 + "," + k2: np.kron(v1, v2)
+            for k1, v1 in result.items()
+            for k2, v2 in value.items()
+        }
+    return result
+
+
+def _get_tomo_measurements(
+    n_qubits: int, remove_trivial: bool = False
+) -> list[str]:
+    """
+    Returns all measurements required for a state tomography of n qubits.
+
+    Args:
+
+        n_qubits (int) : The number of qubits used in the tomography.
+
+        remove_trivial (bool) : Allows for removal of the trivial I*n_qubits
+            measurement when this is not required
+
+    Returns:
+
+        list : A list of the measurement combinations for tomography.
+
+    """
+    all_meas = combine_all(list(MEASUREMENT_MAPPING.keys()), n_qubits)
+    if remove_trivial:
+        all_meas.pop(all_meas.index(",".join("I" * n_qubits)))
+    return all_meas
+
+
+def _get_required_tomo_measurements(
+    n_qubits: int, remove_trivial: bool = False
+) -> tuple[list, dict]:
+    """
+    Calculates reduced list of required measurements assuming that any
+    measurements in the I basis can be replaced with a Z measurement.
+    A dictionary which maps the full measurements to the reduced basis is
+    also returned.
+
+    Args:
+
+        n_qubits (int) : The number of qubits used in the tomography.
+
+        remove_trivial (bool) : Allows for removal of the trivial I*n_qubits
+            measurement when this is not required
+
+    Returns:
+
+        list : A list of the minimum required measurement combinations for
+            tomography.
+
+        dict : A mapping between the full set of measurement operators and
+            the required minimum set.
+
+    """
+    mapping = {
+        c: c.replace("I", "Z")
+        for c in _get_tomo_measurements(n_qubits, remove_trivial=remove_trivial)
+    }
+    req_measurements = list(set(mapping.values()))
+    return req_measurements, mapping
+
+
+def _calculate_expectation_value(
+    measurement: str, results: dict[State, int]
+) -> float:
+    """
+    Calculates the expectation value for a given measurement and set of
+    results.
+
+    Args:
+
+        measurement (str) : The measurement operator used for the
+            computation.
+
+        results (dict) : A dictionary of measured output states and counts.
+
+    Returns:
+
+        float : The calculated expectation value.
+
+    """
+    expectation = 0
+    n_counts = 0
+    for state, counts in results.items():
+        n_counts += counts
+        # Adjust multiplier to account for variation in eigenvalues
+        multiplier = 1
+        for j, gate in enumerate(measurement.split(",")):
+            if gate == "I" or state[2 * j : 2 * j + 2] == State([1, 0]):
+                multiplier *= 1
+            elif state[2 * j : 2 * j + 2] == State([0, 1]):
+                multiplier *= -1
+            else:
+                msg = (
+                    f"An invalid state {state[2 * j : 2 * j + 2]} was found"
+                    " in the results. This does not correspond to a valid "
+                    "value for dual-rail encoded qubits."
+                )
+                raise ValueError(msg)
+        expectation += multiplier * counts
+    return expectation / n_counts

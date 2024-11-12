@@ -306,8 +306,8 @@ class Optimisation:
         )
         optimizer.maximize(init_points=init_points, n_iter=n_iter)
         best = optimizer.max
-        self.__opt_results = best["params"]
-        return best["params"]
+        self.__opt_results = best["params"]  # type:ignore
+        return best["params"]  # type:ignore
 
     def zero_order_optimise(
         self, minimise: bool = True, budget: int = 200

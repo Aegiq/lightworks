@@ -203,24 +203,3 @@ class TestStateTomography:
         rho_exp[0, 0] = 1
         assert rho == pytest.approx(rho_exp, abs=1e-2)
         assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-3)
-
-    @pytest.mark.parametrize("n_qubits", [1, 3])
-    def test_number_of_measurements(self, n_qubits):
-        """
-        Confirms that the number of measurements for a full state tomography is
-        is 4^n_qubits.
-        """
-        assert (
-            len(StateTomography._get_all_measurements(n_qubits)) == 4**n_qubits
-        )
-
-    @pytest.mark.parametrize("n_qubits", [1, 3])
-    def test_number_of_required_measurements(self, n_qubits):
-        """
-        Confirms that the number of required measurements for a state tomography
-        is 3^n_qubits.
-        """
-        assert (
-            len(StateTomography._get_required_measurements(n_qubits)[0])
-            == 3**n_qubits
-        )

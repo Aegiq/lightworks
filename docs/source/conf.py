@@ -46,7 +46,7 @@ os.environ["PYTHONPATH"] = os.path.abspath("../../../lightworks")
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "furo"
-html_title = "Lightworks Documentation"
+html_title = "Documentation"
 html_theme_options = {
     "light_css_variables": {
         "color-brand-primary": "#3e368d",
@@ -58,7 +58,7 @@ html_theme_options = {
     },
 }
 html_static_path = []
-html_logo = "assets/aegiq_logo.svg"
+html_logo = "assets/lightworks_logo.svg"
 html_show_sphinx = True
 html_scaled_image_link = False
 
