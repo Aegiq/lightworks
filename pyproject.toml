@@ -42,9 +42,7 @@ ignore_missing_imports = true
 [tool.ruff]
 exclude = [
     "venv",
-    "docs",
     "setup.py",
-    "*.ipynb"
 ]
 line-length = 80
 indent-width = 4
@@ -93,6 +91,8 @@ line-ending = "auto"
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["PERF", "ANN", "S101"]
 "__init__.py" = ["F401", "F403"]
+"docs/*" = ["CPY001", "ANN", "D", "E731", "T201"]
+"docs/source/tutorials/qubit.ipynb" = ["E402"]
 
 [tool.ruff.lint.flake8-pytest-style]
 parametrize-names-type = "tuple"
