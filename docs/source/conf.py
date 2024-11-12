@@ -19,7 +19,7 @@ from datetime import datetime
 from lightworks import __version__ as ver
 
 project = "Lightworks"
-copyright = f"{datetime.now().year}, Aegiq Ltd."
+project_copyright = f"{datetime.now().year}, Aegiq Ltd."
 author = "Aegiq Ltd."
 release = ".".join(ver.split(".")[:2])
 version = ver
