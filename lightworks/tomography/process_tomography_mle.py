@@ -220,7 +220,7 @@ class MLETomographyAlgorithm:
         Computes the variation between the current choi matrix and the
         calculated values.
         """
-        return -np.real(n_vec.T @ np.log(self._p_vec(choi)))
+        return -n_vec.T @ np.log(self._p_vec(choi))
 
     def _gradient(self, choi: np.ndarray, n_vec: np.ndarray) -> np.ndarray:
         """
