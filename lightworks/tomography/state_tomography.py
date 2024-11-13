@@ -18,9 +18,9 @@ from typing import Callable
 import numpy as np
 
 from ..sdk.circuit import Circuit
-from .mappings import MEASUREMENT_MAPPING, PAULI_MAPPING
+from .mappings import MEASUREMENT_MAPPING
 from .utils import (
-    _calculate_expectation_value,
+    _calculate_density_matrix,
     _get_required_tomo_measurements,
     _get_tomo_measurements,
     state_fidelity,
@@ -160,7 +160,7 @@ class StateTomography:
             for c in _get_tomo_measurements(self.n_qubits)
         }
 
-        self._rho = self._calculate_density_matrix(results_dict)
+        self._rho = _calculate_density_matrix(results_dict, self.n_qubits)
         return self.rho
 
     def fidelity(self, rho_exp: np.ndarray) -> float:
@@ -208,36 +208,3 @@ class StateTomography:
             circuit.add(op, 2 * i)
 
         return circuit
-
-    def _calculate_density_matrix(self, results: dict[str, dict]) -> np.ndarray:
-        """
-        Calculates the density matrix using a provided dictionary of results
-        data.
-
-        Args:
-
-            results (Result | dict) : Result containing measured output states
-                and counts. The keys of this dictionary should be the
-                measurement basis and the values should be the results. Each
-                result can be one of the returned Result objects used within
-                lightworks, or alternatively may just be a dictionary.
-
-        Returns:
-
-            np.ndarray : The calculated density matrix.
-
-
-        """
-        # Process results to find density matrix
-        rho = np.zeros((2**self.n_qubits, 2**self.n_qubits), dtype=complex)
-        for measurement, result in results.items():
-            expectation = _calculate_expectation_value(measurement, result)
-            expectation /= 2**self.n_qubits
-            # Calculate tensor product of the operators used
-            ops = measurement.split(",")
-            mat = PAULI_MAPPING[ops[0]]
-            for g in ops[1:]:
-                mat = np.kron(mat, PAULI_MAPPING[g])
-            # Updated density matrix
-            rho += expectation * mat
-        return rho

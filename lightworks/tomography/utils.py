@@ -20,7 +20,7 @@ from scipy.linalg import sqrtm
 
 from lightworks.sdk.state import State
 
-from .mappings import MEASUREMENT_MAPPING
+from .mappings import MEASUREMENT_MAPPING, PAULI_MAPPING
 
 
 def state_fidelity(rho: np.ndarray, rho_exp: np.ndarray) -> float:
@@ -258,3 +258,38 @@ def _calculate_expectation_value(
                 raise ValueError(msg)
         expectation += multiplier * counts
     return expectation / n_counts
+
+
+def _calculate_density_matrix(
+    results: dict[str, dict], n_qubits: int
+) -> np.ndarray:
+    """
+    Calculates the density matrix using a provided dictionary of results
+    data.
+
+    Args:
+
+        results (dict) : Contains data of outputs and counts for each
+            corresponding set of measurement indices.
+
+        n_qubits (int) : The number of qubits in the experiment.
+
+    Returns:
+
+        np.ndarray : The calculated density matrix.
+
+
+    """
+    # Process results to find density matrix
+    rho = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
+    for measurement, result in results.items():
+        expectation = _calculate_expectation_value(measurement, result)
+        expectation /= 2**n_qubits
+        # Calculate tensor product of the operators used
+        ops = measurement.split(",")
+        mat = PAULI_MAPPING[ops[0]]
+        for g in ops[1:]:
+            mat = np.kron(mat, PAULI_MAPPING[g])
+        # Updated density matrix
+        rho += expectation * mat
+    return rho
