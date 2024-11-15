@@ -46,14 +46,7 @@ class GateFidelity(ProcessTomography):
 
     """
 
-    @property
-    def choi(self) -> None:
-        """
-        Overwrites default behaviour for return of choi matrix.
-        """
-        raise AttributeError("Gate fidelity does not computer choi matrix")
-
-    def process(self, target_process: np.ndarray) -> float:
+    def fidelity(self, target_process: np.ndarray) -> float:
         """
         Calculates gate fidelity for an expected target process
 
@@ -70,7 +63,9 @@ class GateFidelity(ProcessTomography):
         all_inputs = combine_all(TOMO_INPUTS, self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         # Sorted results per input
-        remapped_results = {k[0]: {} for k in results}
+        remapped_results: dict[str, dict[str, dict]] = {
+            k[0]: {} for k in results
+        }
         for (k1, k2), r in results.items():
             remapped_results[k1][k2] = r
         # Calculate density matrices
@@ -94,23 +89,9 @@ class GateFidelity(ProcessTomography):
         dim = 2**self.n_qubits
         return np.real((total + dim**2) / (dim**2 * (dim + 1))).item()
 
-    def fidelity(self, target_process: np.ndarray) -> float:
-        """
-        Calculates the average fidelity using a target process.
-
-        Args:
-
-            target_process (np.ndarray) : The unitary matrix corresponding to
-                the target process. The dimension of this should be 2^n_qubits.
-
-        Returns:
-
-            float : The calculated fidelity.
-
-        """
-        return self.process(target_process)
-
-    def _calculate_alpha_and_u_basis(self) -> np.ndarray:
+    def _calculate_alpha_and_u_basis(
+        self,
+    ) -> tuple[np.ndarray, list[np.ndarray]]:
         """
         Calculates the pauli matrix basis to use for the calculation and finds
         the coefficients of the alpha matrix used which can be used to the

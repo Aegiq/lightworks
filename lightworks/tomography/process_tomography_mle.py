@@ -22,6 +22,7 @@ from .utils import (
     _calculate_expectation_value,
     _get_tomo_measurements,
     combine_all,
+    process_fidelity,
     unvec,
     vec,
 )
@@ -53,6 +54,16 @@ class MLEProcessTomography(ProcessTomography):
 
     """
 
+    @property
+    def choi(self) -> np.ndarray:
+        """Returns the calculate choi matrix for a circuit."""
+        if not hasattr(self, "_choi"):
+            raise AttributeError(
+                "Choi matrix has not yet been calculated, this can be achieved "
+                "with the process method."
+            )
+        return self._choi
+
     def process(self) -> np.ndarray:
         """
         Performs process tomography with the configured elements and calculates
@@ -76,6 +87,13 @@ class MLEProcessTomography(ProcessTomography):
         mle = MLETomographyAlgorithm(self.n_qubits)
         self._choi = mle.pgdb(nij)
         return self.choi
+
+    def fidelity(self, choi_exp: np.ndarray) -> float:
+        """
+        Calculates fidelity of the calculated choi matrix compared to the
+        expected one.
+        """
+        return process_fidelity(self.choi, choi_exp)
 
 
 class MLETomographyAlgorithm:

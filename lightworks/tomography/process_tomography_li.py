@@ -16,7 +16,7 @@ import numpy as np
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
-from .utils import _calculate_expectation_value, combine_all
+from .utils import _calculate_expectation_value, combine_all, process_fidelity
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
@@ -44,6 +44,16 @@ class LIProcessTomography(ProcessTomography):
             which will be passed directly to the experiment function.
 
     """
+
+    @property
+    def choi(self) -> np.ndarray:
+        """Returns the calculate choi matrix for a circuit."""
+        if not hasattr(self, "_choi"):
+            raise AttributeError(
+                "Choi matrix has not yet been calculated, this can be achieved "
+                "with the process method."
+            )
+        return self._choi
 
     def process(self) -> np.ndarray:
         """
@@ -77,6 +87,13 @@ class LIProcessTomography(ProcessTomography):
         )
         self._choi = choi.reshape(dim**2, dim**2)
         return self.choi
+
+    def fidelity(self, choi_exp: np.ndarray) -> float:
+        """
+        Calculates fidelity of the calculated choi matrix compared to the
+        expected one.
+        """
+        return process_fidelity(self.choi, choi_exp)
 
     def _calculate_expectation_values(
         self, results: dict[tuple[str, str], dict]
