@@ -49,7 +49,7 @@ class TestLIProcessTomography:
 
     def setup_class(self):
         """
-        Runs process tomography experiments so results can be reused
+        Runs process tomography experiments so results can be reused.
         """
         # Hadamard tomography
         n_qubits = 1

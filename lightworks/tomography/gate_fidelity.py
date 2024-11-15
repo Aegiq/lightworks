@@ -46,7 +46,17 @@ class GateFidelity(ProcessTomography):
 
     """
 
-    def fidelity(self, target_process: np.ndarray) -> float:
+    @property
+    def fidelity(self) -> float:
+        """Returns the calculated fidelity of a process."""
+        if not hasattr(self, "_fidelity"):
+            raise AttributeError(
+                "Fidelity has not yet been calculated, this can be achieved "
+                "with the process method."
+            )
+        return self._fidelity
+
+    def process(self, target_process: np.ndarray) -> float:
         """
         Calculates gate fidelity for an expected target process
 
@@ -60,6 +70,8 @@ class GateFidelity(ProcessTomography):
             float : The calculated fidelity.
 
         """
+        target_process = np.array(target_process)
+        # Run all required tomography experiments
         all_inputs = combine_all(TOMO_INPUTS, self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         # Sorted results per input
@@ -87,7 +99,8 @@ class GateFidelity(ProcessTomography):
                 )
         # Use total within calculation and return
         dim = 2**self.n_qubits
-        return np.real((total + dim**2) / (dim**2 * (dim + 1))).item()
+        self._fidelity = np.real((total + dim**2) / (dim**2 * (dim + 1))).item()
+        return self.fidelity
 
     def _calculate_alpha_and_u_basis(
         self,
