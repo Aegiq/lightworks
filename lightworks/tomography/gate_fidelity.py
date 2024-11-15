@@ -14,16 +14,18 @@
 
 import numpy as np
 
-from .mappings import RHO_MAPPING
+from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
-from .utils import _calculate_density_matrix, combine_all, state_fidelity
+from .utils import _calculate_density_matrix, combine_all, vec
 
-TOMO_INPUTS = ["Z+", "Z-", "X+", "X-", "Y+", "Y-"]
+TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
 
 class GateFidelity(ProcessTomography):
     """
-    Computers the average gate fidelity
+    Computes the average gate fidelity using equation 19 from
+    https://arxiv.org/pdf/quant-ph/0205035, which involves performing state
+    tomography for a set of inputs.
 
     Args:
 
@@ -76,15 +78,44 @@ class GateFidelity(ProcessTomography):
             k: _calculate_density_matrix(v, self.n_qubits)
             for k, v in remapped_results.items()
         }
-        rhos_exp = {}
-        for indices in all_inputs:
-            index = indices.split(",")
-            rho_e = RHO_MAPPING[index[0]]
-            for i in index[1:]:
-                rho_e = np.kron(rho_e, RHO_MAPPING[i])
-            rhos_exp[indices] = (
-                np.conj(target_process).T @ rho_e @ target_process
+        # Unitary basis
+        u_basis = combine_all(dict(PAULI_MAPPING), self.n_qubits)
+        # Input density matrices
+        rho_basis = combine_all(
+            {i: RHO_MAPPING[i] for i in TOMO_INPUTS}, self.n_qubits
+        )
+        # Convert both rho and rho_basis into vector to ensure order matches
+        rho_vec = [rhos[i] for i in all_inputs]
+        rho_basis_vec = [rho_basis[i] for i in all_inputs]
+
+        alpha_mat = self._calculate_alpha(u_basis.values(), rho_basis_vec)
+
+        total = 0
+        for i, uj in enumerate(u_basis.values()):
+            eps_uj = sum(
+                alpha_mat[i][j] * rho_vec[j] for j in range(len(rho_vec))
             )
-        return np.mean(
-            [state_fidelity(rhos[i], rhos_exp[i]) for i in all_inputs],
-        ).item()
+            inner = (
+                target_process
+                @ np.conj(uj.T)
+                @ np.conj(target_process.T)
+                @ eps_uj
+            )
+            total += np.trace(inner)
+        dim = 2**self.n_qubits
+        return (total + dim**2) / (dim**2 * (dim + 1))
+
+    def _calculate_alpha(
+        self, u_basis: list[np.ndarray], rho_basis: list[np.ndarray]
+    ) -> np.ndarray:
+        """
+        Solves for provided matrix in terms of basis.
+        """
+        alpha = np.zeros(
+            (2 ** (2 * self.n_qubits), 2 ** (2 * self.n_qubits)), dtype=complex
+        )
+        basis_vectors = np.column_stack([vec(m) for m in rho_basis])
+        for i, u in enumerate(u_basis):
+            alpha[i, :] = np.linalg.solve(basis_vectors, vec(u))
+
+        return alpha
