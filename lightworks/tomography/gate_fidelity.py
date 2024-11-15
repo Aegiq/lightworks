@@ -74,48 +74,59 @@ class GateFidelity(ProcessTomography):
         for (k1, k2), r in results.items():
             remapped_results[k1][k2] = r
         # Calculate density matrices
-        rhos = {
-            k: _calculate_density_matrix(v, self.n_qubits)
-            for k, v in remapped_results.items()
-        }
+        rho_vec = [
+            _calculate_density_matrix(remapped_results[i], self.n_qubits)
+            for i in all_inputs
+        ]
+        # Get pauli matrix basis and coefficients relating to unitary
+        alpha_mat, u_basis = self._calculate_alpha_and_u_basis()
+        # Find sum from equation
+        total = 0
+        for i, uj in enumerate(u_basis):
+            for j, rho in enumerate(rho_vec):
+                total += alpha_mat[i][j] * np.trace(
+                    target_process
+                    @ np.conj(uj.T)
+                    @ np.conj(target_process.T)
+                    @ rho
+                )
+        # Use total within calculation and return
+        dim = 2**self.n_qubits
+        return np.real((total + dim**2) / (dim**2 * (dim + 1))).item()
+
+    def fidelity(self, target_process: np.ndarray) -> float:
+        """
+        Calculates the average fidelity using a target process.
+
+        Args:
+
+            target_process (np.ndarray) : The unitary matrix corresponding to
+                the target process. The dimension of this should be 2^n_qubits.
+
+        Returns:
+
+            float : The calculated fidelity.
+
+        """
+        return self.process(target_process)
+
+    def _calculate_alpha_and_u_basis(self) -> np.ndarray:
+        """
+        Calculates the pauli matrix basis to use for the calculation and finds
+        the coefficients of the alpha matrix used which can be used to the
+        relate the input density matrices to the pauli matrix basis.
+        """
         # Unitary basis
-        u_basis = combine_all(dict(PAULI_MAPPING), self.n_qubits)
+        u_basis = list(combine_all(dict(PAULI_MAPPING), self.n_qubits).values())
         # Input density matrices
         rho_basis = combine_all(
-            {i: RHO_MAPPING[i] for i in TOMO_INPUTS}, self.n_qubits
+            [RHO_MAPPING[i] for i in TOMO_INPUTS], self.n_qubits
         )
-        # Convert both rho and rho_basis into vector to ensure order matches
-        rho_vec = [rhos[i] for i in all_inputs]
-        rho_basis_vec = [rho_basis[i] for i in all_inputs]
-
-        alpha_mat = self._calculate_alpha(u_basis.values(), rho_basis_vec)
-
-        total = 0
-        for i, uj in enumerate(u_basis.values()):
-            eps_uj = sum(
-                alpha_mat[i][j] * rho_vec[j] for j in range(len(rho_vec))
-            )
-            inner = (
-                target_process
-                @ np.conj(uj.T)
-                @ np.conj(target_process.T)
-                @ eps_uj
-            )
-            total += np.trace(inner)
-        dim = 2**self.n_qubits
-        return (total + dim**2) / (dim**2 * (dim + 1))
-
-    def _calculate_alpha(
-        self, u_basis: list[np.ndarray], rho_basis: list[np.ndarray]
-    ) -> np.ndarray:
-        """
-        Solves for provided matrix in terms of basis.
-        """
+        # Then find alpha matrix
         alpha = np.zeros(
             (2 ** (2 * self.n_qubits), 2 ** (2 * self.n_qubits)), dtype=complex
         )
         basis_vectors = np.column_stack([vec(m) for m in rho_basis])
         for i, u in enumerate(u_basis):
             alpha[i, :] = np.linalg.solve(basis_vectors, vec(u))
-
-        return alpha
+        return alpha, u_basis

@@ -138,11 +138,22 @@ def combine_all(value: Any, n: int) -> None:  # noqa: ARG001
 @combine_all.register
 def _combine_all_list(value: list[str], n: int) -> list:
     """
-    Sums values within list.
+    Sums string values within list.
     """
     result = list(value)
     for _ in range(n - 1):
         result = [v1 + "," + v2 for v1 in result for v2 in value]
+    return result
+
+
+@combine_all.register
+def _combine_all_list_array(value: list[np.ndarray], n: int) -> list:
+    """
+    Performs tensor product of all combinations of arrays within list.
+    """
+    result = list(value)
+    for _ in range(n - 1):
+        result = [np.kron(v1, v2) for v1 in result for v2 in value]
     return result
 
 
