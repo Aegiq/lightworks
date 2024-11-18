@@ -11,3 +11,4 @@ Contents
 
     state_tomography
     process_tomography
+    gate_fidelity
