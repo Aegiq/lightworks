@@ -16,7 +16,7 @@ import numpy as np
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
-from .utils import _calculate_density_matrix, combine_all, vec
+from .utils import _calculate_density_matrix, _combine_all, _vec
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
@@ -72,7 +72,7 @@ class GateFidelity(ProcessTomography):
         """
         target_process = np.array(target_process)
         # Run all required tomography experiments
-        all_inputs = combine_all(TOMO_INPUTS, self.n_qubits)
+        all_inputs = _combine_all(TOMO_INPUTS, self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         # Sorted results per input
         remapped_results: dict[str, dict[str, dict]] = {
@@ -111,16 +111,18 @@ class GateFidelity(ProcessTomography):
         relate the input density matrices to the pauli matrix basis.
         """
         # Unitary basis
-        u_basis = list(combine_all(dict(PAULI_MAPPING), self.n_qubits).values())
+        u_basis = list(
+            _combine_all(dict(PAULI_MAPPING), self.n_qubits).values()
+        )
         # Input density matrices
-        rho_basis = combine_all(
+        rho_basis = _combine_all(
             [RHO_MAPPING[i] for i in TOMO_INPUTS], self.n_qubits
         )
         # Then find alpha matrix
         alpha = np.zeros(
             (2 ** (2 * self.n_qubits), 2 ** (2 * self.n_qubits)), dtype=complex
         )
-        basis_vectors = np.column_stack([vec(m) for m in rho_basis])
+        basis_vectors = np.column_stack([_vec(m) for m in rho_basis])
         for i, u in enumerate(u_basis):
-            alpha[i, :] = np.linalg.solve(basis_vectors, vec(u))
+            alpha[i, :] = np.linalg.solve(basis_vectors, _vec(u))
         return alpha, u_basis

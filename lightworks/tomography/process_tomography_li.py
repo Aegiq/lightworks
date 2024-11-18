@@ -16,7 +16,13 @@ import numpy as np
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
-from .utils import _calculate_expectation_value, combine_all, process_fidelity
+from .utils import (
+    _calculate_expectation_value,
+    _combine_all,
+    _unvec,
+    _vec,
+    process_fidelity,
+)
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
@@ -65,27 +71,25 @@ class LIProcessTomography(ProcessTomography):
             np.ndarray : The calculated choi matrix for the process.
 
         """
-        all_inputs = combine_all(TOMO_INPUTS, self.n_qubits)
+        all_inputs = _combine_all(TOMO_INPUTS, self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         # Get expectation values using results
         lambdas = self._calculate_expectation_values(results)
         # Find all pauli and density matrices for multi-qubit states
-        full_paulis = combine_all(PAULI_MAPPING, self.n_qubits)
-        full_rhos = combine_all(RHO_MAPPING, self.n_qubits)
+        full_paulis = _combine_all(PAULI_MAPPING, self.n_qubits)
+        full_rhos = _combine_all(RHO_MAPPING, self.n_qubits)
         # Determine the transformation matrix to perform linear inversion
         dim = 2**self.n_qubits
         transform_matrix = np.zeros((dim**4, dim**4), dtype=complex)
         for i, (in_s, meas) in enumerate(lambdas):
-            transform_matrix[i, :] = (
+            transform_matrix[i, :] = _vec(
                 np.kron(np.array(full_rhos[in_s]).conj(), full_paulis[meas])
-                .flatten()
-                .conj()
-            )
+            ).conj()
         # Then find the choi matrix
         choi = np.linalg.pinv(transform_matrix) @ np.array(
             list(lambdas.values())
         )
-        self._choi = choi.reshape(dim**2, dim**2)
+        self._choi = _unvec(choi)
         return self.choi
 
     def fidelity(self, choi_exp: np.ndarray) -> float:
