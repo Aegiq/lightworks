@@ -15,7 +15,7 @@
 import pytest
 
 from lightworks import PostSelection, emulator, qubit
-from lightworks.tomography import MLEProcessTomography, choi_from_unitary
+from lightworks.tomography import GateFidelity
 
 
 def experiment(circuits, inputs, n_qubits):
@@ -35,58 +35,37 @@ def experiment(circuits, inputs, n_qubits):
     return results
 
 
-h_exp = choi_from_unitary([[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]])
-
-cnot_exp = choi_from_unitary(
-    [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]
-)
-
-
-class TestMLEProcessTomography:
+class TestGateFidelity:
     """
-    Unit tests for MLEProcessTomography routine.
+    Unit tests for checking GateFidelity routine.
     """
 
     def setup_class(self):
         """
-        Runs process tomography experiments so results can be reused.
+        Runs experiments so results can be reused.
         """
-        # Hadamard tomography
+        # Hadamard fidelity
         n_qubits = 1
         circ = qubit.H()
-        self.h_tomo = MLEProcessTomography(
-            n_qubits, circ, experiment, [n_qubits]
-        )
-        self.h_tomo.process()
-        # CNOT tomography
+        self.h_tomo = GateFidelity(n_qubits, circ, experiment, [n_qubits])
+        self.h_tomo.process([[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]])
+        # CNOT fidelity
         n_qubits = 2
         circ = qubit.CNOT()
-        cnot_tomo = MLEProcessTomography(n_qubits, circ, experiment, [n_qubits])
-        cnot_tomo.process()
+        cnot_tomo = GateFidelity(n_qubits, circ, experiment, [n_qubits])
+        cnot_tomo.process(
+            [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]
+        )
         self.cnot_tomo = cnot_tomo
-
-    def test_hadamard_choi(self):
-        """
-        Checks process tomography of the Hadamard gate produces the expected
-        choi matrix.
-        """
-        assert self.h_tomo.choi == pytest.approx(h_exp, abs=5e-2)
 
     def test_hadamard_fidelity(self):
         """
-        Checks fidelity of hadamard gate process matrix is close to 1.
+        Checks fidelity of hadamard gate process is close to 1.
         """
-        assert self.h_tomo.fidelity(h_exp) == pytest.approx(1, 1e-2)
-
-    def test_cnot_choi(self):
-        """
-        Checks process tomography of the CNOT gate produces the expected choi
-        matrix and the fidelity is calculated to be 1.
-        """
-        assert self.cnot_tomo.choi == pytest.approx(cnot_exp, abs=5e-2)
+        assert self.h_tomo.fidelity == pytest.approx(1, 1e-2)
 
     def test_cnot_fidelity(self):
         """
-        Checks fidelity of CNOT gate process matrix is close to 1.
+        Checks fidelity of CNOT gate process is close to 1.
         """
-        assert self.cnot_tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
+        assert self.cnot_tomo.fidelity == pytest.approx(1, 1e-2)

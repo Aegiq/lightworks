@@ -20,7 +20,10 @@ from scipy.linalg import sqrtm
 
 from lightworks.sdk.state import State
 
-from .mappings import MEASUREMENT_MAPPING
+from .mappings import MEASUREMENT_MAPPING, PAULI_MAPPING
+
+# NOTE: This file is auto-documented, so any functions not intended to be public
+# should begin with _
 
 
 def state_fidelity(rho: np.ndarray, rho_exp: np.ndarray) -> float:
@@ -112,14 +115,14 @@ def choi_from_unitary(unitary: np.ndarray) -> np.ndarray:
     return np.outer(unitary.flatten(), np.conj(unitary.flatten()))
 
 
-def vec(mat: np.ndarray) -> np.ndarray:
+def _vec(mat: np.ndarray) -> np.ndarray:
     """
     Applies flatten operation to a provided matrix to convert it into a vector.
     """
     return mat.flatten()
 
 
-def unvec(mat: np.ndarray) -> np.ndarray:
+def _unvec(mat: np.ndarray) -> np.ndarray:
     """
     Takes a provided vector and converts it into a square matrix.
     """
@@ -128,17 +131,17 @@ def unvec(mat: np.ndarray) -> np.ndarray:
 
 
 @multimethod
-def combine_all(value: Any, n: int) -> None:  # noqa: ARG001
+def _combine_all(value: Any, n: int) -> None:  # noqa: ARG001
     """
     Combines all elements of provided value with itself n number of times.
     """
     raise TypeError("combine_all method not implemented for provided type.")
 
 
-@combine_all.register
+@_combine_all.register
 def _combine_all_list(value: list[str], n: int) -> list:
     """
-    Sums values within list.
+    Sums string values within list.
     """
     result = list(value)
     for _ in range(n - 1):
@@ -146,7 +149,18 @@ def _combine_all_list(value: list[str], n: int) -> list:
     return result
 
 
-@combine_all.register
+@_combine_all.register
+def _combine_all_list_array(value: list[np.ndarray], n: int) -> list:
+    """
+    Performs tensor product of all combinations of arrays within list.
+    """
+    result = list(value)
+    for _ in range(n - 1):
+        result = [np.kron(v1, v2) for v1 in result for v2 in value]
+    return result
+
+
+@_combine_all.register
 def _combine_all_dict_mat(value: dict[str, np.ndarray], n: int) -> dict:
     """
     Sums keys of dictionary and performs tensor products of the dictionary
@@ -180,7 +194,7 @@ def _get_tomo_measurements(
         list : A list of the measurement combinations for tomography.
 
     """
-    all_meas = combine_all(list(MEASUREMENT_MAPPING.keys()), n_qubits)
+    all_meas = _combine_all(list(MEASUREMENT_MAPPING.keys()), n_qubits)
     if remove_trivial:
         all_meas.pop(all_meas.index(",".join("I" * n_qubits)))
     return all_meas
@@ -258,3 +272,38 @@ def _calculate_expectation_value(
                 raise ValueError(msg)
         expectation += multiplier * counts
     return expectation / n_counts
+
+
+def _calculate_density_matrix(
+    results: dict[str, dict], n_qubits: int
+) -> np.ndarray:
+    """
+    Calculates the density matrix using a provided dictionary of results
+    data.
+
+    Args:
+
+        results (dict) : Contains data of outputs and counts for each
+            corresponding set of measurement indices.
+
+        n_qubits (int) : The number of qubits in the experiment.
+
+    Returns:
+
+        np.ndarray : The calculated density matrix.
+
+
+    """
+    # Process results to find density matrix
+    rho = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
+    for measurement, result in results.items():
+        expectation = _calculate_expectation_value(measurement, result)
+        expectation /= 2**n_qubits
+        # Calculate tensor product of the operators used
+        ops = measurement.split(",")
+        mat = PAULI_MAPPING[ops[0]]
+        for g in ops[1:]:
+            mat = np.kron(mat, PAULI_MAPPING[g])
+        # Updated density matrix
+        rho += expectation * mat
+    return rho
