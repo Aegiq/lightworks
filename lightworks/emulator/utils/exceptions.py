@@ -55,3 +55,9 @@ class PhotonNumberError(EmulatorError):
     For use in simulation objects when there is a photon number mismatch
     between inputs and/or outputs.
     """
+
+
+class SamplerError(EmulatorError):
+    """
+    Specific error in the Sampler objects.
+    """

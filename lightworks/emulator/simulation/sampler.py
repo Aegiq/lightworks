@@ -29,7 +29,7 @@ from ...sdk.utils.post_selection import PostSelectionType
 from ..backend import Backend
 from ..components import Detector, Source
 from ..results import SamplingResult
-from ..utils import ModeMismatchError, process_post_selection
+from ..utils import ModeMismatchError, SamplerError, process_post_selection
 from .probability_distribution import pdist_calc
 
 
@@ -265,7 +265,7 @@ class Sampler:
         if not isinstance(min_detection, int) or isinstance(
             min_detection, bool
         ):
-            raise TypeError("Post-selection value should be an integer.")
+            raise TypeError("min_detection value should be an integer.")
         pdist = self.probability_distribution
         vals = np.zeros(len(pdist), dtype=object)
         for i, k in enumerate(pdist.keys()):
@@ -278,7 +278,7 @@ class Sampler:
         heralds = self.circuit.heralds["output"]
         if heralds:
             if max(heralds.values()) > 1 and not self.detector.photon_counting:
-                raise ValueError(
+                raise SamplerError(
                     "Non photon number resolving detectors cannot be used when"
                     "a heralded mode has more than 1 photon."
                 )
@@ -347,16 +347,18 @@ class Sampler:
         if not isinstance(min_detection, int) or isinstance(
             min_detection, bool
         ):
-            raise TypeError("Post-selection value should be an integer.")
+            raise TypeError("min_detection value should be an integer.")
         pdist = self.probability_distribution
         # Check no detector dark counts included
         if self.detector.p_dark != 0:
-            raise ValueError("Not supported when using detector dark counts")
+            raise SamplerError(
+                "sample_N_outputs not compatible with detector dark counts"
+            )
         # Get heralds and pre-calculate items
         heralds = self.circuit.heralds["output"]
         if heralds:
             if max(heralds.values()) > 1 and not self.detector.photon_counting:
-                raise ValueError(
+                raise SamplerError(
                     "Non photon number resolving detectors cannot be used when"
                     "a heralded mode has more than 1 photon."
                 )
@@ -394,8 +396,9 @@ class Sampler:
         pdist = new_dist
         # Check some states are found
         if not pdist:
-            raise ValueError(
-                "No output states compatible with provided criteria."
+            raise SamplerError(
+                "No output states compatible with provided post-selection/"
+                "min-detection criteria."
             )
         # Re-normalise distribution probabilities
         probs = np.array(list(pdist.values()))
