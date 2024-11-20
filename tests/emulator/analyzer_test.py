@@ -51,7 +51,7 @@ class TestAnalyzer:
         circuit = Circuit(2)
         circuit.bs(0)
         analyzer = Analyzer(circuit)
-        results = analyzer.analyze(State([1, 1]))
+        results = analyzer.analyze(State([1, 1]))[State([1, 1])]
         p = results[State([2, 0])]
         assert pytest.approx(p) == 0.5
 
@@ -68,20 +68,20 @@ class TestAnalyzer:
         circuit.bs(0)
         # And check output counts
         analyzer = Analyzer(circuit)
-        results = analyzer.analyze(State([1, 0, 0, 1]))
+        results = analyzer.analyze(State([1, 0, 0, 1]))[State([1, 0, 0, 1])]
         assert pytest.approx(abs(results[State([0, 1, 1, 0])])) == 0.5
 
     def test_analyzer_basic(self):
         """Check analyzer result with basic circuit."""
         analyzer = Analyzer(self.circuit)
-        results = analyzer.analyze(State([1, 0, 1, 0]))
+        results = analyzer.analyze(State([1, 0, 1, 0]))[State([1, 0, 1, 0])]
         p = results[State([0, 1, 0, 1])]
         assert pytest.approx(p, 1e-8) == 0.6331805740170607
 
     def test_analyzer_basic_2photons_in_mode(self):
         """Check analyzer result with basic circuit."""
         analyzer = Analyzer(self.circuit)
-        results = analyzer.analyze(State([2, 0, 0, 0]))
+        results = analyzer.analyze(State([2, 0, 0, 0]))[State([2, 0, 0, 0])]
         p = results[State([0, 1, 0, 1])]
         assert pytest.approx(p, 1e-8) == 0.0022854516590
 
@@ -92,12 +92,12 @@ class TestAnalyzer:
         analyzer = Analyzer(self.circuit)
         # Just heralding
         results = analyzer.analyze(State([1, 0, 1]))
-        p = results[State([0, 1, 1])]
+        p = results[State([1, 0, 1]), State([0, 1, 1])]
         assert pytest.approx(p, 1e-8) == 0.091713377373246
         # Heralding + post-selection
         analyzer.post_selection = lambda s: s[0] == 1
         results = analyzer.analyze(State([1, 0, 1]))
-        p = results[State([1, 1, 0])]
+        p = results[State([1, 0, 1]), State([1, 1, 0])]
         assert pytest.approx(p, 1e-8) == 0.002934140618653
         # Check performance metric
         assert pytest.approx(results.performance, 1e-8) == 0.03181835438235
@@ -112,14 +112,14 @@ class TestAnalyzer:
         analyzer = Analyzer(self.lossy_circuit)
         # Just heralding
         results = analyzer.analyze(State([1, 0, 1]))
-        p = results[State([0, 1, 0])]
+        p = results[State([1, 0, 1]), State([0, 1, 0])]
         assert pytest.approx(p, 1e-8) == 0.062204471804458
         # Heralding + post-selection
         analyzer.post_selection = lambda s: s[0] == 0
         results = analyzer.analyze(State([1, 0, 1]))
-        p = results[State([0, 0, 1])]
+        p = results[State([1, 0, 1]), State([0, 0, 1])]
         assert pytest.approx(p, 1e-8) == 0.0202286624257920
-        p = results[State([0, 0, 0])]
+        p = results[State([1, 0, 1]), State([0, 0, 0])]
         assert pytest.approx(p, 1e-8) == 0.6051457174354371
         # Check performance metric
         assert pytest.approx(results.performance, 1e-8) == 0.6893563871958014
@@ -139,14 +139,14 @@ class TestAnalyzer:
         analyzer = Analyzer(new_circ)
         # Just heralding
         results = analyzer.analyze(State([1, 0, 1]))
-        p = results[State([0, 1, 0])]
+        p = results[State([1, 0, 1]), State([0, 1, 0])]
         assert pytest.approx(p, 1e-8) == 0.062204471804458
         # Heralding + post-selection
         analyzer.post_selection = lambda s: s[0] == 0
         results = analyzer.analyze(State([1, 0, 1]))
-        p = results[State([0, 0, 1])]
+        p = results[State([1, 0, 1]), State([0, 0, 1])]
         assert pytest.approx(p, 1e-8) == 0.0202286624257920
-        p = results[State([0, 0, 0])]
+        p = results[State([1, 0, 1]), State([0, 0, 0])]
         assert pytest.approx(p, 1e-8) == 0.6051457174354371
         # Check performance metric
         assert pytest.approx(results.performance, 1e-8) == 0.6893563871958014
@@ -170,11 +170,11 @@ class TestAnalyzer:
         analyzer = Analyzer(circuit)
         analyzer.post_selection = lambda s: s[0] == 1
         results = analyzer.analyze(State([1, 0, 1, 0]))
-        p = results[State([1, 1, 0, 0])]
+        p = results[State([1, 0, 1, 0]), State([1, 1, 0, 0])]
         # Update circuit and get results
         circuit.bs(0)
         results = analyzer.analyze(State([1, 0, 1, 0]))
-        p2 = results[State([1, 1, 0, 0])]
+        p2 = results[State([1, 0, 1, 0]), State([1, 1, 0, 0])]
         assert p != p2
 
     def test_analyzer_circuit_parameter_update(self):
@@ -193,11 +193,11 @@ class TestAnalyzer:
         post_select.add(0, 1)
         analyzer.post_selection = post_select
         results = analyzer.analyze(State([1, 0, 1, 0]))
-        p = results[State([1, 1, 0, 0])]
+        p = results[State([1, 0, 1, 0]), State([1, 1, 0, 0])]
         # Update parameter and get results
         param.set(0.65)
         results = analyzer.analyze(State([1, 0, 1, 0]))
-        p2 = results[State([1, 1, 0, 0])]
+        p2 = results[State([1, 0, 1, 0]), State([1, 1, 0, 0])]
         assert p != p2
 
     def test_circuit_assignment(self):
