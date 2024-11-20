@@ -96,7 +96,7 @@ class TestSimulator:
         unitary = Unitary(unitary)
         sim = Simulator(unitary)
         results = sim.simulate(State([1, 0, 1, 0]))
-        x = results[State([0, 2, 0, 0])]
+        x = results[State([1, 0, 1, 0]), State([0, 2, 0, 0])]
         assert x == pytest.approx(
             -0.18218877232689196 - 0.266230290128261j, 1e-8
         )
@@ -273,7 +273,10 @@ class TestSimulator:
         # Then check equivalence of results for all outputs
         for output in results_h.outputs:
             full_state = output[0:2] + State([0, 1]) + output[2:]
-            assert pytest.approx(results_h[output]) == results[full_state]
+            assert (
+                pytest.approx(results_h[State([0, 1, 1, 0]), output])
+                == results[State([0, 1, 0, 1, 1, 0]), full_state]
+            )
 
     def test_herald_not_herald_equivalance_lossy(self):
         """
@@ -299,7 +302,10 @@ class TestSimulator:
         # Then check equivalence of results for all outputs
         for output in results_h.outputs:
             full_state = output[0:2] + State([0, 1]) + output[2:]
-            assert pytest.approx(results_h[output]) == results[full_state]
+            assert (
+                pytest.approx(results_h[State([0, 1, 1, 0]), output])
+                == results[State([0, 1, 0, 1, 1, 0]), full_state]
+            )
 
     def test_herald_not_herald_equivalance_grouped(self):
         """
@@ -328,4 +334,7 @@ class TestSimulator:
         # Then check equivalence of results for all outputs
         for output in results_h.outputs:
             full_state = output[0:2] + State([0, 1]) + output[2:]
-            assert pytest.approx(results_h[output]) == results[full_state]
+            assert (
+                pytest.approx(results_h[State([0, 1, 1, 0]), output])
+                == results[State([0, 1, 0, 1, 1, 0]), full_state]
+            )

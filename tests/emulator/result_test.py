@@ -141,7 +141,7 @@ class TestSamplingResult:
         results dictionary
         """
         r = SamplingResult(self.test_dict, self.test_input)
-        assert str(r) == str(r.dictionary)
+        assert str(r) == str(self.test_dict)
 
     def test_get_items(self):
         """
@@ -224,7 +224,7 @@ class TestSimulationResult:
             inputs=self.test_single_inputs,
             outputs=self.test_single_outputs,
         )
-        assert r[State([1, 0, 1, 0])] == 0.3
+        assert r[self.test_single_inputs[0]][State([1, 0, 1, 0])] == 0.3
 
     def test_multi_input_retrival(self):
         """
@@ -389,7 +389,7 @@ class TestSimulationResult:
             outputs=self.test_single_outputs,
         )
         new_r = r.apply_parity_mapping()
-        assert new_r.dictionary == {
+        assert new_r == {
             State([1, 1, 0, 0]): {
                 State([1, 0, 1, 0]): 0.4,
                 State([0, 1, 0, 1]): 0.2,
@@ -408,7 +408,7 @@ class TestSimulationResult:
             outputs=self.test_multi_outputs,
         )
         new_r = r.apply_parity_mapping()
-        assert new_r.dictionary == {
+        assert new_r == {
             State([1, 1, 0, 0]): {
                 State([1, 0, 1, 0]): 0.4,
                 State([0, 1, 0, 1]): 0.2,
@@ -431,7 +431,7 @@ class TestSimulationResult:
             outputs=self.test_single_outputs,
         )
         new_r = r.apply_threshold_mapping()
-        assert new_r.dictionary == {
+        assert new_r == {
             State([1, 1, 0, 0]): {
                 State([1, 0, 1, 0]): 0.4,
                 State([0, 1, 0, 1]): 0.2,
@@ -450,7 +450,7 @@ class TestSimulationResult:
             outputs=self.test_multi_outputs,
         )
         new_r = r.apply_threshold_mapping()
-        assert new_r.dictionary == {
+        assert new_r == {
             State([1, 1, 0, 0]): {
                 State([1, 0, 1, 0]): 0.4,
                 State([0, 1, 0, 1]): 0.2,
