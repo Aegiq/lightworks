@@ -47,12 +47,12 @@ To find the probability amplitude between then input :math:`\ket{1,1,0,0}` and o
 
     results = sim.simulate(input_state, output_state)
 
-This will return a :doc:`../emulator_reference/simulation_result` object. We can access data for specific input and outputs using the ``[]`` operator on the object. The behaviour of this slightly varies depending on whether the simulation used one or multiple inputs. In the single input case it is possible to do ``[output_state]`` to get the value for a particular output, whereas for multiple inputs ``[input_state]`` will return all possible outputs for an input and ``[input_state, output_state]`` will produce a singular value for the selected combination. As only one input was used above the following are therefore equivalent:
+This will return a :doc:`../emulator_reference/simulation_result` object. We can access data for specific input and outputs using the ``[]`` operator on the object. It is possible to do ``[input_state]`` to get all results for a particular input, and ``[input_state, output_state]`` will produce the singular value for the selected input/output combination.
 
 .. code-block:: Python
 
     print(results[output_state])
-    # Output: (0.037523401912278494-0.25889120714091474j)
+    # {lightworks.State(|0,0,1,1>): np.complex128(0.037523401912278494-0.25889120714091474j)}
 
     print(results[input_state, output_state])
     # Output: (0.037523401912278494-0.25889120714091474j)
@@ -71,7 +71,7 @@ Using the same Simulator object created above, it is also possible to see some o
 
 .. code-block:: Python
 
-    results = sim.simulate(input, output)
+    results = sim.simulate(input_state)
 
     # View all outputs
     print(results.outputs)
@@ -80,7 +80,7 @@ Using the same Simulator object created above, it is also possible to see some o
     #          State(|0,0,1,1>), State(|0,0,0,2>)]
 
     # Select one output to view
-    print(results[lw.State([0,2,0,0])])
+    print(results[input_state, lw.State([0,2,0,0])])
     # Output: (0.38752992893519644-0.3073703647306116j)
 
 Multiple inputs and outputs can also be used by specifying them as lists of State objects. When doing this, the probability amplitude between all combinations of provided inputs and outputs will be calculated.
