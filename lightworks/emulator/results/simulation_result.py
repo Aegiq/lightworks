@@ -417,7 +417,7 @@ class SimulationResult(dict):
         be used if there is a single input.
         """
         istate = self.inputs[0]
-        results = self[istate,]
+        results = dict(self[istate])  # type: ignore[arg-type]
         # Vary plot depending on result type
         if self.result_type != "probability_amplitude" or conv_to_probability:
             if self.result_type == "probability_amplitude":
