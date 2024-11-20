@@ -136,9 +136,9 @@ class SimulationResult(dict):
             if ostate is None:
                 return sub_r
             # Else return requested value
-            if ostate not in sub_r:
+            if ostate not in sub_r:  # type: ignore[operator]
                 raise KeyError("Requested output state not in data.")
-            return sub_r[ostate]
+            return sub_r[ostate]  # type: ignore[index]
         raise TypeError("Get item value must be either one or two States.")
 
     def apply_threshold_mapping(
