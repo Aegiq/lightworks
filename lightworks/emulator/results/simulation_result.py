@@ -115,7 +115,7 @@ class SimulationResult(dict):
         """Custom get item behaviour - used when object accessed with []."""
         if isinstance(item, State):
             if item not in self:
-                raise KeyError("Provided input state not in data.")
+                raise KeyError("Requested input state not in data.")
             return super().__getitem__(item)
         if isinstance(item, tuple):
             # Check only two values have been provided
@@ -131,10 +131,7 @@ class SimulationResult(dict):
                 ostate, (State, type(None))
             ):
                 raise TypeError("Get item values should have type State.")
-            if istate in self:
-                sub_r = super().__getitem__(istate)
-            else:
-                raise KeyError("Requested input state not in data.")
+            sub_r = self[istate]
             # If None provided as second value then return all results for input
             if ostate is None:
                 return sub_r
