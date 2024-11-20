@@ -51,7 +51,7 @@ This will return a :doc:`../emulator_reference/simulation_result` object. We can
 
 .. code-block:: Python
 
-    print(results[output_state])
+    print(results[input_state])
     # {lightworks.State(|0,0,1,1>): np.complex128(0.037523401912278494-0.25889120714091474j)}
 
     print(results[input_state, output_state])
