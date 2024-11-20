@@ -12,11 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABCMeta, abstractmethod
 from types import FunctionType, MethodType
 from typing import Callable
-
-import numpy as np
 
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
@@ -24,13 +21,12 @@ from .mappings import INPUT_MAPPING, MEASUREMENT_MAPPING
 from .utils import (
     _get_required_tomo_measurements,
     _get_tomo_measurements,
-    process_fidelity,
 )
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
 
-class ProcessTomography(metaclass=ABCMeta):
+class ProcessTomography:
     """
     Process tomography base class, implements some of the common methods
     required across different approaches.
@@ -79,7 +75,6 @@ class ProcessTomography(metaclass=ABCMeta):
         self._base_circuit = base_circuit
         self.experiment = experiment
         self.experiment_args = experiment_args
-        self._choi: np.ndarray
 
     @property
     def base_circuit(self) -> Circuit:
@@ -115,29 +110,6 @@ class ProcessTomography(metaclass=ABCMeta):
                 "qubit modes."
             )
         self._experiment = value
-
-    @property
-    def choi(self) -> np.ndarray:
-        """Returns the calculate choi matrix for a circuit."""
-        if not hasattr(self, "_choi"):
-            raise AttributeError(
-                "Choi matrix has not yet been calculated, this can be achieved "
-                "with the process method."
-            )
-        return self._choi
-
-    @abstractmethod
-    def process(self) -> np.ndarray:
-        """
-        Performs tomography using the selected algorithm.
-        """
-
-    def fidelity(self, choi_exp: np.ndarray) -> float:
-        """
-        Calculates fidelity of the calculated choi matrix compared to the
-        expected one.
-        """
-        return process_fidelity(self.choi, choi_exp)
 
     def _create_circuit_and_input(
         self, input_op: str, output_op: str

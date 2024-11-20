@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Iterator
+from typing import Any
 
 import matplotlib.figure
 import matplotlib.pyplot as plt
@@ -23,7 +23,7 @@ from ...sdk.state import State
 from ..utils import ResultCreationError
 
 
-class SimulationResult:
+class SimulationResult(dict):
     """
     Stores results data from a given simulation in the emulator. There is then
     a range of options for displaying the data, or alternatively the data can
@@ -78,7 +78,7 @@ class SimulationResult:
             for j, ostate in enumerate(self.__outputs):
                 input_results[ostate] = self.__array[i, j]
             dict_results[istate] = input_results
-        self.__dict = dict_results
+        super().__init__(dict_results)
 
         # Store any additional provided data from kwargs as attributes
         for k in kwargs:
@@ -105,11 +105,6 @@ class SimulationResult:
         return self.__outputs
 
     @property
-    def dictionary(self) -> dict:
-        """Stores a dictionary of inputs and the associated output values."""
-        return self.__dict
-
-    @property
     def result_type(self) -> str:
         """
         Details where the result is a probability or probability amplitude.
@@ -119,15 +114,9 @@ class SimulationResult:
     def __getitem__(self, item: State | tuple) -> float | dict:
         """Custom get item behaviour - used when object accessed with []."""
         if isinstance(item, State):
-            # When only one input is used, automatically return output value
-            # from dictionary instead of dictionary
-            if len(self.inputs) == 1:
-                if item not in self.dictionary[self.inputs[0]]:
-                    raise KeyError("Provided output state not in data.")
-                return self.dictionary[self.inputs[0]][item]
-            if item not in self.dictionary:
-                raise KeyError("Provided input state not in data.")
-            return self.dictionary[item]
+            if item not in self:
+                raise KeyError("Requested input state not in data.")
+            return super().__getitem__(item)
         if isinstance(item, tuple):
             # Check only two values have been provided
             if len(item) > 2:
@@ -136,31 +125,21 @@ class SimulationResult:
                 )
             # Separate data into two states
             istate = item[0]
-            ostate = item[1]
+            ostate = item[1] if len(item) == 2 else None
             # Check all aspects are valid
             if not isinstance(istate, State) or not isinstance(
                 ostate, (State, type(None))
             ):
                 raise TypeError("Get item values should have type State.")
-            if istate in self.dictionary:
-                sub_r = self.dictionary[istate]
-            else:
-                raise KeyError("Requested input state not in data.")
+            sub_r = self[istate]
             # If None provided as second value then return all results for input
             if ostate is None:
                 return sub_r
             # Else return requested value
-            if ostate not in sub_r:
+            if ostate not in sub_r:  # type: ignore[operator]
                 raise KeyError("Requested output state not in data.")
-            return sub_r[ostate]
+            return sub_r[ostate]  # type: ignore[index]
         raise TypeError("Get item value must be either one or two States.")
-
-    def __str__(self) -> str:
-        return str(self.dictionary)
-
-    def __iter__(self) -> Iterator:
-        """Iterable to allow to do 'for input in SimulationResult'."""
-        yield from self.dictionary
 
     def apply_threshold_mapping(
         self, invert: bool = False
@@ -186,9 +165,9 @@ class SimulationResult:
                 "amplitudes."
             )
         mapped_result: dict[State, dict] = {}
-        for in_state in self.inputs:
+        for in_state, results in self.items():
             mapped_result[in_state] = {}
-            for out_state, val in self.dictionary[in_state].items():
+            for out_state, val in results.items():
                 new_s = State([1 if s >= 1 else 0 for s in out_state])
                 if invert:
                     new_s = State([1 - s for s in new_s])
@@ -220,9 +199,9 @@ class SimulationResult:
                 "Parity mapping cannot be applied to probability amplitudes."
             )
         mapped_result: dict[State, dict] = {}
-        for in_state in self.inputs:
+        for in_state, results in self.items():
             mapped_result[in_state] = {}
-            for out_state, val in self.dictionary[in_state].items():
+            for out_state, val in results.items():
                 if invert:
                     new_s = State([1 - (s % 2) for s in out_state])
                 else:
@@ -313,9 +292,9 @@ class SimulationResult:
 
         """
         # Loop over each input and print results
-        for istate in self.inputs:
+        for istate, results in self.items():
             to_print = str(istate) + " -> "
-            for ostate, p in self.dictionary[istate].items():
+            for ostate, p in results.items():
                 # Adjust print order based on quantity
                 if self.result_type == "counts":
                     to_print += str(ostate) + " : " + str(p) + ", "
@@ -435,15 +414,16 @@ class SimulationResult:
         be used if there is a single input.
         """
         istate = self.inputs[0]
+        results = dict(self[istate])  # type: ignore[arg-type]
         # Vary plot depending on result type
         if self.result_type != "probability_amplitude" or conv_to_probability:
             if self.result_type == "probability_amplitude":
                 d_data = {}
-                for s, p in self.dictionary[istate].items():
+                for s, p in results.items():
                     d_data[s] = abs(p) ** 2
                 title = "Probability"
             else:
-                d_data = self.dictionary[istate]
+                d_data = results
                 title = self.result_type.capitalize()
 
             fig, ax = plt.subplots(figsize=(7, 6))
@@ -460,14 +440,14 @@ class SimulationResult:
         # Plot both real and imaginary parts
         fig, axes = plt.subplots(1, 2, figsize=(14, 6))
         axes = np.array(axes)
-        x_data = range(len(self.dictionary[istate]))
-        axes[0].bar(x_data, np.real(list(self.dictionary[istate].values())))
-        axes[1].bar(x_data, np.imag(list(self.dictionary[istate].values())))
+        x_data = range(len(results))
+        axes[0].bar(x_data, np.real(list(results.values())))
+        axes[1].bar(x_data, np.imag(list(results.values())))
         for i in range(2):
             axes[i].set_xticks(x_data)
             labels = [
                 state_labels[s] if s in state_labels else str(s)
-                for s in self.dictionary[istate]
+                for s in results
             ]
             axes[i].set_xticklabels(labels, rotation=90)
             axes[i].set_xlabel("State")

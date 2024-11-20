@@ -20,10 +20,11 @@ from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
 from .utils import (
     _calculate_expectation_value,
+    _combine_all,
     _get_tomo_measurements,
-    combine_all,
-    unvec,
-    vec,
+    _unvec,
+    _vec,
+    process_fidelity,
 )
 
 TOMO_INPUTS = ["X+", "X-", "Y+", "Y-", "Z+", "Z-"]
@@ -53,6 +54,16 @@ class MLEProcessTomography(ProcessTomography):
 
     """
 
+    @property
+    def choi(self) -> np.ndarray:
+        """Returns the calculate choi matrix for a circuit."""
+        if not hasattr(self, "_choi"):
+            raise AttributeError(
+                "Choi matrix has not yet been calculated, this can be achieved "
+                "with the process method."
+            )
+        return self._choi
+
     def process(self) -> np.ndarray:
         """
         Performs process tomography with the configured elements and calculates
@@ -63,7 +74,7 @@ class MLEProcessTomography(ProcessTomography):
             np.ndarray : The calculated choi matrix for the process.
 
         """
-        all_inputs = combine_all(TOMO_INPUTS, self.n_qubits)
+        all_inputs = _combine_all(TOMO_INPUTS, self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         nij = {}
         # Convert counts to an expectation value
@@ -76,6 +87,13 @@ class MLEProcessTomography(ProcessTomography):
         mle = MLETomographyAlgorithm(self.n_qubits)
         self._choi = mle.pgdb(nij)
         return self.choi
+
+    def fidelity(self, choi_exp: np.ndarray) -> float:
+        """
+        Calculates fidelity of the calculated choi matrix compared to the
+        expected one.
+        """
+        return process_fidelity(self.choi, choi_exp)
 
 
 class MLETomographyAlgorithm:
@@ -95,9 +113,9 @@ class MLETomographyAlgorithm:
 
         # Pre-calculate all required n_qubit pauli & density matrices + the
         # inputs and measurement basis for the tomography
-        self._all_rhos = combine_all(RHO_MAPPING, self.n_qubits)
-        self._all_pauli = combine_all(PAULI_MAPPING, self.n_qubits)
-        self._input_basis = combine_all(TOMO_INPUTS, self.n_qubits)
+        self._all_rhos = _combine_all(RHO_MAPPING, self.n_qubits)
+        self._all_pauli = _combine_all(PAULI_MAPPING, self.n_qubits)
+        self._input_basis = _combine_all(TOMO_INPUTS, self.n_qubits)
         self._meas_basis = _get_tomo_measurements(n_qubits, remove_trivial=True)
 
         self._a_matrix = self._a_mat()
@@ -200,10 +218,10 @@ class MLETomographyAlgorithm:
         for i, in_s in enumerate(self._input_basis):
             for j, meas in enumerate(self._meas_basis):
                 obs = self._all_pauli[meas]
-                a_mat[2 * (len(self._meas_basis) * i + j), :] = vec(
+                a_mat[2 * (len(self._meas_basis) * i + j), :] = _vec(
                     np.kron(self._all_rhos[in_s], ((id_mat + obs) / 2).T)
                 )[:]
-                a_mat[2 * (len(self._meas_basis) * i + j) + 1, :] = vec(
+                a_mat[2 * (len(self._meas_basis) * i + j) + 1, :] = _vec(
                     np.kron(self._all_rhos[in_s], ((id_mat - obs) / 2).T)
                 )[:]
         return a_mat / (2 ** (2 * self.n_qubits))
@@ -213,7 +231,7 @@ class MLETomographyAlgorithm:
         Calculates the expected measurement outcomes from the provided choi
         matrix.
         """
-        return (self._a_matrix @ vec(choi.T)).clip(1e-8)
+        return (self._a_matrix @ _vec(choi.T)).clip(1e-8)
 
     def _cost(self, choi: np.ndarray, n_vec: np.ndarray) -> np.ndarray:
         """
@@ -226,7 +244,7 @@ class MLETomographyAlgorithm:
         """
         Finds gradient between expected and measured expectation values.
         """
-        return -unvec(np.conj(self._a_matrix.T) @ (n_vec / self._p_vec(choi)))
+        return -_unvec(np.conj(self._a_matrix.T) @ (n_vec / self._p_vec(choi)))
 
     def _cptp_proj(self, choi: np.ndarray, max_iter: int = 1000) -> np.ndarray:
         """
@@ -234,7 +252,7 @@ class MLETomographyAlgorithm:
         and trace preserving. This uses a series of repeat TP and CP steps until
         the choi matrix converges.
         """
-        x_0 = vec(choi)
+        x_0 = _vec(choi)
         dim = x_0.shape[0]
         # Initialize most quantities as a zero matrix
         p_0 = np.array([0] * dim)
@@ -243,9 +261,9 @@ class MLETomographyAlgorithm:
         # Run for maximum number of iterations
         for _ in range(max_iter):
             # Calculate updated quantiles
-            y_k = vec(self._tp_proj(unvec(x_0 + p_0)))
+            y_k = _vec(self._tp_proj(_unvec(x_0 + p_0)))
             p_k = x_0 + p_0 - y_k
-            x_k = vec(self._cp_proj(unvec(y_k + q_0)))
+            x_k = _vec(self._cp_proj(_unvec(y_k + q_0)))
             q_k = y_k + q_0 - x_k
             # Stopping condition (see paper)
             if (
@@ -258,7 +276,7 @@ class MLETomographyAlgorithm:
             # Update values
             y_0, p_0, x_0, q_0 = y_k, p_k, x_k, q_k
 
-        return unvec(x_k)
+        return _unvec(x_k)
 
     def _cp_proj(self, choi: np.ndarray) -> np.ndarray:
         """

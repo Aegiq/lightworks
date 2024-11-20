@@ -46,7 +46,7 @@ class TestSamplerGeneral:
         sampler = Sampler(circuit, State([1, 0, 1, 0]))
         results = sampler.sample_N_inputs(5000, seed=1)
         results2 = sampler.sample_N_inputs(5000, seed=1)
-        assert results.dictionary == results2.dictionary
+        assert results == results2
 
     def test_sample_n_states_seed_detector(self):
         """
@@ -61,7 +61,7 @@ class TestSamplerGeneral:
         )
         results = sampler.sample_N_inputs(5000, seed=1)
         results2 = sampler.sample_N_inputs(5000, seed=1)
-        assert results.dictionary == results2.dictionary
+        assert results == results2
 
     def test_circuit_update_with_sampler(self):
         """

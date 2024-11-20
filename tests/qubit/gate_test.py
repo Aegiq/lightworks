@@ -38,11 +38,11 @@ class TestSingleQubitGates:
         """Checks that the output from the I gate is correct."""
         sim = Simulator(I())
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))
+        results = sim.simulate(State([1, 0]))[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))
+        results = sim.simulate(State([0, 1]))[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1
 
@@ -50,11 +50,11 @@ class TestSingleQubitGates:
         """Checks that the output from the Hadamard gate is correct."""
         sim = Simulator(H())
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))
+        results = sim.simulate(State([1, 0]))[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 2**-0.5
         assert pytest.approx(results[State([0, 1])], 1e-6) == 2**-0.5
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))
+        results = sim.simulate(State([0, 1]))[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 2**-0.5
         assert pytest.approx(results[State([0, 1])], 1e-6) == -(2**-0.5)
 
@@ -62,11 +62,11 @@ class TestSingleQubitGates:
         """Checks that the output from the X gate is correct."""
         sim = Simulator(X())
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))
+        results = sim.simulate(State([1, 0]))[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))
+        results = sim.simulate(State([0, 1]))[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
 
@@ -74,11 +74,11 @@ class TestSingleQubitGates:
         """Checks that the output from the Y gate is correct."""
         sim = Simulator(Y())
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))
+        results = sim.simulate(State([1, 0]))[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1j
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))
+        results = sim.simulate(State([0, 1]))[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == -1j
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
 
@@ -86,11 +86,11 @@ class TestSingleQubitGates:
         """Checks that the output from the Z gate is correct."""
         sim = Simulator(Z())
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))
+        results = sim.simulate(State([1, 0]))[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))
+        results = sim.simulate(State([0, 1]))[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == -1
 
@@ -98,11 +98,11 @@ class TestSingleQubitGates:
         """Checks that the output from the S gate is correct."""
         sim = Simulator(S())
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))
+        results = sim.simulate(State([1, 0]))[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))
+        results = sim.simulate(State([0, 1]))[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1j
 
@@ -114,11 +114,11 @@ class TestSingleQubitGates:
         """Checks that the output from the T gate is correct."""
         sim = Simulator(T())
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))
+        results = sim.simulate(State([1, 0]))[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))
+        results = sim.simulate(State([0, 1]))[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == np.exp(
             1j * np.pi / 4
@@ -132,11 +132,11 @@ class TestSingleQubitGates:
         """Checks that the output from the SX gate is correct."""
         sim = Simulator(SX())
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))
+        results = sim.simulate(State([1, 0]))[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1 / 2 * (1 + 1j)
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1 / 2 * (1 - 1j)
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))
+        results = sim.simulate(State([0, 1]))[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1 / 2 * (1 - 1j)
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1 / 2 * (1 + 1j)
 
@@ -145,11 +145,11 @@ class TestSingleQubitGates:
         phase = 6.28 * random()
         sim = Simulator(P(phase))
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))
+        results = sim.simulate(State([1, 0]))[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))
+        results = sim.simulate(State([0, 1]))[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == np.exp(1j * phase)
 
