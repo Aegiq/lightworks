@@ -18,7 +18,7 @@ setup(
     },
     license="Apache 2.0",
     packages=find_packages(where=".", exclude=["tests"]),
-    python_requires=">=3.10",
+    python_requires=">=3.10,<=3.13",
     install_requires=[
         "thewalrus==0.20.0",
         "matplotlib>=3.7.1",
@@ -39,6 +39,7 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Operating System :: OS Independent",
     ],
 )
