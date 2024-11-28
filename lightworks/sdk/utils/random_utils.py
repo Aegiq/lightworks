@@ -25,7 +25,7 @@ def process_random_seed(seed: Any) -> int | None:
     not will try to convert this. If this isn't possible then an exception will
     be raised.
     """
-    if not isinstance(seed, (int, NoneType)):
+    if not isinstance(seed, int | NoneType):
         # Try to convert seed to an integer
         try:
             int(seed)

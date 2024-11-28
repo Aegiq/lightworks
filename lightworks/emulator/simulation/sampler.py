@@ -13,8 +13,8 @@
 # limitations under the License.
 
 from collections import Counter
+from collections.abc import Callable
 from random import random
-from typing import Callable
 
 import numpy as np
 
@@ -427,7 +427,9 @@ class Sampler:
         # Otherwise check entries in the list are equivalent, returning False
         # if this is the case and true otherwise
         for i1, i2 in zip(
-            self._gen_calculation_values(), self.__calculation_values
+            self._gen_calculation_values(),
+            self.__calculation_values,
+            strict=True,
         ):
             # Treat arrays and other values differently
             if isinstance(i1, np.ndarray) and isinstance(i2, np.ndarray):

@@ -19,8 +19,8 @@ def is_number(value: Any | list[Any]) -> None:
     """
     Function to check if the provided value is float or integer.
     """
-    if not isinstance(value, (list, tuple)):
+    if not isinstance(value, list | tuple):
         value = [value]
     for v in value:
-        if not isinstance(v, (int, float)) or isinstance(v, bool):
+        if not isinstance(v, int | float) or isinstance(v, bool):
             raise TypeError("Distribution values should be a float or integer.")

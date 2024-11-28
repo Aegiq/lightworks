@@ -128,7 +128,7 @@ class SimulationResult(dict):
             ostate = item[1] if len(item) == 2 else None
             # Check all aspects are valid
             if not isinstance(istate, State) or not isinstance(
-                ostate, (State, type(None))
+                ostate, State | type(None)
             ):
                 raise TypeError("Get item values should have type State.")
             sub_r = self[istate]

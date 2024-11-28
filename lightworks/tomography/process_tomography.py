@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Callable
 from types import FunctionType, MethodType
-from typing import Callable
 
 from ..sdk.circuit import Circuit
 from ..sdk.state import State
@@ -103,7 +103,7 @@ class ProcessTomography:
 
     @experiment.setter
     def experiment(self, value: Callable) -> None:
-        if not isinstance(value, (FunctionType, MethodType)):
+        if not isinstance(value, FunctionType | MethodType):
             raise TypeError(
                 "Provided experiment should be a function which accepts a list "
                 "of circuits and returns a list of results containing only the "
@@ -162,6 +162,7 @@ class ProcessTomography:
                 zip(
                     req_measurements,
                     results[num_per_in * i : num_per_in * (i + 1)],
+                    strict=True,
                 )
             )
             for i, in_state in enumerate(inputs)

@@ -17,9 +17,10 @@ Contains routines to perform optimisation with a parameterized circuit.
 """
 
 import warnings
+from collections.abc import Callable
 from numbers import Number
 from types import FunctionType, NoneType
-from typing import Any, Callable
+from typing import Any
 
 import zoopt
 from bayes_opt import BayesianOptimization
@@ -169,7 +170,7 @@ class Optimisation:
                 will be raised.
 
         """
-        if not isinstance(processor_args, (dict, NoneType)):
+        if not isinstance(processor_args, dict | NoneType):
             raise TypeError("processor_args should be a dictionary.")
         if processor == "simulator":
             if processor_args is not None:
@@ -225,7 +226,9 @@ class Optimisation:
         if self.parameters.has_bounds():
             bounds = list(self.parameters.get_bounds().values())
         res = minimize(self._fom, x0=self.__x0, bounds=bounds)
-        self.__opt_results = dict(zip(self.parameters.keys(), res.x))
+        self.__opt_results = dict(
+            zip(self.parameters.keys(), res.x, strict=True)
+        )
         return self.__opt_results
 
     def scipy_basinhopping_optimise(
@@ -260,7 +263,9 @@ class Optimisation:
                 "Bounds not supported by basinhopping optimise method."
             )
         res = basinhopping(self._fom, x0=self.__x0, niter=n_iter)
-        self.__opt_results = dict(zip(self.parameters.keys(), res.x))
+        self.__opt_results = dict(
+            zip(self.parameters.keys(), res.x, strict=True)
+        )
         return self.__opt_results
 
     def bayesian_optimise(
@@ -340,7 +345,9 @@ class Optimisation:
         objective = zoopt.Objective(self._fom_zoopt, dim)
         parameter = zoopt.Parameter(budget=budget)
         sol = zoopt.Opt.min(objective, parameter)
-        self.__opt_results = dict(zip(self.parameters.keys(), sol.get_x()))
+        self.__opt_results = dict(
+            zip(self.parameters.keys(), sol.get_x(), strict=True)
+        )
         return self.__opt_results
 
     def get_optimal_circuit(self) -> Circuit:

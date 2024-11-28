@@ -607,7 +607,7 @@ class Circuit:
             circuit.add(spec)
 
         heralds = self.heralds
-        for i, o in zip(heralds["input"], heralds["output"]):
+        for i, o in zip(heralds["input"], heralds["output"], strict=True):
             circuit.add_herald(heralds["input"][i], i, o)
 
         return circuit
@@ -680,7 +680,9 @@ class Circuit:
                 spec.circuit_spec = self._freeze_params(spec.circuit_spec)
                 new_spec.append(spec)
             else:
-                for name, value in zip(spec.fields(), spec.values()):
+                for name, value in zip(
+                    spec.fields(), spec.values(), strict=True
+                ):
                     if isinstance(value, Parameter):
                         setattr(spec, name, value.get())
                 new_spec.append(spec)

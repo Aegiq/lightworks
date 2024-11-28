@@ -108,7 +108,7 @@ class Reck:
 
         # Add any heralds from the original circuit
         heralds = circuit.heralds
-        for m1, m2 in zip(heralds["input"], heralds["output"]):
+        for m1, m2 in zip(heralds["input"], heralds["output"], strict=True):
             # NOTE: Could be errors if input and output photon numbers don't
             # match - this shouldn't happen but for now check just in case.
             if heralds["input"][m1] != heralds["output"][m2]:

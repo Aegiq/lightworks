@@ -17,8 +17,9 @@ A custom state datatype, which is created with the aim of making states in the
 emulator much easier to work with.
 """
 
+from collections.abc import Iterator
 from copy import copy
-from typing import Any, Iterator, Union, overload
+from typing import Any, Union, overload
 
 from ..utils.exceptions import StateError
 from .state_utils import state_to_string
@@ -74,7 +75,9 @@ class State:
         """Combine two states, summing the number of photons per mode."""
         if self.n_modes != merge_state.n_modes:
             raise ValueError("Merged states must be the same length.")
-        return State([n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)])
+        return State(
+            [n1 + n2 for n1, n2 in zip(self.__s, merge_state.s, strict=True)]
+        )
 
     def _validate(self) -> None:
         """
