@@ -14,10 +14,9 @@
 
 
 from abc import ABCMeta, abstractmethod
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from types import FunctionType
-from typing import Callable
 
 from ..state import State
 
@@ -82,7 +81,7 @@ class PostSelection(PostSelectionType):
         modes = check_int_or_tuple(modes)
         n_photons = check_int_or_tuple(n_photons)
         for values, msg in zip(
-            (modes, n_photons), ("Mode numbers", "Photon numbers")
+            (modes, n_photons), ("Mode numbers", "Photon numbers"), strict=True
         ):
             for v in values:
                 if v < 0:

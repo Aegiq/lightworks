@@ -46,7 +46,7 @@ mypy enforces the usage of type hints across Lightworks and ensures the consiste
 
 .. code-block:: console
 
-   (.venv) $ mypy -p lightworks
+   (.venv) $ mypy
 
 To minimise errors when writing code, all new functions should have type hints for arguments and returns. These should be as specific as allows without inhibiting functionality. Additionally, redefining the types of variables during execution should be avoided unless this is necessary for performance or functionality reasons.
 

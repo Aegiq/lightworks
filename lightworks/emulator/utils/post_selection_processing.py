@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Callable
 from types import FunctionType
-from typing import Callable
 
 from ...sdk.utils import PostSelectionFunction
 from ...sdk.utils.post_selection import DefaultPostSelection, PostSelectionType

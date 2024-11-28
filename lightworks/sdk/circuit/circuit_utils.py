@@ -243,7 +243,7 @@ def compress_mode_swaps(circuit_spec: list) -> list:
             blocked_modes = set()
             for j, spec2 in enumerate(circuit_spec[i + 1 :]):
                 # Block modes with components other than the mode swap on
-                if isinstance(spec2, (PhaseShifter, Loss)):
+                if isinstance(spec2, PhaseShifter | Loss):
                     # NOTE: In principle a phase shift doesn't need to
                     # block a mode and instead we could modify it's
                     # location

@@ -27,7 +27,7 @@ def experiment(circuits, inputs, n_qubits):
     for i in range(n_qubits):
         post_select.add((2 * i, 2 * i + 1), 1)
     results = []
-    for circ, in_s in zip(circuits, inputs):
+    for circ, in_s in zip(circuits, inputs, strict=True):
         sampler = emulator.Sampler(circ, in_s, backend="slos")
         results.append(
             sampler.sample_N_outputs(20000, post_select=post_select, seed=99)

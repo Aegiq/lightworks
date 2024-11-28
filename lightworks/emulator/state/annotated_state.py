@@ -17,7 +17,8 @@ A custom state datatype, which is created for storing annotated state details.
 It is not intended that this class will be ordinarily accessible to users.
 """
 
-from typing import Any, Iterator, Union, overload
+from collections.abc import Iterator
+from typing import Any, Union, overload
 
 from ..utils import AnnotatedStateError, annotated_state_to_string
 
@@ -76,7 +77,7 @@ class AnnotatedState:
         if self.n_modes != merge_state.n_modes:
             raise ValueError("Merged states must be the same length.")
         return AnnotatedState(
-            [n1 + n2 for n1, n2 in zip(self.__s, merge_state.s)]
+            [n1 + n2 for n1, n2 in zip(self.__s, merge_state.s, strict=True)]
         )
 
     def __str__(self) -> str:

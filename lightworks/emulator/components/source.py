@@ -218,7 +218,13 @@ class Source:
                     for p1, s1 in stats:
                         for p2, s2 in sub_s:
                             new_stats.append(
-                                (p1 * p2, [x + y for x, y in zip(s1, s2)])
+                                (
+                                    p1 * p2,
+                                    [
+                                        x + y
+                                        for x, y in zip(s1, s2, strict=True)
+                                    ],
+                                )
                             )
                     stats = new_stats
         # Combine any duplicate results

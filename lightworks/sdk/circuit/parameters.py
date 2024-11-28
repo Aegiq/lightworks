@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Iterable
 from math import inf
 from numbers import Number
 from types import NoneType
-from typing import Any, Iterable
+from typing import Any
 
 from ..utils import (
     ParameterBoundsError,
@@ -55,11 +56,11 @@ class Parameter:
         # Assign value to attribute
         self.__value = value
         # Process label
-        if not isinstance(label, (str, NoneType)):
+        if not isinstance(label, str | NoneType):
             raise TypeError("Label should be a string.")
         self.label = label
         # Process provided bounds
-        if not isinstance(bounds, (tuple, list, NoneType)):
+        if not isinstance(bounds, tuple | list | NoneType):
             raise TypeError("Bounds should be a tuple or list.")
         if bounds is not None:
             if len(bounds) != 2:
