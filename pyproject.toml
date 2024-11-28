@@ -29,7 +29,6 @@ omit = [
 [tool.mypy]
 files = "lightworks"
 disallow_untyped_defs = true
-exclude = ['venv/', 'docs/', 'tests/', 'setup.py']
 disable_error_code = 'import-untyped, import-not-found'
 strict_equality = true
 extra_checks = true
