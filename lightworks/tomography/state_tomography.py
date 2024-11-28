@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Callable
 from types import FunctionType, MethodType
-from typing import Callable
 
 import numpy as np
 
@@ -105,7 +105,7 @@ class StateTomography:
 
     @experiment.setter
     def experiment(self, value: Callable) -> None:
-        if not isinstance(value, (FunctionType, MethodType)):
+        if not isinstance(value, FunctionType | MethodType):
             raise TypeError(
                 "Provided experiment should be a function which accepts a list "
                 "of circuits and returns a list of results containing only the "
@@ -154,7 +154,7 @@ class StateTomography:
 
         # Convert results into dictionary and then mapping to full set of
         # measurements
-        results_dict = dict(zip(req_measurements, all_results))
+        results_dict = dict(zip(req_measurements, all_results, strict=True))
         results_dict = {
             c: results_dict[result_mapping[c]]
             for c in _get_tomo_measurements(self.n_qubits)

@@ -217,7 +217,7 @@ class UnitaryMatrix(Component):
 
     def __post_init__(self) -> None:
         # Check type of supplied unitary
-        if not isinstance(self.unitary, (np.ndarray, list)):
+        if not isinstance(self.unitary, np.ndarray | list):
             raise TypeError("Unitary should be a numpy array or list.")
         self.unitary = np.array(self.unitary)
 

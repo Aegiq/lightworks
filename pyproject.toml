@@ -27,8 +27,8 @@ omit = [
 
 ## mypy config
 [tool.mypy]
+files = "lightworks"
 disallow_untyped_defs = true
-exclude = ['venv/', 'docs/', 'tests/', 'setup.py']
 disable_error_code = 'import-untyped, import-not-found'
 strict_equality = true
 extra_checks = true
@@ -46,6 +46,7 @@ exclude = [
 ]
 line-length = 80
 indent-width = 4
+target-version = "py311"
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -91,7 +92,7 @@ line-ending = "auto"
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["PERF", "ANN", "S101"]
 "__init__.py" = ["F401", "F403"]
-"docs/*" = ["CPY001", "ANN", "D", "E731", "T201"]
+"docs/*" = ["ANN", "B905", "CPY001", "D", "E731", "T201"]
 "docs/source/tutorials/qubit.ipynb" = ["E402"]
 
 [tool.ruff.lint.flake8-pytest-style]
