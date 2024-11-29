@@ -28,11 +28,15 @@ omit = [
 ## mypy config
 [tool.mypy]
 files = "lightworks"
-disallow_untyped_defs = true
 disable_error_code = 'import-untyped, import-not-found'
 strict_equality = true
 extra_checks = true
 check_untyped_defs = true
+
+disallow_subclassing_any = true
+disallow_untyped_decorators = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
 module = "thewalrus.*, drawsvg.*, scipy.*, scipy.*.stats.*"
