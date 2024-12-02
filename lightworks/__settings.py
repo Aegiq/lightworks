@@ -34,10 +34,15 @@ class _Settings:
         self.__frozen = True
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if self.__frozen:
+        if not hasattr(self, name) and self.__frozen:
             msg = f"Setting with name '{name}' does not exist."
             raise AttributeError(msg)
         super().__setattr__(name, value)
+
+    def __getattr__(self, name: str) -> Any:
+        # This is only called when attribute doesn't exist
+        msg = f"Setting with name '{name}' does not exist."
+        raise AttributeError(msg)
 
 
 settings = _Settings()
