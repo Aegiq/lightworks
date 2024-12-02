@@ -44,6 +44,7 @@ Key objects:
 """
 
 from . import emulator, interferometers, qubit, tomography
+from .__settings import settings
 from .__version import __version__
 from .sdk.circuit import Circuit, Parameter, ParameterDict, Unitary
 from .sdk.optimisation import Optimisation

@@ -18,12 +18,12 @@ Contains a collection of different useful functions for operations on matrices.
 
 import numpy as np
 
-from ...settings import unitary_precision
+from ...__settings import settings
 
 
 def check_unitary(
     U: np.ndarray,  # noqa: N803
-    precision: float = unitary_precision,
+    precision: float | None = None,
 ) -> bool:
     """
     A function to check if a provided matrix is unitary according to a
@@ -48,6 +48,8 @@ def check_unitary(
             cannot be unitary.
 
     """
+    if precision is None:
+        precision = settings.unitary_precision
     if U.shape[0] != U.shape[1]:
         raise ValueError("Unitary matrix must be square.")
     # Find hermitian conjugate and then product

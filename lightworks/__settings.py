@@ -13,7 +13,13 @@
 # limitations under the License.
 
 """
-This file contains all global settings for use across lightworks.
+This file contains all global settings for use across lightworks. Any new values
+should be added the settings class below.
 """
 
-unitary_precision = 1e-10
+
+class _Settings:
+    unitary_precision: float = 1e-10
+
+
+settings = _Settings()
