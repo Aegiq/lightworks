@@ -20,6 +20,7 @@ should be added the settings class below.
 
 class _Settings:
     unitary_precision: float = 1e-10
+    sampler_probability_threshold: float = 1e-12
 
 
 settings = _Settings()

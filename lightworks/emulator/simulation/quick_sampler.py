@@ -18,6 +18,7 @@ from random import random
 
 import numpy as np
 
+from ...__settings import settings
 from ...sdk.circuit import Circuit
 from ...sdk.state import State
 from ...sdk.utils import add_heralds_to_state, process_random_seed
@@ -287,7 +288,7 @@ class QuickSampler:
                 built_circuit.U_full, in_state, full_ostate
             )
             # Add output to distribution
-            if p > 0:
+            if p > settings.sampler_probability_threshold:
                 pdist[State(ostate)] = p
         # Normalise probability distribution
         p_total = sum(pdist.values())
