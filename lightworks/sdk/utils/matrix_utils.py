@@ -52,26 +52,10 @@ def check_unitary(
         raise ValueError("Unitary matrix must be square.")
     # Find hermitian conjugate and then product
     hc = np.conj(np.transpose(U))
-    product = hc @ U
-    # To check if this it the identity then loop over each value and ensure
-    # it is the expected number to some level of precision
-    unitary = True
-    for i in range(product.shape[0]):
-        for j in range(product.shape[1]):
-            # Diagonal elements
-            if i == j and (  # noqa: SIM114
-                np.real(product[i, j] < 1 - precision)
-                or np.imag(product[i, j]) > precision
-            ):
-                unitary = False
-            # Off diagonals
-            elif i != j and (
-                np.real(product[i, j] > precision)
-                or np.imag(product[i, j]) > precision
-            ):
-                unitary = False
-    # Return whether matrix is unitary or not
-    return unitary
+    # Validate close according to tolerance
+    return np.allclose(
+        hc @ U, np.identity(U.shape[0], dtype=complex), rtol=0, atol=precision
+    )
 
 
 def add_mode_to_unitary(unitary: np.ndarray, add_mode: int) -> np.ndarray:
