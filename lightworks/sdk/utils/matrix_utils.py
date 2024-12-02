@@ -18,10 +18,12 @@ Contains a collection of different useful functions for operations on matrices.
 
 import numpy as np
 
+from ...settings import unitary_precision
+
 
 def check_unitary(
     U: np.ndarray,  # noqa: N803
-    precision: float = 1e-10,
+    precision: float = unitary_precision,
 ) -> bool:
     """
     A function to check if a provided matrix is unitary according to a
