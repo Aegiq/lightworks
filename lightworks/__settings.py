@@ -28,7 +28,7 @@ class _Settings:
 
     __frozen: bool = False
     unitary_precision: float = 1e-10
-    sampler_probability_threshold: float = 1e-12
+    sampler_probability_threshold: float = 1e-9
 
     def __init__(self) -> None:
         self.__frozen = True
