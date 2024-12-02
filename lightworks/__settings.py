@@ -17,10 +17,27 @@ This file contains all global settings for use across lightworks. Any new values
 should be added the settings class below.
 """
 
+from typing import Any
+
 
 class _Settings:
+    """
+    Stores all global settings for Lightworks. After creation new attributes
+    (settings) cannot be added.
+    """
+
+    __frozen: bool = False
     unitary_precision: float = 1e-10
     sampler_probability_threshold: float = 1e-12
+
+    def __init__(self) -> None:
+        self.__frozen = True
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        if self.__frozen:
+            msg = f"Setting with name '{name}' does not exist."
+            raise AttributeError(msg)
+        super().__setattr__(name, value)
 
 
 settings = _Settings()
