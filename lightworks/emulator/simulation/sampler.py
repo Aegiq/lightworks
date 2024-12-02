@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import warnings
 from collections import Counter
 from collections.abc import Callable
 from random import random
@@ -272,7 +273,24 @@ class Sampler:
             vals[i] = k
         # Generate N random samples and then process and count output states
         rng = np.random.default_rng(process_random_seed(seed))
-        samples = rng.choice(vals, p=list(pdist.values()), size=N)
+        try:
+            samples = rng.choice(vals, p=list(pdist.values()), size=N)
+        # Sometimes the probability distribution will not quite be normalized,
+        # in this case try to re-normalize it.
+        except ValueError as e:
+            total_p = sum(pdist.values())
+            if abs(total_p - 1) > 0.01:
+                msg = (
+                    "Probability distribution significantly deviated from "
+                    f"required normalisation ({total_p})."
+                )
+                raise ValueError(msg) from e
+            norm_p = [p / total_p for p in pdist.values()]
+            samples = rng.choice(vals, p=norm_p, size=N)
+            self.__probability_distribution = {
+                k: v / total_p
+                for k, v in self.__probability_distribution.items()
+            }
         filtered_samples = []
         # Get heralds and pre-calculate items
         heralds = self.circuit.heralds["output"]
