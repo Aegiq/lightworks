@@ -40,7 +40,8 @@ class _Settings:
         super().__setattr__(name, value)
 
     def __getattr__(self, name: str) -> Any:
-        # This is only called when attribute doesn't exist
+        # This is only called when attribute doesn't exist, so can use this to
+        # raise a custom exception
         msg = f"Setting with name '{name}' does not exist."
         raise AttributeError(msg)
 
