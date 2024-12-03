@@ -14,6 +14,7 @@
 
 from numpy import ndarray
 
+from ...__settings import settings
 from ...sdk.circuit.compiler import CompiledCircuit
 from ...sdk.state import State
 from ..utils import BackendError, fock_basis
@@ -167,7 +168,7 @@ class Backend:
                 if sum(ostate[: circuit.n_modes]) == 0:
                     continue
                 p = Permanent.calculate(circuit.U_full, input_state.s, ostate)
-                if abs(p) ** 2 > 0:
+                if abs(p) ** 2 > settings.sampler_probability_threshold:
                     # Only care about non-loss modes
                     ostate = State(ostate[: circuit.n_modes])  # noqa: PLW2901
                     if ostate in pdist:
@@ -185,11 +186,12 @@ class Backend:
             full_dist = SLOS.calculate(circuit.U_full, input_state)
             # Combine results to remote lossy modes
             for s, p in full_dist.items():
-                new_s = State(s[: circuit.n_modes])
-                if new_s in pdist:
-                    pdist[new_s] += abs(p) ** 2
-                else:
-                    pdist[new_s] = abs(p) ** 2
+                if abs(p) ** 2 > settings.sampler_probability_threshold:
+                    new_s = State(s[: circuit.n_modes])
+                    if new_s in pdist:
+                        pdist[new_s] += abs(p) ** 2
+                    else:
+                        pdist[new_s] = abs(p) ** 2
         elif self.backend == "clifford":
             raise BackendError(
                 "Probability distribution calculation not supported for "

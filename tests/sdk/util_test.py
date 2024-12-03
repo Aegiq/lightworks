@@ -25,6 +25,7 @@ from lightworks import (
     decimal_to_db_loss,
     random_permutation,
     random_unitary,
+    settings,
 )
 from lightworks.sdk.utils import (
     add_heralds_to_state,
@@ -434,3 +435,39 @@ class TestPostSelection:
         """
         r = Rule((1, 2), (3, 4))
         assert r.as_tuple() == ((1, 2), (3, 4))
+
+
+class TestSettings:
+    """
+    Set of unit tests for checking the settings module works as expected.
+    """
+
+    def test_valid_setting_assignment(self):
+        """
+        Checks the value of a valid setting can be modified.
+        """
+        settings.unitary_precision = 1
+
+    def test_valid_setting_retrieval(self):
+        """
+        Checks the value of a valid setting can be modified and retrieved.
+        """
+        val = random()
+        settings.unitary_precision = val
+        assert settings.unitary_precision == val
+
+    def test_invalid_setting_assignment(self):
+        """
+        Checks attempts to assign an invalid setting will raise an attribute
+        error.
+        """
+        with pytest.raises(AttributeError):
+            settings.test_setting = True
+
+    def test_invalid_setting_retrieval(self):
+        """
+        Checks attempts to retrieve an invalid setting will raise an attribute
+        error.
+        """
+        with pytest.raises(AttributeError):
+            settings.test_setting  # noqa: B018

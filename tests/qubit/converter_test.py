@@ -72,6 +72,7 @@ class TestQiskitConversion:
         getattr(circ, gate)(0, 1, 2)
         qiskit_converter(circ, allow_post_selection=True)
 
+    @pytest.mark.filterwarnings("ignore::PendingDeprecationWarning")
     def test_four_qubit_gate(self):
         """
         Checks that an error is raised for a 4 qubit gate.

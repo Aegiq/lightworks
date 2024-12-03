@@ -1017,4 +1017,4 @@ class TestUnitary:
         Confirms n_mode attribute retrieval works for unitary component.
         """
         u = Unitary(random_unitary(4))
-        assert u.n_modes, 4
+        assert u.n_modes == 4
