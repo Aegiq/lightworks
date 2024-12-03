@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="810.6666666666667" height="570.0" viewBox="0 0 1600.0 1125">
+<defs>
+</defs>
+<rect x="0" y="0" width="1600.0" height="1125" fill="white" stroke="none" />
+<rect x="100.0" y="25" width="1400.0" height="1075" fill="none" stroke="black" />
+<rect x="92.0" y="124.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="249.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="374.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="499.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="624.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="749.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="874.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="999.5" width="8" height="1" fill="black" />
+<text x="80.0" y="127" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 127)">a0</text>
+<text x="80.0" y="252" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 252)">a1</text>
+<text x="80.0" y="377" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 377)">c0</text>
+<text x="80.0" y="502" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 502)">c1</text>
+<text x="80.0" y="627" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 627)">t0</text>
+<text x="80.0" y="752" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 752)">t1</text>
+<text x="80.0" y="877" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 877)">b1</text>
+<text x="80.0" y="1002" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 1002)">b0</text>
+<rect x="149.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="871.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="996.0" width="50.1" height="8" fill="black" />
+<rect x="199.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="250.0" y="225.0" width="50" height="50" fill="#e8532b" stroke="black" rx="5" ry="5" />
+<text x="275.0" y="252" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 275.0, 252)">PS</text>
+<text x="275.0" y="300" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 275.0, 300)">φ = π</text>
+<rect x="299.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="199.95" y="121.0" width="150.1" height="8" fill="black" />
+<rect x="349.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="400.0" y="100.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="425.0" y="187.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 425.0, 187.5)">BS</text>
+<text x="425.0" y="300" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 425.0, 300)">r = 0.8536</text>
+<rect x="449.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="449.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="499.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="550.0" y="100.0" width="50" height="50" fill="#e8532b" stroke="black" rx="5" ry="5" />
+<text x="575.0" y="127" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 575.0, 127)">PS</text>
+<text x="575.0" y="175" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 575.0, 175)">φ = π</text>
+<rect x="599.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="199.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="199.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="250.0" y="600.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="275.0" y="687.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 275.0, 687.5)">BS</text>
+<text x="275.0" y="800" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 275.0, 800)">r = 0.5</text>
+<rect x="299.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="299.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="199.95" y="871.0" width="50.1" height="8" fill="black" />
+<rect x="199.95" y="996.0" width="50.1" height="8" fill="black" />
+<rect x="250.0" y="850.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="275.0" y="937.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 275.0, 937.5)">BS</text>
+<text x="275.0" y="1050" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 275.0, 1050)">r = 0.8536</text>
+<rect x="299.95" y="871.0" width="50.1" height="8" fill="black" />
+<rect x="299.95" y="996.0" width="50.1" height="8" fill="black" />
+<rect x="199.95" y="371.0" width="300.1" height="8" fill="black" />
+<rect x="499.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="499.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="550.0" y="225.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="575.0" y="312.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 575.0, 312.5)">BS</text>
+<text x="575.0" y="425" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 575.0, 425)">r = 0.0</text>
+<rect x="599.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="599.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="199.95" y="496.0" width="150.1" height="8" fill="black" />
+<rect x="349.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="400.0" y="475.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="425.0" y="562.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 425.0, 562.5)">BS</text>
+<text x="425.0" y="675" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 425.0, 675)">r = 0.5</text>
+<rect x="449.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="449.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="871.0" width="50.1" height="8" fill="black" />
+<rect x="400.0" y="725.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="425.0" y="812.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 425.0, 812.5)">BS</text>
+<text x="425.0" y="925" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 425.0, 925)">r = 0.0</text>
+<rect x="449.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="449.95" y="871.0" width="50.1" height="8" fill="black" />
+<rect x="499.95" y="496.0" width="150.1" height="8" fill="black" />
+<rect x="649.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="649.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="700.0" y="350.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="725.0" y="437.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 725.0, 437.5)">BS</text>
+<text x="725.0" y="550" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 725.0, 550)">r = 0.1716</text>
+<rect x="749.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="749.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="499.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="550.0" y="725.0" width="50" height="50" fill="#e8532b" stroke="black" rx="5" ry="5" />
+<text x="575.0" y="752" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 575.0, 752)">PS</text>
+<text x="575.0" y="800" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 575.0, 800)">φ = π</text>
+<rect x="599.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="499.95" y="621.0" width="150.1" height="8" fill="black" />
+<rect x="649.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="649.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="700.0" y="600.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="725.0" y="687.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 725.0, 687.5)">BS</text>
+<text x="725.0" y="800" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 725.0, 800)">r = 0.1716</text>
+<rect x="749.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="749.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="799.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="850.0" y="600.0" width="50" height="50" fill="#e8532b" stroke="black" rx="5" ry="5" />
+<text x="875.0" y="627" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 875.0, 627)">PS</text>
+<text x="875.0" y="675" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 875.0, 675)">φ = π</text>
+<rect x="899.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="649.95" y="246.0" width="150.1" height="8" fill="black" />
+<rect x="799.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="799.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="850.0" y="225.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="875.0" y="312.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 875.0, 312.5)">BS</text>
+<text x="875.0" y="425" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 875.0, 425)">r = 0.0</text>
+<rect x="899.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="899.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="799.95" y="496.0" width="150.1" height="8" fill="black" />
+<rect x="949.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="949.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="1000.0" y="475.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="1025.0" y="562.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1025.0, 562.5)">BS</text>
+<text x="1025.0" y="675" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1025.0, 675)">r = 0.5</text>
+<rect x="1049.95" y="496.0" width="50.1" height="8" fill="black" />
+<rect x="1049.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="499.95" y="871.0" width="300.1" height="8" fill="black" />
+<rect x="799.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="799.95" y="871.0" width="50.1" height="8" fill="black" />
+<rect x="850.0" y="725.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="875.0" y="812.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 875.0, 812.5)">BS</text>
+<text x="875.0" y="925" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 875.0, 925)">r = 0.0</text>
+<rect x="899.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="899.95" y="871.0" width="50.1" height="8" fill="black" />
+<rect x="949.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="1000.0" y="225.0" width="50" height="50" fill="#e8532b" stroke="black" rx="5" ry="5" />
+<text x="1025.0" y="252" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1025.0, 252)">PS</text>
+<text x="1025.0" y="300" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1025.0, 300)">φ = π</text>
+<rect x="1049.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="649.95" y="121.0" width="450.1" height="8" fill="black" />
+<rect x="1099.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="1099.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="1150.0" y="100.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="1175.0" y="187.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1175.0, 187.5)">BS</text>
+<text x="1175.0" y="300" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1175.0, 300)">r = 0.8536</text>
+<rect x="1199.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="1199.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="1249.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="1300.0" y="100.0" width="50" height="50" fill="#e8532b" stroke="black" rx="5" ry="5" />
+<text x="1325.0" y="127" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1325.0, 127)">PS</text>
+<text x="1325.0" y="175" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1325.0, 175)">φ = π</text>
+<rect x="1349.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="949.95" y="746.0" width="150.1" height="8" fill="black" />
+<rect x="1099.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="1099.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="1150.0" y="600.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="1175.0" y="687.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1175.0, 687.5)">BS</text>
+<text x="1175.0" y="800" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1175.0, 800)">r = 0.5</text>
+<rect x="1199.95" y="621.0" width="50.1" height="8" fill="black" />
+<rect x="1199.95" y="746.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="996.0" width="600.1" height="8" fill="black" />
+<rect x="949.95" y="871.0" width="50.1" height="8" fill="black" />
+<rect x="949.95" y="996.0" width="50.1" height="8" fill="black" />
+<rect x="1000.0" y="850.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="1025.0" y="937.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1025.0, 937.5)">BS</text>
+<text x="1025.0" y="1050" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1025.0, 1050)">r = 0.8536</text>
+<rect x="1049.95" y="871.0" width="50.1" height="8" fill="black" />
+<rect x="1049.95" y="996.0" width="50.1" height="8" fill="black" />
+<rect x="1399.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="1249.95" y="246.0" width="200.1" height="8" fill="black" />
+<rect x="949.95" y="371.0" width="500.1" height="8" fill="black" />
+<rect x="1099.95" y="496.0" width="350.1" height="8" fill="black" />
+<rect x="1249.95" y="621.0" width="200.1" height="8" fill="black" />
+<rect x="1249.95" y="746.0" width="200.1" height="8" fill="black" />
+<rect x="1099.95" y="871.0" width="350.1" height="8" fill="black" />
+<rect x="1099.95" y="996.0" width="350.1" height="8" fill="black" />
+<circle cx="150.0" cy="125" r="25" fill="#3e368d" stroke="black" />
+<text x="150.0" y="127.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 150.0, 127.5)">0</text>
+<circle cx="150.0" cy="250" r="25" fill="#3e368d" stroke="black" />
+<text x="150.0" y="252.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 150.0, 252.5)">1</text>
+<circle cx="150.0" cy="875" r="25" fill="#3e368d" stroke="black" />
+<text x="150.0" y="877.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 150.0, 877.5)">1</text>
+<circle cx="150.0" cy="1000" r="25" fill="#3e368d" stroke="black" />
+<text x="150.0" y="1002.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 150.0, 1002.5)">0</text>
+<circle cx="1450.0" cy="125" r="25" fill="#3e368d" stroke="black" />
+<text x="1450.0" y="127.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1450.0, 127.5)">0</text>
+<circle cx="1450.0" cy="250" r="25" fill="#3e368d" stroke="black" />
+<text x="1450.0" y="252.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1450.0, 252.5)">1</text>
+<circle cx="1450.0" cy="875" r="25" fill="#3e368d" stroke="black" />
+<text x="1450.0" y="877.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1450.0, 877.5)">1</text>
+<circle cx="1450.0" cy="1000" r="25" fill="#3e368d" stroke="black" />
+<text x="1450.0" y="1002.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 1450.0, 1002.5)">0</text>
+</svg>
