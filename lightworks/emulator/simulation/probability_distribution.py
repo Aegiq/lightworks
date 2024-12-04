@@ -158,5 +158,4 @@ def annotated_state_pdist_calc(
                 stats_dict[ostate] = ip * op
             else:
                 stats_dict[ostate] += ip * op
-
     return stats_dict

@@ -91,6 +91,7 @@ class Sampler(Task):
         source: Source | None = None,
         detector: Detector | None = None,
         random_seed: int | None = None,
+        sampling_mode: str = "output",
     ) -> None:
         # Assign provided quantities to attributes
         self.circuit = circuit
@@ -101,8 +102,7 @@ class Sampler(Task):
         self.post_selection = post_selection
         self.min_detection = min_detection
         self.random_seed = random_seed
-
-        return
+        self.sampling_mode = sampling_mode
 
     @property
     def circuit(self) -> Circuit:
@@ -215,12 +215,25 @@ class Sampler(Task):
         self.__random_seed = value
 
     @property
+    def sampling_mode(self) -> int | None:
+        """
+        Desc
+        """
+        return self.__sampling_mode
+
+    @sampling_mode.setter
+    def sampling_mode(self, value: int | None) -> None:
+        self.__sampling_mode = value
+
+    @property
     def probability_distribution(self) -> dict:
         """
         The output probability distribution for the currently set configuration
         of the Sampler. This is re-calculated as the Sampler parameters are
         changed.
         """
+        # TODO: This attribute should only be accessible after if it run on a
+        # backend
         if self._check_parameter_updates():
             # Check circuit and input modes match
             if self.circuit.input_modes != len(self.input_state):
@@ -268,6 +281,13 @@ class Sampler(Task):
         """
         self.__backend = backend
 
+        if self.sampling_mode == "input":
+            return self._sample_N_inputs(
+                self.n_samples,
+                self.post_selection,
+                self.min_detection,
+                self.random_seed,
+            )
         return self._sample_N_outputs(
             self.n_samples,
             self.post_selection,
@@ -417,7 +437,7 @@ class Sampler(Task):
         ):
             raise TypeError("min_detection value should be an integer.")
         pdist = self.probability_distribution
-        # Check no detector dark counts included
+        # TODO: Update error message here
         if self.detector.p_dark != 0:
             raise SamplerError(
                 "sample_N_outputs not compatible with detector dark counts"
