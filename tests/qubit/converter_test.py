@@ -293,7 +293,10 @@ class TestQiskitConversion:
         # Run sampler and check results
         n_samples = 10000
         sampler = Sampler(
-            conv_circ, State([0, 1, 1, 0]), n_samples, post_select=post_select
+            conv_circ,
+            State([0, 1, 1, 0]),
+            n_samples,
+            post_selection=post_select,
         )
         results = BACKEND.run(sampler)
         assert results[State([0, 1, 0, 1])] == n_samples

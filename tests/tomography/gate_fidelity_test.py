@@ -30,7 +30,7 @@ def experiment(circuits, inputs, n_qubits):
     backend = emulator.Backend("slos")
     for circ, in_s in zip(circuits, inputs, strict=True):
         sampler = emulator.Sampler(
-            circ, in_s, 20000, post_select=post_select, random_seed=99
+            circ, in_s, 20000, post_selection=post_select, random_seed=99
         )
         results.append(backend.run(sampler))
     return results

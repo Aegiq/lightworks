@@ -36,8 +36,7 @@ if TYPE_CHECKING:
     from ..backends import BackendABC
 
 # TODO: Update documentation
-# TODO: Add properties for new attributes
-# TODO: Determine how to work with n_samples and seeds
+# TODO: Add properties for new attributes + validation
 
 
 class QuickSampler(Task):
@@ -86,8 +85,8 @@ class QuickSampler(Task):
         self.input_state = input_state
         self.post_select = post_select  # type: ignore
         self.photon_counting = photon_counting
-        self.__n_samples = n_samples
-        self.__random_seed = random_seed
+        self.n_samples = n_samples
+        self.random_seed = random_seed
 
         return
 
@@ -141,6 +140,28 @@ class QuickSampler(Task):
         if not isinstance(value, bool):
             raise TypeError("Photon counting should be set to a boolean.")
         self.__photon_counting = bool(value)
+
+    @property
+    def n_samples(self) -> int:
+        """
+        Desc
+        """
+        return self.__n_samples
+
+    @n_samples.setter
+    def n_samples(self, value: int) -> None:
+        self.__n_samples = value
+
+    @property
+    def random_samples(self) -> int | None:
+        """
+        Desc
+        """
+        return self.__random_samples
+
+    @random_samples.setter
+    def random_samples(self, value: int | None) -> None:
+        self.__random_samples = value
 
     @property
     def probability_distribution(self) -> dict[State, float]:
@@ -200,10 +221,8 @@ class QuickSampler(Task):
         for i, k in enumerate(pdist.keys()):
             vals[i] = k
         # Generate N random samples and then process and count output states
-        rng = np.random.default_rng(process_random_seed(self.__random_seed))
-        samples = rng.choice(
-            vals, p=list(pdist.values()), size=self.__n_samples
-        )
+        rng = np.random.default_rng(process_random_seed(self.random_seed))
+        samples = rng.choice(vals, p=list(pdist.values()), size=self.n_samples)
         counted = dict(Counter(samples))
         return SamplingResult(counted, self.input_state)
 

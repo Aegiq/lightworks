@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from ..backends import BackendABC
 
 # TODO: Update documentation
-# TODO: Add properties for new attributes
+# TODO: Add properties for new attributes + validation
 
 
 class Analyzer(Task):
@@ -109,6 +109,28 @@ class Analyzer(Task):
     ) -> None:
         value = process_post_selection(value)
         self.__post_selection = value
+
+    @property
+    def inputs(self) -> State | list:
+        """
+        Desc
+        """
+        return self.__inputs
+
+    @inputs.setter
+    def inputs(self, value: State | list) -> None:
+        self.__inputs = value
+
+    @property
+    def expected(self) -> dict | None:
+        """
+        Desc
+        """
+        return self.__expected
+
+    @expected.setter
+    def expected(self, value: dict | None) -> None:
+        self.__expected = value
 
     def _run(self, backend: "BackendABC") -> SimulationResult:
         """

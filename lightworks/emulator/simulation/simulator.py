@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from ..backends import BackendABC
 
 # TODO: Update documentation
-# TODO: Add properties for new attributes
+# TODO: Add properties for new attributes + validation
 
 
 class Simulator(Task):

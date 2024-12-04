@@ -45,7 +45,7 @@ def experiment_args(circuits, input_state):
             circ,
             input_state,
             n_samples,
-            post_select=post_selection,
+            post_selection=post_selection,
             random_seed=29,
         )
         results.append(backend.run(sampler))

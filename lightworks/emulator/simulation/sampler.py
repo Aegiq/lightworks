@@ -36,8 +36,7 @@ if TYPE_CHECKING:
     from ..backends import BackendABC
 
 # TODO: Update documentation
-# TODO: Add properties for new attributes
-# TODO: Determine how to work with n_samples and seeds
+# TODO: Add properties for new attributes + validation
 
 
 class Sampler(Task):
@@ -87,7 +86,7 @@ class Sampler(Task):
         circuit: Circuit,
         input_state: State,
         n_samples: int,
-        post_select: PostSelectionType | Callable | None = None,
+        post_selection: PostSelectionType | Callable | None = None,
         min_detection: int = 0,
         source: Source | None = None,
         detector: Detector | None = None,
@@ -98,10 +97,10 @@ class Sampler(Task):
         self.input_state = input_state
         self.source = source  # type: ignore
         self.detector = detector  # type: ignore
-        self.__n_samples = n_samples
-        self.__post_select = post_select
-        self.__min_detection = min_detection
-        self.__random_seed = random_seed
+        self.n_samples = n_samples
+        self.post_selection = post_selection
+        self.min_detection = min_detection
+        self.random_seed = random_seed
 
         return
 
@@ -170,6 +169,52 @@ class Sampler(Task):
         self.__detector = value
 
     @property
+    def n_samples(self) -> int:
+        """
+        Desc
+        """
+        return self.__n_samples
+
+    @n_samples.setter
+    def n_samples(self, value: int) -> None:
+        self.__n_samples = value
+
+    @property
+    def post_selection(self) -> PostSelectionType | Callable | None:
+        """
+        Desc
+        """
+        return self.__post_selection
+
+    @post_selection.setter
+    def post_selection(
+        self, value: PostSelectionType | Callable | None
+    ) -> None:
+        self.__post_selection = value
+
+    @property
+    def min_detection(self) -> int:
+        """
+        Desc
+        """
+        return self.__min_detection
+
+    @min_detection.setter
+    def min_detection(self, value: int) -> None:
+        self.__min_detection = value
+
+    @property
+    def random_seed(self) -> int | None:
+        """
+        Desc
+        """
+        return self.__random_seed
+
+    @random_seed.setter
+    def random_seed(self, value: int | None) -> None:
+        self.__random_seed = value
+
+    @property
     def probability_distribution(self) -> dict:
         """
         The output probability distribution for the currently set configuration
@@ -224,10 +269,10 @@ class Sampler(Task):
         self.__backend = backend
 
         return self._sample_N_outputs(
-            self.__n_samples,
-            self.__post_select,
-            self.__min_detection,
-            self.__random_seed,
+            self.n_samples,
+            self.post_selection,
+            self.min_detection,
+            self.random_seed,
         )
 
     def _sample_N_inputs(  # noqa: N802
