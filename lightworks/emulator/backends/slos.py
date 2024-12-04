@@ -57,10 +57,11 @@ class SLOSBackend(BackendABC):
                 backend.
 
         """
-        pdist: dict[State, float] = {}
         # Return empty distribution when 0 photons in input
         if input_state.n_photons == 0:
-            pdist = {State([0] * circuit.n_modes): 1.0}
+            return {State([0] * circuit.n_modes): 1.0}
+
+        pdist: dict[State, float] = {}
         # Add extra states for loss modes here when included
         if circuit.loss_modes > 0:
             input_state = input_state + State([0] * circuit.loss_modes)
