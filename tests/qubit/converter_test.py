@@ -19,7 +19,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit.library import MCXGate
 
 from lightworks import State
-from lightworks.emulator import Sampler, Simulator
+from lightworks.emulator import Backend, Sampler, Simulator
 from lightworks.qubit import qiskit_converter
 from lightworks.qubit.converter.qiskit_convert import (
     ROTATION_GATES_MAP,
@@ -29,6 +29,8 @@ from lightworks.qubit.converter.qiskit_convert import (
     convert_two_qubits_to_adjacent,
     post_selection_analyzer,
 )
+
+BACKEND = Backend("permanent")
 
 
 class TestQiskitConversion:
@@ -91,8 +93,8 @@ class TestQiskitConversion:
         circ.x(0)
         conv_circ, _ = qiskit_converter(circ)
 
-        sim = Simulator(conv_circ)
-        results = sim.simulate(State([1, 0]), State([0, 1]))
+        sim = Simulator(conv_circ, State([1, 0]), State([0, 1]))
+        results = BACKEND.run(sim)
         assert abs(results[State([1, 0]), State([0, 1])]) ** 2 == pytest.approx(
             1.0, 1e-6
         )
@@ -105,8 +107,8 @@ class TestQiskitConversion:
         circ.cx(0, 1)
         conv_circ, _ = qiskit_converter(circ)
 
-        sim = Simulator(conv_circ)
-        results = sim.simulate(State([0, 1, 1, 0]), State([0, 1, 0, 1]))
+        sim = Simulator(conv_circ, State([0, 1, 1, 0]), State([0, 1, 0, 1]))
+        results = BACKEND.run(sim)
         assert abs(
             results[State([0, 1, 1, 0]), State([0, 1, 0, 1])]
         ) ** 2 == pytest.approx(1 / 16, 1e-6)
@@ -121,10 +123,10 @@ class TestQiskitConversion:
         circ.cx(1, 2)
         conv_circ, _ = qiskit_converter(circ)
 
-        sim = Simulator(conv_circ)
-        results = sim.simulate(
-            State([0, 1, 1, 0, 1, 0]), State([0, 1, 0, 1, 0, 1])
+        sim = Simulator(
+            conv_circ, State([0, 1, 1, 0, 1, 0]), State([0, 1, 0, 1, 0, 1])
         )
+        results = BACKEND.run(sim)
         assert abs(
             results[State([0, 1, 1, 0, 1, 0]), State([0, 1, 0, 1, 0, 1])]
         ) ** 2 == pytest.approx(1 / 16**2, 1e-6)
@@ -138,8 +140,8 @@ class TestQiskitConversion:
         circ.cx(0, 1)
         conv_circ, _ = qiskit_converter(circ, allow_post_selection=True)
 
-        sim = Simulator(conv_circ)
-        results = sim.simulate(State([0, 1, 1, 0]), State([0, 1, 0, 1]))
+        sim = Simulator(conv_circ, State([0, 1, 1, 0]), State([0, 1, 0, 1]))
+        results = BACKEND.run(sim)
         assert abs(
             results[State([0, 1, 1, 0]), State([0, 1, 0, 1])]
         ) ** 2 == pytest.approx(1 / 9, 1e-6)
@@ -155,10 +157,10 @@ class TestQiskitConversion:
         circ.cx(1, 2)
         conv_circ, _ = qiskit_converter(circ, allow_post_selection=True)
 
-        sim = Simulator(conv_circ)
-        results = sim.simulate(
-            State([0, 1, 1, 0, 1, 0]), State([0, 1, 0, 1, 0, 1])
+        sim = Simulator(
+            conv_circ, State([0, 1, 1, 0, 1, 0]), State([0, 1, 0, 1, 0, 1])
         )
+        results = BACKEND.run(sim)
         assert abs(
             results[State([0, 1, 1, 0, 1, 0]), State([0, 1, 0, 1, 0, 1])]
         ) ** 2 == pytest.approx(1 / 81, 1e-6)
@@ -173,9 +175,9 @@ class TestQiskitConversion:
         circ.cx(0, 1)
         conv_circ, _ = qiskit_converter(circ)
 
-        sim = Simulator(conv_circ)
         outputs = [State([1, 0, 1, 0]), State([0, 1, 0, 1])]
-        results = sim.simulate(State([1, 0, 1, 0]), outputs)
+        sim = Simulator(conv_circ, State([1, 0, 1, 0]), outputs)
+        results = BACKEND.run(sim)
         for out in outputs:
             assert abs(results[State([1, 0, 1, 0]), out]) ** 2 == pytest.approx(
                 1 / 32, 1e-6
@@ -190,8 +192,8 @@ class TestQiskitConversion:
         circ.cx(1, 0)
         conv_circ, _ = qiskit_converter(circ)
 
-        sim = Simulator(conv_circ)
-        results = sim.simulate(State([1, 0, 0, 1]), State([0, 1, 0, 1]))
+        sim = Simulator(conv_circ, State([1, 0, 0, 1]), State([0, 1, 0, 1]))
+        results = BACKEND.run(sim)
         assert abs(
             results[State([1, 0, 0, 1]), State([0, 1, 0, 1])]
         ) ** 2 == pytest.approx(1 / 16, 1e-6)
@@ -205,10 +207,10 @@ class TestQiskitConversion:
         circ.cx(0, 2)
         conv_circ, _ = qiskit_converter(circ)
 
-        sim = Simulator(conv_circ)
-        results = sim.simulate(
-            State([0, 1, 0, 1, 0, 1]), State([0, 1, 0, 1, 1, 0])
+        sim = Simulator(
+            conv_circ, State([0, 1, 0, 1, 0, 1]), State([0, 1, 0, 1, 1, 0])
         )
+        results = BACKEND.run(sim)
         assert abs(
             results[State([0, 1, 0, 1, 0, 1]), State([0, 1, 0, 1, 1, 0])]
         ) ** 2 == pytest.approx(1 / 16, 1e-6)
@@ -222,10 +224,10 @@ class TestQiskitConversion:
         circ.cx(2, 0)
         conv_circ, _ = qiskit_converter(circ)
 
-        sim = Simulator(conv_circ)
-        results = sim.simulate(
-            State([0, 1, 0, 1, 0, 1]), State([1, 0, 0, 1, 0, 1])
+        sim = Simulator(
+            conv_circ, State([0, 1, 0, 1, 0, 1]), State([1, 0, 0, 1, 0, 1])
         )
+        results = BACKEND.run(sim)
         assert abs(
             results[State([0, 1, 0, 1, 0, 1]), State([1, 0, 0, 1, 0, 1])]
         ) ** 2 == pytest.approx(1 / 16, 1e-6)
@@ -238,10 +240,10 @@ class TestQiskitConversion:
         circ.ccx(0, 1, 2)
         conv_circ, _ = qiskit_converter(circ, allow_post_selection=True)
 
-        sim = Simulator(conv_circ)
-        results = sim.simulate(
-            State([0, 1, 0, 1, 1, 0]), State([0, 1, 0, 1, 0, 1])
+        sim = Simulator(
+            conv_circ, State([0, 1, 0, 1, 1, 0]), State([0, 1, 0, 1, 0, 1])
         )
+        results = BACKEND.run(sim)
         assert abs(
             results[State([0, 1, 0, 1, 1, 0]), State([0, 1, 0, 1, 0, 1])]
         ) ** 2 == pytest.approx(1 / 72, 1e-6)
@@ -254,10 +256,10 @@ class TestQiskitConversion:
         circ.swap(0, 2)
         conv_circ, _ = qiskit_converter(circ)
 
-        sim = Simulator(conv_circ)
-        results = sim.simulate(
-            State([0, 1, 0, 0, 2, 3]), State([2, 3, 0, 0, 0, 1])
+        sim = Simulator(
+            conv_circ, State([0, 1, 0, 0, 2, 3]), State([2, 3, 0, 0, 0, 1])
         )
+        results = BACKEND.run(sim)
         assert abs(
             results[State([0, 1, 0, 0, 2, 3]), State([2, 3, 0, 0, 0, 1])]
         ) ** 2 == pytest.approx(1, 1e-6)
@@ -290,8 +292,10 @@ class TestQiskitConversion:
         )
         # Run sampler and check results
         n_samples = 10000
-        sampler = Sampler(conv_circ, State([0, 1, 1, 0]))
-        results = sampler.sample_N_outputs(n_samples, post_select=post_select)
+        sampler = Sampler(
+            conv_circ, State([0, 1, 1, 0]), n_samples, post_select=post_select
+        )
+        results = BACKEND.run(sampler)
         assert results[State([0, 1, 0, 1])] == n_samples
 
     def test_post_selection_rules(self):
