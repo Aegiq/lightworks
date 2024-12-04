@@ -52,12 +52,12 @@ class Simulator(Task):
         self,
         circuit: Circuit,
         inputs: State | list[State],
-        outputs: list | None = None,
+        outputs: State | list[State] | None = None,
     ) -> None:
         # Assign circuit to attribute
         self.circuit = circuit
-        self.__inputs = inputs
-        self.__outputs = outputs
+        self.inputs = inputs
+        self.outputs = outputs
 
         return
 
@@ -76,6 +76,28 @@ class Simulator(Task):
                 "Provided circuit should be a Circuit or Unitary object."
             )
         self.__circuit = value
+
+    @property
+    def inputs(self) -> State | list[State]:
+        """
+        Desc
+        """
+        return self.__inputs
+
+    @inputs.setter
+    def inputs(self, value: State | list[State]) -> None:
+        self.__inputs = value
+
+    @property
+    def outputs(self) -> State | list[State] | None:
+        """
+        Desc
+        """
+        return self.__outputs
+
+    @outputs.setter
+    def outputs(self, value: State | list[State] | None) -> None:
+        self.__outputs = value
 
     def _run(self, backend: "BackendABC") -> SimulationResult:
         """
@@ -98,9 +120,9 @@ class Simulator(Task):
         """
         circuit = self.circuit._build()
         # Then process inputs list
-        inputs = self._process_inputs(self.__inputs)
+        inputs = self._process_inputs(self.inputs)
         # And then either generate or process outputs
-        inputs, outputs = self._process_outputs(inputs, self.__outputs)
+        inputs, outputs = self._process_outputs(inputs, self.outputs)
         in_heralds = self.circuit.heralds["input"]
         out_heralds = self.circuit.heralds["output"]
         # Calculate permanent for the given inputs and outputs and return
