@@ -12,17 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 
 from ...sdk.circuit import Circuit
 from ...sdk.state import State
 from ...sdk.utils import add_heralds_to_state
-from ..backend import Backend
 from ..results import SimulationResult
 from ..utils import ModeMismatchError, PhotonNumberError, fock_basis
+from .task import Task
+
+if TYPE_CHECKING:
+    from ..backends import BackendABC
+
+# TODO: Update documentation
+# TODO: Add properties for new attributes
 
 
-class Simulator:
+class Simulator(Task):
     """
     Simulates a circuit for a provided number of inputs and outputs, returning
     the probability amplitude between them.
@@ -31,12 +39,25 @@ class Simulator:
 
         circuit : The circuit which is to be used for simulation.
 
+        inputs (list) : A list of the input states to simulate. For multiple
+            inputs this should be a list of States.
+
+        outputs (list | None, optional) : A list of the output states to
+            simulate, this can also be set to None to automatically find all
+            possible outputs.
+
     """
 
-    def __init__(self, circuit: Circuit) -> None:
+    def __init__(
+        self,
+        circuit: Circuit,
+        inputs: State | list[State],
+        outputs: list | None = None,
+    ) -> None:
         # Assign circuit to attribute
         self.circuit = circuit
-        self.__backend = Backend("permanent")
+        self.__inputs = inputs
+        self.__outputs = outputs
 
         return
 
@@ -56,9 +77,7 @@ class Simulator:
             )
         self.__circuit = value
 
-    def simulate(
-        self, inputs: State | list[State], outputs: list | None = None
-    ) -> SimulationResult:
+    def _run(self, backend: "BackendABC") -> SimulationResult:
         """
         Function to run a simulation for a number of inputs/outputs, if no
         outputs are specified then all possible outputs for the photon number
@@ -67,12 +86,7 @@ class Simulator:
 
         Args:
 
-            inputs (list) : A list of the input states to simulate. For
-                multiple inputs this should be a list of States.
-
-            outputs (list | None, optional) : A list of the output states to
-                simulate, this can also be set to None to automatically find
-                all possible outputs.
+            backend (BackendABC) : Desc
 
         Returns:
 
@@ -84,9 +98,9 @@ class Simulator:
         """
         circuit = self.circuit._build()
         # Then process inputs list
-        inputs = self._process_inputs(inputs)
+        inputs = self._process_inputs(self.__inputs)
         # And then either generate or process outputs
-        inputs, outputs = self._process_outputs(inputs, outputs)
+        inputs, outputs = self._process_outputs(inputs, self.__outputs)
         in_heralds = self.circuit.heralds["input"]
         out_heralds = self.circuit.heralds["output"]
         # Calculate permanent for the given inputs and outputs and return
@@ -98,7 +112,7 @@ class Simulator:
             for j, outs in enumerate(outputs):
                 out_state = add_heralds_to_state(outs, out_heralds)
                 out_state += [0] * circuit.loss_modes
-                amplitudes[i, j] = self.__backend.probability_amplitude(
+                amplitudes[i, j] = backend.probability_amplitude(
                     circuit.U_full, in_state, out_state
                 )
         # Return results and corresponding states as dictionary

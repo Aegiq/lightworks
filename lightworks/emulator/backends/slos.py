@@ -16,16 +16,66 @@ from math import factorial
 
 import numpy as np
 
+from ...__settings import settings
+from ...sdk.circuit.compiler import CompiledCircuit
 from ...sdk.state import State
+from .abc_backend import BackendABC
 
 
-class SLOS:
+class SLOSBackend(BackendABC):
     """
     Contains calculate function for SLOS method.
     """
 
-    @staticmethod
-    def calculate(unitary: np.ndarray, input_state: State) -> dict:
+    @property
+    def name(self) -> str:
+        """Returns the name of the backend"""
+        return "slos"
+
+    def full_probability_distribution(
+        self, circuit: CompiledCircuit, input_state: State
+    ) -> dict:
+        """
+        Finds the output probability distribution for the provided circuit and
+        input state.
+
+        Args:
+
+            circuit (CompiledCircuit) : The compiled version of the circuit
+                which is being simulated. This is created by calling the _build
+                method on the target circuit.
+
+            input_state (State) : The input state to the system.
+
+        Returns:
+
+            dict : The calculated full probability distribution for the input.
+
+        Raises:
+
+            BackendError: Raised if this method is called with an incompatible
+                backend.
+
+        """
+        pdist: dict[State, float] = {}
+        # Return empty distribution when 0 photons in input
+        if input_state.n_photons == 0:
+            pdist = {State([0] * circuit.n_modes): 1.0}
+        # Add extra states for loss modes here when included
+        if circuit.loss_modes > 0:
+            input_state = input_state + State([0] * circuit.loss_modes)
+        full_dist = self.calculate(circuit.U_full, input_state)
+        # Combine results to remote lossy modes
+        for s, p in full_dist.items():
+            if abs(p) ** 2 > settings.sampler_probability_threshold:
+                new_s = State(s[: circuit.n_modes])
+                if new_s in pdist:
+                    pdist[new_s] += abs(p) ** 2
+                else:
+                    pdist[new_s] = abs(p) ** 2
+        return pdist
+
+    def calculate(self, unitary: np.ndarray, input_state: State) -> dict:
         """
         Performs calculation of full probability distribution given a unitary
         matrix and input state.

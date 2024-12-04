@@ -18,13 +18,15 @@ from multimethod import multimethod
 
 from ...sdk.circuit.compiler import CompiledCircuit
 from ...sdk.state import State
-from ..backend import Backend
+from ..backends.abc_backend import BackendABC
 from ..state import AnnotatedState
 
 
 @multimethod
 def pdist_calc(
-    circuit: CompiledCircuit, inputs: dict[State, int | float], backend: Backend
+    circuit: CompiledCircuit,
+    inputs: dict[State, int | float],
+    backend: "BackendABC",
 ) -> dict[State, float]:
     """
     Calculate the output state probability distribution for cases where
@@ -75,7 +77,7 @@ def pdist_calc(
 def annotated_state_pdist_calc(
     circuit: CompiledCircuit,
     inputs: dict[AnnotatedState, int | float],
-    backend: Backend,
+    backend: "BackendABC",
 ) -> dict[State, float]:
     """
     Perform output state probability distribution calculation using complex

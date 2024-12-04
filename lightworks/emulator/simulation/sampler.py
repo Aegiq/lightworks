@@ -14,7 +14,7 @@
 
 from collections import Counter
 from collections.abc import Callable
-from random import random
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -26,14 +26,21 @@ from ...sdk.utils import (
     remove_heralds_from_state,
 )
 from ...sdk.utils.post_selection import PostSelectionType
-from ..backend import Backend
 from ..components import Detector, Source
 from ..results import SamplingResult
 from ..utils import ModeMismatchError, SamplerError, process_post_selection
 from .probability_distribution import pdist_calc
+from .task import Task
+
+if TYPE_CHECKING:
+    from ..backends import BackendABC
+
+# TODO: Update documentation
+# TODO: Add properties for new attributes
+# TODO: Determine how to work with n_samples and seeds
 
 
-class Sampler:
+class Sampler(Task):
     """
     Used to randomly sample from the photon number distribution output of a
     provided circuit. The distribution is calculated when the class is first
@@ -59,22 +66,42 @@ class Sampler:
             for the sampling process. If not selected this will default to
             permanent calculation.
 
+        n_samples (int) : The number of samples that are to be returned.
+
+        post_select (PostSelection | function, optional) : A PostSelection
+            object or function which applies a provided set of
+            post-selection criteria to a state.
+
+        min_detection (int, optional) : Post-select on a given minimum
+            total number of photons, this should not include any heralded
+            photons.
+
+        random_seed (int|None, optional) : Option to provide a random seed to
+            reproducibly generate samples from the function. This is
+            optional and can remain as None if this is not required.
+
     """
 
     def __init__(
         self,
         circuit: Circuit,
         input_state: State,
+        n_samples: int,
+        post_select: PostSelectionType | Callable | None = None,
+        min_detection: int = 0,
         source: Source | None = None,
         detector: Detector | None = None,
-        backend: Backend | str | None = None,
+        random_seed: int | None = None,
     ) -> None:
         # Assign provided quantities to attributes
         self.circuit = circuit
         self.input_state = input_state
         self.source = source  # type: ignore
         self.detector = detector  # type: ignore
-        self.backend = backend  # type: ignore
+        self.__n_samples = n_samples
+        self.__post_select = post_select
+        self.__min_detection = min_detection
+        self.__random_seed = random_seed
 
         return
 
@@ -143,23 +170,6 @@ class Sampler:
         self.__detector = value
 
     @property
-    def backend(self) -> Backend:
-        """
-        Stores backend which is currently in use.
-        """
-        return self.__backend
-
-    @backend.setter
-    def backend(self, value: Backend | str | None) -> None:
-        if value is None:
-            value = Backend("permanent")
-        if isinstance(value, str):
-            value = Backend(value)
-        if not isinstance(value, Backend):
-            raise TypeError("Provided backend should be a Backend object.")
-        self.__backend = value
-
-    @property
     def probability_distribution(self) -> dict:
         """
         The output probability distribution for the currently set configuration
@@ -180,7 +190,9 @@ class Sampler:
             # Then build with source
             all_inputs = self.source._build_statistics(input_state)
             # And find probability distribution
-            pdist = pdist_calc(self.circuit._build(), all_inputs, self.backend)
+            pdist = pdist_calc(
+                self.circuit._build(), all_inputs, self.__backend
+            )
             # Special case to catch an empty distribution
             if not pdist:
                 pdist = {State([0] * self.circuit.n_modes): 1}
@@ -192,39 +204,33 @@ class Sampler:
                 for s in pdist
             }
             self.__calculation_values = self._gen_calculation_values()
-            # Also pre-calculate continuous distribution
-            self.__continuous_distribution = self._convert_to_continuous(pdist)
         return self.__probability_distribution
 
-    @property
-    def continuous_distribution(self) -> dict:
+    def _run(self, backend: "BackendABC") -> SamplingResult:
         """
-        The probability distribution as a continuous distribution. This can be
-        used for random sampling from the distribution.
-        """
-        if self._check_parameter_updates():
-            self.probability_distribution  # noqa: B018
-        return self.__continuous_distribution
+        Function to sample a state from the calculated provided distribution
+        many times, producing N outputs which meet any criteria.
 
-    def sample(self) -> State:
-        """
-        Function to sample a state from the provided distribution.
+        Args:
+
+            backend (BackendABC) : Desc
 
         Returns:
 
-            State : The sampled output state from the circuit.
+            SamplingResult : A dictionary containing the different output
+                states and the number of counts for each one.
 
         """
-        # Get random number and find first point continuous distribution is
-        # below this value
-        pval = random()
-        for state, cd in self.continuous_distribution.items():
-            if pval < cd:
-                # Return this as the found state
-                return self.detector._get_output(state)
-        return self.detector._get_output(state)
+        self.__backend = backend
 
-    def sample_N_inputs(  # noqa: N802
+        return self._sample_N_outputs(
+            self.__n_samples,
+            self.__post_select,
+            self.__min_detection,
+            self.__random_seed,
+        )
+
+    def _sample_N_inputs(  # noqa: N802
         self,
         N: int,  # noqa: N803
         post_select: PostSelectionType | Callable | None = None,
@@ -325,7 +331,7 @@ class Sampler:
         counted = dict(Counter(filtered_samples))
         return SamplingResult(counted, self.input_state)
 
-    def sample_N_outputs(  # noqa: N802
+    def _sample_N_outputs(  # noqa: N802
         self,
         N: int,  # noqa: N803
         post_select: PostSelectionType | Callable | None = None,
@@ -465,7 +471,7 @@ class Sampler:
         returns this.
         """
         # Store circuit unitary and input state
-        vals = [self.__circuit.U_full, self.input_state, self.backend.backend]
+        vals = [self.__circuit.U_full, self.input_state, self.__backend.name]
         # Loop through source parameters and add these as well
         for prop in [
             "brightness",

@@ -12,4 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .backend import Backend
+from ..backends.abc_backend import BackendABC
+
+
+class Task:
+    """
+    Desc
+    """
+
+    def _run(self, backend: BackendABC) -> dict:  # noqa: ARG002
+        return {}

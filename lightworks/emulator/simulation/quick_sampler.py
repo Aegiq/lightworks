@@ -14,7 +14,7 @@
 
 from collections import Counter
 from collections.abc import Callable
-from random import random
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -23,7 +23,6 @@ from ...sdk.circuit import Circuit
 from ...sdk.state import State
 from ...sdk.utils import add_heralds_to_state, process_random_seed
 from ...sdk.utils.post_selection import PostSelectionType
-from ..backend import Backend
 from ..results import SamplingResult
 from ..utils import (
     EmulatorError,
@@ -31,9 +30,17 @@ from ..utils import (
     fock_basis,
     process_post_selection,
 )
+from .task import Task
+
+if TYPE_CHECKING:
+    from ..backends import BackendABC
+
+# TODO: Update documentation
+# TODO: Add properties for new attributes
+# TODO: Determine how to work with n_samples and seeds
 
 
-class QuickSampler:
+class QuickSampler(Task):
     """
     Randomly samples from the photon number distribution output of a provided
     circuit. It is designed to provide quicker sampling in cases where a
@@ -57,21 +64,30 @@ class QuickSampler:
             object or function which applies a provided set of post-selection
             criteria to a state.
 
+        n_samples (int) : The number of samples to take from the circuit.
+
+        random_seed (int|None, optional) : Option to provide a random seed to
+            reproducibly generate samples from the function. This is
+            optional and can remain as None if this is not required.
+
     """
 
     def __init__(
         self,
         circuit: Circuit,
         input_state: State,
+        n_samples: int,
         photon_counting: bool = True,
         post_select: PostSelectionType | Callable | None = None,
+        random_seed: int | None = None,
     ) -> None:
         # Assign parameters to attributes
         self.circuit = circuit
         self.input_state = input_state
         self.post_select = post_select  # type: ignore
         self.photon_counting = photon_counting
-        self.__backend = Backend("permanent")
+        self.__n_samples = n_samples
+        self.__random_seed = random_seed
 
         return
 
@@ -161,52 +177,16 @@ class QuickSampler:
             # Then assign calculated distribution to attribute
             self.__probability_distribution = pdist
             self.__calculation_values = self._gen_calculation_values()
-            # Also pre-calculate continuous distribution
-            self.__continuous_distribution = self._convert_to_continuous(pdist)
         return self.__probability_distribution
 
-    @property
-    def continuous_distribution(self) -> dict:
-        """
-        The probability distribution as a continuous distribution. This can be
-        used for random sampling from the distribution.
-        """
-        return self.__continuous_distribution
-
-    def sample(self) -> State:
-        """
-        Function to sample a state from the provided distribution.
-
-        Returns:
-
-            State : The sampled output state from the circuit.
-
-        """
-        # Get random number and find first point continuous distribution is
-        # below this value
-        pval = random()
-        for state, cd in self.continuous_distribution.items():
-            if pval < cd:
-                # Return this as the found state
-                return state
-        return state
-
-    def sample_N_outputs(  # noqa: N802
-        self,
-        N: int,  # noqa: N803
-        seed: int | None = None,
-    ) -> SamplingResult:
+    def _run(self, backend: "BackendABC") -> SamplingResult:
         """
         Function to sample a state from the calculated provided distribution
         many times, producing N outputs which meet any criteria.
 
         Args:
 
-            N (int) : The number of samples to take from the circuit.
-
-            seed (int|None, optional) : Option to provide a random seed to
-                reproducibly generate samples from the function. This is
-                optional and can remain as None if this is not required.
+            backend (BackendABC) : Desc
 
         Returns:
 
@@ -214,13 +194,16 @@ class QuickSampler:
                 states and the number of counts for each one.
 
         """
+        self.__backend = backend
         pdist = self.probability_distribution
         vals = np.zeros(len(pdist), dtype=object)
         for i, k in enumerate(pdist.keys()):
             vals[i] = k
         # Generate N random samples and then process and count output states
-        rng = np.random.default_rng(process_random_seed(seed))
-        samples = rng.choice(vals, p=list(pdist.values()), size=N)
+        rng = np.random.default_rng(process_random_seed(self.__random_seed))
+        samples = rng.choice(
+            vals, p=list(pdist.values()), size=self.__n_samples
+        )
         counted = dict(Counter(samples))
         return SamplingResult(counted, self.input_state)
 
