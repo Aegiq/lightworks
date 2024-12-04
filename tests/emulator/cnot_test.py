@@ -91,11 +91,13 @@ class TestCNOT:
         sampler = Sampler(
             cnot_circuit,
             State([0, 0, 1, 1, 0, 0]),
+            20000,
             source=source,
             detector=detector,
-            backend=backend,
+            post_selection=post_selection[0],
+            sampling_mode="input",
         )
-        results = sampler.sample_N_inputs(20000, post_select=post_selection[0])
+        results = backend.run(sampler)
         # We expect the state |11> (|0,0,1,0,1,0> in mode language) with
         # reasonable fidelity, so we will assert this is measured for > 80% of
         # the total samples which met the herald condition
@@ -135,11 +137,12 @@ class TestCNOT:
         sampler = Sampler(
             cnot_circuit,
             State([0, 0, 1, 1, 0, 0]),
+            20000,
             source=source,
             detector=detector,
-            backend=backend,
+            post_selection=post_selection[0],
         )
-        results = sampler.sample_N_outputs(20000, post_select=post_selection[0])
+        results = backend.run(sampler)
         # We expect the state |11> (|0,0,1,0,1,0> in mode language) with
         # reasonable fidelity, so we will assert this is measured for > 80% of
         # the total samples which met the herald condition
@@ -162,11 +165,13 @@ class TestCNOT:
         sampler = Sampler(
             cnot_circuit,
             State([0, 1, 1, 0]),
+            20000,
             source=source,
             detector=detector,
-            backend=backend,
+            post_selection=post_selection[1],
+            sampling_mode="input",
         )
-        results = sampler.sample_N_inputs(20000, post_select=post_selection[1])
+        results = backend.run(sampler)
         # We expect the state |11> (|0,1,0,1> in mode language) with
         # reasonable fidelity, so we will assert this is measured for > 80% of
         # the total samples which met the herald condition
@@ -189,11 +194,12 @@ class TestCNOT:
         sampler = Sampler(
             cnot_circuit,
             State([0, 1, 1, 0]),
+            20000,
             source=source,
             detector=detector,
-            backend=backend,
+            post_selection=post_selection[1],
         )
-        results = sampler.sample_N_outputs(20000, post_select=post_selection[1])
+        results = backend.run(sampler)
         # We expect the state |11> (|0,1,0,1> in mode language) with
         # reasonable fidelity, so we will assert this is measured for > 80% of
         # the total samples which met the herald condition
