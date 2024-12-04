@@ -82,21 +82,21 @@ class SLOSBackend(BackendABC):
         """
         p = [m for m, n in enumerate(input_state) for _i in range(n)]
         n_modes = unitary.shape[0]
-        input = {tuple(n_modes * [0]): 1.0}  # N-mode vacuum state
+        # Normalise initial input probability
+        m = 1 / np.sqrt(vector_factorial(input_state.s))
+        input_ = {tuple(n_modes * [0]): m}  # N-mode vacuum state
 
         # Successively apply the matrices A_k
         for i in p:  # Each matrix is indexed by the components of p
             output: dict[tuple, float] = {}
             for j in range(n_modes):  # Sum over i
                 step = a_i_dagger(
-                    input, j, unitary[j, i]
+                    input_, j, unitary[j, i]
                 )  # Apply ladder operator
                 output = add_dicts(output, step)  # Add it to the total
-            input = output
+            input_ = output
 
-        # Renormalise the output with the overall factorial term and return
-        m = 1 / np.sqrt(vector_factorial(input_state.s))
-        return {k: v * m for k, v in input.items()}
+        return input_
 
 
 def a_i_dagger(dist: dict, mode: int, multiplier: complex) -> dict:
