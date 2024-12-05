@@ -56,8 +56,8 @@ class Simulator(Task):
     ) -> None:
         # Assign circuit to attribute
         self.circuit = circuit
-        self.inputs = inputs
-        self.outputs = outputs
+        self.inputs = inputs  # type: ignore[assignment]
+        self.outputs = outputs  # type: ignore[assignment]
 
         return
 
@@ -78,7 +78,7 @@ class Simulator(Task):
         self.__circuit = value
 
     @property
-    def inputs(self) -> State | list[State]:
+    def inputs(self) -> list[State]:
         """
         Desc
         """
@@ -86,10 +86,10 @@ class Simulator(Task):
 
     @inputs.setter
     def inputs(self, value: State | list[State]) -> None:
-        self.__inputs = value
+        self.__inputs = self._process_inputs(value)
 
     @property
-    def outputs(self) -> State | list[State] | None:
+    def outputs(self) -> list[State] | None:
         """
         Desc
         """
@@ -97,7 +97,7 @@ class Simulator(Task):
 
     @outputs.setter
     def outputs(self, value: State | list[State] | None) -> None:
-        self.__outputs = value
+        self.__outputs = self._process_outputs(self.inputs, value)
 
     def _run(self, backend: "BackendABC") -> SimulationResult:
         """
@@ -119,16 +119,17 @@ class Simulator(Task):
 
         """
         circuit = self.circuit._build()
-        # Then process inputs list
-        inputs = self._process_inputs(self.inputs)
-        # And then either generate or process outputs
-        inputs, outputs = self._process_outputs(inputs, self.outputs)
+        if self.outputs is None:
+            outputs = fock_basis(self.circuit.input_modes, sum(self.inputs[0]))
+            outputs = [State(s) for s in outputs]
+        else:
+            outputs = self.outputs
         in_heralds = self.circuit.heralds["input"]
         out_heralds = self.circuit.heralds["output"]
         # Calculate permanent for the given inputs and outputs and return
         # values
-        amplitudes = np.zeros((len(inputs), len(outputs)), dtype=complex)
-        for i, ins in enumerate(inputs):
+        amplitudes = np.zeros((len(self.inputs), len(outputs)), dtype=complex)
+        for i, ins in enumerate(self.inputs):
             in_state = add_heralds_to_state(ins, in_heralds)
             in_state += [0] * circuit.loss_modes
             for j, outs in enumerate(outputs):
@@ -139,7 +140,10 @@ class Simulator(Task):
                 )
         # Return results and corresponding states as dictionary
         return SimulationResult(
-            amplitudes, "probability_amplitude", inputs=inputs, outputs=outputs
+            amplitudes,
+            "probability_amplitude",
+            inputs=self.inputs,
+            outputs=outputs,
         )
 
     def _process_inputs(self, inputs: State | list) -> list:
@@ -164,28 +168,24 @@ class Simulator(Task):
                 raise ModeMismatchError(msg)
             # Also validate state values
             state._validate()
+        ns = [s.n_photons for s in inputs]
+        if min(ns) != max(ns):
+            raise PhotonNumberError(
+                "Mismatch in total photon number between inputs, this is "
+                "not currently supported by the Simulator."
+            )
         return inputs
 
     def _process_outputs(
-        self, inputs: list, outputs: list | None
-    ) -> tuple[list, list]:
+        self, inputs: list[State], outputs: State | list[State] | None
+    ) -> list[State] | None:
         """
         Processes the provided outputs or generates them if no inputs were
         provided. Returns both the inputs and outputs.
         """
         input_modes = self.circuit.input_modes
         # If outputs not specified then determine all combinations
-        if outputs is None:
-            ns = [s.n_photons for s in inputs]
-            if min(ns) != max(ns):
-                raise PhotonNumberError(
-                    "Mismatch in total photon number between inputs, this is "
-                    "not currently supported by the Simulator."
-                )
-            outputs = fock_basis(input_modes, max(ns))
-            outputs = [State(s) for s in outputs]
-        # Otherwise check provided outputs
-        else:
+        if outputs is not None:
             if isinstance(outputs, State):
                 outputs = [outputs]
             # Check type and dimension is correct
@@ -212,4 +212,4 @@ class Simulator(Task):
                     "Mismatch in photon numbers between some inputs/outputs, "
                     "this is not currently supported in the Simulator."
                 )
-        return inputs, outputs
+        return outputs

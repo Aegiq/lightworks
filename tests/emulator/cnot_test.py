@@ -132,7 +132,7 @@ class TestCNOT:
                 cnot_circuit.barrier()
         # Define imperfect source and detector
         source = Source(purity=0.99, brightness=0.4, indistinguishability=0.94)
-        detector = Detector(efficiency=0.9, photon_counting=False)
+        detector = Detector(efficiency=1, photon_counting=False)
         # Then define sampler with the input state |10>
         sampler = Sampler(
             cnot_circuit,
@@ -189,7 +189,7 @@ class TestCNOT:
         cnot_circuit = CNOT()
         # Define imperfect source and detector
         source = Source(purity=0.99, brightness=0.4, indistinguishability=0.94)
-        detector = Detector(efficiency=0.9, photon_counting=False)
+        detector = Detector(efficiency=1, photon_counting=False)
         # Then define sampler with the input state |10>
         sampler = Sampler(
             cnot_circuit,

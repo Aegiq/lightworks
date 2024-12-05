@@ -170,6 +170,8 @@ class QuickSampler(Task):
         of the QuickSampler. This is re-calculated as the QuickSampler
         parameters are changed.
         """
+        # TODO: This attribute should only be accessible after if it run on a
+        # backend
         if self._check_parameter_updates():
             # Check circuit and input modes match
             if self.circuit.input_modes != len(self.input_state):

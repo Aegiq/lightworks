@@ -22,7 +22,14 @@ from lightworks import (
     db_loss_to_decimal,
     random_unitary,
 )
-from lightworks.emulator import ModeMismatchError, QuickSampler, Sampler
+from lightworks.emulator import (
+    Backend,
+    ModeMismatchError,
+    QuickSampler,
+    Sampler,
+)
+
+BACKEND = Backend("permanent")
 
 
 class TestQuickSampler:
@@ -38,9 +45,9 @@ class TestQuickSampler:
         """
         circuit = Circuit(2)
         circuit.bs(0)
-        sampler = QuickSampler(circuit, State([1, 1]))
         n_sample = 100000
-        results = sampler.sample_N_outputs(n_sample, seed=21)
+        sampler = QuickSampler(circuit, State([1, 1]), n_sample, random_seed=21)
+        results = BACKEND.run(sampler)
         assert len(results) == 2
         assert 0.49 < results[State([2, 0])] / n_sample < 0.51
         assert 0.49 < results[State([0, 2])] / n_sample < 0.51
@@ -51,9 +58,11 @@ class TestQuickSampler:
         in situations where the QuickSampler assumptions hold true.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = Sampler(circuit, State([1, 0, 1, 0]))
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 10000)
+        BACKEND.run(sampler)
         p1 = sampler.probability_distribution
-        q_sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
+        q_sampler = QuickSampler(circuit, State([1, 0, 1, 0]), 10000)
+        BACKEND.run(q_sampler)
         p2 = q_sampler.probability_distribution
         # Loop through distributions and check they are equal to a reasonable
         # accuracy
@@ -74,8 +83,8 @@ class TestQuickSampler:
         circuit.mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
         circuit.bs(0, 3)
         # And check output counts
-        sampler = QuickSampler(circuit, State([1, 0, 0, 1]))
-        results = sampler.sample_N_outputs(1000)
+        sampler = QuickSampler(circuit, State([1, 0, 0, 1]), 1000)
+        results = BACKEND.run(sampler)
         assert results[State([0, 1, 1, 0])] == 1000
 
     def test_sampling(self):
@@ -87,9 +96,11 @@ class TestQuickSampler:
         sampler = QuickSampler(
             unitary,
             State([1, 0, 1, 0]),
+            1000,
             photon_counting=False,
             post_select=lambda s: s[0] == 0,
         )
+        BACKEND.run(sampler)
         p = sampler.probability_distribution[State([0, 1, 1, 0])]
         assert p == pytest.approx(0.3156177858, 1e-8)
 
@@ -102,9 +113,11 @@ class TestQuickSampler:
         sampler = QuickSampler(
             unitary,
             State([0, 2, 0, 0]),
+            1000,
             photon_counting=False,
             post_select=lambda s: s[0] == 0,
         )
+        BACKEND.run(sampler)
         p = sampler.probability_distribution[State([0, 1, 1, 0])]
         assert p == pytest.approx(0.071330233065, 1e-8)
 
@@ -124,9 +137,11 @@ class TestQuickSampler:
         sampler = QuickSampler(
             circuit,
             State([1, 0, 1, 0]),
+            1000,
             photon_counting=False,
             post_select=lambda s: s[0] == 0,
         )
+        BACKEND.run(sampler)
         p = sampler.probability_distribution[State([0, 1, 1, 0])]
         assert p == pytest.approx(0.386272843449, 1e-8)
 
@@ -136,7 +151,8 @@ class TestQuickSampler:
         the probability distribution.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
+        sampler = QuickSampler(circuit, State([1, 0, 1, 0]), 1000)
+        BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         circuit.bs(0)
         circuit.bs(2)
@@ -153,7 +169,8 @@ class TestQuickSampler:
         circuit.bs(0, reflectivity=p)
         circuit.bs(2, reflectivity=p)
         circuit.bs(1, reflectivity=p)
-        sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
+        sampler = QuickSampler(circuit, State([1, 0, 1, 0]), 1000)
+        BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         p.set(0.7)
         p2 = sampler.probability_distribution
@@ -165,7 +182,8 @@ class TestQuickSampler:
         produced results.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
+        sampler = QuickSampler(circuit, State([1, 0, 1, 0]), 1000)
+        BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         sampler.input_state = State([0, 1, 0, 1])
         p2 = sampler.probability_distribution
@@ -178,8 +196,9 @@ class TestQuickSampler:
         """
         circuit = Unitary(random_unitary(4))
         sampler = QuickSampler(
-            circuit, State([1, 0, 1, 0]), photon_counting=True
+            circuit, State([1, 0, 1, 0]), 1000, photon_counting=True
         )
+        BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         sampler.photon_counting = False
         p2 = sampler.probability_distribution
@@ -192,8 +211,9 @@ class TestQuickSampler:
         """
         circuit = Unitary(random_unitary(4))
         sampler = QuickSampler(
-            circuit, State([1, 0, 1, 0]), post_select=lambda s: s[0] == 1
+            circuit, State([1, 0, 1, 0]), 1000, post_select=lambda s: s[0] == 1
         )
+        BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         sampler.post_select = lambda s: s[1] == 1
         p2 = sampler.probability_distribution
@@ -205,7 +225,7 @@ class TestQuickSampler:
         the circuit attribute.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
+        sampler = QuickSampler(circuit, State([1, 0, 1, 0]), 1000)
         with pytest.raises(TypeError):
             sampler.circuit = random_unitary(4)
 
@@ -215,7 +235,7 @@ class TestQuickSampler:
         non-State value and requires the correct number of modes.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
+        sampler = QuickSampler(circuit, State([1, 0, 1, 0]), 1000)
         # Incorrect type
         with pytest.raises(TypeError):
             sampler.input_state = [1, 2, 3, 4]
@@ -229,7 +249,7 @@ class TestQuickSampler:
         non-function value.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
+        sampler = QuickSampler(circuit, State([1, 0, 1, 0]), 1000)
         with pytest.raises(TypeError):
             sampler.post_select = True
 
@@ -239,7 +259,7 @@ class TestQuickSampler:
         non-boolean value.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
+        sampler = QuickSampler(circuit, State([1, 0, 1, 0]), 1000)
         with pytest.raises(TypeError):
             sampler.photon_counting = 1
 
@@ -253,13 +273,16 @@ class TestQuickSampler:
         sampler = QuickSampler(
             circuit,
             State([1, 1, 0, 0, 0, 1]),
+            1000,
             post_select=lambda s: s[3] == 1 and s[2] == 0,
         )
+        BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         # Then find with heralding
         circuit.herald(1, 0, 3)
         circuit.herald(0, 2)
-        sampler = QuickSampler(circuit, State([1, 0, 0, 1]))
+        sampler = QuickSampler(circuit, State([1, 0, 0, 1]), 1000)
+        BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         for s in p2:
             full_state = s[0:2] + State([0, 1]) + s[2:]
@@ -278,13 +301,16 @@ class TestQuickSampler:
         sampler = QuickSampler(
             circuit,
             State([1, 1, 0, 0, 0, 1]),
+            1000,
             post_select=lambda s: s[3] == 1 and s[2] == 0,
         )
+        BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         # Then find with heralding
         circuit.herald(1, 0, 3)
         circuit.herald(0, 2)
-        sampler = QuickSampler(circuit, State([1, 0, 0, 1]))
+        sampler = QuickSampler(circuit, State([1, 0, 0, 1]), 1000)
+        BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         for s in p2:
             full_state = s[0:2] + State([0, 1]) + s[2:]
@@ -303,8 +329,10 @@ class TestQuickSampler:
         sampler = QuickSampler(
             circuit,
             State([1, 1, 0, 0, 0, 1]),
+            1000,
             post_select=lambda s: s[3] == 1 and s[2] == 0,
         )
+        BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         # Then find with heralding
         circuit.herald(1, 0, 3)
@@ -313,7 +341,8 @@ class TestQuickSampler:
         new_circuit = Circuit(4)
         new_circuit.add(circuit, 0)
         circuit = new_circuit
-        sampler = QuickSampler(circuit, State([1, 0, 0, 1]))
+        sampler = QuickSampler(circuit, State([1, 0, 0, 1]), 1000)
+        BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         for s in p2:
             full_state = s[0:2] + State([0, 1]) + s[2:]
@@ -330,8 +359,8 @@ class TestQuickSampler:
         circuit.bs(2, loss=loss)
         circuit.bs(1, loss=loss)
         # Initially sample
-        sampler = QuickSampler(circuit, State([1, 0, 1, 0]))
-        sampler.sample_N_outputs(10000)
+        sampler = QuickSampler(circuit, State([1, 0, 1, 0]), 1000)
+        BACKEND.run(sampler)
         # Add loss and resample
         loss.set(0.6)
-        sampler.sample_N_outputs(10000)
+        BACKEND.run(sampler)

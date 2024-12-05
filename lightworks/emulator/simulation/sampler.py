@@ -215,7 +215,7 @@ class Sampler(Task):
         self.__random_seed = value
 
     @property
-    def sampling_mode(self) -> int | None:
+    def sampling_mode(self) -> str:
         """
         Stores the input mode of the sampler, which controls whether N valid
         inputs or outputs are produced from the system.
@@ -223,7 +223,7 @@ class Sampler(Task):
         return self.__sampling_mode
 
     @sampling_mode.setter
-    def sampling_mode(self, value: int | None) -> None:
+    def sampling_mode(self, value: str) -> None:
         if value not in ["input", "output"]:
             raise ValueError(
                 "Sampling mode must be set to either input or output."
@@ -442,10 +442,10 @@ class Sampler(Task):
         ):
             raise TypeError("min_detection value should be an integer.")
         pdist = self.probability_distribution
-        if self.detector.p_dark != 0:
+        if self.detector.p_dark > 0 or self.detector.efficiency < 1:
             raise SamplerError(
-                "To use detector dark counts the sampling mode must be set to "
-                "'input'."
+                "To use detector dark counts or sub-unity detector efficiency "
+                "the sampling mode must be set to 'input'."
             )
         # Get heralds and pre-calculate items
         heralds = self.circuit.heralds["output"]
