@@ -42,7 +42,7 @@ class Simulator(Task):
 
     """
 
-    __compatiable_backends__ = ("permanent",)
+    __compatible_backends__ = ("permanent",)
 
     def __init__(
         self,

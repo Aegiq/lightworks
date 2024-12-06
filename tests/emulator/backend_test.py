@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 from lightworks import State, Unitary, random_unitary
-from lightworks.emulator import Backend
+from lightworks.emulator import Backend, BackendError, Simulator
 from lightworks.emulator.backends.permanent import PermanentBackend
 from lightworks.emulator.backends.slos import SLOSBackend
 
@@ -35,6 +35,15 @@ class TestBackend:
         """Checks an invalid backend raises a ValueError"""
         with pytest.raises(ValueError):
             Backend("not_a_backend")
+
+    def test_invalid_backend_for_task(self):
+        """
+        Checks an error is raised when an invalid backend is chosen for a task.
+        """
+        backend = Backend("slos")
+        sim = Simulator(Unitary(random_unitary(4)), State([1, 0, 1, 0]))
+        with pytest.raises(BackendError):
+            backend.run(sim)
 
     @pytest.mark.parametrize("backend_type", ["permanent", "slos"])
     def test_full_probability_distribution(self, backend_type):

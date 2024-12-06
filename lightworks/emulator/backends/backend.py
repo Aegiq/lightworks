@@ -14,6 +14,7 @@
 
 
 from ..simulation.task import Task
+from ..utils import BackendError
 from .permanent import PermanentBackend
 from .slos import SLOSBackend
 
@@ -40,8 +41,12 @@ class Backend:
         """
         if not isinstance(task, Task):
             raise TypeError("Object to run on the backend must be a task.")
-        if self.backend not in task.__compatiable_backends__:
-            raise ValueError("Selected backend not compatible with task.")
+        if self.backend not in task.__compatible_backends__:
+            msg = (
+                "Selected backend not compatible with task, supported backends "
+                f"for task are: {', '.join(task.__compatible_backends__)}."
+            )
+            raise BackendError(msg)
         return task._run(self.__backend)
 
     @property

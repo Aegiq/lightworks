@@ -77,7 +77,7 @@ class Sampler(Task):
 
     """
 
-    __compatiable_backends__ = ("permanent", "slos")
+    __compatible_backends__ = ("permanent", "slos")
 
     def __init__(
         self,
