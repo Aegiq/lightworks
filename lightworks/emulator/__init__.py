@@ -44,7 +44,7 @@ Simulators:
 
 """
 
-from .backend import Backend
+from .backends import Backend
 from .components import Detector, Source
 from .simulation import Analyzer, QuickSampler, Sampler, Simulator
 from .utils.exceptions import *

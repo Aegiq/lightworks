@@ -20,7 +20,7 @@ from ...sdk.circuit import Circuit
 from ...sdk.state import State
 from ...sdk.utils import add_heralds_to_state
 from ...sdk.utils.post_selection import PostSelectionType
-from ..backend import Backend
+from ..backends.fock_backend import FockBackend
 from ..results import SimulationResult
 from ..utils import (
     ModeMismatchError,
@@ -28,9 +28,10 @@ from ..utils import (
     fock_basis,
     process_post_selection,
 )
+from .task import Task
 
 
-class Analyzer:
+class Analyzer(Task):
     """
     The analyzer class is built as an alternative to simulation, intended for
     cases where we want to look at the transformations between a specific
@@ -42,6 +43,13 @@ class Analyzer:
 
         circuit (Circuit) : The circuit to simulate.
 
+        inputs (list) : A list of the input states to simulate. For multiple
+            inputs this should be a list of States.
+
+        expected (dict) : A dictionary containing a mapping between the input
+            state and expected output state(s). If there is multiple
+            possible outputs, this can be specified as a list.
+
     Attribute:
 
         performance : The total probabilities of mapping between the states
@@ -52,11 +60,19 @@ class Analyzer:
 
     """
 
-    def __init__(self, circuit: Circuit) -> None:
+    __compatible_backends__ = ("permanent",)
+
+    def __init__(
+        self,
+        circuit: Circuit,
+        inputs: State | list[State],
+        expected: dict[State, State] | None = None,
+    ) -> None:
         # Assign key parameters to attributes
         self.circuit = circuit
         self.post_selection = None  # type: ignore
-        self.__backend = Backend("permanent")
+        self.inputs = inputs
+        self.expected = expected
 
         return
 
@@ -90,21 +106,35 @@ class Analyzer:
         value = process_post_selection(value)
         self.__post_selection = value
 
-    def analyze(
-        self, inputs: State | list, expected: dict | None = None
-    ) -> SimulationResult:
+    @property
+    def inputs(self) -> State | list[State]:
+        """Store list of target inputs to the system."""
+        return self.__inputs
+
+    @inputs.setter
+    def inputs(self, value: State | list[State]) -> None:
+        self.__inputs = value
+
+    @property
+    def expected(self) -> dict[State, State] | None:
         """
-        Function to perform analysis of probabilities between
-        different inputs/outputs
+        A dictionary of the expected mapping between inputs and outputs of the
+        system.
+        """
+        return self.__expected
+
+    @expected.setter
+    def expected(self, value: dict[State, State] | None) -> None:
+        self.__expected = value
+
+    def _run(self, backend: FockBackend) -> SimulationResult:  # type: ignore[override]
+        """
+        Function to perform analysis of probabilities between different
+        inputs/outputs.
 
         Args:
 
-            inputs (list) : A list of the input states to simulate. For
-                multiple inputs this should be a list of States.
-
-            expected (dict) : A dictionary containing a mapping between the
-                input state and expected output state(s). If there is multiple
-                possible outputs, this can be specified as a list.
+            backend (FockBackend) : The target backend to run the task with.
 
         Returns:
 
@@ -112,6 +142,7 @@ class Analyzer:
                 values between the provided inputs/outputs.
 
         """
+        self.__backend = backend
         self.__circuit_built = self.circuit._build()
         n_modes = self.circuit.input_modes
         if self.circuit.heralds["input"] != self.circuit.heralds["output"]:
@@ -121,8 +152,10 @@ class Analyzer:
                 "modified."
             )
         # Convert state to list of States if not provided for single state case
-        if isinstance(inputs, State):
-            inputs = [inputs]
+        if isinstance(self.inputs, State):
+            inputs = [self.inputs]
+        else:
+            inputs = list(self.inputs)
         # Process inputs using dedicated function
         full_inputs = self._process_inputs(inputs)
         n_photons = full_inputs[0].n_photons
@@ -136,9 +169,9 @@ class Analyzer:
         # Calculate performance by finding sum of valid transformations
         self.performance = probs.sum() / len(full_inputs)
         # Analyse error rate from expected results if specified
-        if expected is not None:
+        if self.expected is not None:
             self.error_rate = self._calculate_error_rate(
-                probs, inputs, filtered_outputs, expected
+                probs, inputs, filtered_outputs, self.expected
             )
         # Compile results into results object
         results = SimulationResult(

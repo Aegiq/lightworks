@@ -79,8 +79,6 @@ class Circuit:
         self.__external_out_heralds: dict[int, int] = {}
         self.__internal_modes: list[int] = []
 
-        return
-
     def __add__(self, value: "Circuit") -> "Circuit":
         """Defines custom addition behaviour for two circuits."""
         if not isinstance(value, Circuit):
@@ -213,19 +211,17 @@ class Circuit:
         circuit_copy = circuit.copy()
         # Use unpack groups and check if heralds are used
         circuit_copy.unpack_groups()
-        spec = circuit_copy.__circuit_spec
         # Force grouping if heralding included
-        if circuit_copy.heralds["input"]:
-            group = True
+        group = True if circuit_copy.heralds["input"] else group
         # When name not provided set this
         if name is None:
             spec = circuit.__circuit_spec
-            # Special case where name is retrieved from previous group
-            if len(spec) == 1 and isinstance(spec[0], Group):
-                name = spec[0].name
-            # Otherwise default to circuit
-            else:
-                name = "Circuit"
+            # Check special case where name is retrieved from previous group
+            name = (
+                spec[0].name
+                if len(spec) == 1 and isinstance(spec[0], Group)
+                else "Circuit"
+            )
         # When grouping use unpacked circuit
         if group:
             circuit = circuit_copy
@@ -293,11 +289,7 @@ class Circuit:
         else:
             self.__circuit_spec.append(
                 Group(
-                    add_cs,
-                    name,
-                    mode,
-                    mode + circuit.n_modes - 1,
-                    new_heralds,
+                    add_cs, name, mode, mode + circuit.n_modes - 1, new_heralds
                 )
             )
         return

@@ -47,7 +47,6 @@ from . import emulator, interferometers, qubit, tomography
 from .__settings import settings
 from .__version import __version__
 from .sdk.circuit import Circuit, Parameter, ParameterDict, Unitary
-from .sdk.optimisation import Optimisation
 from .sdk.state import State
 from .sdk.utils import (
     PostSelection,
@@ -68,9 +67,9 @@ except ModuleNotFoundError:
 
 # fmt: off
 __all__ = [
+    "emulator", "qubit", "interferometers", "tomography",
     "Circuit", "Unitary", "Display", "State", "random_unitary",
     "random_permutation", "db_loss_to_decimal", "decimal_to_db_loss",
-    "Parameter", "ParameterDict", "emulator", "qubit", "Optimisation",
-    "interferometers", "PostSelection", "PostSelectionFunction", "tomography"
+    "Parameter", "ParameterDict", "PostSelection", "PostSelectionFunction"
 ]
 # fmt: on
