@@ -14,7 +14,6 @@
 
 from collections import Counter
 from collections.abc import Callable
-from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -23,6 +22,7 @@ from ...sdk.circuit import Circuit
 from ...sdk.state import State
 from ...sdk.utils import add_heralds_to_state, process_random_seed
 from ...sdk.utils.post_selection import PostSelectionType
+from ..backends.fock_backend import FockBackend
 from ..results import SamplingResult
 from ..utils import (
     EmulatorError,
@@ -31,12 +31,6 @@ from ..utils import (
     process_post_selection,
 )
 from .task import Task
-
-if TYPE_CHECKING:
-    from ..backends import BackendABC
-
-# TODO: Update documentation
-# TODO: Add properties for new attributes + validation
 
 
 class QuickSampler(Task):
@@ -70,6 +64,8 @@ class QuickSampler(Task):
             optional and can remain as None if this is not required.
 
     """
+
+    __compatiable_backends__ = ("permanent",)
 
     def __init__(
         self,
@@ -204,14 +200,14 @@ class QuickSampler(Task):
             self.__calculation_values = self._gen_calculation_values()
         return self.__probability_distribution
 
-    def _run(self, backend: "BackendABC") -> SamplingResult:
+    def _run(self, backend: FockBackend) -> SamplingResult:  # type: ignore[override]
         """
         Function to sample a state from the calculated provided distribution
         many times, producing N outputs which meet any criteria.
 
         Args:
 
-            backend (BackendABC) : The target backend to run the task with.
+            backend (FockBackend) : The target backend to run the task with.
 
         Returns:
 

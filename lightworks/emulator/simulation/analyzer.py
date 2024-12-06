@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -21,6 +20,7 @@ from ...sdk.circuit import Circuit
 from ...sdk.state import State
 from ...sdk.utils import add_heralds_to_state
 from ...sdk.utils.post_selection import PostSelectionType
+from ..backends.fock_backend import FockBackend
 from ..results import SimulationResult
 from ..utils import (
     ModeMismatchError,
@@ -29,9 +29,6 @@ from ..utils import (
     process_post_selection,
 )
 from .task import Task
-
-if TYPE_CHECKING:
-    from ..backends import BackendABC
 
 
 class Analyzer(Task):
@@ -62,6 +59,8 @@ class Analyzer(Task):
             extent to which this is achieved.
 
     """
+
+    __compatiable_backends__ = ("permanent",)
 
     def __init__(
         self,
@@ -128,14 +127,14 @@ class Analyzer(Task):
     def expected(self, value: dict[State, State] | None) -> None:
         self.__expected = value
 
-    def _run(self, backend: "BackendABC") -> SimulationResult:
+    def _run(self, backend: FockBackend) -> SimulationResult:  # type: ignore[override]
         """
         Function to perform analysis of probabilities between different
         inputs/outputs.
 
         Args:
 
-            backend (BackendABC) : The target backend to run the task with.
+            backend (FockBackend) : The target backend to run the task with.
 
         Returns:
 

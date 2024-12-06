@@ -40,6 +40,8 @@ class Backend:
         """
         if not isinstance(task, Task):
             raise TypeError("Object to run on the backend must be a task.")
+        if self.backend not in task.__compatiable_backends__:
+            raise ValueError("Selected backend not compatible with task.")
         return task._run(self.__backend)
 
     @property

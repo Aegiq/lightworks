@@ -19,10 +19,10 @@ import numpy as np
 from ...__settings import settings
 from ...sdk.circuit.compiler import CompiledCircuit
 from ...sdk.state import State
-from .abc_backend import BackendABC
+from .fock_backend import FockBackend
 
 
-class SLOSBackend(BackendABC):
+class SLOSBackend(FockBackend):
     """
     Contains calculate function for SLOS method.
     """

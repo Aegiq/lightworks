@@ -12,22 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING
 
 import numpy as np
 
 from ...sdk.circuit import Circuit
 from ...sdk.state import State
 from ...sdk.utils import add_heralds_to_state
+from ..backends.fock_backend import FockBackend
 from ..results import SimulationResult
 from ..utils import ModeMismatchError, PhotonNumberError, fock_basis
 from .task import Task
-
-if TYPE_CHECKING:
-    from ..backends import BackendABC
-
-# TODO: Update documentation
-# TODO: Add properties for new attributes + validation
 
 
 class Simulator(Task):
@@ -47,6 +41,8 @@ class Simulator(Task):
             possible outputs.
 
     """
+
+    __compatiable_backends__ = ("permanent",)
 
     def __init__(
         self,
@@ -98,7 +94,7 @@ class Simulator(Task):
     def outputs(self, value: State | list[State] | None) -> None:
         self.__outputs = self._process_outputs(self.inputs, value)
 
-    def _run(self, backend: "BackendABC") -> SimulationResult:
+    def _run(self, backend: FockBackend) -> SimulationResult:  # type: ignore[override]
         """
         Function to run a simulation for a number of inputs/outputs, if no
         outputs are specified then all possible outputs for the photon number
@@ -107,7 +103,7 @@ class Simulator(Task):
 
         Args:
 
-            backend (BackendABC) : The target backend to run the task with.
+            backend (FockBackend) : The target backend to run the task with.
 
         Returns:
 

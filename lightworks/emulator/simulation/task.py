@@ -12,13 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from abc import ABCMeta, abstractmethod
+
 from ..backends.abc_backend import BackendABC
 
 
-class Task:
+class Task(metaclass=ABCMeta):
     """
-    Desc
+    Base class for all tasks, which requires implementation of the run method.
     """
 
-    def _run(self, backend: BackendABC) -> dict:  # noqa: ARG002
-        return {}
+    __compatiable_backends__: tuple[str, ...]
+
+    @abstractmethod
+    def _run(self, backend: BackendABC) -> dict: ...

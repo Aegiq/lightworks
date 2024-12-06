@@ -22,10 +22,10 @@ from ...__settings import settings
 from ...sdk.circuit.compiler import CompiledCircuit
 from ...sdk.state import State
 from ..utils import fock_basis
-from .abc_backend import BackendABC
+from .fock_backend import FockBackend
 
 
-class PermanentBackend(BackendABC):
+class PermanentBackend(FockBackend):
     """
     Calculate the permanent for a give unitary matrix and input state. In this
     case, thewalrus module is used for all permanent calculations.

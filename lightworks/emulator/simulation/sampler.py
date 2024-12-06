@@ -14,7 +14,6 @@
 
 from collections import Counter
 from collections.abc import Callable
-from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -26,14 +25,12 @@ from ...sdk.utils import (
     remove_heralds_from_state,
 )
 from ...sdk.utils.post_selection import PostSelectionType
+from ..backends.fock_backend import FockBackend
 from ..components import Detector, Source
 from ..results import SamplingResult
 from ..utils import ModeMismatchError, SamplerError, process_post_selection
 from .probability_distribution import pdist_calc
 from .task import Task
-
-if TYPE_CHECKING:
-    from ..backends import BackendABC
 
 
 class Sampler(Task):
@@ -79,6 +76,8 @@ class Sampler(Task):
             'output', defaults to 'output'.
 
     """
+
+    __compatiable_backends__ = ("permanent", "slos")
 
     def __init__(
         self,
@@ -273,14 +272,14 @@ class Sampler(Task):
             self.__calculation_values = self._gen_calculation_values()
         return self.__probability_distribution
 
-    def _run(self, backend: "BackendABC") -> SamplingResult:
+    def _run(self, backend: FockBackend) -> SamplingResult:  # type: ignore[override]
         """
         Function to sample a state from the calculated provided distribution
         many times, producing N outputs which meet any criteria.
 
         Args:
 
-            backend (BackendABC) : The target backend to run the task with.
+            backend (FockBackend) : The target backend to run the task with.
 
         Returns:
 

@@ -14,13 +14,7 @@
 
 from abc import ABCMeta, abstractmethod
 
-import numpy as np
-
-from ...sdk.circuit.compiler import CompiledCircuit
-from ...sdk.state import State
-from ..utils import BackendError
-
-# ruff: noqa: ARG002, D102
+# ruff: noqa: D102
 
 
 class BackendABC(metaclass=ABCMeta):
@@ -32,25 +26,3 @@ class BackendABC(metaclass=ABCMeta):
     @property
     @abstractmethod
     def name(self) -> str: ...
-
-    def probability_amplitude(
-        self, unitary: np.ndarray, input_state: list, output_state: list
-    ) -> complex:
-        raise BackendError(
-            "Current backend does not implement probability_amplitude method."
-        )
-
-    def probability(
-        self, unitary: np.ndarray, input_state: list, output_state: list
-    ) -> float:
-        raise BackendError(
-            "Current backend does not implement probability method."
-        )
-
-    def full_probability_distribution(
-        self, circuit: CompiledCircuit, input_state: State
-    ) -> dict:
-        raise BackendError(
-            "Current backend does not implement full_probability_distribution "
-            "method."
-        )

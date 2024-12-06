@@ -18,7 +18,7 @@ from multimethod import multimethod
 
 from ...sdk.circuit.compiler import CompiledCircuit
 from ...sdk.state import State
-from ..backends.abc_backend import BackendABC
+from ..backends.fock_backend import FockBackend
 from ..state import AnnotatedState
 
 
@@ -26,7 +26,7 @@ from ..state import AnnotatedState
 def pdist_calc(
     circuit: CompiledCircuit,
     inputs: dict[State, int | float],
-    backend: "BackendABC",
+    backend: FockBackend,
 ) -> dict[State, float]:
     """
     Calculate the output state probability distribution for cases where
@@ -41,7 +41,7 @@ def pdist_calc(
         inputs (dict) : The inputs to the system and their associated
             probabilities.
 
-        backend (BackendABC) : A backend object which provides the required
+        backend (FockBackend) : A backend object which provides the required
             methods for calculation of the probability distribution.
 
     Returns:
@@ -77,7 +77,7 @@ def pdist_calc(
 def annotated_state_pdist_calc(
     circuit: CompiledCircuit,
     inputs: dict[AnnotatedState, int | float],
-    backend: "BackendABC",
+    backend: FockBackend,
 ) -> dict[State, float]:
     """
     Perform output state probability distribution calculation using complex
@@ -91,7 +91,7 @@ def annotated_state_pdist_calc(
         inputs (dict) : The inputs to the system and their associated
                         probabilities.
 
-        backend (BackendABC) : A backend object which provides the required
+        backend (FockBackend) : A backend object which provides the required
             methods for calculation of the probability distribution.
 
     Returns:
