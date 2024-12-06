@@ -79,9 +79,7 @@ class Simulator(Task):
 
     @property
     def inputs(self) -> list[State]:
-        """
-        Desc
-        """
+        """Stores a lost of all inputs to the system to simulate."""
         return self.__inputs
 
     @inputs.setter
@@ -91,7 +89,8 @@ class Simulator(Task):
     @property
     def outputs(self) -> list[State] | None:
         """
-        Desc
+        A list of all target outputs or None, if None all possible outputs are
+        calculated on execution.
         """
         return self.__outputs
 
@@ -108,7 +107,7 @@ class Simulator(Task):
 
         Args:
 
-            backend (BackendABC) : Desc
+            backend (BackendABC) : The target backend to run the task with.
 
         Returns:
 

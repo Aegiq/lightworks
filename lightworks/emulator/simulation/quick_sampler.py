@@ -56,14 +56,14 @@ class QuickSampler(Task):
         input_state (State) : The input state to use with the circuit for
             sampling.
 
+        n_samples (int) : The number of samples to take from the circuit.
+
         photon_counting (bool, optional) : Toggle whether or not photon number
             resolving detectors are used.
 
         post_select (PostSelection | function, optional) : A PostSelection
             object or function which applies a provided set of post-selection
             criteria to a state.
-
-        n_samples (int) : The number of samples to take from the circuit.
 
         random_seed (int|None, optional) : Option to provide a random seed to
             reproducibly generate samples from the function. This is
@@ -83,7 +83,7 @@ class QuickSampler(Task):
         # Assign parameters to attributes
         self.circuit = circuit
         self.input_state = input_state
-        self.post_select = post_select  # type: ignore
+        self.post_select = post_select  # type: ignore[assignment]
         self.photon_counting = photon_counting
         self.n_samples = n_samples
         self.random_seed = random_seed
@@ -143,9 +143,7 @@ class QuickSampler(Task):
 
     @property
     def n_samples(self) -> int:
-        """
-        Desc
-        """
+        """Stores the number of samples to be collected in an experiment."""
         return self.__n_samples
 
     @n_samples.setter
@@ -155,7 +153,8 @@ class QuickSampler(Task):
     @property
     def random_samples(self) -> int | None:
         """
-        Desc
+        Stores a random seed which is used for gathering repeatable data from
+        the QuickSampler
         """
         return self.__random_samples
 
@@ -170,8 +169,11 @@ class QuickSampler(Task):
         of the QuickSampler. This is re-calculated as the QuickSampler
         parameters are changed.
         """
-        # TODO: This attribute should only be accessible after if it run on a
-        # backend
+        if not hasattr(self, "_QuickSampler__backend"):
+            raise AttributeError(
+                "QuickSampler must be run with Backend().run before the "
+                "probability distribution can be viewed."
+            )
         if self._check_parameter_updates():
             # Check circuit and input modes match
             if self.circuit.input_modes != len(self.input_state):
@@ -209,7 +211,7 @@ class QuickSampler(Task):
 
         Args:
 
-            backend (BackendABC) : Desc
+            backend (BackendABC) : The target backend to run the task with.
 
         Returns:
 

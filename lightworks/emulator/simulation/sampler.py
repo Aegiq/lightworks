@@ -35,9 +35,6 @@ from .task import Task
 if TYPE_CHECKING:
     from ..backends import BackendABC
 
-# TODO: Update documentation
-# TODO: Add properties for new attributes + validation
-
 
 class Sampler(Task):
     """
@@ -53,6 +50,8 @@ class Sampler(Task):
         input_state (State) : The input state to use with the circuit for
             sampling.
 
+        n_samples (int) : The number of samples that are to be returned.
+
         source (Source, optional) : Provide a source object to simulate an
             imperfect input. This defaults to None, which will create a perfect
             source.
@@ -60,12 +59,6 @@ class Sampler(Task):
         detector (Detector, optional) : Provide detector to simulate imperfect
             detector probabilities. This defaults to None, which will assume a
             perfect detector.
-
-        backend (Backend | str, optional) : Specify which backend is to be used
-            for the sampling process. If not selected this will default to
-            permanent calculation.
-
-        n_samples (int) : The number of samples that are to be returned.
 
         post_select (PostSelection | function, optional) : A PostSelection
             object or function which applies a provided set of
@@ -78,6 +71,12 @@ class Sampler(Task):
         random_seed (int|None, optional) : Option to provide a random seed to
             reproducibly generate samples from the function. This is
             optional and can remain as None if this is not required.
+
+        sampling_mode (str, optional) : Sets the mode of the Sampler. In input
+            mode, N cycles of the system are measured, and only results which
+            meet any assigned criteria are returned. In output mode, N valid
+            samples are produced from the system. Should be either 'input' or
+            'output', defaults to 'output'.
 
     """
 
@@ -96,10 +95,10 @@ class Sampler(Task):
         # Assign provided quantities to attributes
         self.circuit = circuit
         self.input_state = input_state
-        self.source = source  # type: ignore
-        self.detector = detector  # type: ignore
+        self.source = source  # type: ignore[assignment]
+        self.detector = detector  # type: ignore[assignment]
         self.n_samples = n_samples
-        self.post_selection = post_selection
+        self.post_selection = post_selection  # type: ignore[assignment]
         self.min_detection = min_detection
         self.random_seed = random_seed
         self.sampling_mode = sampling_mode
@@ -170,49 +169,51 @@ class Sampler(Task):
 
     @property
     def n_samples(self) -> int:
-        """
-        Desc
-        """
+        """Stores the number of samples to be collected in an experiment."""
         return self.__n_samples
 
     @n_samples.setter
     def n_samples(self, value: int) -> None:
+        if not isinstance(value, int) or isinstance(value, bool):
+            raise TypeError("n_samples must be an integer")
         self.__n_samples = value
 
     @property
-    def post_selection(self) -> PostSelectionType | Callable | None:
-        """
-        Desc
-        """
+    def post_selection(self) -> PostSelectionType:
+        """Describes the post-selection criteria to be applied to a state."""
         return self.__post_selection
 
     @post_selection.setter
     def post_selection(
         self, value: PostSelectionType | Callable | None
     ) -> None:
-        self.__post_selection = value
+        self.__post_selection = process_post_selection(value)
 
     @property
     def min_detection(self) -> int:
         """
-        Desc
+        Stores the minimum number of photons to be measured in an experiment,
+        this excludes heralded photons.
         """
         return self.__min_detection
 
     @min_detection.setter
     def min_detection(self, value: int) -> None:
+        if not isinstance(value, int) or isinstance(value, bool):
+            raise TypeError("min_detection must be an integer")
         self.__min_detection = value
 
     @property
     def random_seed(self) -> int | None:
         """
-        Desc
+        Stores a random seed which is used for gathering repeatable data from
+        the Sampler
         """
         return self.__random_seed
 
     @random_seed.setter
     def random_seed(self, value: int | None) -> None:
-        self.__random_seed = value
+        self.__random_seed = process_random_seed(value)
 
     @property
     def sampling_mode(self) -> str:
@@ -237,8 +238,11 @@ class Sampler(Task):
         of the Sampler. This is re-calculated as the Sampler parameters are
         changed.
         """
-        # TODO: This attribute should only be accessible after if it run on a
-        # backend
+        if not hasattr(self, "_Sampler__backend"):
+            raise AttributeError(
+                "Sampler must be run with Backend().run before the probability "
+                "distribution can be viewed."
+            )
         if self._check_parameter_updates():
             # Check circuit and input modes match
             if self.circuit.input_modes != len(self.input_state):
@@ -276,7 +280,7 @@ class Sampler(Task):
 
         Args:
 
-            backend (BackendABC) : Desc
+            backend (BackendABC) : The target backend to run the task with.
 
         Returns:
 
@@ -303,7 +307,7 @@ class Sampler(Task):
     def _sample_N_inputs(  # noqa: N802
         self,
         N: int,  # noqa: N803
-        post_select: PostSelectionType | Callable | None = None,
+        post_select: PostSelectionType,
         min_detection: int = 0,
         seed: int | None = None,
     ) -> SamplingResult:
@@ -319,9 +323,9 @@ class Sampler(Task):
 
             N (int) : The number of samples to take from the circuit.
 
-            post_select (PostSelection | function, optional) : A PostSelection
-                object or function which applies a provided set of
-                post-selection criteria to a state.
+            post_select (PostSelection) : A PostSelection object or function
+                which applies a provided set of post-selection criteria to a
+                state.
 
             min_detection (int, optional) : Post-select on a given minimum
                 total number of photons, this should not include any heralded
@@ -337,11 +341,6 @@ class Sampler(Task):
                 states and the number of counts for each one.
 
         """
-        post_select = process_post_selection(post_select)
-        if not isinstance(min_detection, int) or isinstance(
-            min_detection, bool
-        ):
-            raise TypeError("min_detection value should be an integer.")
         pdist = self.probability_distribution
         vals = np.zeros(len(pdist), dtype=object)
         for i, k in enumerate(pdist.keys()):
@@ -404,7 +403,7 @@ class Sampler(Task):
     def _sample_N_outputs(  # noqa: N802
         self,
         N: int,  # noqa: N803
-        post_select: PostSelectionType | Callable | None = None,
+        post_select: PostSelectionType,
         min_detection: int = 0,
         seed: int | None = None,
     ) -> SamplingResult:
@@ -418,9 +417,9 @@ class Sampler(Task):
 
             N (int) : The number of samples that are to be returned.
 
-            post_select (PostSelection | function, optional) : A PostSelection
-                object or function which applies a provided set of
-                post-selection criteria to a state.
+            post_select (PostSelection) : A PostSelection object or function
+                which applies a provided set of post-selection criteria to a
+                state.
 
             min_detection (int, optional) : Post-select on a given minimum
                 total number of photons, this should not include any heralded
@@ -436,11 +435,6 @@ class Sampler(Task):
                 states and the number of counts for each one.
 
         """
-        post_select = process_post_selection(post_select)
-        if not isinstance(min_detection, int) or isinstance(
-            min_detection, bool
-        ):
-            raise TypeError("min_detection value should be an integer.")
         pdist = self.probability_distribution
         if self.detector.p_dark > 0 or self.detector.efficiency < 1:
             raise SamplerError(

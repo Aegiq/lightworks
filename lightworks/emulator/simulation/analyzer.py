@@ -33,9 +33,6 @@ from .task import Task
 if TYPE_CHECKING:
     from ..backends import BackendABC
 
-# TODO: Update documentation
-# TODO: Add properties for new attributes + validation
-
 
 class Analyzer(Task):
     """
@@ -69,8 +66,8 @@ class Analyzer(Task):
     def __init__(
         self,
         circuit: Circuit,
-        inputs: State | list,
-        expected: dict | None = None,
+        inputs: State | list[State],
+        expected: dict[State, State] | None = None,
     ) -> None:
         # Assign key parameters to attributes
         self.circuit = circuit
@@ -111,35 +108,34 @@ class Analyzer(Task):
         self.__post_selection = value
 
     @property
-    def inputs(self) -> State | list:
-        """
-        Desc
-        """
+    def inputs(self) -> State | list[State]:
+        """Store list of target inputs to the system."""
         return self.__inputs
 
     @inputs.setter
-    def inputs(self, value: State | list) -> None:
+    def inputs(self, value: State | list[State]) -> None:
         self.__inputs = value
 
     @property
-    def expected(self) -> dict | None:
+    def expected(self) -> dict[State, State] | None:
         """
-        Desc
+        A dictionary of the expected mapping between inputs and outputs of the
+        system.
         """
         return self.__expected
 
     @expected.setter
-    def expected(self, value: dict | None) -> None:
+    def expected(self, value: dict[State, State] | None) -> None:
         self.__expected = value
 
     def _run(self, backend: "BackendABC") -> SimulationResult:
         """
-        Function to perform analysis of probabilities between
-        different inputs/outputs
+        Function to perform analysis of probabilities between different
+        inputs/outputs.
 
         Args:
 
-            backend (BackendABC) : Desc
+            backend (BackendABC) : The target backend to run the task with.
 
         Returns:
 

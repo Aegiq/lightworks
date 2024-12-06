@@ -41,7 +41,7 @@ def pdist_calc(
         inputs (dict) : The inputs to the system and their associated
             probabilities.
 
-        backend (Backend) : A backend object which provides the required
+        backend (BackendABC) : A backend object which provides the required
             methods for calculation of the probability distribution.
 
     Returns:
@@ -91,7 +91,7 @@ def annotated_state_pdist_calc(
         inputs (dict) : The inputs to the system and their associated
                         probabilities.
 
-        backend (Backend) : A backend object which provides the required
+        backend (BackendABC) : A backend object which provides the required
             methods for calculation of the probability distribution.
 
     Returns:
