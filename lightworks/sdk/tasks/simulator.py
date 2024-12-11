@@ -20,12 +20,11 @@ from ..circuit import Circuit
 from ..results import SimulationResult
 from ..state import State
 from ..utils import (
-    ModeMismatchError,
-    PhotonNumberError,
     add_heralds_to_state,
     fock_basis,
 )
 from .task import Task
+from .task_utils import _check_photon_numbers, _validate_states
 
 
 class Simulator(Task):
@@ -131,17 +130,20 @@ class Simulator(Task):
             outputs = self.outputs
         in_heralds = self.circuit.heralds["input"]
         out_heralds = self.circuit.heralds["output"]
+        # Pre-add output values to avoid doing this many times
+        full_outputs = [
+            add_heralds_to_state(outs, out_heralds) + [0] * circuit.loss_modes
+            for outs in outputs
+        ]
         # Calculate permanent for the given inputs and outputs and return
         # values
         amplitudes = np.zeros((len(self.inputs), len(outputs)), dtype=complex)
         for i, ins in enumerate(self.inputs):
             in_state = add_heralds_to_state(ins, in_heralds)
             in_state += [0] * circuit.loss_modes
-            for j, outs in enumerate(outputs):
-                out_state = add_heralds_to_state(outs, out_heralds)
-                out_state += [0] * circuit.loss_modes
+            for j, outs in enumerate(full_outputs):
                 amplitudes[i, j] = backend.probability_amplitude(
-                    circuit.U_full, in_state, out_state
+                    circuit.U_full, in_state, outs
                 )
         # Return results and corresponding states as dictionary
         return SimulationResult(
@@ -149,43 +151,4 @@ class Simulator(Task):
             "probability_amplitude",
             inputs=self.inputs,
             outputs=outputs,
-        )
-
-
-def _validate_states(inputs: State | list[State], n_modes: int) -> list[State]:
-    """
-    Performs all required processing/checking on the input/outputs states.
-    """
-    # Convert state to list of States if not provided for single state case
-    if isinstance(inputs, State):
-        inputs = [inputs]
-    # Check each input
-    for state in inputs:
-        # Ensure correct type
-        if not isinstance(state, State):
-            raise TypeError(
-                "inputs should be a State or list of State objects."
-            )
-        # Dimension check
-        if len(state) != n_modes:
-            msg = (
-                "One or more input states have an incorrect number of "
-                f"modes, correct number of modes is {n_modes}."
-            )
-            raise ModeMismatchError(msg)
-        # Also validate state values
-        state._validate()
-    return inputs
-
-
-def _check_photon_numbers(states: list[State]) -> None:
-    """
-    Raises an exception if photon numbers are mixed when running a
-    simulation.
-    """
-    ns = [s.n_photons for s in states]
-    if min(ns) != max(ns):
-        raise PhotonNumberError(
-            "Mismatch in photon numbers between some inputs/outputs, "
-            "this is not currently supported in the Simulator."
         )

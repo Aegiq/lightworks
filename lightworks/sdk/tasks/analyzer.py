@@ -21,7 +21,6 @@ from ..circuit import Circuit
 from ..results import SimulationResult
 from ..state import State
 from ..utils import (
-    ModeMismatchError,
     PhotonNumberError,
     add_heralds_to_state,
     fock_basis,
@@ -29,6 +28,7 @@ from ..utils import (
 )
 from ..utils.post_selection import PostSelectionType
 from .task import Task
+from .task_utils import _check_photon_numbers, _validate_states
 
 
 class Analyzer(Task):
@@ -66,12 +66,13 @@ class Analyzer(Task):
         self,
         circuit: Circuit,
         inputs: State | list[State],
-        expected: dict[State, State] | None = None,
+        expected: dict[State, State | list[State]] | None = None,
+        post_selection: PostSelectionType | Callable | None = None,
     ) -> None:
         # Assign key parameters to attributes
         self.circuit = circuit
-        self.post_selection = None  # type: ignore
-        self.inputs = inputs
+        self.post_selection = post_selection  # type: ignore[assignment]
+        self.inputs = inputs  # type: ignore[assignment]
         self.expected = expected
 
         return
@@ -107,16 +108,16 @@ class Analyzer(Task):
         self.__post_selection = value
 
     @property
-    def inputs(self) -> State | list[State]:
+    def inputs(self) -> list[State]:
         """Store list of target inputs to the system."""
         return self.__inputs
 
     @inputs.setter
     def inputs(self, value: State | list[State]) -> None:
-        self.__inputs = value
+        self.__inputs = _validate_states(value, self.circuit.input_modes)
 
     @property
-    def expected(self) -> dict[State, State] | None:
+    def expected(self) -> dict[State, State | list[State]] | None:
         """
         A dictionary of the expected mapping between inputs and outputs of the
         system.
@@ -124,7 +125,7 @@ class Analyzer(Task):
         return self.__expected
 
     @expected.setter
-    def expected(self, value: dict[State, State] | None) -> None:
+    def expected(self, value: dict[State, State | list[State]] | None) -> None:
         self.__expected = value
 
     def _run(self, backend: FockBackend) -> SimulationResult:  # type: ignore[override]
@@ -151,14 +152,16 @@ class Analyzer(Task):
                 "is likely this results from a herald being added twice or "
                 "modified."
             )
-        # Convert state to list of States if not provided for single state case
-        if isinstance(self.inputs, State):
-            inputs = [self.inputs]
-        else:
-            inputs = list(self.inputs)
-        # Process inputs using dedicated function
-        full_inputs = self._process_inputs(inputs)
-        n_photons = full_inputs[0].n_photons
+        # Process inputs, adding heralds and loss modes
+        inputs = list(self.inputs)  # Copy input list
+        _check_photon_numbers(inputs)
+        in_heralds = self.circuit.heralds["input"]
+        full_inputs = [
+            add_heralds_to_state(i, in_heralds)
+            + [0] * self.__circuit_built.loss_modes
+            for i in inputs
+        ]
+        n_photons = sum(full_inputs[0])
         # Generate lists of possible outputs with and without heralded modes
         full_outputs, filtered_outputs = self._generate_outputs(
             n_modes, n_photons
@@ -187,7 +190,9 @@ class Analyzer(Task):
         # Return dict
         return results
 
-    def _get_probs(self, full_inputs: list, full_outputs: list) -> np.ndarray:
+    def _get_probs(
+        self, full_inputs: list[list[int]], full_outputs: list[list[int]]
+    ) -> np.ndarray:
         """
         Create an array of output probabilities for a given set of inputs and
         outputs.
@@ -198,23 +203,23 @@ class Analyzer(Task):
                 # No loss case
                 if not self.__circuit_built.loss_modes:
                     probs[i, j] += self.__backend.probability(
-                        self.__circuit_built.U_full, ins.s, outs
+                        self.__circuit_built.U_full, ins, outs
                     )
                 # Lossy case
                 else:
                     # Photon number preserved
-                    if ins.n_photons == sum(outs):
+                    if sum(ins) == sum(outs):
                         outs = (  # noqa: PLW2901
                             outs + [0] * self.__circuit_built.loss_modes
                         )
                         probs[i, j] += self.__backend.probability(
-                            self.__circuit_built.U_full, ins.s, outs
+                            self.__circuit_built.U_full, ins, outs
                         )
                     # Otherwise
                     else:
                         # If n_out < n_in work out all loss mode combinations
                         # and find probability of each
-                        n_loss = ins.n_photons - sum(outs)
+                        n_loss = sum(ins) - sum(outs)
                         if n_loss < 0:
                             raise PhotonNumberError(
                                 "Output photon number larger than input "
@@ -227,7 +232,7 @@ class Analyzer(Task):
                         for ls in loss_states:
                             fs = outs + ls
                             probs[i, j] += self.__backend.probability(
-                                self.__circuit_built.U_full, ins.s, fs
+                                self.__circuit_built.U_full, ins, fs
                             )
 
         return probs
@@ -235,9 +240,9 @@ class Analyzer(Task):
     def _calculate_error_rate(
         self,
         probabilities: np.ndarray,
-        inputs: list,
-        outputs: list,
-        expected: dict,
+        inputs: list[State],
+        outputs: list[State],
+        expected: dict[State, State | list[State]],
     ) -> float:
         """
         Calculate the error rate for a set of expected mappings between inputs
@@ -266,39 +271,9 @@ class Analyzer(Task):
         # Then take average and return
         return float(np.mean(errors))
 
-    def _process_inputs(self, inputs: list) -> list[State]:
-        """
-        Takes the provided inputs, perform error checking on them and adds any
-        heralded photons that are required, returning full states..
-        """
-        n_modes = self.circuit.input_modes
-        # Ensure all photon numbers are the same
-        ns = [s.n_photons for s in inputs]
-        if min(ns) != max(ns):
-            raise PhotonNumberError("Mismatch in photon numbers between inputs")
-        full_inputs = []
-        in_heralds = self.circuit.heralds["input"]
-        # Check dimensions of input and add heralded photons
-        for state in inputs:
-            if len(state) != n_modes:
-                raise ModeMismatchError(
-                    "Input states are of the wrong dimension. Remember to "
-                    "subtract heralded modes."
-                )
-            # Also validate state values
-            state._validate()
-            full_inputs += [State(add_heralds_to_state(state, in_heralds))]
-        # Add extra states for loss modes here when included
-        if self.__circuit_built.loss_modes > 0:
-            full_inputs = [
-                s + State([0] * self.__circuit_built.loss_modes)
-                for s in full_inputs
-            ]
-        return full_inputs
-
     def _generate_outputs(
         self, n_modes: int, n_photons: int
-    ) -> tuple[list, list]:
+    ) -> tuple[list[list[int]], list[State]]:
         """
         Generates all possible outputs for a given number of modes, photons and
         heralding + post-selection conditions. It returns two list, one with
@@ -319,9 +294,8 @@ class Analyzer(Task):
         for state in outputs:
             # Check output meets all post selection rules
             if self.post_selection.validate(state):
-                fo = add_heralds_to_state(state, out_heralds)
                 filtered_outputs += [State(state)]
-                full_outputs += [fo]
+                full_outputs += [add_heralds_to_state(state, out_heralds)]
         # Check some valid outputs found
         if not full_outputs:
             raise ValueError(
