@@ -17,19 +17,21 @@ from collections.abc import Callable
 
 import numpy as np
 
-from ...sdk.circuit import Circuit
-from ...sdk.state import State
-from ...sdk.utils import (
+from ...emulator.backends.fock_backend import FockBackend
+from ...emulator.components import Detector, Source
+from ...emulator.utils.probability_distribution import pdist_calc
+from ...sdk.utils.post_selection import PostSelectionType
+from ..circuit import Circuit
+from ..results import SamplingResult
+from ..state import State
+from ..utils import (
+    ModeMismatchError,
+    SamplerError,
     add_heralds_to_state,
+    process_post_selection,
     process_random_seed,
     remove_heralds_from_state,
 )
-from ...sdk.utils.post_selection import PostSelectionType
-from ..backends.fock_backend import FockBackend
-from ..components import Detector, Source
-from ..results import SamplingResult
-from ..utils import ModeMismatchError, SamplerError, process_post_selection
-from .probability_distribution import pdist_calc
 from .task import Task
 
 

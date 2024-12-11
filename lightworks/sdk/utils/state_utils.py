@@ -16,6 +16,24 @@
 Script to store various useful functions for the simulation aspect of the code.
 """
 
+from collections.abc import Iterable
+
+
+def fock_basis(N: int, n: int) -> list:  # noqa: N803
+    """Returns the Fock basis for n photons in N modes."""
+    return list(_sums(N, n))
+
+
+def _sums(length: int, total_sum: int) -> Iterable:
+    if length == 1:
+        yield [
+            total_sum,
+        ]
+    else:
+        for value in range(total_sum + 1):
+            for permutation in _sums(length - 1, total_sum - value):
+                yield [*permutation, value]
+
 
 def state_to_string(state: list) -> str:
     """Converts the provided state to a string with ket notation."""

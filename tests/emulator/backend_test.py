@@ -15,8 +15,8 @@
 import numpy as np
 import pytest
 
-from lightworks import State, Unitary, random_unitary
-from lightworks.emulator import Backend, BackendError, Simulator
+from lightworks import Simulator, State, Unitary, random_unitary
+from lightworks.emulator import Backend, BackendError
 from lightworks.emulator.backends.permanent import PermanentBackend
 from lightworks.emulator.backends.slos import SLOSBackend
 

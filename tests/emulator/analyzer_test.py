@@ -15,6 +15,7 @@
 import pytest
 
 from lightworks import (
+    Analyzer,
     Circuit,
     Parameter,
     PostSelection,
@@ -23,7 +24,7 @@ from lightworks import (
     db_loss_to_decimal,
     random_unitary,
 )
-from lightworks.emulator import Analyzer, Backend
+from lightworks.emulator import Backend
 
 BACKEND = Backend("permanent")
 

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from ..simulation.task import Task
+from ...sdk.tasks.task import Task
 from ..utils import BackendError
 from .permanent import PermanentBackend
 from .slos import SLOSBackend

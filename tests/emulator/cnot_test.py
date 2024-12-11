@@ -17,8 +17,8 @@
 import pytest
 from numpy import arccos, pi
 
-from lightworks import Circuit, PostSelection, State
-from lightworks.emulator import Backend, Detector, Sampler, Source
+from lightworks import Circuit, PostSelection, Sampler, State
+from lightworks.emulator import Backend, Detector, Source
 from lightworks.qubit import CNOT
 
 heralds = [

@@ -14,7 +14,7 @@
 
 from abc import ABCMeta, abstractmethod
 
-from ..backends.abc_backend import BackendABC
+from ...emulator.backends.abc_backend import BackendABC
 
 
 class Task(metaclass=ABCMeta):

@@ -18,8 +18,8 @@ import pytest
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import MCXGate
 
-from lightworks import State
-from lightworks.emulator import Backend, Sampler, Simulator
+from lightworks import Sampler, Simulator, State
+from lightworks.emulator import Backend
 from lightworks.qubit import qiskit_converter
 from lightworks.qubit.converter.qiskit_convert import (
     ROTATION_GATES_MAP,

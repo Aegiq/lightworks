@@ -21,7 +21,7 @@ from thewalrus import perm
 from ...__settings import settings
 from ...sdk.circuit.compiler import CompiledCircuit
 from ...sdk.state import State
-from ..utils import fock_basis
+from ...sdk.utils import fock_basis
 from .fock_backend import FockBackend
 
 

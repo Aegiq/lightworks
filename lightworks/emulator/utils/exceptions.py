@@ -31,33 +31,7 @@ class AnnotatedStateError(EmulatorError):
     """
 
 
-class ResultCreationError(EmulatorError):
-    """
-    For specific errors which occur when using creating a Result object.
-    """
-
-
 class BackendError(EmulatorError):
     """
     Raised when errors occur in the Backend object.
-    """
-
-
-class ModeMismatchError(EmulatorError):
-    """
-    For use in simulation objects when there is a mode mismatch between
-    provided states/circuit.
-    """
-
-
-class PhotonNumberError(EmulatorError):
-    """
-    For use in simulation objects when there is a photon number mismatch
-    between inputs and/or outputs.
-    """
-
-
-class SamplerError(EmulatorError):
-    """
-    Specific error in the Sampler objects.
     """

@@ -73,3 +73,35 @@ class DecompositionUnsuccessful(LightworksError):  # noqa: N818
     """
     For situations in which a unitary decomposition procedure is unsuccessful.
     """
+
+
+class ResultCreationError(LightworksError):
+    """
+    For specific errors which occur when using creating a Result object.
+    """
+
+
+class BackendError(LightworksError):
+    """
+    Raised when errors occur in the Backend object.
+    """
+
+
+class ModeMismatchError(LightworksError):
+    """
+    For use in simulation objects when there is a mode mismatch between
+    provided states/circuit.
+    """
+
+
+class PhotonNumberError(LightworksError):
+    """
+    For use in simulation objects when there is a photon number mismatch
+    between inputs and/or outputs.
+    """
+
+
+class SamplerError(LightworksError):
+    """
+    Specific error in the Sampler objects.
+    """

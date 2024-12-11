@@ -18,8 +18,8 @@ import numpy as np
 import pytest
 from random import random
 
-from lightworks import State
-from lightworks.emulator import Simulator, Backend
+from lightworks import State, Simulator
+from lightworks.emulator import Backend
 
 # fmt: off
 from lightworks.qubit import (

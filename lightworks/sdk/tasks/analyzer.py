@@ -16,18 +16,18 @@ from collections.abc import Callable
 
 import numpy as np
 
-from ...sdk.circuit import Circuit
-from ...sdk.state import State
-from ...sdk.utils import add_heralds_to_state
-from ...sdk.utils.post_selection import PostSelectionType
-from ..backends.fock_backend import FockBackend
+from ...emulator.backends.fock_backend import FockBackend
+from ..circuit import Circuit
 from ..results import SimulationResult
+from ..state import State
 from ..utils import (
     ModeMismatchError,
     PhotonNumberError,
+    add_heralds_to_state,
     fock_basis,
     process_post_selection,
 )
+from ..utils.post_selection import PostSelectionType
 from .task import Task
 
 

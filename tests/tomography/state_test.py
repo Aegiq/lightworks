@@ -18,12 +18,13 @@ import pytest
 from lightworks import (
     Circuit,
     PostSelection,
+    Sampler,
     State,
     Unitary,
     qubit,
     random_unitary,
 )
-from lightworks.emulator import Backend, Sampler
+from lightworks.emulator import Backend
 from lightworks.tomography import StateTomography
 from lightworks.tomography.state_tomography import MEASUREMENT_MAPPING
 

@@ -18,18 +18,19 @@ from collections.abc import Callable
 import numpy as np
 
 from ...__settings import settings
-from ...sdk.circuit import Circuit
-from ...sdk.state import State
-from ...sdk.utils import add_heralds_to_state, process_random_seed
-from ...sdk.utils.post_selection import PostSelectionType
-from ..backends.fock_backend import FockBackend
+from ...emulator.backends.fock_backend import FockBackend
+from ..circuit import Circuit
 from ..results import SamplingResult
+from ..state import State
 from ..utils import (
-    EmulatorError,
     ModeMismatchError,
+    SamplerError,
+    add_heralds_to_state,
     fock_basis,
     process_post_selection,
+    process_random_seed,
 )
+from ..utils.post_selection import PostSelectionType
 from .task import Task
 
 
@@ -191,7 +192,7 @@ class QuickSampler(Task):
             pdist = self._calculate_probabiltiies(out_states)
             # Check some states are found
             if not pdist:
-                raise EmulatorError(
+                raise SamplerError(
                     "No valid outputs found with the provided QuickSampler "
                     "configuration."
                 )

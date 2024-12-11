@@ -14,7 +14,7 @@
 
 import pytest
 
-from lightworks import PostSelection, emulator, qubit
+from lightworks import PostSelection, Sampler, emulator, qubit
 from lightworks.tomography import GateFidelity
 
 
@@ -29,7 +29,7 @@ def experiment(circuits, inputs, n_qubits):
     results = []
     backend = emulator.Backend("slos")
     for circ, in_s in zip(circuits, inputs, strict=True):
-        sampler = emulator.Sampler(
+        sampler = Sampler(
             circ, in_s, 20000, post_selection=post_select, random_seed=99
         )
         results.append(backend.run(sampler))

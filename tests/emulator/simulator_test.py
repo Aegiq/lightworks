@@ -16,18 +16,16 @@ import pytest
 
 from lightworks import (
     Circuit,
+    ModeMismatchError,
     Parameter,
+    PhotonNumberError,
+    Simulator,
     State,
     Unitary,
     db_loss_to_decimal,
     random_unitary,
 )
-from lightworks.emulator import (
-    Backend,
-    ModeMismatchError,
-    PhotonNumberError,
-    Simulator,
-)
+from lightworks.emulator import Backend
 
 BACKEND = Backend("permanent")
 
