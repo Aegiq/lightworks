@@ -176,15 +176,17 @@ class TestSimulator:
         # Create circuit and simulator object
         circuit = Unitary(random_unitary(4))
         # Without output specified
+        sim = Simulator(circuit, [State([1, 0, 1, 0]), State([0, 1, 0, 0])])
         with pytest.raises(PhotonNumberError):
-            Simulator(circuit, [State([1, 0, 1, 0]), State([0, 1, 0, 0])])
+            BACKEND.run(sim)
         # With some outputs specified
+        sim = Simulator(
+            circuit,
+            [State([1, 0, 1, 0]), State([0, 1, 0, 0])],
+            [State([1, 0, 1, 0]), State([0, 1, 0, 1])],
+        )
         with pytest.raises(PhotonNumberError):
-            Simulator(
-                circuit,
-                [State([1, 0, 1, 0]), State([0, 1, 0, 0])],
-                [State([1, 0, 1, 0]), State([0, 1, 0, 1])],
-            )
+            BACKEND.run(sim)
 
     def test_varied_output_n_raises_error(self):
         """
@@ -194,19 +196,21 @@ class TestSimulator:
         # Create circuit and simulator object
         circuit = Unitary(random_unitary(4))
         # With different number to input
+        sim = Simulator(
+            circuit,
+            [State([1, 0, 1, 0]), State([0, 1, 0, 1])],
+            [State([0, 0, 1, 0]), State([0, 1, 0, 0])],
+        )
         with pytest.raises(PhotonNumberError):
-            Simulator(
-                circuit,
-                [State([1, 0, 1, 0]), State([0, 1, 0, 1])],
-                [State([0, 0, 1, 0]), State([0, 1, 0, 0])],
-            )
+            BACKEND.run(sim)
         # With different number to each other
+        sim = Simulator(
+            circuit,
+            [State([1, 0, 1, 0]), State([0, 1, 0, 1])],
+            [State([1, 0, 1, 0]), State([0, 1, 0, 0])],
+        )
         with pytest.raises(PhotonNumberError):
-            Simulator(
-                circuit,
-                [State([1, 0, 1, 0]), State([0, 1, 0, 1])],
-                [State([1, 0, 1, 0]), State([0, 1, 0, 0])],
-            )
+            BACKEND.run(sim)
 
     def test_incorrect_input_length(self):
         """

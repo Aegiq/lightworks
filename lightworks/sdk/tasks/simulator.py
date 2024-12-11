@@ -84,7 +84,7 @@ class Simulator(Task):
 
     @inputs.setter
     def inputs(self, value: State | list[State]) -> None:
-        self.__inputs = self._process_inputs(value)
+        self.__inputs = _validate_states(value, self.circuit.input_modes)
 
     @property
     def outputs(self) -> list[State] | None:
@@ -96,7 +96,9 @@ class Simulator(Task):
 
     @outputs.setter
     def outputs(self, value: State | list[State] | None) -> None:
-        self.__outputs = self._process_outputs(self.inputs, value)
+        if value is not None:
+            value = _validate_states(value, self.circuit.input_modes)
+        self.__outputs = value
 
     def _run(self, backend: FockBackend) -> SimulationResult:  # type: ignore[override]
         """
@@ -119,9 +121,13 @@ class Simulator(Task):
         """
         circuit = self.circuit._build()
         if self.outputs is None:
-            outputs = fock_basis(self.circuit.input_modes, sum(self.inputs[0]))
+            _check_photon_numbers(self.inputs)
+            outputs = fock_basis(
+                self.circuit.input_modes, self.inputs[0].n_photons
+            )
             outputs = [State(s) for s in outputs]
         else:
+            _check_photon_numbers(self.inputs + self.outputs)
             outputs = self.outputs
         in_heralds = self.circuit.heralds["input"]
         out_heralds = self.circuit.heralds["output"]
@@ -145,70 +151,41 @@ class Simulator(Task):
             outputs=outputs,
         )
 
-    def _process_inputs(self, inputs: State | list) -> list:
-        """Performs all required processing/checking on the input states."""
-        # Convert state to list of States if not provided for single state case
-        if isinstance(inputs, State):
-            inputs = [inputs]
-        input_modes = self.circuit.input_modes
-        # Check each input
-        for state in inputs:
-            # Ensure correct type
-            if not isinstance(state, State):
-                raise TypeError(
-                    "inputs should be a State or list of State objects."
-                )
-            # Dimension check
-            if len(state) != input_modes:
-                msg = (
-                    "One or more input states have an incorrect number of "
-                    f"modes, correct number of modes is {input_modes}."
-                )
-                raise ModeMismatchError(msg)
-            # Also validate state values
-            state._validate()
-        ns = [s.n_photons for s in inputs]
-        if min(ns) != max(ns):
-            raise PhotonNumberError(
-                "Mismatch in total photon number between inputs, this is "
-                "not currently supported by the Simulator."
-            )
-        return inputs
 
-    def _process_outputs(
-        self, inputs: list[State], outputs: State | list[State] | None
-    ) -> list[State] | None:
-        """
-        Processes the provided outputs or generates them if no inputs were
-        provided. Returns both the inputs and outputs.
-        """
-        input_modes = self.circuit.input_modes
-        # If outputs not specified then determine all combinations
-        if outputs is not None:
-            if isinstance(outputs, State):
-                outputs = [outputs]
-            # Check type and dimension is correct
-            for state in outputs:
-                # Ensure correct type
-                if not isinstance(state, State):
-                    raise TypeError(
-                        "outputs should be a State or list of State objects."
-                    )
-                # Dimension check
-                if len(state) != input_modes:
-                    msg = (
-                        "One or more input states have an incorrect number of "
-                        f"modes, correct number of modes is {input_modes}."
-                    )
-                    raise ModeMismatchError(msg)
-                # Also validate state values
-                state._validate()
-            # Ensure photon numbers are the same in all states - variation not
-            # currently supported
-            ns = [s.n_photons for s in inputs + outputs]
-            if min(ns) != max(ns):
-                raise PhotonNumberError(
-                    "Mismatch in photon numbers between some inputs/outputs, "
-                    "this is not currently supported in the Simulator."
-                )
-        return outputs
+def _validate_states(inputs: State | list[State], n_modes: int) -> list[State]:
+    """
+    Performs all required processing/checking on the input/outputs states.
+    """
+    # Convert state to list of States if not provided for single state case
+    if isinstance(inputs, State):
+        inputs = [inputs]
+    # Check each input
+    for state in inputs:
+        # Ensure correct type
+        if not isinstance(state, State):
+            raise TypeError(
+                "inputs should be a State or list of State objects."
+            )
+        # Dimension check
+        if len(state) != n_modes:
+            msg = (
+                "One or more input states have an incorrect number of "
+                f"modes, correct number of modes is {n_modes}."
+            )
+            raise ModeMismatchError(msg)
+        # Also validate state values
+        state._validate()
+    return inputs
+
+
+def _check_photon_numbers(states: list[State]) -> None:
+    """
+    Raises an exception if photon numbers are mixed when running a
+    simulation.
+    """
+    ns = [s.n_photons for s in states]
+    if min(ns) != max(ns):
+        raise PhotonNumberError(
+            "Mismatch in photon numbers between some inputs/outputs, "
+            "this is not currently supported in the Simulator."
+        )

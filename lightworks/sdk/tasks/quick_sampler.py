@@ -298,15 +298,3 @@ class QuickSampler(Task):
         for s, p in pdist.items():
             pdist[s] = p / p_total
         return pdist
-
-    def _convert_to_continuous(self, dist: dict) -> dict:
-        """
-        Convert a probability distribution to continuous for sampling. Note
-        that this function assumes the provided distribution is already
-        normalised.
-        """
-        cdist, pcon = {}, 0
-        for s, p in dist.items():
-            pcon += p
-            cdist[s] = pcon
-        return cdist

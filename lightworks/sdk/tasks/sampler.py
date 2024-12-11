@@ -546,15 +546,3 @@ class Sampler(Task):
         ]:
             vals.append(getattr(self.source, prop))  # noqa: PERF401
         return vals
-
-    def _convert_to_continuous(self, dist: dict) -> dict:
-        """
-        Convert a probability distribution to continuous for sampling, with
-        normalisation also being applied.
-        """
-        cdist, pcon = {}, 0
-        total = sum(dist.values())
-        for s, p in dist.items():
-            pcon += p
-            cdist[s] = pcon / total
-        return cdist
