@@ -25,10 +25,6 @@ The different simulation objects are discussed in the following sections, with a
       - Circuit, Input state, Post-selection/heralding rules
       - Probability distribution
       - No
-    * - :doc:`quick_sampler`
-      - Circuit, Input state, Heralding rules
-      - Sample counts
-      - Only non-pnr detectors
 
 All simulation objects support the inclusion of heralds through the circuit object, which allows these modes to be excluded from specification of input/outputs within the emulator.
 
@@ -46,4 +42,3 @@ Contents
     sampler
     imperfect_sampling
     analyzer
-    quick_sampler

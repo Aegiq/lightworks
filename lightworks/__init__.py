@@ -48,7 +48,7 @@ from .__settings import settings
 from .__version import __version__
 from .sdk.circuit import Circuit, Parameter, ParameterDict, Unitary
 from .sdk.state import State
-from .sdk.tasks import Analyzer, QuickSampler, Sampler, Simulator
+from .sdk.tasks import Analyzer, Sampler, Simulator
 from .sdk.utils import (
     PostSelection,
     PostSelectionFunction,
@@ -72,6 +72,6 @@ __all__ = [
     "Circuit", "Unitary", "Display", "State", "random_unitary",
     "random_permutation", "db_loss_to_decimal", "decimal_to_db_loss",
     "Parameter", "ParameterDict", "PostSelection", "PostSelectionFunction",
-    "Simulator", "Sampler", "Analyzer", "QuickSampler"
+    "Simulator", "Sampler", "Analyzer"
 ]
 # fmt: on

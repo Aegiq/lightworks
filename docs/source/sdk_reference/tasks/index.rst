@@ -7,4 +7,3 @@ Tasks
     analyzer
     sampler
     simulator
-    quick_sampler

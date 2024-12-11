@@ -13,8 +13,7 @@
 # limitations under the License.
 
 from .analyzer import Analyzer
-from .quick_sampler import QuickSampler
 from .sampler import Sampler
 from .simulator import Simulator
 
-__all__ = ["Analyzer", "Sampler", "Simulator", "QuickSampler"]
+__all__ = ["Analyzer", "Sampler", "Simulator"]
