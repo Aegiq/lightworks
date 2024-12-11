@@ -167,9 +167,7 @@ def partition(
     """
     n_modes = len(in_state)  # Number of modes
     # Construct the matrix of indices for the partition
-    x, y = [], []
-    for i in range(n_modes):
-        x += [i] * out_state[i]
-        y += [i] * in_state[i]
+    x = [i for i in range(n_modes) for _ in range(out_state[i])]
+    y = [i for i in range(n_modes) for _ in range(in_state[i])]
     # Construct the new matrix with dimension n, where n is photon number
     return unitary[np.ix_(x, y)]
