@@ -85,7 +85,7 @@ class TestCNOT:
             if m in [3, 4, 3]:
                 cnot_circuit.barrier()
         # Define imperfect source and detector
-        source = Source(purity=0.99, brightness=0.4, indistinguishability=0.94)
+        source = Source(purity=0.99, brightness=0.4, indistinguishability=0.96)
         detector = Detector(efficiency=0.9, p_dark=1e-5, photon_counting=False)
         # Then define sampler with the input state |10>
         sampler = Sampler(
