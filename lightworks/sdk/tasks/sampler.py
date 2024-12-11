@@ -244,6 +244,11 @@ class Sampler(Task):
                 "Sampler must be run with Backend().run before the probability "
                 "distribution can be viewed."
             )
+        if not isinstance(self.__backend, FockBackend):
+            raise TypeError(
+                "Probability distribution cannot be calculated with non-Fock "
+                "backend."
+            )
         if self._check_parameter_updates():
             # Check circuit and input modes match
             if self.circuit.input_modes != len(self.input_state):
@@ -536,7 +541,12 @@ class Sampler(Task):
         returns this.
         """
         # Store circuit unitary and input state
-        vals = [self.__circuit.U_full, self.input_state, self.__backend.name]
+        vals = [
+            self.circuit.U_full,
+            self.circuit.heralds,
+            self.input_state,
+            self.__backend.name,
+        ]
         # Loop through source parameters and add these as well
         for prop in [
             "brightness",
