@@ -1,7 +1,7 @@
 Quick Sampler
 =============
 
-The :doc:`../emulator_reference/quick_sampler` is a modified and simplified version of the Sampler, designed to provide improved sampling performance when a set of conditions are true. These conditions are:
+The :doc:`../sdk_reference/tasks/quick_sampler` is a modified and simplified version of the Sampler, designed to provide improved sampling performance when a set of conditions are true. These conditions are:
 
 #. Photon number is preserved between the input and output.
 #. The source and detection aspects of the system are both ideal, with the only supported imperfection being if the detectors are photon number resolving or not.
@@ -23,8 +23,7 @@ The QuickSampler can then be created, providing the created circuit and the targ
 
     input_state = lw.State([1,0,1,0,1,0,1,0])
 
-    quick_sampler = emulator.QuickSampler(circuit, input_state, 
-                                          photon_counting = True)
+    quick_sampler = lw.QuickSampler(circuit, input_state, photon_counting = True)
 
 It is also possible to add a herald function to the QuickSampler. This could be included in the initial object creation using the ``herald`` option, but can also be added after creation using the herald attribute. This is also true for any of the other options used in creation of the QuickSampler.
 
@@ -32,7 +31,7 @@ It is also possible to add a herald function to the QuickSampler. This could be 
     
     quick_sampler.herald = lambda s: s[0] == 0 and s[7] == 0
 
-The probability distribution can then be sampled from, using either ``sample`` to get individual samples or ``sample_N_outputs`` to get N valid outputs from the system. The latter is used below, where the return is a :doc:`../emulator_reference/sampling_result` object, through which the built-in plotting can be used to quickly view the initial results.
+The probability distribution can then be sampled from, using either ``sample`` to get individual samples or ``sample_N_outputs`` to get N valid outputs from the system. The latter is used below, where the return is a :doc:`../sdk_reference/results/sampling_result` object, through which the built-in plotting can be used to quickly view the initial results.
 
 .. code-block:: Python
 
@@ -65,13 +64,13 @@ As mentioned, the QuickSampler should provide some performance benefit over the 
 
     # QuickSampler
     t0 = perf_counter()
-    quick_sampler = emulator.QuickSampler(circuit, input_state)
+    quick_sampler = lw.QuickSampler(circuit, input_state)
     quick_sampler.probability_distribution
     t1 = perf_counter()
     
     # Sampler
     t2 = perf_counter()
-    sampler = emulator.Sampler(circuit, input_state)
+    sampler = lw.Sampler(circuit, input_state)
     sampler.probability_distribution
     t3 = perf_counter()
 
