@@ -12,20 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Script to store various useful functions for the simulation aspect of the code.
-"""
+from abc import ABCMeta, abstractmethod
+
+# ruff: noqa: D102
 
 
-def annotated_state_to_string(state: list) -> str:
-    """Converts the provided annotated state to a string with ket notation."""
-    string = "|"
-    for s in state:
-        if len(s) > 0:
-            string += str(len(s)) + ":("
-            for label in s:
-                string += str(label) + ","
-            string = string[:-1] + "),"
-        else:
-            string += "0,"
-    return string[:-1] + ">"
+class BackendABC(metaclass=ABCMeta):
+    """
+    Base class for all backends. An outline of all possible functions should
+    be included here.
+    """
+
+    @property
+    @abstractmethod
+    def name(self) -> str: ...

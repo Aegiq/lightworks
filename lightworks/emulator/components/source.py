@@ -53,7 +53,7 @@ class Source:
         purity: float = 1,
         brightness: float = 1,
         indistinguishability: float = 1,
-        probability_threshold: float = 0,
+        probability_threshold: float = 1e-9,
     ) -> None:
         self.purity = purity
         self.brightness = brightness

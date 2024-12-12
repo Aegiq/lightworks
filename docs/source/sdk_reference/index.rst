@@ -2,7 +2,7 @@ SDK Reference
 =============
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
     circuit
     components
@@ -12,4 +12,6 @@ SDK Reference
     parameter
     parameter_dict
     unitary
+    tasks/index
+    results/index
     utils

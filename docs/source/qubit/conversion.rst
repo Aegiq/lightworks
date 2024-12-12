@@ -67,9 +67,14 @@ When used, a ``PostSelection`` object will also be returned, which can then be p
 
 .. code-block:: Python
 
-    sampler = emulator.Sampler(conv_circ, lw.State([1,0,1,0,1,0]))
+    sampler = emulator.Sampler(
+        conv_circ, lw.State([1,0,1,0,1,0]), 10000, 
+        post-selection = post_select, random_seed = 995
+    )
 
-    results = sampler.sample_N_outputs(10000, post_select=post_select, seed=995)
+    backend = emulator.Backend("slos")
+    results = backend.run(sampler)
+    
     results.plot()
 
 .. image:: assets/qiskit_post_select_demo_results.png

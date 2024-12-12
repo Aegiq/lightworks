@@ -15,8 +15,8 @@
 from collections.abc import Callable
 from types import FunctionType
 
-from ...sdk.utils import PostSelectionFunction
-from ...sdk.utils.post_selection import DefaultPostSelection, PostSelectionType
+from . import PostSelectionFunction
+from .post_selection import DefaultPostSelection, PostSelectionType
 
 
 def process_post_selection(

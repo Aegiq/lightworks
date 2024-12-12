@@ -12,4 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .optimisation import Optimisation
+from abc import ABCMeta, abstractmethod
+
+from ...emulator.backends.abc_backend import BackendABC
+
+
+class Task(metaclass=ABCMeta):
+    """
+    Base class for all tasks, which requires implementation of the run method.
+    """
+
+    __compatible_backends__: tuple[str, ...]
+
+    @abstractmethod
+    def _run(self, backend: BackendABC) -> dict: ...

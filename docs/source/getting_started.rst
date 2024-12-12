@@ -68,14 +68,21 @@ Once we have built a circuit, we can then move on to simulating it with the emul
 
 The exact functionality of the State object is discussed further in the :doc:`sdk/state` section.
 
-For this initial simulation, we will choose to use the :doc:`emulator_reference/sampler` to emulate the process of measuring photon outputs after they have propagated through the system. On creation of the Sampler, we specify the circuit and the input state to sample from. By default, it is assumed that all photons are indistinguishable, and so we do not need to set anything for this. We then use the ``sample_N_outputs`` method to generate N samples from the system, in this case choosing N = 10000. We will also specify a random seed to ensure results are reproducible, but this is optional.
+For this initial simulation, we will choose to use the :doc:`sdk_reference/tasks/sampler` to emulate the process of measuring photon outputs after they have propagated through the system. On creation of the Sampler, we specify the circuit, input state to sample from, and number of samples. A random seed can also be set to produce repeatable results. By default, it is assumed that all photons are indistinguishable, and so we do not need to set anything for this. 
 
 .. code-block:: Python
 
-    sampler = emulator.Sampler(circuit, input_state)
-    results = sampler.sample_N_outputs(10000, seed = 1)
+    n_samples = 10000
+    sampler = lw.Sampler(circuit, input_state, n_samples, random_seed = 1)
 
-This produces a :doc:`emulator_reference/sampling_result` object, we can quickly view the contents of this using the print statement.
+A backend from the emulator then needs to be selected to run the sampler task on. In this case the permanent backend is chosen, more information about this can be found in :doc:`emulator/backend`. The task is then executed using this backend with ``run``.
+
+.. code-block:: Python
+
+    backend = emulator.Backend("permanent")
+    results = backend.run(sampler)
+
+This produces a :doc:`sdk_reference/results/sampling_result` object, we can quickly view the contents of this using the print statement.
 
 .. code-block:: Python
 
@@ -102,9 +109,9 @@ With the emulator, we can also simulate distinguishable particles, to confirm th
 .. code-block:: Python
 
     source = emulator.Source(indistinguishability = 0)
-    sampler = emulator.Sampler(circuit, input_state, source = source)
+    sampler = lw.Sampler(circuit, input_state, n_samples, source = source, random_seed = 1)
 
-    results = sampler.sample_N_outputs(10000, seed = 1)
+    results = backend.run(Sampler)
     results.plot()
 
 .. image:: assets/getting_started_demo_plot2.png

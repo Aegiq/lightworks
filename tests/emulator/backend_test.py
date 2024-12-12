@@ -15,10 +15,10 @@
 import numpy as np
 import pytest
 
-from lightworks import State, Unitary, random_unitary
-from lightworks.emulator import Backend
-from lightworks.emulator.backend.permanent import Permanent
-from lightworks.emulator.backend.slos import SLOS
+from lightworks import Simulator, State, Unitary, random_unitary
+from lightworks.emulator import Backend, BackendError
+from lightworks.emulator.backends.permanent import PermanentBackend
+from lightworks.emulator.backends.slos import SLOSBackend
 
 
 class TestBackend:
@@ -36,67 +36,14 @@ class TestBackend:
         with pytest.raises(ValueError):
             Backend("not_a_backend")
 
-    def test_probability_amplitude(self):
+    def test_invalid_backend_for_task(self):
         """
-        Confirms that expected elements from the unitary matrix are returned
-        for a single photon input.
+        Checks an error is raised when an invalid backend is chosen for a task.
         """
-        backend = Backend("permanent")
-        unitary = random_unitary(4)
-        # Diagonal
-        assert unitary[0, 0] == backend.probability_amplitude(
-            unitary, [1, 0, 0, 0], [1, 0, 0, 0]
-        )
-        # Off-diagonal
-        assert unitary[2, 1] == backend.probability_amplitude(
-            unitary, [0, 1, 0, 0], [0, 0, 1, 0]
-        )
-
-    def test_probability(self):
-        """
-        Confirms that expected probability is returned for a single photon
-        input.
-        """
-        backend = Backend("permanent")
-        unitary = random_unitary(4)
-        # Diagonal
-        assert abs(unitary[0, 0]) ** 2 == backend.probability(
-            unitary, [1, 0, 0, 0], [1, 0, 0, 0]
-        )
-        # Off-diagonal
-        assert abs(unitary[2, 1]) ** 2 == backend.probability(
-            unitary, [0, 1, 0, 0], [0, 0, 1, 0]
-        )
-
-    def test_probability_amplitude_multi(self):
-        """
-        Confirms that expected elements from the unitary matrix are returned
-        for a multi photon input.
-        """
-        backend = Backend("permanent")
-        unitary = random_unitary(4, seed=10)
-        # Diagonal
-        pa = backend.probability_amplitude(unitary, [1, 0, 0, 0], [1, 0, 0, 0])
-        assert pa == pytest.approx(0.429095917729817 - 0.366263376556379j, 1e-8)
-        # Off-diagonal
-        pa = backend.probability_amplitude(unitary, [0, 1, 0, 0], [0, 0, 1, 0])
-        assert pa == pytest.approx(
-            -0.15003076436547 + 0.4696358907386921j, 1e-8
-        )
-
-    def test_probability_multi(self):
-        """
-        Confirms that expected probability is returned for a multi photon
-        input.
-        """
-        backend = Backend("permanent")
-        unitary = random_unitary(4, seed=11)
-        # Diagonal
-        p = backend.probability(unitary, [1, 0, 0, 0], [1, 0, 0, 0])
-        assert p == pytest.approx(0.6122546643219795, 1e-8)
-        # Off-diagonal
-        p = backend.probability(unitary, [0, 1, 0, 0], [0, 0, 1, 0])
-        assert p == pytest.approx(0.25051188442720407, 1e-8)
+        backend = Backend("slos")
+        sim = Simulator(Unitary(random_unitary(4)), State([1, 0, 1, 0]))
+        with pytest.raises(BackendError):
+            backend.run(sim)
 
     @pytest.mark.parametrize("backend_type", ["permanent", "slos"])
     def test_full_probability_distribution(self, backend_type):
@@ -104,7 +51,7 @@ class TestBackend:
         Check against a known result for the full probability distribution
         while using the both permanent and slos backends.
         """
-        backend = Backend(backend_type)
+        backend = Backend(backend_type)._Backend__backend
         unitary = random_unitary(3, seed=2)
         dist = backend.full_probability_distribution(
             Unitary(unitary)._build(), State([1, 1, 0])
@@ -133,11 +80,11 @@ class TestBackend:
         circuit = Unitary(random_unitary(6))
         input_state = State([1, 0, 1, 0, 1, 0])
         # Find distributions
-        backend_p = Backend("permanent")
+        backend_p = PermanentBackend()
         p1 = backend_p.full_probability_distribution(
             circuit._build(), input_state
         )
-        backend_s = Backend("permanent")
+        backend_s = SLOSBackend()
         p2 = backend_s.full_probability_distribution(
             circuit._build(), input_state
         )
@@ -145,14 +92,6 @@ class TestBackend:
         for s in p1:
             if round(p1[s], 8) != round(p2[s], 8):
                 pytest.fail("Methods do not produce equivalent distributions.")
-
-    def test_clifford_not_implemented(self):
-        """
-        Confirms that clifford backend produces not-implemented error when
-        trying to use it.
-        """
-        with pytest.raises(NotImplementedError):
-            Backend("clifford")
 
     def test_backend_str_return(self):
         """
@@ -184,11 +123,11 @@ class TestPermanent:
         """
         unitary = random_unitary(4)
         # Diagonal
-        assert unitary[0, 0] == Permanent.calculate(
+        assert unitary[0, 0] == PermanentBackend().probability_amplitude(
             unitary, State([1, 0, 0, 0]), State([1, 0, 0, 0])
         )
         # Off-diagonal
-        assert unitary[2, 1] == Permanent.calculate(
+        assert unitary[2, 1] == PermanentBackend().probability_amplitude(
             unitary, State([0, 1, 0, 0]), State([0, 0, 1, 0])
         )
 
@@ -198,10 +137,72 @@ class TestPermanent:
         calculated result.
         """
         unitary = random_unitary(6, seed=23)
-        r = Permanent.calculate(
+        r = PermanentBackend().probability_amplitude(
             unitary, State([1, 0, 1, 0, 1, 0]), State([0, 1, 1, 0, 0, 1])
         )
         assert r == pytest.approx(-0.02042658999324299 - 0.02226528732909283j)
+
+    def test_probability_amplitude(self):
+        """
+        Confirms that expected elements from the unitary matrix are returned
+        for a single photon input.
+        """
+        backend = PermanentBackend()
+        unitary = random_unitary(4)
+        # Diagonal
+        assert unitary[0, 0] == backend.probability_amplitude(
+            unitary, [1, 0, 0, 0], [1, 0, 0, 0]
+        )
+        # Off-diagonal
+        assert unitary[2, 1] == backend.probability_amplitude(
+            unitary, [0, 1, 0, 0], [0, 0, 1, 0]
+        )
+
+    def test_probability(self):
+        """
+        Confirms that expected probability is returned for a single photon
+        input.
+        """
+        backend = PermanentBackend()
+        unitary = random_unitary(4)
+        # Diagonal
+        assert abs(unitary[0, 0]) ** 2 == backend.probability(
+            unitary, [1, 0, 0, 0], [1, 0, 0, 0]
+        )
+        # Off-diagonal
+        assert abs(unitary[2, 1]) ** 2 == backend.probability(
+            unitary, [0, 1, 0, 0], [0, 0, 1, 0]
+        )
+
+    def test_probability_amplitude_multi(self):
+        """
+        Confirms that expected elements from the unitary matrix are returned
+        for a multi photon input.
+        """
+        backend = PermanentBackend()
+        unitary = random_unitary(4, seed=10)
+        # Diagonal
+        pa = backend.probability_amplitude(unitary, [1, 0, 0, 0], [1, 0, 0, 0])
+        assert pa == pytest.approx(0.429095917729817 - 0.366263376556379j, 1e-8)
+        # Off-diagonal
+        pa = backend.probability_amplitude(unitary, [0, 1, 0, 0], [0, 0, 1, 0])
+        assert pa == pytest.approx(
+            -0.15003076436547 + 0.4696358907386921j, 1e-8
+        )
+
+    def test_probability_multi(self):
+        """
+        Confirms that expected probability is returned for a multi photon
+        input.
+        """
+        backend = PermanentBackend()
+        unitary = random_unitary(4, seed=11)
+        # Diagonal
+        p = backend.probability(unitary, [1, 0, 0, 0], [1, 0, 0, 0])
+        assert p == pytest.approx(0.6122546643219795, 1e-8)
+        # Off-diagonal
+        p = backend.probability(unitary, [0, 1, 0, 0], [0, 0, 1, 0])
+        assert p == pytest.approx(0.25051188442720407, 1e-8)
 
 
 class TestSlos:
@@ -212,7 +213,7 @@ class TestSlos:
     def test_hom(self):
         """Check hom result and ensure returned value is as expected."""
         unitary = np.array([[1, 1j], [1j, 1]]) * 1 / (2**0.5)
-        r = SLOS.calculate(unitary, State([1, 1]))
+        r = SLOSBackend().calculate(unitary, State([1, 1]))
         assert r[1, 1] == 0
         assert r[2, 0] == pytest.approx(0.7071067811865475j)
 
@@ -221,7 +222,7 @@ class TestSlos:
         Check produced output matches a previously calculated result.
         """
         unitary = random_unitary(6, seed=23)
-        r = SLOS.calculate(unitary, State([1, 0, 1, 0, 1, 0]))
+        r = SLOSBackend().calculate(unitary, State([1, 0, 1, 0, 1, 0]))
         assert r[1, 1, 1, 0, 0, 0] == pytest.approx(
             -0.0825807219472892 + 0.0727188703263498j
         )

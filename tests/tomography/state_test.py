@@ -18,12 +18,13 @@ import pytest
 from lightworks import (
     Circuit,
     PostSelection,
+    Sampler,
     State,
     Unitary,
     qubit,
     random_unitary,
 )
-from lightworks.emulator import Sampler
+from lightworks.emulator import Backend
 from lightworks.tomography import StateTomography
 from lightworks.tomography.state_tomography import MEASUREMENT_MAPPING
 
@@ -39,13 +40,16 @@ def experiment_args(circuits, input_state):
     for i in range(n_qubits):
         post_selection.add((2 * i, 2 * i + 1), 1)
     results = []
+    backend = Backend("slos")
     for circ in circuits:
-        sampler = Sampler(circ, input_state, backend="slos")
-        results.append(
-            sampler.sample_N_outputs(
-                n_samples, post_select=post_selection, seed=29
-            )
+        sampler = Sampler(
+            circ,
+            input_state,
+            n_samples,
+            post_selection=post_selection,
+            random_seed=29,
         )
+        results.append(backend.run(sampler))
     return results
 
 

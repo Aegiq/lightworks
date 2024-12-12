@@ -21,8 +21,10 @@ from .matrix_utils import (
 )
 from .permutation_conversion import permutation_mat_from_swaps_dict
 from .post_selection import PostSelection, PostSelectionFunction
+from .post_selection_processing import process_post_selection
 from .random_utils import (
     process_random_seed,
     random_permutation,
     random_unitary,
 )
+from .state_utils import fock_basis

@@ -16,21 +16,22 @@ from collections.abc import Callable
 
 import numpy as np
 
-from ...sdk.circuit import Circuit
-from ...sdk.state import State
-from ...sdk.utils import add_heralds_to_state
-from ...sdk.utils.post_selection import PostSelectionType
-from ..backend import Backend
+from ...emulator.backends.fock_backend import FockBackend
+from ..circuit import Circuit
 from ..results import SimulationResult
+from ..state import State
 from ..utils import (
-    ModeMismatchError,
     PhotonNumberError,
+    add_heralds_to_state,
     fock_basis,
     process_post_selection,
 )
+from ..utils.post_selection import PostSelectionType
+from .task import Task
+from .task_utils import _check_photon_numbers, _validate_states
 
 
-class Analyzer:
+class Analyzer(Task):
     """
     The analyzer class is built as an alternative to simulation, intended for
     cases where we want to look at the transformations between a specific
@@ -42,6 +43,13 @@ class Analyzer:
 
         circuit (Circuit) : The circuit to simulate.
 
+        inputs (list) : A list of the input states to simulate. For multiple
+            inputs this should be a list of States.
+
+        expected (dict) : A dictionary containing a mapping between the input
+            state and expected output state(s). If there is multiple
+            possible outputs, this can be specified as a list.
+
     Attribute:
 
         performance : The total probabilities of mapping between the states
@@ -52,11 +60,20 @@ class Analyzer:
 
     """
 
-    def __init__(self, circuit: Circuit) -> None:
+    __compatible_backends__ = ("permanent",)
+
+    def __init__(
+        self,
+        circuit: Circuit,
+        inputs: State | list[State],
+        expected: dict[State, State | list[State]] | None = None,
+        post_selection: PostSelectionType | Callable | None = None,
+    ) -> None:
         # Assign key parameters to attributes
         self.circuit = circuit
-        self.post_selection = None  # type: ignore
-        self.__backend = Backend("permanent")
+        self.post_selection = post_selection  # type: ignore[assignment]
+        self.inputs = inputs  # type: ignore[assignment]
+        self.expected = expected
 
         return
 
@@ -90,21 +107,35 @@ class Analyzer:
         value = process_post_selection(value)
         self.__post_selection = value
 
-    def analyze(
-        self, inputs: State | list, expected: dict | None = None
-    ) -> SimulationResult:
+    @property
+    def inputs(self) -> list[State]:
+        """Store list of target inputs to the system."""
+        return self.__inputs
+
+    @inputs.setter
+    def inputs(self, value: State | list[State]) -> None:
+        self.__inputs = _validate_states(value, self.circuit.input_modes)
+
+    @property
+    def expected(self) -> dict[State, State | list[State]] | None:
         """
-        Function to perform analysis of probabilities between
-        different inputs/outputs
+        A dictionary of the expected mapping between inputs and outputs of the
+        system.
+        """
+        return self.__expected
+
+    @expected.setter
+    def expected(self, value: dict[State, State | list[State]] | None) -> None:
+        self.__expected = value
+
+    def _run(self, backend: FockBackend) -> SimulationResult:  # type: ignore[override]
+        """
+        Function to perform analysis of probabilities between different
+        inputs/outputs.
 
         Args:
 
-            inputs (list) : A list of the input states to simulate. For
-                multiple inputs this should be a list of States.
-
-            expected (dict) : A dictionary containing a mapping between the
-                input state and expected output state(s). If there is multiple
-                possible outputs, this can be specified as a list.
+            backend (FockBackend) : The target backend to run the task with.
 
         Returns:
 
@@ -112,6 +143,7 @@ class Analyzer:
                 values between the provided inputs/outputs.
 
         """
+        self.__backend = backend
         self.__circuit_built = self.circuit._build()
         n_modes = self.circuit.input_modes
         if self.circuit.heralds["input"] != self.circuit.heralds["output"]:
@@ -120,12 +152,16 @@ class Analyzer:
                 "is likely this results from a herald being added twice or "
                 "modified."
             )
-        # Convert state to list of States if not provided for single state case
-        if isinstance(inputs, State):
-            inputs = [inputs]
-        # Process inputs using dedicated function
-        full_inputs = self._process_inputs(inputs)
-        n_photons = full_inputs[0].n_photons
+        # Process inputs, adding heralds and loss modes
+        inputs = list(self.inputs)  # Copy input list
+        _check_photon_numbers(inputs)
+        in_heralds = self.circuit.heralds["input"]
+        full_inputs = [
+            add_heralds_to_state(i, in_heralds)
+            + [0] * self.__circuit_built.loss_modes
+            for i in inputs
+        ]
+        n_photons = sum(full_inputs[0])
         # Generate lists of possible outputs with and without heralded modes
         full_outputs, filtered_outputs = self._generate_outputs(
             n_modes, n_photons
@@ -136,9 +172,9 @@ class Analyzer:
         # Calculate performance by finding sum of valid transformations
         self.performance = probs.sum() / len(full_inputs)
         # Analyse error rate from expected results if specified
-        if expected is not None:
+        if self.expected is not None:
             self.error_rate = self._calculate_error_rate(
-                probs, inputs, filtered_outputs, expected
+                probs, inputs, filtered_outputs, self.expected
             )
         # Compile results into results object
         results = SimulationResult(
@@ -154,7 +190,9 @@ class Analyzer:
         # Return dict
         return results
 
-    def _get_probs(self, full_inputs: list, full_outputs: list) -> np.ndarray:
+    def _get_probs(
+        self, full_inputs: list[list[int]], full_outputs: list[list[int]]
+    ) -> np.ndarray:
         """
         Create an array of output probabilities for a given set of inputs and
         outputs.
@@ -165,23 +203,23 @@ class Analyzer:
                 # No loss case
                 if not self.__circuit_built.loss_modes:
                     probs[i, j] += self.__backend.probability(
-                        self.__circuit_built.U_full, ins.s, outs
+                        self.__circuit_built.U_full, ins, outs
                     )
                 # Lossy case
                 else:
                     # Photon number preserved
-                    if ins.n_photons == sum(outs):
+                    if sum(ins) == sum(outs):
                         outs = (  # noqa: PLW2901
                             outs + [0] * self.__circuit_built.loss_modes
                         )
                         probs[i, j] += self.__backend.probability(
-                            self.__circuit_built.U_full, ins.s, outs
+                            self.__circuit_built.U_full, ins, outs
                         )
                     # Otherwise
                     else:
                         # If n_out < n_in work out all loss mode combinations
                         # and find probability of each
-                        n_loss = ins.n_photons - sum(outs)
+                        n_loss = sum(ins) - sum(outs)
                         if n_loss < 0:
                             raise PhotonNumberError(
                                 "Output photon number larger than input "
@@ -194,7 +232,7 @@ class Analyzer:
                         for ls in loss_states:
                             fs = outs + ls
                             probs[i, j] += self.__backend.probability(
-                                self.__circuit_built.U_full, ins.s, fs
+                                self.__circuit_built.U_full, ins, fs
                             )
 
         return probs
@@ -202,9 +240,9 @@ class Analyzer:
     def _calculate_error_rate(
         self,
         probabilities: np.ndarray,
-        inputs: list,
-        outputs: list,
-        expected: dict,
+        inputs: list[State],
+        outputs: list[State],
+        expected: dict[State, State | list[State]],
     ) -> float:
         """
         Calculate the error rate for a set of expected mappings between inputs
@@ -233,39 +271,9 @@ class Analyzer:
         # Then take average and return
         return float(np.mean(errors))
 
-    def _process_inputs(self, inputs: list) -> list[State]:
-        """
-        Takes the provided inputs, perform error checking on them and adds any
-        heralded photons that are required, returning full states..
-        """
-        n_modes = self.circuit.input_modes
-        # Ensure all photon numbers are the same
-        ns = [s.n_photons for s in inputs]
-        if min(ns) != max(ns):
-            raise PhotonNumberError("Mismatch in photon numbers between inputs")
-        full_inputs = []
-        in_heralds = self.circuit.heralds["input"]
-        # Check dimensions of input and add heralded photons
-        for state in inputs:
-            if len(state) != n_modes:
-                raise ModeMismatchError(
-                    "Input states are of the wrong dimension. Remember to "
-                    "subtract heralded modes."
-                )
-            # Also validate state values
-            state._validate()
-            full_inputs += [State(add_heralds_to_state(state, in_heralds))]
-        # Add extra states for loss modes here when included
-        if self.__circuit_built.loss_modes > 0:
-            full_inputs = [
-                s + State([0] * self.__circuit_built.loss_modes)
-                for s in full_inputs
-            ]
-        return full_inputs
-
     def _generate_outputs(
         self, n_modes: int, n_photons: int
-    ) -> tuple[list, list]:
+    ) -> tuple[list[list[int]], list[State]]:
         """
         Generates all possible outputs for a given number of modes, photons and
         heralding + post-selection conditions. It returns two list, one with
@@ -286,9 +294,8 @@ class Analyzer:
         for state in outputs:
             # Check output meets all post selection rules
             if self.post_selection.validate(state):
-                fo = add_heralds_to_state(state, out_heralds)
                 filtered_outputs += [State(state)]
-                full_outputs += [fo]
+                full_outputs += [add_heralds_to_state(state, out_heralds)]
         # Check some valid outputs found
         if not full_outputs:
             raise ValueError(

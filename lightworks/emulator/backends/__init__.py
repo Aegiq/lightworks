@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .analyzer import Analyzer
-from .quick_sampler import QuickSampler
-from .sampler import Sampler
-from .simulator import Simulator
+from .backend import Backend
+from .fock_backend import FockBackend
+from .permanent import PermanentBackend
+from .slos import SLOSBackend

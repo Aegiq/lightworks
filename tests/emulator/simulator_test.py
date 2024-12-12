@@ -16,13 +16,18 @@ import pytest
 
 from lightworks import (
     Circuit,
+    ModeMismatchError,
     Parameter,
+    PhotonNumberError,
+    Simulator,
     State,
     Unitary,
     db_loss_to_decimal,
     random_unitary,
 )
-from lightworks.emulator import ModeMismatchError, PhotonNumberError, Simulator
+from lightworks.emulator import Backend
+
+BACKEND = Backend("permanent")
 
 
 class TestSimulator:
@@ -38,8 +43,8 @@ class TestSimulator:
         """
         circ = Circuit(2)
         circ.bs(0)
-        sim = Simulator(circ)
-        results = sim.simulate(State([1, 1]), State([2, 0]))
+        sim = Simulator(circ, State([1, 1]), State([2, 0]))
+        results = BACKEND.run(sim)
         assert abs(results.array[0, 0]) ** 2 == pytest.approx(0.5, 1e-8)
 
     def test_single_photon_case(self):
@@ -50,11 +55,11 @@ class TestSimulator:
         n_modes = 4
         unitary = random_unitary(n_modes)
         unitary_circ = Unitary(unitary)
-        sim = Simulator(unitary_circ)
         states = []
         for i in range(n_modes):
             states.append(State([int(i == j) for j in range(n_modes)]))
-        results = sim.simulate(states, states)
+        sim = Simulator(unitary_circ, states, states)
+        results = BACKEND.run(sim)
         assert (unitary.T.round(8) == results.array.round(8)).all()
 
     def test_known_result(self):
@@ -69,8 +74,8 @@ class TestSimulator:
         circuit.bs(0, 3, reflectivity=0.3)
         circuit.bs(0)
         # And check output probability
-        sim = Simulator(circuit)
-        results = sim.simulate(State([1, 0, 0, 1]), State([0, 1, 1, 0]))
+        sim = Simulator(circuit, State([1, 0, 0, 1]), State([0, 1, 1, 0]))
+        results = BACKEND.run(sim)
         assert abs(results.array[0, 0]) ** 2 == pytest.approx(0.5, 1e-8)
 
     def test_multi_photon_case(self):
@@ -80,8 +85,8 @@ class TestSimulator:
         """
         unitary = random_unitary(4, seed=10)
         unitary = Unitary(unitary)
-        sim = Simulator(unitary)
-        results = sim.simulate(State([1, 0, 1, 0]), State([0, 2, 0, 0]))
+        sim = Simulator(unitary, State([1, 0, 1, 0]), State([0, 2, 0, 0]))
+        results = BACKEND.run(sim)
         x = results.array[0, 0]
         assert x == pytest.approx(
             -0.18218877232689196 - 0.266230290128261j, 1e-8
@@ -94,8 +99,8 @@ class TestSimulator:
         """
         unitary = random_unitary(4, seed=10)
         unitary = Unitary(unitary)
-        sim = Simulator(unitary)
-        results = sim.simulate(State([1, 0, 1, 0]))
+        sim = Simulator(unitary, State([1, 0, 1, 0]))
+        results = BACKEND.run(sim)
         x = results[State([1, 0, 1, 0]), State([0, 2, 0, 0])]
         assert x == pytest.approx(
             -0.18218877232689196 - 0.266230290128261j, 1e-8
@@ -113,8 +118,8 @@ class TestSimulator:
         circ.bs(2, loss=db_loss_to_decimal(2))
         circ.ps(1, phi=0.5)
         circ.bs(1, loss=db_loss_to_decimal(2))
-        sim = Simulator(circ)
-        results = sim.simulate(State([2, 0, 0, 0]), State([0, 1, 1, 0]))
+        sim = Simulator(circ, State([2, 0, 0, 0]), State([0, 1, 1, 0]))
+        results = BACKEND.run(sim)
         x = results.array[0, 0]
         assert x == pytest.approx(
             0.03647550871283556 + 0.01285838825922496j, 1e-8
@@ -124,12 +129,12 @@ class TestSimulator:
         """Used to check circuit updates affect simulator results."""
         unitary = Unitary(random_unitary(4))
         # Create simulator and get initial results
-        sim = Simulator(unitary)
-        results = sim.simulate(State([1, 0, 1, 0]), State([0, 2, 0, 0]))
+        sim = Simulator(unitary, State([1, 0, 1, 0]), State([0, 2, 0, 0]))
+        results = BACKEND.run(sim)
         x = results.array[0, 0]
         # Update circuit adn re-simulate
         unitary.bs(0)
-        results = sim.simulate(State([1, 0, 1, 0]), State([0, 2, 0, 0]))
+        results = BACKEND.run(sim)
         x2 = results.array[0, 0]
         assert x != x2
 
@@ -144,12 +149,12 @@ class TestSimulator:
         circuit.bs(2, reflectivity=param)
         circuit.bs(1, reflectivity=param)
         # Create simulator and get initial results
-        sim = Simulator(circuit)
-        results = sim.simulate(State([1, 0, 1, 0]), State([0, 2, 0, 0]))
+        sim = Simulator(circuit, State([1, 0, 1, 0]), State([0, 2, 0, 0]))
+        results = BACKEND.run(sim)
         x = results.array[0, 0]
         # Update parameter and re-simulate
         param.set(0.65)
-        results = sim.simulate(State([1, 0, 1, 0]), State([0, 2, 0, 0]))
+        results = BACKEND.run(sim)
         x2 = results.array[0, 0]
         assert x != x2
 
@@ -159,7 +164,7 @@ class TestSimulator:
         attribute.
         """
         circuit = Unitary(random_unitary(4))
-        sim = Simulator(circuit)
+        sim = Simulator(circuit, State([1, 0, 1, 0]))
         with pytest.raises(TypeError):
             sim.circuit = random_unitary(5)
 
@@ -170,16 +175,18 @@ class TestSimulator:
         """
         # Create circuit and simulator object
         circuit = Unitary(random_unitary(4))
-        sim = Simulator(circuit)
         # Without output specified
+        sim = Simulator(circuit, [State([1, 0, 1, 0]), State([0, 1, 0, 0])])
         with pytest.raises(PhotonNumberError):
-            sim.simulate([State([1, 0, 1, 0]), State([0, 1, 0, 0])])
+            BACKEND.run(sim)
         # With some outputs specified
+        sim = Simulator(
+            circuit,
+            [State([1, 0, 1, 0]), State([0, 1, 0, 0])],
+            [State([1, 0, 1, 0]), State([0, 1, 0, 1])],
+        )
         with pytest.raises(PhotonNumberError):
-            sim.simulate(
-                [State([1, 0, 1, 0]), State([0, 1, 0, 0])],
-                [State([1, 0, 1, 0]), State([0, 1, 0, 1])],
-            )
+            BACKEND.run(sim)
 
     def test_varied_output_n_raises_error(self):
         """
@@ -188,19 +195,22 @@ class TestSimulator:
         """
         # Create circuit and simulator object
         circuit = Unitary(random_unitary(4))
-        sim = Simulator(circuit)
         # With different number to input
+        sim = Simulator(
+            circuit,
+            [State([1, 0, 1, 0]), State([0, 1, 0, 1])],
+            [State([0, 0, 1, 0]), State([0, 1, 0, 0])],
+        )
         with pytest.raises(PhotonNumberError):
-            sim.simulate(
-                [State([1, 0, 1, 0]), State([0, 1, 0, 1])],
-                [State([0, 0, 1, 0]), State([0, 1, 0, 0])],
-            )
+            BACKEND.run(sim)
         # With different number to each other
+        sim = Simulator(
+            circuit,
+            [State([1, 0, 1, 0]), State([0, 1, 0, 1])],
+            [State([1, 0, 1, 0]), State([0, 1, 0, 0])],
+        )
         with pytest.raises(PhotonNumberError):
-            sim.simulate(
-                [State([1, 0, 1, 0]), State([0, 1, 0, 1])],
-                [State([1, 0, 1, 0]), State([0, 1, 0, 0])],
-            )
+            BACKEND.run(sim)
 
     def test_incorrect_input_length(self):
         """
@@ -209,13 +219,12 @@ class TestSimulator:
         """
         # Create circuit and simulator object
         circuit = Unitary(random_unitary(4))
-        sim = Simulator(circuit)
         # Attempt to simulate with input which is too short
         with pytest.raises(ModeMismatchError):
-            sim.simulate(State([1, 0, 1]))
+            Simulator(circuit, State([1, 0, 1]))
         # And then which is too long
         with pytest.raises(ModeMismatchError):
-            sim.simulate(State([1, 0, 1, 0, 1]))
+            Simulator(circuit, State([1, 0, 1, 0, 1]))
 
     def test_incorrect_input_length_herald(self):
         """
@@ -226,13 +235,12 @@ class TestSimulator:
         # Create circuit and simulator object
         circuit = Unitary(random_unitary(4))
         circuit.herald(1, 0, 2)
-        sim = Simulator(circuit)
         # Attempt to simulate with input which is too short
         with pytest.raises(ModeMismatchError):
-            sim.simulate(State([1, 0]))
+            Simulator(circuit, State([1, 0]))
         # And then which is too long
         with pytest.raises(ModeMismatchError):
-            sim.simulate(State([1, 0, 1, 0]))
+            Simulator(circuit, State([1, 0, 1, 0]))
 
     def test_incorrect_input_length_herald_grouped(self):
         """
@@ -245,13 +253,12 @@ class TestSimulator:
         sub_circuit = Unitary(random_unitary(4))
         sub_circuit.herald(1, 0, 2)
         circuit.add(sub_circuit, 1)
-        sim = Simulator(circuit)
         # Attempt to simulate with input which is too short
         with pytest.raises(ModeMismatchError):
-            sim.simulate(State([1, 0, 1]))
+            Simulator(circuit, State([1, 0, 1]))
         # And then which is too long
         with pytest.raises(ModeMismatchError):
-            sim.simulate(State([1, 0, 1, 0, 0]))
+            Simulator(circuit, State([1, 0, 1, 0, 0]))
 
     def test_herald_not_herald_equivalance(self):
         """
@@ -266,10 +273,10 @@ class TestSimulator:
         circuit_herald.herald(0, 2, 2)
         circuit_herald.herald(1, 1, 3)
         # Simulate both with equivalent inputs
-        sim = Simulator(circuit)
-        results = sim.simulate(State([0, 1, 0, 1, 1, 0]))
-        sim_h = Simulator(circuit_herald)
-        results_h = sim_h.simulate(State([0, 1, 1, 0]))
+        sim = Simulator(circuit, State([0, 1, 0, 1, 1, 0]))
+        results = BACKEND.run(sim)
+        sim_h = Simulator(circuit_herald, State([0, 1, 1, 0]))
+        results_h = BACKEND.run(sim_h)
         # Then check equivalence of results for all outputs
         for output in results_h.outputs:
             full_state = output[0:2] + State([0, 1]) + output[2:]
@@ -295,10 +302,10 @@ class TestSimulator:
         circuit_herald.herald(0, 2, 2)
         circuit_herald.herald(1, 1, 3)
         # Simulate both with equivalent inputs
-        sim = Simulator(circuit)
-        results = sim.simulate(State([0, 1, 0, 1, 1, 0]))
-        sim_h = Simulator(circuit_herald)
-        results_h = sim_h.simulate(State([0, 1, 1, 0]))
+        sim = Simulator(circuit, State([0, 1, 0, 1, 1, 0]))
+        results = BACKEND.run(sim)
+        sim_h = Simulator(circuit_herald, State([0, 1, 1, 0]))
+        results_h = BACKEND.run(sim_h)
         # Then check equivalence of results for all outputs
         for output in results_h.outputs:
             full_state = output[0:2] + State([0, 1]) + output[2:]
@@ -327,10 +334,10 @@ class TestSimulator:
         circuit_herald = Circuit(4)
         circuit_herald.add(sub_circuit)
         # Simulate both with equivalent inputs
-        sim = Simulator(circuit)
-        results = sim.simulate(State([0, 1, 0, 1, 1, 0]))
-        sim_h = Simulator(circuit_herald)
-        results_h = sim_h.simulate(State([0, 1, 1, 0]))
+        sim = Simulator(circuit, State([0, 1, 0, 1, 1, 0]))
+        results = BACKEND.run(sim)
+        sim_h = Simulator(circuit_herald, State([0, 1, 1, 0]))
+        results_h = BACKEND.run(sim_h)
         # Then check equivalence of results for all outputs
         for output in results_h.outputs:
             full_state = output[0:2] + State([0, 1]) + output[2:]

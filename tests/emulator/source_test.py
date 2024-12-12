@@ -51,7 +51,10 @@ class TestSource:
         length.
         """
         source = Source(
-            brightness=0.493, purity=0.984, indistinguishability=0.937
+            brightness=0.493,
+            purity=0.984,
+            indistinguishability=0.937,
+            probability_threshold=0,
         )
         stats = source._build_statistics(State([0, 0, 2, 1, 0, 1, 0, 0]))
         # Check number of inputs is correct

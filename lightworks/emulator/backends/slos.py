@@ -16,37 +16,88 @@ from math import factorial
 
 import numpy as np
 
+from ...__settings import settings
+from ...sdk.circuit.compiler import CompiledCircuit
 from ...sdk.state import State
+from .fock_backend import FockBackend
 
 
-class SLOS:
+class SLOSBackend(FockBackend):
     """
     Contains calculate function for SLOS method.
     """
 
-    @staticmethod
-    def calculate(unitary: np.ndarray, input_state: State) -> dict:
+    @property
+    def name(self) -> str:
+        """Returns the name of the backend"""
+        return "slos"
+
+    def full_probability_distribution(
+        self, circuit: CompiledCircuit, input_state: State
+    ) -> dict:
+        """
+        Finds the output probability distribution for the provided circuit and
+        input state.
+
+        Args:
+
+            circuit (CompiledCircuit) : The compiled version of the circuit
+                which is being simulated. This is created by calling the _build
+                method on the target circuit.
+
+            input_state (State) : The input state to the system.
+
+        Returns:
+
+            dict : The calculated full probability distribution for the input.
+
+        Raises:
+
+            BackendError: Raised if this method is called with an incompatible
+                backend.
+
+        """
+        # Return empty distribution when 0 photons in input
+        if input_state.n_photons == 0:
+            return {State([0] * circuit.n_modes): 1.0}
+
+        pdist: dict[State, float] = {}
+        # Add extra states for loss modes here when included
+        if circuit.loss_modes > 0:
+            input_state = input_state + State([0] * circuit.loss_modes)
+        full_dist = self.calculate(circuit.U_full, input_state)
+        # Combine results to remote lossy modes
+        for s, p in full_dist.items():
+            if abs(p) ** 2 > settings.sampler_probability_threshold:
+                new_s = State(s[: circuit.n_modes])
+                if new_s in pdist:
+                    pdist[new_s] += abs(p) ** 2
+                else:
+                    pdist[new_s] = abs(p) ** 2
+        return pdist
+
+    def calculate(self, unitary: np.ndarray, input_state: State) -> dict:
         """
         Performs calculation of full probability distribution given a unitary
         matrix and input state.
         """
         p = [m for m, n in enumerate(input_state) for _i in range(n)]
         n_modes = unitary.shape[0]
-        input = {tuple(n_modes * [0]): 1.0}  # N-mode vacuum state
+        # Normalise initial input probability
+        m = 1 / np.sqrt(vector_factorial(input_state.s))
+        input_ = {tuple(n_modes * [0]): m}  # N-mode vacuum state
 
         # Successively apply the matrices A_k
         for i in p:  # Each matrix is indexed by the components of p
             output: dict[tuple, float] = {}
             for j in range(n_modes):  # Sum over i
                 step = a_i_dagger(
-                    input, j, unitary[j, i]
+                    input_, j, unitary[j, i]
                 )  # Apply ladder operator
                 output = add_dicts(output, step)  # Add it to the total
-            input = output
+            input_ = output
 
-        # Renormalise the output with the overall factorial term and return
-        m = 1 / np.sqrt(vector_factorial(input_state.s))
-        return {k: v * m for k, v in input.items()}
+        return input_
 
 
 def a_i_dagger(dist: dict, mode: int, multiplier: complex) -> dict:
