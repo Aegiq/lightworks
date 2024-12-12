@@ -18,11 +18,11 @@ Dedicated unitary component for implementing unitary matrices on a circuit.
 
 import numpy as np
 
-from .circuit import Circuit
-from .components import UnitaryMatrix
+from .photonic_circuit import PhotonicCircuit
+from .photonic_components import UnitaryMatrix
 
 
-class Unitary(Circuit):
+class Unitary(PhotonicCircuit):
     """
     Create a circuit which implements the target provided unitary across all of
     its modes.

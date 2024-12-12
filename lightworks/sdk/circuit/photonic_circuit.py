@@ -13,8 +13,8 @@
 # limitations under the License.
 
 """
-Circuit class for creating circuits with Parameters object that can be modified
-after creation.
+PhotonicCircuit class for creating circuits with Parameters object that can be
+modified after creation.
 """
 
 from copy import copy, deepcopy
@@ -23,9 +23,6 @@ from typing import TYPE_CHECKING, Any, Union
 import matplotlib.pyplot as plt
 import numpy as np
 from IPython import display
-
-if TYPE_CHECKING:
-    from .unitary import Unitary
 
 from ..utils import (
     CircuitCompilationError,
@@ -40,8 +37,9 @@ from .circuit_utils import (
     convert_non_adj_beamsplitters,
     unpack_circuit_spec,
 )
-from .compiler import CompiledCircuit
-from .components import (
+from .parameters import Parameter
+from .photonic_compiler import CompiledPhotonicCircuit
+from .photonic_components import (
     Barrier,
     BeamSplitter,
     Component,
@@ -50,12 +48,14 @@ from .components import (
     ModeSwaps,
     PhaseShifter,
 )
-from .parameters import Parameter
+
+if TYPE_CHECKING:
+    from .unitary import Unitary
 
 
-class Circuit:
+class PhotonicCircuit:
     """
-    Provides support for building circuits from a set of linear optic
+    Provides support for building photonic circuits from a set of linear optic
     components, with the ability to assign certain quantities of components to
     Parameter objects whose values can be adjusted after creation.
 
@@ -79,11 +79,11 @@ class Circuit:
         self.__external_out_heralds: dict[int, int] = {}
         self.__internal_modes: list[int] = []
 
-    def __add__(self, value: "Circuit") -> "Circuit":
+    def __add__(self, value: "PhotonicCircuit") -> "PhotonicCircuit":
         """Defines custom addition behaviour for two circuits."""
-        if not isinstance(value, Circuit):
+        if not isinstance(value, PhotonicCircuit):
             raise TypeError(
-                "Addition only supported between two Circuit objects."
+                "Addition only supported between two PhotonicCircuit objects."
             )
         if self.n_modes != value.n_modes:
             raise ModeRangeError(
@@ -95,15 +95,15 @@ class Circuit:
                 "implemented."
             )
         # Create new circuits and combine circuits specs to create new one
-        new_circ = Circuit(self.n_modes)
+        new_circ = PhotonicCircuit(self.n_modes)
         new_circ.__circuit_spec = self.__circuit_spec + value.__circuit_spec
         return new_circ
 
     def __str__(self) -> str:
-        return f"Circuit({self.n_modes})"
+        return f"PhotonicCircuit({self.n_modes})"
 
     def __repr__(self) -> str:
-        return f"lightworks.Circuit({self.n_modes})"
+        return f"lightworks.PhotonicCircuit({self.n_modes})"
 
     @property
     def U(self) -> np.ndarray:  # noqa: N802
@@ -171,20 +171,20 @@ class Circuit:
 
     def add(
         self,
-        circuit: Union["Circuit", "Unitary"],
+        circuit: Union["PhotonicCircuit", "Unitary"],
         mode: int = 0,
         group: bool = False,
         name: str | None = None,
     ) -> None:
         """
-        Can be used to add either another Circuit or a Unitary component to the
-        existing circuit. This can either have the same size or be smaller than
-        the circuit which is being added to.
+        Can be used to add either another PhotonicCircuit or a Unitary component
+        to the existing circuit. This can either have the same size or be
+        smaller than the circuit which is being added to.
 
         Args:
 
-            circuit (Circuit | Unitary) : The circuit/component that is to be
-                added.
+            circuit (PhotonicCircuit | Unitary) : The circuit/component that is
+                to be added.
 
             mode (int, optional) : The first mode on which the circuit should
                 be placed. If not specified it defaults to zero.
@@ -200,9 +200,10 @@ class Circuit:
                 used.
 
         """
-        if not isinstance(circuit, Circuit):
+        if not isinstance(circuit, PhotonicCircuit):
             raise TypeError(
-                "Add method only supported for Circuit or Unitary objects."
+                "Add method only supported for PhotonicCircuit or Unitary "
+                "objects."
             )
         # Remap mode
         mode = self._map_mode(mode)
@@ -515,7 +516,7 @@ class Circuit:
                     all_params.append(p)
         return all_params
 
-    def copy(self, freeze_parameters: bool = False) -> "Circuit":
+    def copy(self, freeze_parameters: bool = False) -> "PhotonicCircuit":
         """
         Creates and returns an identical copy of the circuit, optionally
         freezing parameter values.
@@ -529,11 +530,11 @@ class Circuit:
 
         Returns:
 
-            Circuit : A new Circuit object with the same circuit configuration
-                as the original object.
+            PhotonicCircuit : A new PhotonicCircuit object with the same
+                circuit configuration as the original object.
 
         """
-        new_circ = Circuit(self.n_modes)
+        new_circ = PhotonicCircuit(self.n_modes)
         if not freeze_parameters:
             new_circ.__circuit_spec = copy(self.__circuit_spec)
         else:
@@ -576,7 +577,7 @@ class Circuit:
         new_spec = convert_non_adj_beamsplitters(spec)
         self.__circuit_spec = new_spec
 
-    def _build(self) -> CompiledCircuit:
+    def _build(self) -> CompiledPhotonicCircuit:
         """
         Converts the ParameterizedCircuit into a circuit object using the
         components added and current values of the parameters.
@@ -589,11 +590,11 @@ class Circuit:
 
         return circuit
 
-    def _build_process(self) -> CompiledCircuit:
+    def _build_process(self) -> CompiledPhotonicCircuit:
         """
         Contains full process for convert a circuit into a compiled one.
         """
-        circuit = CompiledCircuit(self.n_modes)
+        circuit = CompiledPhotonicCircuit(self.n_modes)
 
         for spec in self.__circuit_spec:
             circuit.add(spec)

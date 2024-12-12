@@ -19,11 +19,11 @@ qubit processing functionality in lightworks.
 
 import numpy as np
 
-from ...sdk.circuit import Circuit, Unitary
+from ...sdk.circuit import PhotonicCircuit, Unitary
 from .single_qubit_gates import H
 
 
-class CCZ(Circuit):
+class CCZ(PhotonicCircuit):
     """
     Post-selected CCZ gate which acts across three dual-rail encoded qubits.
     There is a total of 4 heralded modes also included, each requiring 0
@@ -62,7 +62,7 @@ class CCZ(Circuit):
         self.add(unitary, 0, group=True, name="CCZ")
 
 
-class CCNOT(Circuit):
+class CCNOT(PhotonicCircuit):
     """
     Post-selected CCNOT (Toffoli) gate which acts across three dual-rail
     encoded qubits. There is a total of 4 heralded modes also included, each
@@ -84,7 +84,7 @@ class CCNOT(Circuit):
             )
 
         # Create CCNOT from combination of H and CCZ
-        circ = Circuit(6)
+        circ = PhotonicCircuit(6)
         circ.add(H(), 2 * target_qubit)
         circ.add(CCZ(), 0)
         circ.add(H(), 2 * target_qubit)

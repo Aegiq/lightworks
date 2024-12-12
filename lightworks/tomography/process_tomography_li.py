@@ -37,9 +37,9 @@ class LIProcessTomography(ProcessTomography):
         n_qubits (int) : The number of qubits that will be used as part of the
             tomography.
 
-        base_circuit (Circuit) : An initial circuit which produces the required
-            output state and can be modified for performing tomography. It is
-            required that the number of circuit input modes equals 2 * the
+        base_circuit (PhotonicCircuit) : An initial circuit which produces the
+            required output state and can be modified for performing tomography.
+            It is required that the number of circuit input modes equals 2 * the
             number of qubits.
 
         experiment (Callable) : A function for performing the required

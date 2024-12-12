@@ -22,7 +22,8 @@ from copy import copy
 from numbers import Number
 
 from ..utils import add_mode_to_unitary
-from .components import (
+from .parameters import Parameter
+from .photonic_components import (
     Barrier,
     BeamSplitter,
     Component,
@@ -32,7 +33,6 @@ from .components import (
     PhaseShifter,
     UnitaryMatrix,
 )
-from .parameters import Parameter
 
 
 def unpack_circuit_spec(circuit_spec: list) -> list:

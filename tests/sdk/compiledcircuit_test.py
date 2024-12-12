@@ -16,8 +16,8 @@ import numpy as np
 import pytest
 
 from lightworks import Parameter, random_unitary
-from lightworks.sdk.circuit.compiler import CompiledCircuit
-from lightworks.sdk.circuit.components import (
+from lightworks.sdk.circuit.photonic_compiler import CompiledCircuit
+from lightworks.sdk.circuit.photonic_components import (
     Barrier,
     BeamSplitter,
     Group,

@@ -14,14 +14,14 @@
 
 import numpy as np
 
-from ..sdk.circuit import Circuit
+from ..sdk.circuit import PhotonicCircuit
 from .decomposition import reck_decomposition
 from .error_model import ErrorModel
 
 
 class Reck:
     """
-    Maps a provided Circuit to a Reck interferometer, implementing the
+    Maps a provided PhotonicCircuit to a Reck interferometer, implementing the
     configured error model across all components.
 
     Args:
@@ -51,21 +51,24 @@ class Reck:
             raise TypeError("error_model should be an ErrorModel object.")
         self.__error_model = value
 
-    def map(self, circuit: Circuit, seed: int | None = None) -> Circuit:
+    def map(
+        self, circuit: PhotonicCircuit, seed: int | None = None
+    ) -> PhotonicCircuit:
         """
         Maps a provided circuit onto the interferometer.
 
         Args:
 
-            circuit (Circuit) : The circuit to map onto the reck interferometer.
+            circuit (PhotonicCircuit) : The circuit to map onto the reck
+                interferometer.
 
             seed (int | None) : Set a random seed to produce identical results
                 when implementing a probabilistic error model.
 
         Returns:
 
-            Circuit : The created Reck interferometer which implements the
-                programmed transformation.
+            PhotonicCircuit : The created Reck interferometer which implements
+                the programmed transformation.
 
         """
         # Reset error model seed
@@ -84,7 +87,7 @@ class Reck:
 
         # Build circuit with required mode number
         n_modes = circuit.n_modes
-        mapped_circuit = Circuit(n_modes)
+        mapped_circuit = PhotonicCircuit(n_modes)
         for i in range(n_modes - 1):
             for j in range(0, n_modes - 1 - i, 1):
                 # Find coordinates + mode from i & j values

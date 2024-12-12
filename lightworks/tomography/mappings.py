@@ -15,7 +15,7 @@
 import numpy as np
 
 from .. import qubit
-from ..sdk.circuit import Circuit
+from ..sdk.circuit import PhotonicCircuit
 from ..sdk.state import State
 
 PAULI_MAPPING: dict[str, np.ndarray] = {
@@ -39,7 +39,7 @@ RHO_MAPPING: dict[str, np.ndarray] = {
 # input
 r_transform = qubit.H()
 r_transform.add(qubit.S())
-INPUT_MAPPING: dict[str, tuple[State, Circuit]] = {
+INPUT_MAPPING: dict[str, tuple[State, PhotonicCircuit]] = {
     "X+": (State([1, 0]), qubit.H()),
     "X-": (State([0, 1]), qubit.H()),
     "Y+": (State([1, 0]), r_transform),
@@ -49,11 +49,11 @@ INPUT_MAPPING: dict[str, tuple[State, Circuit]] = {
 }
 
 # Details transformations required for different measurement types
-_y_measure = Circuit(2)
+_y_measure = PhotonicCircuit(2)
 _y_measure.add(qubit.S())
 _y_measure.add(qubit.Z())
 _y_measure.add(qubit.H())
-MEASUREMENT_MAPPING: dict[str, Circuit] = {
+MEASUREMENT_MAPPING: dict[str, PhotonicCircuit] = {
     "X": qubit.H(),
     "Y": _y_measure,
     "Z": qubit.I(),

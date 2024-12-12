@@ -17,10 +17,10 @@ from copy import copy
 import numpy as np
 
 from ..utils import ModeRangeError
-from .components import Barrier, Component, Group, Loss
+from .photonic_components import Barrier, Component, Group, Loss
 
 
-class CompiledCircuit:
+class CompiledPhotonicCircuit:
     """
     Builds up the unitary representation of a particular circuit, combining
     provided components from a circuit spec.

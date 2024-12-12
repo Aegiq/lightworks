@@ -26,7 +26,7 @@ from lightworks import (
     random_unitary,
 )
 from lightworks.qubit import CNOT
-from lightworks.sdk.circuit.components import (
+from lightworks.sdk.circuit.photonic_components import (
     BeamSplitter,
     Component,
     Group,

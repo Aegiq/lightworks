@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from ...sdk.circuit.compiler import CompiledCircuit
+from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from ...sdk.state import State
 from ..utils import BackendError
 from .abc_backend import BackendABC
@@ -43,7 +43,7 @@ class FockBackend(BackendABC):
         )
 
     def full_probability_distribution(
-        self, circuit: CompiledCircuit, input_state: State
+        self, circuit: CompiledPhotonicCircuit, input_state: State
     ) -> dict:
         raise BackendError(
             "Current backend does not implement full_probability_distribution "
