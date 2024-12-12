@@ -15,9 +15,9 @@
 import pytest
 
 from lightworks import (
-    Circuit,
     ModeMismatchError,
     Parameter,
+    PhotonicCircuit,
     PostSelection,
     Sampler,
     State,
@@ -84,7 +84,7 @@ class TestSamplerGeneral:
         corresponding probability distribution is modified.
         """
         p = Parameter(0.3)
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0, reflectivity=p)
         circuit.bs(2, reflectivity=p)
         circuit.bs(1, reflectivity=p)
@@ -110,8 +110,8 @@ class TestSamplerGeneral:
 
     def test_circuit_assignment(self):
         """
-        Confirms that a Circuit cannot be replaced with a non-Circuit through
-        the circuit attribute.
+        Confirms that a PhotonicCircuit cannot be replaced with a
+        non-PhotonicCircuit through the circuit attribute.
         """
         circuit = Unitary(random_unitary(4))
         sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
@@ -264,7 +264,7 @@ class TestSamplerCalculationBackends:
         Checks sampling a basic 2 photon input onto a 50:50 beam splitter,
         which should undergo HOM, producing outputs of |2,0> and |0,2>.
         """
-        circuit = Circuit(2)
+        circuit = PhotonicCircuit(2)
         circuit.bs(0)
         n_sample = 100000
         sampler = Sampler(circuit, State([1, 1]), n_sample, random_seed=21)
@@ -278,7 +278,7 @@ class TestSamplerCalculationBackends:
         Checks a lossy hom experiment with sample N outputs produces outputs of
         |2,0> and |0,2>.
         """
-        circuit = Circuit(2)
+        circuit = PhotonicCircuit(2)
         circuit.bs(0, loss=0.1)
         n_sample = 100000
         sampler = Sampler(
@@ -295,7 +295,7 @@ class TestSamplerCalculationBackends:
         at the output.
         """
         # Build circuit
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(1)
         circuit.mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
         circuit.bs(0, 3)
@@ -310,7 +310,7 @@ class TestSamplerCalculationBackends:
         at the output, when using the sample method to get a single value.
         """
         # Build circuit
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(1)
         circuit.mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
         circuit.bs(0, 3)
@@ -371,7 +371,7 @@ class TestSamplerCalculationBackends:
         a lossy circuit is correct for a perfect source.
         """
         # Build circuit
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0, loss=db_loss_to_decimal(1))
         circuit.bs(2, loss=db_loss_to_decimal(2))
         circuit.ps(1, 0.3, loss=db_loss_to_decimal(0.5))
@@ -393,7 +393,7 @@ class TestSamplerCalculationBackends:
         a lossy circuit is correct for an imperfect source.
         """
         # Build circuit
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0, loss=db_loss_to_decimal(1))
         circuit.bs(2, loss=db_loss_to_decimal(2))
         circuit.ps(1, 0.3, loss=db_loss_to_decimal(0.5))
@@ -626,7 +626,7 @@ class TestSamplerCalculationBackends:
         which should undergo HOM, producing outputs of |2,0> and |0,2>.
         Includes imperfect brightness.
         """
-        circuit = Circuit(2)
+        circuit = PhotonicCircuit(2)
         circuit.bs(0)
         n_sample = 100000
         sampler = Sampler(
@@ -648,7 +648,7 @@ class TestSamplerCalculationBackends:
         changing if these are part of a parameterized circuits.
         """
         loss = Parameter(0)
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0, loss=loss)
         circuit.bs(2, loss=loss)
         circuit.bs(1, loss=loss)

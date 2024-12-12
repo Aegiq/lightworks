@@ -16,7 +16,7 @@
 import numpy as np
 
 from ...emulator.backends.fock_backend import FockBackend
-from ..circuit import Circuit
+from ..circuit import PhotonicCircuit
 from ..results import SimulationResult
 from ..state import State
 from ..utils import (
@@ -34,7 +34,8 @@ class Simulator(Task):
 
     Args:
 
-        circuit : The circuit which is to be used for simulation.
+        circuit (PhotonicCircuit) : The circuit which is to be used for
+            simulation.
 
         inputs (list) : A list of the input states to simulate. For multiple
             inputs this should be a list of States.
@@ -49,7 +50,7 @@ class Simulator(Task):
 
     def __init__(
         self,
-        circuit: Circuit,
+        circuit: PhotonicCircuit,
         inputs: State | list[State],
         outputs: State | list[State] | None = None,
     ) -> None:
@@ -61,18 +62,19 @@ class Simulator(Task):
         return
 
     @property
-    def circuit(self) -> Circuit:
+    def circuit(self) -> PhotonicCircuit:
         """
-        Stores the circuit to be used for simulation, should be a Circuit
-        object.
+        Stores the circuit to be used for simulation, should be a
+        PhotonicCircuit object.
         """
         return self.__circuit
 
     @circuit.setter
-    def circuit(self, value: Circuit) -> None:
-        if not isinstance(value, Circuit):
+    def circuit(self, value: PhotonicCircuit) -> None:
+        if not isinstance(value, PhotonicCircuit):
             raise TypeError(
-                "Provided circuit should be a Circuit or Unitary object."
+                "Provided circuit should be a PhotonicCircuit or Unitary "
+                "object."
             )
         self.__circuit = value
 

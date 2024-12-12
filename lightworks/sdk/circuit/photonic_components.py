@@ -14,6 +14,7 @@
 
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass, fields
+from typing import Any
 
 import numpy as np
 
@@ -34,11 +35,11 @@ class Component(metaclass=ABCMeta):
         by the component with size n_modes.
         """
 
-    def fields(self) -> list:
+    def fields(self) -> list[str]:
         """Returns a list of all field from the component dataclass."""
         return [f.name for f in fields(self)]
 
-    def values(self) -> list:
+    def values(self) -> list[Any]:
         """Returns a list of all values from the component dataclass."""
         return [getattr(self, f.name) for f in fields(self)]
 
@@ -161,7 +162,7 @@ class Barrier(Component):
     Adds a barrier across selected circuit modes.
     """
 
-    modes: list
+    modes: list[int]
 
     def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
         return np.identity(n_modes, dtype=complex)
@@ -173,7 +174,7 @@ class ModeSwaps(Component):
     Performs ideal swaps between selected modes of the circuit.
     """
 
-    swaps: dict
+    swaps: dict[int, int]
 
     def __post_init__(self) -> None:
         # Check swaps are valid
@@ -195,11 +196,11 @@ class Group(Component):
     Stores a group of components which have been added to a circuit.
     """
 
-    circuit_spec: list
+    circuit_spec: list[Component]
     name: str
     mode_1: int
     mode_2: int
-    heralds: dict
+    heralds: dict[str, dict[int, int]]
 
     def get_unitary(self, n_modes: int) -> None:  # type: ignore[override] # noqa: ARG002, D102
         return None

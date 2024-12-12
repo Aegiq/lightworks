@@ -15,7 +15,7 @@
 from collections.abc import Callable
 from types import FunctionType, MethodType
 
-from ..sdk.circuit import Circuit
+from ..sdk.circuit import PhotonicCircuit
 from ..sdk.state import State
 from .mappings import INPUT_MAPPING, MEASUREMENT_MAPPING
 from .utils import (
@@ -36,9 +36,9 @@ class ProcessTomography:
         n_qubits (int) : The number of qubits that will be used as part of the
             tomography.
 
-        base_circuit (Circuit) : An initial circuit which produces the required
-            output state and can be modified for performing tomography. It is
-            required that the number of circuit input modes equals 2 * the
+        base_circuit (PhotonicCircuit) : An initial circuit which produces the
+            required output state and can be modified for performing tomography.
+            It is required that the number of circuit input modes equals 2 * the
             number of qubits.
 
         experiment (Callable) : A function for performing the required
@@ -53,14 +53,14 @@ class ProcessTomography:
     def __init__(
         self,
         n_qubits: int,
-        base_circuit: Circuit,
+        base_circuit: PhotonicCircuit,
         experiment: Callable,
         experiment_args: list | None = None,
     ) -> None:
         # Type check inputs
         if not isinstance(n_qubits, int) or isinstance(n_qubits, bool):
             raise TypeError("Number of qubits should be an integer.")
-        if not isinstance(base_circuit, Circuit):
+        if not isinstance(base_circuit, PhotonicCircuit):
             raise TypeError("Base circuit should be a circuit object.")
 
         if 2 * n_qubits != base_circuit.input_modes:
@@ -77,7 +77,7 @@ class ProcessTomography:
         self.experiment_args = experiment_args
 
     @property
-    def base_circuit(self) -> Circuit:
+    def base_circuit(self) -> PhotonicCircuit:
         """
         The base circuit which is to be modified as part of the tomography
         calculations.
@@ -113,13 +113,13 @@ class ProcessTomography:
 
     def _create_circuit_and_input(
         self, input_op: str, output_op: str
-    ) -> tuple[Circuit, State]:
+    ) -> tuple[PhotonicCircuit, State]:
         """
         Creates the required circuit and input state to achieve a provided input
         and output operation.
         """
         in_state = State([])
-        circ = Circuit(self.base_circuit.input_modes)
+        circ = PhotonicCircuit(self.base_circuit.input_modes)
         # Input operation
         for i, op in enumerate(input_op.split(",")):
             in_state += INPUT_MAPPING[op][0]

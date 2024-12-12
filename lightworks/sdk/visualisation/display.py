@@ -23,12 +23,12 @@ from .draw_circuit_mpl import DrawCircuitMPL
 from .draw_circuit_svg import DrawCircuitSVG
 
 if TYPE_CHECKING:
-    from ..circuit import Circuit
+    from ..circuit import PhotonicCircuit
 
 
 # Display function to interact with relevant classes
 def Display(  # noqa: N802
-    circuit: "Circuit",
+    circuit: "PhotonicCircuit",
     display_loss: bool = False,
     mode_labels: list[str] | None = None,
     display_type: str = "svg",
@@ -39,7 +39,7 @@ def Display(  # noqa: N802
 
     Args:
 
-        circuit (Circuit) : The circuit which is to be displayed.
+        circuit (PhotonicCircuit) : The circuit which is to be displayed.
 
         display_loss (bool, optional) : Choose whether to display loss
             components in the figure, defaults to False.

@@ -17,7 +17,7 @@
 import pytest
 from numpy import arccos, pi
 
-from lightworks import Circuit, PostSelection, Sampler, State
+from lightworks import PhotonicCircuit, PostSelection, Sampler, State
 from lightworks.emulator import Backend, Detector, Source
 from lightworks.qubit import CNOT
 
@@ -69,7 +69,7 @@ class TestCNOT:
         r = 1 / 3
         loss = 0.1
         theta = arccos(r)
-        cnot_circuit = Circuit(6)
+        cnot_circuit = PhotonicCircuit(6)
         to_add = [
             (3, pi / 2, 0),
             (0, theta, 0),
@@ -115,7 +115,7 @@ class TestCNOT:
         r = 1 / 3
         loss = 0.1
         theta = arccos(r)
-        cnot_circuit = Circuit(6)
+        cnot_circuit = PhotonicCircuit(6)
         to_add = [
             (3, pi / 2, 0),
             (0, theta, 0),

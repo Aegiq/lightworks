@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 from lightworks import (
-    Circuit,
+    PhotonicCircuit,
     PostSelection,
     Sampler,
     State,
@@ -72,7 +72,7 @@ class TestStateTomography:
         Checks correct density matrix is produced when performing tomography on
         the |0> X n_qubits state.
         """
-        base_circ = Circuit(n_qubits * 2)
+        base_circ = PhotonicCircuit(n_qubits * 2)
         tomo = StateTomography(n_qubits, base_circ, experiment)
         rho = tomo.process()
         rho_exp = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
@@ -86,7 +86,7 @@ class TestStateTomography:
         Checks correct density matrix is produced when performing tomography on
         the n_qubit GHZ state.
         """
-        base_circ = Circuit(n_qubits * 2)
+        base_circ = PhotonicCircuit(n_qubits * 2)
         base_circ.add(qubit.H())
         for i in range(n_qubits - 1):
             base_circ.add(qubit.CNOT(), 2 * i)
@@ -107,7 +107,7 @@ class TestStateTomography:
         corresponding to dual rail encoding.
         """
         with pytest.raises(ValueError):
-            StateTomography(2, Circuit(n_modes), experiment)
+            StateTomography(2, PhotonicCircuit(n_modes), experiment)
 
     @pytest.mark.parametrize("value", [1.5, "2", None, True])
     def test_n_qubits_must_be_integer(self, value):
@@ -115,30 +115,32 @@ class TestStateTomography:
         Checks value of n_qubits must be an integer.
         """
         with pytest.raises(TypeError, match="qubits"):
-            StateTomography(value, Circuit(4), experiment)
+            StateTomography(value, PhotonicCircuit(4), experiment)
 
-    @pytest.mark.parametrize("value", [Circuit(4).U, [1, 2, 3], None, True])
+    @pytest.mark.parametrize(
+        "value", [PhotonicCircuit(4).U, [1, 2, 3], None, True]
+    )
     def test_base_circuit_must_be_circuit(self, value):
         """
-        Checks value of base_circuit must be a Circuit object.
+        Checks value of base_circuit must be a PhotonicCircuit object.
         """
         with pytest.raises(TypeError, match="circuit"):
             StateTomography(2, value, experiment)
 
-    @pytest.mark.parametrize("value", [Circuit(4), 4, None])
+    @pytest.mark.parametrize("value", [PhotonicCircuit(4), 4, None])
     def test_experiment_must_be_function(self, value):
         """
         Checks value of experiment must be a function.
         """
         with pytest.raises(TypeError, match="experiment"):
-            StateTomography(2, Circuit(4), value)
+            StateTomography(2, PhotonicCircuit(4), value)
 
     def test_density_mat_before_calc(self):
         """
         Checks an error is raised if the rho attribute is called before
         tomography is performed.
         """
-        tomo = StateTomography(2, Circuit(4), experiment)
+        tomo = StateTomography(2, PhotonicCircuit(4), experiment)
         with pytest.raises(AttributeError):
             tomo.rho  # noqa: B018
 
@@ -147,7 +149,7 @@ class TestStateTomography:
         Checks an error is raised if a user attempts to calculate fidelity
         before performing tomography.
         """
-        tomo = StateTomography(2, Circuit(4), experiment)
+        tomo = StateTomography(2, PhotonicCircuit(4), experiment)
         with pytest.raises(AttributeError):
             tomo.fidelity(np.identity(2))
 
@@ -156,7 +158,7 @@ class TestStateTomography:
         Confirms base circuit is unmodified when performing single qubit
         tomography.
         """
-        base_circ = Circuit(2)
+        base_circ = PhotonicCircuit(2)
         original_unitary = base_circ.U_full
         StateTomography(1, base_circ, experiment).process()
         assert pytest.approx(original_unitary) == base_circ.U
@@ -165,7 +167,7 @@ class TestStateTomography:
         """
         Confirms density matrix property returns correct value.
         """
-        base_circ = Circuit(2)
+        base_circ = PhotonicCircuit(2)
         tomo = StateTomography(1, base_circ, experiment)
         rho1 = tomo.process()
         rho2 = tomo.rho
@@ -191,7 +193,7 @@ class TestStateTomography:
         Checks that create circuit function will raise an error if the
         measurement string is the wrong length.
         """
-        tomo = StateTomography(2, Circuit(4), experiment)
+        tomo = StateTomography(2, PhotonicCircuit(4), experiment)
         with pytest.raises(ValueError):
             tomo._create_circuit("XYZ")
 
@@ -200,7 +202,10 @@ class TestStateTomography:
         Checks that experiment arguments can be provided to StateTomography.
         """
         tomo = StateTomography(
-            1, Circuit(2), experiment_args, experiment_args=[State([1, 0])]
+            1,
+            PhotonicCircuit(2),
+            experiment_args,
+            experiment_args=[State([1, 0])],
         )
         rho = tomo.process()
         rho_exp = np.zeros((2, 2), dtype=complex)

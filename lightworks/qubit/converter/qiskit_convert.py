@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ...sdk.circuit import Circuit
+from ...sdk.circuit import PhotonicCircuit
 from ...sdk.utils import LightworksError, PostSelection
 from ..gates import (
     CCNOT,
@@ -69,7 +69,7 @@ ALLOWED_GATES = [
 
 def qiskit_converter(
     circuit: "QuantumCircuit", allow_post_selection: bool = False
-) -> tuple[Circuit, PostSelection | None]:
+) -> tuple[PhotonicCircuit, PostSelection | None]:
     """
     Performs conversion of a provided qiskit QuantumCircuit into a photonic
     circuit within Lightworks.
@@ -83,7 +83,7 @@ def qiskit_converter(
 
     Returns:
 
-        Circuit : The created circuit within Lightworks.
+        PhotonicCircuit : The created circuit within Lightworks.
 
         PostSelection | None : If post-selection rules are required for the
             created circuit, then an object which implements these will be
@@ -111,7 +111,7 @@ class QiskitConverter:
 
     def convert(
         self, q_circuit: "QuantumCircuit"
-    ) -> tuple[Circuit, PostSelection | None]:
+    ) -> tuple[PhotonicCircuit, PostSelection | None]:
         """
         Performs conversion of a provided qiskit QuantumCircuit into a photonic
         circuit within Lightworks.
@@ -122,7 +122,7 @@ class QiskitConverter:
 
         Returns:
 
-            Circuit : The created circuit within Lightworks.
+            PhotonicCircuit : The created circuit within Lightworks.
 
             PostSelection | None : If post-selection rules are required for the
                 created circuit, then an object which implements these will be
@@ -136,10 +136,12 @@ class QiskitConverter:
             )
 
         if not isinstance(q_circuit, QuantumCircuit):
-            raise TypeError("Circuit to convert must be a qiskit circuit.")
+            raise TypeError(
+                "PhotonicCircuit to convert must be a qiskit circuit."
+            )
 
         n_qubits = q_circuit.num_qubits
-        self.circuit = Circuit(n_qubits * 2)
+        self.circuit = PhotonicCircuit(n_qubits * 2)
         self.modes = {i: (2 * i, 2 * i + 1) for i in range(n_qubits)}
 
         if self.allow_post_selection:

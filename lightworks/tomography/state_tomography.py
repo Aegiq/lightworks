@@ -17,7 +17,7 @@ from types import FunctionType, MethodType
 
 import numpy as np
 
-from ..sdk.circuit import Circuit
+from ..sdk.circuit import PhotonicCircuit
 from .mappings import MEASUREMENT_MAPPING
 from .utils import (
     _calculate_density_matrix,
@@ -37,9 +37,9 @@ class StateTomography:
         n_qubits (int) : The number of qubits that will be used as part of the
             tomography.
 
-        base_circuit (Circuit) : An initial circuit which produces the required
-            output state and can be modified for performing tomography. It is
-            required that the number of circuit input modes equals 2 * the
+        base_circuit (PhotonicCircuit) : An initial circuit which produces the
+            required output state and can be modified for performing tomography.
+            It is required that the number of circuit input modes equals 2 * the
             number of qubits.
 
         experiment (Callable) : A function for performing the required
@@ -54,14 +54,14 @@ class StateTomography:
     def __init__(
         self,
         n_qubits: int,
-        base_circuit: Circuit,
+        base_circuit: PhotonicCircuit,
         experiment: Callable,
         experiment_args: list | None = None,
     ) -> None:
         # Type check inputs
         if not isinstance(n_qubits, int) or isinstance(n_qubits, bool):
             raise TypeError("Number of qubits should be an integer.")
-        if not isinstance(base_circuit, Circuit):
+        if not isinstance(base_circuit, PhotonicCircuit):
             raise TypeError("Base circuit should be a circuit object.")
 
         if 2 * n_qubits != base_circuit.input_modes:
@@ -79,7 +79,7 @@ class StateTomography:
         self._rho: np.ndarray
 
     @property
-    def base_circuit(self) -> Circuit:
+    def base_circuit(self) -> PhotonicCircuit:
         """
         The base circuit which is to be modified as part of the tomography
         calculations.
@@ -179,7 +179,9 @@ class StateTomography:
         """
         return state_fidelity(self.rho, rho_exp)
 
-    def _create_circuit(self, measurement_operators: list[Circuit]) -> Circuit:
+    def _create_circuit(
+        self, measurement_operators: list[PhotonicCircuit]
+    ) -> PhotonicCircuit:
         """
         Creates a copy of the assigned base circuit and applies the list of
         measurement circuits to each pair of dual-rail encoded qubits.
@@ -191,7 +193,7 @@ class StateTomography:
 
         Returns:
 
-            Circuit : A modified copy of the base circuit with required
+            PhotonicCircuit : A modified copy of the base circuit with required
                 operations.
 
         """

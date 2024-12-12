@@ -6,13 +6,13 @@ The :doc:`../sdk_reference/tasks/simulator` object is used to find the probabili
 Setup
 -----
 
-To demonstrate the usage of the Simulator, we will first configure a Circuit for testing. To do this, we will add an arrangement of randomly configured Mach-Zhender interferometers, which acts as a tuneable beam splitter, and include some additional phase shifters on one arm of the system.
+To demonstrate the usage of the Simulator, we will first configure a PhotonicCircuit for testing. To do this, we will add an arrangement of randomly configured Mach-Zhender interferometers, which acts as a tuneable beam splitter, and include some additional phase shifters on one arm of the system.
 
 .. code-block:: Python
 
     from random import random, seed
 
-    circuit = lw.Circuit(4)
+    circuit = lw.PhotonicCircuit(4)
 
     seed(1) # Set random seed so circuit is reproducible
     for m in [0, 1, 0, 2]:

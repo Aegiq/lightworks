@@ -4,9 +4,9 @@ SDK Reference
 .. toctree::
     :maxdepth: 2
 
-    circuit
-    components
-    compiled_circuit
+    photonic_circuit
+    photonic_components
+    photonic_compiled_circuit
     state
     display
     parameter

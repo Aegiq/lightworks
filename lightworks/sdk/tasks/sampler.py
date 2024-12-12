@@ -21,7 +21,7 @@ from ...emulator.backends.fock_backend import FockBackend
 from ...emulator.components import Detector, Source
 from ...emulator.utils.probability_distribution import pdist_calc
 from ...sdk.utils.post_selection import PostSelectionType
-from ..circuit import Circuit
+from ..circuit import PhotonicCircuit
 from ..results import SamplingResult
 from ..state import State
 from ..utils import (
@@ -44,7 +44,7 @@ class Sampler(Task):
 
     Args:
 
-        circuit : The circuit to sample output states from.
+        circuit (PhotonicCircuit) : The circuit to sample output states from.
 
         input_state (State) : The input state to use with the circuit for
             sampling.
@@ -83,7 +83,7 @@ class Sampler(Task):
 
     def __init__(
         self,
-        circuit: Circuit,
+        circuit: PhotonicCircuit,
         input_state: State,
         n_samples: int,
         post_selection: PostSelectionType | Callable | None = None,
@@ -105,18 +105,19 @@ class Sampler(Task):
         self.sampling_mode = sampling_mode
 
     @property
-    def circuit(self) -> Circuit:
+    def circuit(self) -> PhotonicCircuit:
         """
-        Stores the circuit to be used for simulation, should be a Circuit
-        object.
+        Stores the circuit to be used for simulation, should be a
+        PhotonicCircuit object.
         """
         return self.__circuit
 
     @circuit.setter
-    def circuit(self, value: Circuit) -> None:
-        if not isinstance(value, Circuit):
+    def circuit(self, value: PhotonicCircuit) -> None:
+        if not isinstance(value, PhotonicCircuit):
             raise TypeError(
-                "Provided circuit should be a Circuit or Unitary object."
+                "Provided circuit should be a PhotonicCircuit or Unitary "
+                "object."
             )
         self.__circuit = value
 

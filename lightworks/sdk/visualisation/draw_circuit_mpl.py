@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from multimethod import multimethod
 
-from ..circuit.components import (
+from ..circuit.photonic_components import (
     Barrier,
     BeamSplitter,
     Group,
@@ -33,7 +33,7 @@ from ..utils import DisplayError
 from .display_utils import process_parameter_value
 
 if TYPE_CHECKING:
-    from ..circuit import Circuit
+    from ..circuit import PhotonicCircuit
 
 
 class DrawCircuitMPL:
@@ -45,7 +45,7 @@ class DrawCircuitMPL:
 
     Args:
 
-        circuit (Circuit) : The circuit which is to be displayed.
+        circuit (PhotonicCircuit) : The circuit which is to be displayed.
 
         display_loss (bool, optional) : Choose whether to display loss
             components in the figure, defaults to False.
@@ -61,7 +61,7 @@ class DrawCircuitMPL:
 
     def __init__(
         self,
-        circuit: "Circuit",
+        circuit: "PhotonicCircuit",
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
         show_parameter_values: bool = False,
@@ -396,7 +396,7 @@ class DrawCircuitMPL:
         Add a barrier which will separate different parts of the circuit. This
         is applied to the provided modes.
         """
-        max_loc = 0
+        max_loc = 0.0
         for m in spec.modes:
             max_loc = max(max_loc, self.x_locations[m])
         for m in spec.modes:

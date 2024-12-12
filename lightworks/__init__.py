@@ -46,7 +46,7 @@ Key objects:
 from . import emulator, interferometers, qubit, tomography
 from .__settings import settings
 from .__version import __version__
-from .sdk.circuit import Circuit, Parameter, ParameterDict, Unitary
+from .sdk.circuit import Parameter, ParameterDict, PhotonicCircuit, Unitary
 from .sdk.state import State
 from .sdk.tasks import Analyzer, Sampler, Simulator
 from .sdk.utils import (
@@ -69,7 +69,7 @@ except ModuleNotFoundError:
 # fmt: off
 __all__ = [
     "emulator", "qubit", "interferometers", "tomography", "settings",
-    "Circuit", "Unitary", "Display", "State", "random_unitary",
+    "PhotonicCircuit", "Unitary", "Display", "State", "random_unitary",
     "random_permutation", "db_loss_to_decimal", "decimal_to_db_loss",
     "Parameter", "ParameterDict", "PostSelection", "PostSelectionFunction",
     "Simulator", "Sampler", "Analyzer"

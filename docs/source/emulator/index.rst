@@ -14,15 +14,15 @@ The different simulation objects are discussed in the following sections, with a
       - Output
       - Imperfect source/detectors
     * - :doc:`simulator`
-      - Circuit, Input states, Output states
+      - PhotonicCircuit, Input states, Output states
       - Probability amplitudes
       - No
     * - :doc:`sampler`
-      - Circuit, Input state, Post-selection/heralding rules
+      - PhotonicCircuit, Input state, Post-selection/heralding rules
       - Sample counts
       - Yes
     * - :doc:`analyzer`
-      - Circuit, Input state, Post-selection/heralding rules
+      - PhotonicCircuit, Input state, Post-selection/heralding rules
       - Probability distribution
       - No
 

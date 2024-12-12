@@ -16,7 +16,7 @@ from typing import Any
 
 from multimethod import multimethod
 
-from ...sdk.circuit.compiler import CompiledCircuit
+from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from ...sdk.state import State
 from ..backends.fock_backend import FockBackend
 from ..state import AnnotatedState
@@ -24,7 +24,7 @@ from ..state import AnnotatedState
 
 @multimethod
 def pdist_calc(
-    circuit: CompiledCircuit,
+    circuit: CompiledPhotonicCircuit,
     inputs: dict[State, int | float],
     backend: FockBackend,
 ) -> dict[State, float]:
@@ -35,7 +35,7 @@ def pdist_calc(
 
     Args:
 
-        circuit (CompiledCircuit) : The compiled circuit that is to be
+        circuit (CompiledPhotonicCircuit) : The compiled circuit that is to be
             sampled from.
 
         inputs (dict) : The inputs to the system and their associated
@@ -75,7 +75,7 @@ def pdist_calc(
 
 @pdist_calc.register
 def annotated_state_pdist_calc(
-    circuit: CompiledCircuit,
+    circuit: CompiledPhotonicCircuit,
     inputs: dict[AnnotatedState, int | float],
     backend: FockBackend,
 ) -> dict[State, float]:
@@ -85,7 +85,7 @@ def annotated_state_pdist_calc(
 
     Args:
 
-        circuit (CompiledCircuit) : The compiled circuit that is to be
+        circuit (CompiledPhotonicCircuit) : The compiled circuit that is to be
                                     sampled from.
 
         inputs (dict) : The inputs to the system and their associated

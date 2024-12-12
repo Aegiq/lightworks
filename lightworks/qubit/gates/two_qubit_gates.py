@@ -20,12 +20,12 @@ lightworks.
 
 import numpy as np
 
-from ...sdk.circuit import Circuit, Unitary
+from ...sdk.circuit import PhotonicCircuit, Unitary
 from ...sdk.utils import permutation_mat_from_swaps_dict
 from .single_qubit_gates import H
 
 
-class CZ(Circuit):
+class CZ(PhotonicCircuit):
     """
     Post-selected CZ gate that acts across two dual-rail encoded qubits. This
     gate occupies a total of 6 modes, where modes 0 & 5 are used for 0 photon
@@ -49,7 +49,7 @@ class CZ(Circuit):
         self.add(unitary, 0, group=True, name="CZ")
 
 
-class CNOT(Circuit):
+class CNOT(PhotonicCircuit):
     """
     Post-selected CNOT gate that acts across two dual-rail encoded qubits. This
     gate occupies a total of 6 modes, where modes 0 & 5 are used for 0 photon
@@ -74,7 +74,7 @@ class CNOT(Circuit):
         super().__init__(4)
 
         # Create CNOT from combination of H and CZ
-        circ = Circuit(4)
+        circ = PhotonicCircuit(4)
         circ.add(H(), 2 * target_qubit)
         circ.add(CZ(), 0)
         circ.add(H(), 2 * target_qubit)
@@ -83,7 +83,7 @@ class CNOT(Circuit):
         self.add(circ, 0, group=True, name=name)
 
 
-class CZ_Heralded(Circuit):  # noqa: N801
+class CZ_Heralded(PhotonicCircuit):  # noqa: N801
     """
     Heralded version of the CZ gate which acts across two dual-rail encoded
     qubits, using two NS gates with ancillary photons to herald the success of
@@ -135,7 +135,7 @@ class CZ_Heralded(Circuit):  # noqa: N801
         self.add(unitary, 0, group=True, name="CZ Heralded")
 
 
-class CNOT_Heralded(Circuit):  # noqa: N801
+class CNOT_Heralded(PhotonicCircuit):  # noqa: N801
     """
     Heralded version of the CNOT gate which acts across two dual-rail encoded
     qubits, using two NS gates with ancillary photons to herald the success of
@@ -163,7 +163,7 @@ class CNOT_Heralded(Circuit):  # noqa: N801
         super().__init__(4)
 
         # Create CNOT from combination of H and CZ
-        circ = Circuit(4)
+        circ = PhotonicCircuit(4)
         circ.add(H(), 2 * target_qubit)
         circ.add(CZ_Heralded(), 0)
         circ.add(H(), 2 * target_qubit)
@@ -172,7 +172,7 @@ class CNOT_Heralded(Circuit):  # noqa: N801
         self.add(circ, 0, group=True, name=name)
 
 
-class SWAP(Circuit):
+class SWAP(PhotonicCircuit):
     """
     Performs a swap between the modes encoding two qubits. To do this, it needs
     to be provided with two tuples, each detailing the two modes used to encode

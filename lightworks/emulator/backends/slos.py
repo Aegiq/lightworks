@@ -17,7 +17,7 @@ from math import factorial
 import numpy as np
 
 from ...__settings import settings
-from ...sdk.circuit.compiler import CompiledCircuit
+from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from ...sdk.state import State
 from .fock_backend import FockBackend
 
@@ -33,7 +33,7 @@ class SLOSBackend(FockBackend):
         return "slos"
 
     def full_probability_distribution(
-        self, circuit: CompiledCircuit, input_state: State
+        self, circuit: CompiledPhotonicCircuit, input_state: State
     ) -> dict:
         """
         Finds the output probability distribution for the provided circuit and
@@ -41,9 +41,9 @@ class SLOSBackend(FockBackend):
 
         Args:
 
-            circuit (CompiledCircuit) : The compiled version of the circuit
-                which is being simulated. This is created by calling the _build
-                method on the target circuit.
+            circuit (CompiledPhotonicCircuit) : The compiled version of the
+                circuit which is being simulated. This is created by calling the
+                _build method on the target circuit.
 
             input_state (State) : The input state to the system.
 

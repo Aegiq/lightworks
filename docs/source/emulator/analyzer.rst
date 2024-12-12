@@ -11,7 +11,7 @@ To begin, the circuit is first defined:
 
     import numpy as np
 
-    cnot_circuit = lw.Circuit(6)
+    cnot_circuit = lw.PhotonicCircuit(6)
 
     theta = np.arccos(1/3)
     to_add = [(3, np.pi/2, 0), (0, theta, 0), (2, theta, np.pi), (4, theta, 0), 
