@@ -60,7 +60,7 @@ class CompiledPhotonicCircuit:
         return self._unitary
 
     @property
-    def heralds(self) -> dict:
+    def heralds(self) -> dict[str, dict[int, int]]:
         """Returns details of heralds on the input and output."""
         return {
             "input": copy(self._in_heralds),

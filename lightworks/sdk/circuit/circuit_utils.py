@@ -35,7 +35,7 @@ from .photonic_components import (
 )
 
 
-def unpack_circuit_spec(circuit_spec: list) -> list:
+def unpack_circuit_spec(circuit_spec: list[Component]) -> list[Component]:
     """
     Unpacks and removes any grouped components from a circuit.
 
@@ -61,7 +61,9 @@ def unpack_circuit_spec(circuit_spec: list) -> list:
     return new_spec
 
 
-def add_modes_to_circuit_spec(circuit_spec: list, mode: int) -> list:
+def add_modes_to_circuit_spec(
+    circuit_spec: list[Component], mode: int
+) -> list[Component]:
     """
     Takes an existing circuit spec and adds a given number of modes to each
     of the elements.
@@ -94,12 +96,14 @@ def add_modes_to_circuit_spec(circuit_spec: list, mode: int) -> list:
             spec.mode_1 += mode
             spec.mode_2 += mode
         else:
-            spec.mode += mode
+            spec.mode += mode  # type: ignore[attr-defined]
         new_circuit_spec.append(spec)
     return new_circuit_spec
 
 
-def add_empty_mode_to_circuit_spec(circuit_spec: list, mode: int) -> list:
+def add_empty_mode_to_circuit_spec(
+    circuit_spec: list[Component], mode: int
+) -> list[Component]:
     """
     Takes a provided circuit spec and adds an empty mode at the set location.
 
@@ -160,12 +164,14 @@ def add_empty_mode_to_circuit_spec(circuit_spec: list, mode: int) -> list:
                 # Update unitary value
                 spec.unitary = add_mode_to_unitary(spec.unitary, add_mode)
         else:
-            spec.mode += 1 if spec.mode >= mode else 0
+            spec.mode += 1 if spec.mode >= mode else 0  # type: ignore[attr-defined]
         new_circuit_spec.append(spec)
     return new_circuit_spec
 
 
-def convert_non_adj_beamsplitters(circuit_spec: list) -> list:
+def convert_non_adj_beamsplitters(
+    circuit_spec: list[Component],
+) -> list[Component]:
     """
     Takes a given circuit spec and removes all beam splitters acting on
     non-adjacent modes by replacing with a mode swap and adjacent beam
@@ -216,7 +222,7 @@ def convert_non_adj_beamsplitters(circuit_spec: list) -> list:
     return new_spec
 
 
-def compress_mode_swaps(circuit_spec: list) -> list:
+def compress_mode_swaps(circuit_spec: list[Component]) -> list[Component]:
     """
     Takes a provided circuit spec and will try to compress any more swaps
     such that the circuit length is reduced. Note that any components in a
@@ -231,8 +237,8 @@ def compress_mode_swaps(circuit_spec: list) -> list:
         list : The processed version of the circuit spec.
 
     """
-    new_spec = []
-    to_skip = []
+    new_spec: list[Component] = []
+    to_skip: list[int] = []
     # Loop over each item in original spec
     for i, spec in enumerate(circuit_spec):
         spec = copy(spec)
@@ -283,7 +289,9 @@ def compress_mode_swaps(circuit_spec: list) -> list:
     return new_spec
 
 
-def combine_mode_swap_dicts(swaps1: dict, swaps2: dict) -> dict:
+def combine_mode_swap_dicts(
+    swaps1: dict[int, int], swaps2: dict[int, int]
+) -> dict[int, int]:
     """
     Function to take two mode swap dictionaries and combine them.
 

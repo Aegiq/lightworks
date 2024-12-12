@@ -396,7 +396,7 @@ class DrawCircuitMPL:
         Add a barrier which will separate different parts of the circuit. This
         is applied to the provided modes.
         """
-        max_loc = 0
+        max_loc = 0.0
         for m in spec.modes:
             max_loc = max(max_loc, self.x_locations[m])
         for m in spec.modes:

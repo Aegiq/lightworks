@@ -144,7 +144,7 @@ class PhotonicCircuit:
         return self.n_modes - len(self.heralds["input"])
 
     @property
-    def heralds(self) -> dict:
+    def heralds(self) -> dict[str, dict[int, int]]:
         """
         A dictionary which details the set heralds on the inputs and outputs of
         the circuit.
@@ -155,11 +155,11 @@ class PhotonicCircuit:
         }
 
     @property
-    def _internal_modes(self) -> list:
+    def _internal_modes(self) -> list[int]:
         return self.__internal_modes
 
     @property
-    def _external_heralds(self) -> dict:
+    def _external_heralds(self) -> dict[str, dict[int, int]]:
         """
         Stores details of heralds which are on the outside of a circuit (i.e.
         were not added as part of a group).
@@ -383,7 +383,7 @@ class PhotonicCircuit:
         check_loss(loss)
         self.__circuit_spec.append(Loss(mode, loss))
 
-    def barrier(self, modes: list | None = None) -> None:
+    def barrier(self, modes: list[int] | None = None) -> None:
         """
         Adds a barrier to separate different parts of a circuit. This is
         applied to the specified modes.
@@ -401,7 +401,7 @@ class PhotonicCircuit:
             self._mode_in_range(m)
         self.__circuit_spec.append(Barrier(modes))
 
-    def mode_swaps(self, swaps: dict) -> None:
+    def mode_swaps(self, swaps: dict[int, int]) -> None:
         """
         Performs swaps between a given set of modes. The keys of the dictionary
         should correspond to the initial modes and the values to the modes they
@@ -467,7 +467,7 @@ class PhotonicCircuit:
         self,
         show_parameter_values: bool = False,
         display_loss: bool = False,
-        mode_labels: list | None = None,
+        mode_labels: list[str] | None = None,
         display_type: str = "svg",
     ) -> None:
         """
@@ -505,7 +505,7 @@ class PhotonicCircuit:
             display.display(return_)
         return
 
-    def get_all_params(self) -> list:
+    def get_all_params(self) -> list[Parameter]:
         """
         Returns all the Parameter objects used as part of creating the circuit.
         """
@@ -634,7 +634,9 @@ class PhotonicCircuit:
                 mode += 1
         return mode
 
-    def _add_empty_mode(self, circuit_spec: list, mode: int) -> list:
+    def _add_empty_mode(
+        self, circuit_spec: list[Component], mode: int
+    ) -> list[Component]:
         """
         Adds an empty mode at the selected location to a provided circuit spec.
         """
@@ -681,6 +683,6 @@ class PhotonicCircuit:
                 new_spec.append(spec)
         return new_spec
 
-    def _get_circuit_spec(self) -> list:
+    def _get_circuit_spec(self) -> list[Component]:
         """Returns a copy of the circuit spec attribute."""
         return deepcopy(self.__circuit_spec)
