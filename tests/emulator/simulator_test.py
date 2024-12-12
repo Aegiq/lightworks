@@ -15,9 +15,9 @@
 import pytest
 
 from lightworks import (
-    Circuit,
     ModeMismatchError,
     Parameter,
+    PhotonicCircuit,
     PhotonNumberError,
     Simulator,
     State,
@@ -41,7 +41,7 @@ class TestSimulator:
         Checks the basic 2 mode hom case and confirms the probability of the
         |0,2> state is 0.5.
         """
-        circ = Circuit(2)
+        circ = PhotonicCircuit(2)
         circ.bs(0)
         sim = Simulator(circ, State([1, 1]), State([2, 0]))
         results = BACKEND.run(sim)
@@ -68,7 +68,7 @@ class TestSimulator:
         at the output.
         """
         # Build circuit
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(1, reflectivity=0.6)
         circuit.mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
         circuit.bs(0, 3, reflectivity=0.3)
@@ -111,7 +111,7 @@ class TestSimulator:
         Runs a lossy multi-photon sim and checks the correct value is found for
         one input/output.
         """
-        circ = Circuit(4)
+        circ = PhotonicCircuit(4)
         circ.bs(0, loss=db_loss_to_decimal(2))
         circ.ps(1, phi=0.3)
         circ.bs(1, loss=db_loss_to_decimal(2))
@@ -144,7 +144,7 @@ class TestSimulator:
         simulator results.
         """
         param = Parameter(0.3)
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0, reflectivity=param)
         circuit.bs(2, reflectivity=param)
         circuit.bs(1, reflectivity=param)
@@ -331,7 +331,7 @@ class TestSimulator:
             sub_circuit.loss(i, (i + 1) / 10)
         sub_circuit.herald(0, 2, 2)
         sub_circuit.herald(1, 1, 3)
-        circuit_herald = Circuit(4)
+        circuit_herald = PhotonicCircuit(4)
         circuit_herald.add(sub_circuit)
         # Simulate both with equivalent inputs
         sim = Simulator(circuit, State([0, 1, 0, 1, 1, 0]))

@@ -17,10 +17,10 @@ from random import randint, random, seed
 import pytest
 
 from lightworks import (
-    Circuit,
     CircuitCompilationError,
     Parameter,
     ParameterDict,
+    PhotonicCircuit,
     Unitary,
     db_loss_to_decimal,
     random_unitary,
@@ -36,14 +36,14 @@ from lightworks.sdk.circuit.photonic_components import (
 
 class TestCircuit:
     """
-    Unit tests to confirm correct functioning of the Circuit class when various
-    operations are performed.
+    Unit tests to confirm correct functioning of the PhotonicCircuit class when
+    various operations are performed.
     """
 
     def setup_method(self) -> None:
         """Create a circuit and associated parameters for testing."""
         n_modes = 6
-        self.param_circuit = Circuit(n_modes)
+        self.param_circuit = PhotonicCircuit(n_modes)
         self.parameters = ParameterDict()
         self.original_parameters = ParameterDict()
         seed(1)
@@ -115,7 +115,7 @@ class TestCircuit:
         larger circuit to a smaller one with the add method.
         """
         # Comparison circuit
-        circ_comp = Circuit(6)
+        circ_comp = PhotonicCircuit(6)
         # First part
         for i, m in enumerate([0, 2, 4, 1, 3, 2]):
             circ_comp.bs(m)
@@ -126,11 +126,11 @@ class TestCircuit:
             circ_comp.bs(m, loss=0.2 * i)
             circ_comp.ps(m, i, loss=0.1)
         # Addition circuit
-        c1 = Circuit(6)
+        c1 = PhotonicCircuit(6)
         for i, m in enumerate([0, 2, 4, 1, 3, 2]):
             c1.bs(m)
             c1.ps(m, i)
-        c2 = Circuit(4)
+        c2 = PhotonicCircuit(4)
         for i, m in enumerate([2, 0, 2, 1, 0]):
             c2.ps(m + 1, i)
             c2.bs(m, loss=0.2 * i)
@@ -148,7 +148,7 @@ class TestCircuit:
         group method.
         """
         # Comparison circuit
-        circ_comp = Circuit(6)
+        circ_comp = PhotonicCircuit(6)
         # First part
         for i, m in enumerate([0, 2, 4, 1, 3, 2]):
             circ_comp.bs(m)
@@ -161,11 +161,11 @@ class TestCircuit:
                 circ_comp.ps(m, i, loss=0.1)
             circ_comp.mode_swaps({1: 2, 2: 3, 3: 1})
         # Addition circuit
-        c1 = Circuit(6)
+        c1 = PhotonicCircuit(6)
         for i, m in enumerate([0, 2, 4, 1, 3, 2]):
             c1.bs(m)
             c1.ps(m, i)
-        c2 = Circuit(4)
+        c2 = PhotonicCircuit(4)
         for i, m in enumerate([2, 0, 2, 1, 0]):
             c2.ps(m + 1, i)
             c2.bs(m, loss=0.2 * i)
@@ -185,7 +185,7 @@ class TestCircuit:
         Checks that barrier component can be added across all and a selected
         mode range.
         """
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.barrier()
         circuit.barrier([0, 2])
 
@@ -194,7 +194,7 @@ class TestCircuit:
         Checks that an error is raised if a parameter is attempted to be
         assigned to a mode value.
         """
-        new_circ = Circuit(4)
+        new_circ = PhotonicCircuit(4)
         with pytest.raises(TypeError):
             new_circ.bs(Parameter(1))
         with pytest.raises(TypeError):
@@ -204,7 +204,7 @@ class TestCircuit:
 
     def test_circ_unitary_combination(self):
         """Test combination of a circuit and unitary objects."""
-        circ = Circuit(6)
+        circ = PhotonicCircuit(6)
         for i, m in enumerate([0, 2, 4, 1, 3, 2]):
             circ.bs(m, loss=db_loss_to_decimal(0.2))
             circ.ps(m, i)
@@ -227,7 +227,7 @@ class TestCircuit:
         Checks that n_modes attribute cannot be modified and will raise an
         attribute error.
         """
-        circ = Circuit(4)
+        circ = PhotonicCircuit(4)
         with pytest.raises(AttributeError):
             circ.n_modes = 6
 
@@ -269,7 +269,7 @@ class TestCircuit:
         argument to create a new circuit without the Parameter objects, while
         one of the parameters is in a group.
         """
-        circ = Circuit(self.param_circuit.n_modes + 2)
+        circ = PhotonicCircuit(self.param_circuit.n_modes + 2)
         circ.bs(0)
         circ.bs(2)
         circ.add(self.param_circuit, 1, group=True)
@@ -302,9 +302,10 @@ class TestCircuit:
         circ.add(CNOT(), 0)
         circ_copy = circ.copy()
         # Check circuit has internal modes and that they are preserved
-        assert circ_copy._Circuit__internal_modes
+        assert circ_copy._PhotonicCircuit__internal_modes
         assert (
-            circ._Circuit__internal_modes == circ_copy._Circuit__internal_modes
+            circ._PhotonicCircuit__internal_modes
+            == circ_copy._PhotonicCircuit__internal_modes
         )
 
     def test_circuit_ungroup(self):
@@ -313,12 +314,12 @@ class TestCircuit:
         the circuit.
         """
         # Create initial basic circuit
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0)
         circuit.bs(2)
         circuit.ps(1, 0)
         # Create smaller circuit to add and combine
-        circuit2 = Circuit(2)
+        circuit2 = PhotonicCircuit(2)
         circuit2.bs(0)
         circuit2.ps(1, 1)
         circuit2.add(circuit2, group=True)
@@ -338,7 +339,7 @@ class TestCircuit:
         modes.
         """
         # Create circuit with beam splitters across non-adjacent modes
-        circuit = Circuit(8)
+        circuit = PhotonicCircuit(8)
         circuit.bs(0, 7)
         circuit.bs(1, 4)
         circuit.bs(2, 6)
@@ -362,14 +363,14 @@ class TestCircuit:
         modes when groups are included.
         """
         # Create circuit with beam splitters across non-adjacent modes
-        circuit = Circuit(8)
+        circuit = PhotonicCircuit(8)
         circuit.bs(0, 7)
         circuit.bs(1, 4)
         circuit.bs(2, 6)
         circuit.bs(3, 7)
         circuit.bs(0, 1)
         # Then create smaller second circuit and add, with group = True
-        circuit2 = Circuit(6)
+        circuit2 = PhotonicCircuit(6)
         circuit2.bs(1, 4)
         circuit2.bs(2, 5)
         circuit2.bs(3)
@@ -392,7 +393,7 @@ class TestCircuit:
         the circuit unitary.
         """
         # Create circuit with beam splitters across non-adjacent modes
-        circuit = Circuit(8)
+        circuit = PhotonicCircuit(8)
         circuit.bs(0, 7)
         circuit.bs(1, 4)
         circuit.bs(2, 6)
@@ -411,14 +412,14 @@ class TestCircuit:
         circuit.
         """
         # Create circuit with beam splitters across non-adjacent modes
-        circuit = Circuit(8)
+        circuit = PhotonicCircuit(8)
         circuit.bs(0, 7)
         circuit.bs(1, 4)
         circuit.bs(2, 6)
         circuit.bs(3, 7)
         circuit.bs(0, 1)
         # Then create smaller second circuit and add, with group = True
-        circuit2 = Circuit(6)
+        circuit2 = PhotonicCircuit(6)
         circuit2.bs(1, 4)
         circuit2.bs(2, 5)
         circuit2.bs(3)
@@ -435,7 +436,7 @@ class TestCircuit:
         unitary.
         """
         # Create circuit with a few components and then mode swaps
-        circuit = Circuit(8)
+        circuit = PhotonicCircuit(8)
         circuit.bs(0)
         circuit.bs(4)
         circuit.mode_swaps({1: 3, 3: 5, 5: 6, 6: 1})
@@ -455,7 +456,7 @@ class TestCircuit:
         unitary while a unitary matrix component is included.
         """
         # Create circuit with a few components and then mode swaps
-        circuit = Circuit(8)
+        circuit = PhotonicCircuit(8)
         circuit.bs(0)
         circuit.bs(4)
         circuit.add(Unitary(random_unitary(4)), 2)
@@ -476,7 +477,7 @@ class TestCircuit:
         to using 2 mode swaps for an example circuit.
         """
         # Create circuit with a few components and then mode swaps
-        circuit = Circuit(8)
+        circuit = PhotonicCircuit(8)
         circuit.bs(0)
         circuit.bs(4)
         circuit.mode_swaps({1: 3, 3: 5, 5: 6, 6: 1})
@@ -503,7 +504,7 @@ class TestCircuit:
         components.
         """
         # Create circuit with a few components and then mode swaps
-        circuit = Circuit(8)
+        circuit = PhotonicCircuit(8)
         circuit.mode_swaps({4: 5, 5: 6, 6: 4})
         getattr(circuit, component)(*args)
         circuit.mode_swaps({4: 5, 5: 6, 6: 4})
@@ -522,7 +523,7 @@ class TestCircuit:
         matrix
         """
         # Create circuit with a few components and then mode swaps
-        circuit = Circuit(8)
+        circuit = PhotonicCircuit(8)
         circuit.mode_swaps({3: 4, 4: 5, 5: 3})
         circuit.add(Unitary(random_unitary(3)), mode)
         circuit.mode_swaps({3: 4, 4: 5, 5: 3})
@@ -538,11 +539,11 @@ class TestCircuit:
         """Checks that the mode swap ignores components in groups."""
         # Create circuit with a few components and then two mode swaps, one
         # placed within a group from a smaller circuit
-        circuit = Circuit(8)
+        circuit = PhotonicCircuit(8)
         circuit.bs(0)
         circuit.bs(4)
         circuit.mode_swaps({1: 3, 3: 5, 5: 6, 6: 1})
-        circuit2 = Circuit(5)
+        circuit2 = PhotonicCircuit(5)
         circuit2.mode_swaps({0: 1, 2: 4, 1: 2, 4: 0})
         circuit.add(circuit2, 1, group=True)
         circuit.bs(0)
@@ -559,7 +560,7 @@ class TestCircuit:
     def test_parameterized_loss(self):
         """Checks that loss can be parameterized in a circuit."""
         param = Parameter(0.5, label="loss")
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0, loss=param)
         circuit.ps(2, 1, loss=param)
         circuit.loss(2, param)
@@ -569,7 +570,7 @@ class TestCircuit:
         Confirms that heralding being added to a circuit works as expected and
         is reflected in the heralds attribute.
         """
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.herald(1, 0, 2)
         # Check heralds added
         assert 0 in circuit.heralds["input"]
@@ -583,7 +584,7 @@ class TestCircuit:
         Confirms that heralding being added to a circuit works as expected and
         is reflected in the heralds attribute, when only a single mode is set
         """
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.herald(2, 1)
         # Check heralds added
         assert 1 in circuit.heralds["input"]
@@ -598,7 +599,7 @@ class TestCircuit:
         Checks error is raised when a non-integer photon number is provided to
         the herald method.
         """
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         with pytest.raises(TypeError):
             circuit.herald(value, 0)
 
@@ -607,7 +608,7 @@ class TestCircuit:
         """
         Checks error is raised when duplicate mode is added to herald.
         """
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.herald(1, 1, 2)
         with pytest.raises(ValueError):
             circuit.herald(1, *modes)
@@ -617,9 +618,9 @@ class TestCircuit:
         Checks that the heralds end up on the correct modes when a heralded
         circuit is added to a larger circuit.
         """
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         # Create heralded sub-circuit to add
-        sub_circ = Circuit(4)
+        sub_circ = PhotonicCircuit(4)
         sub_circ.herald(1, 0, 0)
         sub_circ.herald(1, 3, 3)
         # Then add to larger circuit
@@ -638,11 +639,11 @@ class TestCircuit:
         a heralded sub-circuit is added.
         """
         # Place beam splitters across 0 & 1 and 2 & 3
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.herald(0, 0, 1)
         circuit.herald(2, 2, 3)
         # Create heralded sub-circuit and add
-        sub_circ = Circuit(4)
+        sub_circ = PhotonicCircuit(4)
         sub_circ.herald(1, 0, 0)
         sub_circ.herald(1, 3, 3)
         circuit.add(sub_circ, 1)
@@ -658,11 +659,11 @@ class TestCircuit:
         when a heralded sub-circuit is added.
         """
         # Place beam splitters across 0 & 1 and 2 & 3
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0)
         circuit.bs(2)
         # Create heralded sub-circuit and add
-        sub_circ = Circuit(4)
+        sub_circ = PhotonicCircuit(4)
         sub_circ.herald(1, 0, 0)
         sub_circ.herald(1, 3, 3)
         circuit.add(sub_circ, 1)
@@ -680,11 +681,11 @@ class TestCircuit:
         when a heralded sub-circuit is added in a different location.
         """
         # Place beam splitters across 0 & 1 and 2 & 3
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0)
         circuit.bs(2)
         # Create heralded sub-circuit and add
-        sub_circ = Circuit(4)
+        sub_circ = PhotonicCircuit(4)
         sub_circ.herald(1, 0, 0)
         sub_circ.herald(1, 3, 3)
         circuit.add(sub_circ, 0)
@@ -702,11 +703,11 @@ class TestCircuit:
         when a heralded sub-circuit is added with a different configuration.
         """
         # Place beam splitters across 0 & 1 and 2 & 3
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0)
         circuit.bs(2)
         # Create heralded sub-circuit and add
-        sub_circ = Circuit(4)
+        sub_circ = PhotonicCircuit(4)
         sub_circ.herald(1, 0, 1)
         sub_circ.herald(1, 1, 0)
         circuit.add(sub_circ, 1)
@@ -724,11 +725,11 @@ class TestCircuit:
         when a heralded sub-circuit is added with all modes heralded.
         """
         # Place beam splitters across 0 & 1 and 2 & 3
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0)
         circuit.bs(2)
         # Create heralded sub-circuit and add
-        sub_circ = Circuit(4)
+        sub_circ = PhotonicCircuit(4)
         sub_circ.herald(1, 0, 0)
         sub_circ.herald(1, 1, 1)
         sub_circ.herald(1, 2, 2)
@@ -748,11 +749,11 @@ class TestCircuit:
         when two heralded sub-circuits are added.
         """
         # Place beam splitters across 0 & 1 and 2 & 3
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0)
         circuit.bs(2)
         # Create heralded sub-circuit and add
-        sub_circ = Circuit(4)
+        sub_circ = PhotonicCircuit(4)
         sub_circ.herald(1, 0, 1)
         sub_circ.herald(1, 2, 0)
         circuit.add(sub_circ, 2)
@@ -770,7 +771,7 @@ class TestCircuit:
         Checks input modes attribute returns n_modes value when no heralds are
         used.
         """
-        circuit = Circuit(randint(4, 10))
+        circuit = PhotonicCircuit(randint(4, 10))
         assert circuit.input_modes == circuit.n_modes
 
     def test_input_modes_heralds(self):
@@ -779,7 +780,7 @@ class TestCircuit:
         heralds are included.
         """
         n = randint(6, 10)
-        circuit = Circuit(n)
+        circuit = PhotonicCircuit(n)
         circuit.herald(1, 1, 4)
         circuit.herald(2, 3, 3)
         assert circuit.input_modes == n - 2
@@ -791,8 +792,8 @@ class TestCircuit:
         larger circuit.
         """
         n = randint(9, 10)
-        circuit = Circuit(n)
-        sub_circuit = Circuit(4)
+        circuit = PhotonicCircuit(n)
+        sub_circuit = PhotonicCircuit(4)
         sub_circuit.herald(1, 0, 0)
         sub_circuit.herald(0, 3, 1)
         circuit.add(sub_circuit, 2)
@@ -805,10 +806,10 @@ class TestCircuit:
         larger circuit, with the larger circuit also containing heralds.
         """
         n = randint(9, 10)
-        circuit = Circuit(n)
+        circuit = PhotonicCircuit(n)
         circuit.herald(1, 1, 4)
         circuit.herald(2, 3, 3)
-        sub_circuit = Circuit(4)
+        sub_circuit = PhotonicCircuit(4)
         sub_circuit.herald(1, 0, 0)
         sub_circuit.herald(0, 3, 1)
         circuit.add(sub_circuit, 2)
@@ -823,20 +824,24 @@ class TestCircuit:
         Checks that when a circuit has internal modes then the beam splitter is
         applied correctly across the other modes.
         """
-        circuit = Circuit(7)
-        circuit._Circuit__internal_modes = [1, 3, 4]
+        circuit = PhotonicCircuit(7)
+        circuit._PhotonicCircuit__internal_modes = [1, 3, 4]
         # Add bs on modes
         circuit.bs(*initial_modes)
         # Then check modes are converted to correct values
-        assert circuit._Circuit__circuit_spec[0].mode_1 == final_modes[0]
-        assert circuit._Circuit__circuit_spec[0].mode_2 == final_modes[1]
+        assert (
+            circuit._PhotonicCircuit__circuit_spec[0].mode_1 == final_modes[0]
+        )
+        assert (
+            circuit._PhotonicCircuit__circuit_spec[0].mode_2 == final_modes[1]
+        )
 
     @pytest.mark.parametrize("convention", ["Rx", "H"])
     def test_bs_valid_convention(self, convention):
         """
         Checks beam splitter accepts valid conventions.
         """
-        circuit = Circuit(3)
+        circuit = PhotonicCircuit(3)
         circuit.bs(0, convention=convention)
 
     @pytest.mark.parametrize("convention", ["Rx", "H"])
@@ -845,7 +850,7 @@ class TestCircuit:
         Checks all beam splitter conventions with reflectivity of 0.5 implement
         the intended splitting ratio.
         """
-        circuit = Circuit(3)
+        circuit = PhotonicCircuit(3)
         circuit.bs(0, convention=convention)
         assert abs(circuit.U[0, 0]) ** 2 == pytest.approx(0.5)
 
@@ -854,7 +859,7 @@ class TestCircuit:
         Checks a ValueError is raised if an invalid beam splitter convention is
         set in bs.
         """
-        circuit = Circuit(3)
+        circuit = PhotonicCircuit(3)
         with pytest.raises(ValueError):
             circuit.bs(0, convention="Not valid")
 
@@ -864,7 +869,7 @@ class TestCircuit:
         Checks a ValueError is raised if an invalid beam splitter reflectivity
         is set.
         """
-        circuit = Circuit(3)
+        circuit = PhotonicCircuit(3)
         with pytest.raises(ValueError):
             circuit.bs(0, reflectivity=value)
 
@@ -873,7 +878,7 @@ class TestCircuit:
         Checks a ValueError is raised if an invalid mode swap configuration is
         set.
         """
-        circuit = Circuit(3)
+        circuit = PhotonicCircuit(3)
         with pytest.raises(ValueError):
             circuit.mode_swaps({0: 1})
 
@@ -886,7 +891,7 @@ class TestCircuit:
         p2 = Parameter(2)
         p3 = Parameter(db_loss_to_decimal(3))
         # Create circuit with parameters
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0, reflectivity=p1)
         circuit.ps(2, p2)
         circuit.loss(3, p3)
@@ -904,12 +909,12 @@ class TestCircuit:
         p2 = Parameter(2)
         p3 = Parameter(db_loss_to_decimal(3))
         # Create sub-circuit with parameters
-        sub_circuit = Circuit(4)
+        sub_circuit = PhotonicCircuit(4)
         sub_circuit.bs(0, reflectivity=p1)
         sub_circuit.ps(2, p2)
         sub_circuit.loss(3, p3)
         # Then add to larger circuit
-        circuit = Circuit(5)
+        circuit = PhotonicCircuit(5)
         circuit.add(sub_circuit, 1, group=True)
         # Recover all params and then check
         all_params = circuit.get_all_params()
@@ -921,8 +926,8 @@ class TestCircuit:
         Checks an exception is raised if a circuit spec is modified with an
         invalid value.
         """
-        circuit = Circuit(4)
-        circuit._Circuit__circuit_spec = [["test", None]]
+        circuit = PhotonicCircuit(4)
+        circuit._PhotonicCircuit__circuit_spec = [["test", None]]
         with pytest.raises(CircuitCompilationError):
             circuit._build()
 
@@ -930,14 +935,14 @@ class TestCircuit:
         """
         Confirms that all elements in a created circuit spec are components
         """
-        circuit = Circuit(6)
+        circuit = PhotonicCircuit(6)
         circuit.bs(0, 1)
         circuit.ps(2, 2)
         circuit.mode_swaps({0: 1, 1: 2, 2: 0})
         circuit.barrier()
         circuit.loss(3, 1)
         # Define sub-circuit to add
-        sub_circuit = Circuit(4)
+        sub_circuit = PhotonicCircuit(4)
         circuit.bs(0, 1)
         circuit.ps(2, 2)
         circuit.mode_swaps({0: 1, 1: 2, 2: 0})
@@ -990,7 +995,7 @@ class TestUnitary:
         expected.
         """
         u = Unitary(random_unitary(6, seed=95))
-        circ = Circuit(4)
+        circ = PhotonicCircuit(4)
         circ.bs(0)
         circ.bs(2, loss=db_loss_to_decimal(0.5))
         circ.bs(1, loss=db_loss_to_decimal(0.2))
@@ -1007,10 +1012,11 @@ class TestUnitary:
 
     def test_unitary_is_circuit_child(self):
         """
-        Checks that the unitary object is a child class of the Circuit object.
+        Checks that the unitary object is a child class of the PhotonicCircuit
+        object.
         """
         u = Unitary(random_unitary(4))
-        assert isinstance(u, Circuit)
+        assert isinstance(u, PhotonicCircuit)
 
     def test_n_mode_retrival(self):
         """

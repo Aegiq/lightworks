@@ -16,8 +16,8 @@ import pytest
 
 from lightworks import (
     Analyzer,
-    Circuit,
     Parameter,
+    PhotonicCircuit,
     PostSelection,
     State,
     Unitary,
@@ -36,8 +36,8 @@ class TestAnalyzer:
 
     def setup_method(self) -> None:
         """Create a non-lossy and a lossy circuit for use."""
-        self.circuit = Circuit(4)
-        self.lossy_circuit = Circuit(4)
+        self.circuit = PhotonicCircuit(4)
+        self.lossy_circuit = PhotonicCircuit(4)
         for i, m in enumerate([0, 2, 1, 2, 0, 1]):
             self.circuit.bs(m)
             self.circuit.ps(m, phi=i)
@@ -51,7 +51,7 @@ class TestAnalyzer:
 
     def test_hom(self):
         """Checks basic hom and confirms probability of |2,0> is 0.5."""
-        circuit = Circuit(2)
+        circuit = PhotonicCircuit(2)
         circuit.bs(0)
         analyzer = Analyzer(circuit, State([1, 1]))
         results = BACKEND.run(analyzer)[State([1, 1])]
@@ -64,7 +64,7 @@ class TestAnalyzer:
         at the output.
         """
         # Build circuit
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(1, reflectivity=0.6)
         circuit.mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
         circuit.bs(0, 3, reflectivity=0.3)
@@ -134,7 +134,7 @@ class TestAnalyzer:
         """
         # Add heralding mode
         self.lossy_circuit.herald(0, 3)
-        new_circ = Circuit(
+        new_circ = PhotonicCircuit(
             self.lossy_circuit.n_modes
             - len(self.lossy_circuit.heralds["input"])
         )
@@ -188,7 +188,7 @@ class TestAnalyzer:
         modified.
         """
         param = Parameter(0.3)
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0, reflectivity=param)
         circuit.bs(2, reflectivity=param)
         circuit.bs(1, reflectivity=param)

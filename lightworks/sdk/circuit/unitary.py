@@ -37,6 +37,6 @@ class Unitary(PhotonicCircuit):
     def __init__(self, unitary: np.ndarray, label: str = "U") -> None:
         unitary = np.array(unitary)
         super().__init__(int(unitary.shape[0]))
-        self._Circuit__circuit_spec = [UnitaryMatrix(0, unitary, label)]
+        self._PhotonicCircuit__circuit_spec = [UnitaryMatrix(0, unitary, label)]
 
         return

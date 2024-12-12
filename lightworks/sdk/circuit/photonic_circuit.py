@@ -649,10 +649,10 @@ class PhotonicCircuit:
         ]
         for tm in to_modify:
             new_heralds = {}
-            for m, n in getattr(self, "_Circuit" + tm).items():
+            for m, n in getattr(self, "_PhotonicCircuit" + tm).items():
                 m += 1 if m >= mode else 0  # noqa: PLW2901
                 new_heralds[m] = n
-            setattr(self, "_Circuit" + tm, new_heralds)
+            setattr(self, "_PhotonicCircuit" + tm, new_heralds)
         # Add internal mode storage
         self.__internal_modes = [
             m + 1 if m >= mode else m for m in self.__internal_modes
