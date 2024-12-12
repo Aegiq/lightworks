@@ -1,16 +1,16 @@
-Circuit
-=======
+PhotonicCircuit
+===============
 
-The :doc:`../sdk_reference/circuit` is one of the key components of Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
+The :doc:`../sdk_reference/photonic_circuit` is one of the key components of Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
 
 Building Circuits
 -----------------
 
-A circuit is initialized by calling the Circuit object, and only requires the number of modes used in the circuit to be specified. For example, to create a circuit with 4 modes the required code would be:
+A circuit is initialized by calling the PhotonicCircuit object, and only requires the number of modes used in the circuit to be specified. For example, to create a circuit with 4 modes the required code would be:
 
 .. code-block:: Python
 
-    circuit = lw.Circuit(4)
+    circuit = lw.PhotonicCircuit(4)
 
 Once a circuit has been created, it is then possible to view the number of modes with the ``n_modes`` attribute.
 
@@ -21,9 +21,9 @@ Once a circuit has been created, it is then possible to view the number of modes
 
 There is also a number of additional attributes. ``U`` will provide the effective unitary of the circuit, this is altered by any loss elements included in the system. ``U_full`` will then provide the full unitary including any of the invisible loss modes included for loss elements.
 
-We can then begin to add components to the circuit, the following are included as part of the Circuit object and can be added with their corresponding methods.
+We can then begin to add components to the circuit, the following are included as part of the PhotonicCircuit object and can be added with their corresponding methods.
 
-.. list-table:: Circuit components
+.. list-table:: PhotonicCircuit components
     :widths: 25 25 50
     :header-rows: 1
 
@@ -170,7 +170,7 @@ Once a circuit has been created, the configuration can be viewed with the ``disp
 
 .. code-block:: Python
 
-    circuit = lw.Circuit(4)
+    circuit = lw.PhotonicCircuit(4)
   
     circuit.bs(0, reflectivity = 0.4)
     circuit.loss(0, 0.1)
@@ -199,7 +199,7 @@ From the circuit above, there is a few things to note. The first is that the bea
     :scale: 125%
     :align: center
 
-For advanced users, rather than calling the ``display`` method of the Circuit, it is instead possible to use the included :doc:`../sdk_reference/display` object. Instead of displaying the circuit as soon as it is called, it will return the pyplot/drawing object, allowing this to be modified or saved to file directly.
+For advanced users, rather than calling the ``display`` method of the PhotonicCircuit, it is instead possible to use the included :doc:`../sdk_reference/display` object. Instead of displaying the circuit as soon as it is called, it will return the pyplot/drawing object, allowing this to be modified or saved to file directly.
 
 Parameterization
 ----------------
@@ -214,7 +214,7 @@ We can then use this in a circuit, providing the parameter object in place of th
 
 .. code-block:: Python
 
-    circuit = lw.Circuit(4)
+    circuit = lw.PhotonicCircuit(4)
 
     circuit.bs(0, reflectivity = parameter)
     circuit.bs(2, reflectivity = parameter)
@@ -265,12 +265,12 @@ The first is through the use of the ``+`` operator. This is simpler, but only su
 
 .. code-block:: Python
 
-    circuit_bs = lw.Circuit(4)
+    circuit_bs = lw.PhotonicCircuit(4)
     circuit_bs.bs(0)
     circuit_bs.bs(2)
     circuit_bs.bs(1)
 
-    circuit_ps = lw.Circuit(4)
+    circuit_ps = lw.PhotonicCircuit(4)
     circuit_ps.ps(0, 1)
     circuit_ps.ps(2, 2)
     circuit_ps.ps(1, 3)
@@ -286,13 +286,13 @@ The other way to combine circuits is through the ``add`` method, which allows fo
 
 .. code-block:: Python
 
-    circuit_bs = lw.Circuit(5)
+    circuit_bs = lw.PhotonicCircuit(5)
     circuit_bs.bs(0)
     circuit_bs.bs(2)
     circuit_bs.bs(1)
     circuit_bs.bs(3)
 
-    circuit_ps = lw.Circuit(3)
+    circuit_ps = lw.PhotonicCircuit(3)
     circuit_ps.ps(0, 1)
     circuit_ps.ps(1, 2)
     circuit_ps.ps(2, 3)
@@ -313,13 +313,13 @@ When using ``add``, it is also possible to choose to group all elements being ad
 
 .. code-block:: Python
 
-    circuit_bs = lw.Circuit(5)
+    circuit_bs = lw.PhotonicCircuit(5)
     circuit_bs.bs(0)
     circuit_bs.bs(2)
     circuit_bs.bs(1)
     circuit_bs.bs(3)
 
-    circuit_ps = lw.Circuit(3)
+    circuit_ps = lw.PhotonicCircuit(3)
     circuit_ps.ps(0, 1)
     circuit_ps.ps(1, 2)
     circuit_ps.ps(2, 3)
@@ -334,13 +334,13 @@ When using ``add``, it is also possible to choose to group all elements being ad
 Heralding Integration
 ---------------------
 
-In photonic quantum computing, ancillary photons/modes are often used to realize particular entangled states, particularly in qubit paradigms. The Lightworks Circuit supports the addition of these ancillary photons with the ``herald`` method, enabling heralding to be completed on a circuit without having to factor these modes being factored into the inputs and outputs of a circuit. This is supported for all simulation objects in the emulator.
+In photonic quantum computing, ancillary photons/modes are often used to realize particular entangled states, particularly in qubit paradigms. The Lightworks PhotonicCircuit supports the addition of these ancillary photons with the ``herald`` method, enabling heralding to be completed on a circuit without having to factor these modes being factored into the inputs and outputs of a circuit. This is supported for all simulation objects in the emulator.
 
 As an example of this, in the following a herald is added on mode 2 of the circuit, requiring that 1 photon is input and output on this mode of the circuit. When the input and output mode are the same, only the input needs to be specified, but when they differ these both need to be specified. For example, ``herald(1, 2)`` and ``herald(1, 2, 2)`` are equivalent.
 
 .. code-block:: Python
 
-    circuit = lw.Circuit(4)
+    circuit = lw.PhotonicCircuit(4)
     circuit.bs(0)
     circuit.bs(1)
     circuit.bs(2)
@@ -357,7 +357,7 @@ It is also possible to include heralds as part of smaller circuits and then add 
 
 .. code-block:: Python
 
-    main_circuit = lw.Circuit(4)
+    main_circuit = lw.PhotonicCircuit(4)
     main_circuit.add(circuit, 1)
 
     main_circuit.display()

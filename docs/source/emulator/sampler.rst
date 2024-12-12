@@ -11,7 +11,7 @@ As sampling is predominately how a hardware system is utilised, it is very usefu
 
 .. code-block:: Python
 
-    cnot_circuit = lw.Circuit(6)
+    cnot_circuit = lw.PhotonicCircuit(6)
 
     theta = np.arccos(1/3)
     to_add = [

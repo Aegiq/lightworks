@@ -6,7 +6,7 @@ The Lightworks Qubit module contains methods for converting between quantum prog
 Qiskit
 ------
 
-The :func:`lightworks.qubit.qiskit_converter` function can be used to perform conversion between a provided qiskit `QuantumCircuit <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit>`_ and a lightworks :doc:`../sdk_reference/circuit`.
+The :func:`lightworks.qubit.qiskit_converter` function can be used to perform conversion between a provided qiskit `QuantumCircuit <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit>`_ and a lightworks :doc:`../sdk_reference/photonic_circuit`.
 
 To use this, it should be first be imported from Qubit. An exception will be raised if attempting to use the converter without the qiskit requirements installed, for mode info see :ref:`Qubit Usage <qubit_usage>` 
 

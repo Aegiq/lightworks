@@ -11,7 +11,7 @@ Lightworks is an open-source Python SDK, designed for the encoding of linear opt
 Structure
 ^^^^^^^^^
 
-The core import of Lightworks is the SDK, which contains the components required to build and define a job, such as the Circuit & State objects. There is then a number of sub-packages included which offer different functionality, these are:
+The core import of Lightworks is the SDK, which contains the components required to build and define a job, such as the PhotonicCircuit & State objects. There is then a number of sub-packages included which offer different functionality, these are:
 
 * emulator : Enables local simulation of circuits, including the ability to implement complex photonic-specific error models.
 * qubit : For programming of qubit gates onto photonic circuits, also contains protocols for conversion of circuits from other languages.

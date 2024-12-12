@@ -23,18 +23,18 @@ First we need to import Lightworks and the emulator with the following:
     import lightworks as lw
     from lightworks import emulator
 
-We will configure a circuit to simulate by creating a new Circuit object. This Circuit object is one of the key components of Lightworks and is used in almost all interactions with it. When creating a circuit, the required number of circuit modes is provided, in this case 2. This number of modes is then fixed and cannot be modified without creating a new circuit.
+We will configure a circuit to simulate by creating a new PhotonicCircuit object. This PhotonicCircuit object is one of the key components of Lightworks and is used in almost all interactions with it. When creating a circuit, the required number of circuit modes is provided, in this case 2. This number of modes is then fixed and cannot be modified without creating a new circuit.
 
 .. code-block:: Python
 
-    circuit = lw.Circuit(2)
+    circuit = lw.PhotonicCircuit(2)
 
 If print is then used on the circuit, this will display the total number of modes.
 
 .. code-block:: Python
 
     print(circuit)
-    # Output: Circuit(2)
+    # Output: PhotonicCircuit(2)
 
 Next, we add a beam splitter to the circuit, this is achieved with the ``bs`` method. The default reflectivity of a beam splitter is 0.5 (50%), so we do not need to specify this. The value we specify in the method arguments is the first mode that the beam splitter is placed on. By default, if a second mode isn't specified then it will be set to the first mode + 1, so below we could have equivalently used ``bs(0,1)``.
 
@@ -45,7 +45,7 @@ Next, we add a beam splitter to the circuit, this is achieved with the ``bs`` me
 .. note::
     Like Python itself, indexing in Lightworks starts from 0, meaning this is always the first mode. So for example, in a 4 mode circuit, the modes would be referred to using the indices 0, 1, 2 & 3.
 
-Once a Circuit has been created, we can then view it using the display method. For the circuit above this will produce the following:
+Once a circuit has been created, we can then view it using the display method. For the circuit above this will produce the following:
 
 .. code-block:: Python
 
@@ -55,7 +55,7 @@ Once a Circuit has been created, we can then view it using the display method. F
     :scale: 200%
     :align: center
 
-Which, as expected, is a single 50:50 beam splitter (reflectivity = 0.5) across the two modes. For more information about the exact usage of circuit all of its components, visit the :doc:`sdk/circuit` section.
+Which, as expected, is a single 50:50 beam splitter (reflectivity = 0.5) across the two modes. For more information about the exact usage of circuit all of its components, visit the :doc:`sdk/photonic_circuit` section.
 
 Initial Simulation
 ------------------
