@@ -15,10 +15,12 @@
 import numpy as np
 import pytest
 
-from lightworks import Simulator, State, Unitary, random_unitary
+from lightworks import Sampler, Simulator, State, Unitary, random_unitary
 from lightworks.emulator import Backend, BackendError
-from lightworks.emulator.backends.permanent import PermanentBackend
-from lightworks.emulator.backends.slos import SLOSBackend
+from lightworks.emulator.backends import (
+    PermanentBackend,
+    SLOSBackend,
+)
 
 
 class TestBackend:
@@ -226,3 +228,23 @@ class TestSlos:
         assert r[1, 1, 1, 0, 0, 0] == pytest.approx(
             -0.0825807219472892 + 0.0727188703263498j
         )
+
+
+class TestFockBackend:
+    """
+    Unit tests for FockBackend baseclass.
+    """
+
+    @pytest.mark.parametrize("backend", [PermanentBackend(), SLOSBackend()])
+    def test_sampler_results_cached(self, backend):
+        """
+        Confirms that cached results are used when the same Sampler task is run
+        on the backend.
+        """
+        circuit = Unitary(random_unitary(4))
+        # Run initial experiment
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
+        backend.run(sampler)
+        # Get data and check if it matches the cache
+        results = backend._check_cache(sampler._generate_task())
+        assert results is not None
