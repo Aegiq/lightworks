@@ -21,7 +21,7 @@ from ...sdk.state import State
 from ...sdk.tasks.analyzer import Analyzer
 from ...sdk.tasks.sampler import Sampler
 from ...sdk.tasks.simulator import Simulator
-from ...sdk.tasks.task import Task, TaskData
+from ...sdk.tasks.task import Task
 from ..simulation import (
     AnalyzerRunner,
     SamplerRunner,
@@ -29,7 +29,6 @@ from ..simulation import (
 )
 from ..utils import BackendError
 from .abc_backend import BackendABC
-from .caching import CacheData, check_parameter_updates, get_calculation_values
 
 # ruff: noqa: ARG002, D102
 
@@ -71,23 +70,6 @@ class FockBackend(BackendABC):
             }
             self._add_to_cache(data, results)
         return runner.run()
-
-    def _check_cache(self, data: TaskData) -> dict | None:
-        name = data.__class__.__name__
-        if hasattr(self, "_cache") and name in self._cache:
-            old_values = self._cache[name].values
-            new_values = get_calculation_values(data)
-            if not check_parameter_updates(old_values, new_values):
-                return self._cache[name].results
-        # Return false if cache doesn't exist or name not found
-        return None
-
-    def _add_to_cache(self, data: TaskData, results: dict) -> None:
-        if not hasattr(self, "_cache"):
-            self._cache = {}
-        name = data.__class__.__name__
-        values = get_calculation_values(data)
-        self._cache[name] = CacheData(values=values, results=results)
 
     # Below defaults are defined for all possible methods in case they are
     # called without being implemented.

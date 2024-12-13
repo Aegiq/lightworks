@@ -14,6 +14,9 @@
 
 from abc import ABCMeta, abstractmethod
 
+from ...sdk.tasks.data import TaskData
+from .caching import CacheData, check_parameter_updates, get_calculation_values
+
 # ruff: noqa: D102
 
 
@@ -26,3 +29,20 @@ class BackendABC(metaclass=ABCMeta):
     @property
     @abstractmethod
     def name(self) -> str: ...
+
+    def _check_cache(self, data: TaskData) -> dict | None:
+        name = data.__class__.__name__
+        if hasattr(self, "_cache") and name in self._cache:
+            old_values = self._cache[name].values
+            new_values = get_calculation_values(data)
+            if not check_parameter_updates(old_values, new_values):
+                return self._cache[name].results
+        # Return false if cache doesn't exist or name not found
+        return None
+
+    def _add_to_cache(self, data: TaskData, results: dict) -> None:
+        if not hasattr(self, "_cache"):
+            self._cache = {}
+        name = data.__class__.__name__
+        values = get_calculation_values(data)
+        self._cache[name] = CacheData(values=values, results=results)
