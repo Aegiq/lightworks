@@ -13,17 +13,20 @@
 # limitations under the License.
 
 
+from dataclasses import dataclass
+
 import numpy as np
 
 from ...emulator.backends.fock_backend import FockBackend
 from ..circuit import PhotonicCircuit
+from ..circuit.photonic_compiler import CompiledPhotonicCircuit
 from ..results import SimulationResult
 from ..state import State
 from ..utils import (
     add_heralds_to_state,
     fock_basis,
 )
-from .task import Task
+from .task import Task, TaskData
 from .task_utils import _check_photon_numbers, _validate_states
 
 
@@ -154,3 +157,17 @@ class Simulator(Task):
             inputs=self.inputs,
             outputs=outputs,
         )
+
+    def _generate_task(self) -> TaskData:
+        return SimulatorTask(
+            circuit=self.circuit._build(),
+            inputs=self.inputs,
+            outputs=self.outputs,
+        )
+
+
+@dataclass
+class SimulatorTask(TaskData):  # noqa: D101
+    circuit: CompiledPhotonicCircuit
+    inputs: list[State]
+    outputs: list[State] | None

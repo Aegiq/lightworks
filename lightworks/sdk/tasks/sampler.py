@@ -14,6 +14,7 @@
 
 from collections import Counter
 from collections.abc import Callable
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -22,6 +23,7 @@ from ...emulator.components import Detector, Source
 from ...emulator.utils.probability_distribution import pdist_calc
 from ...sdk.utils.post_selection import PostSelectionType
 from ..circuit import PhotonicCircuit
+from ..circuit.photonic_compiler import CompiledPhotonicCircuit
 from ..results import SamplingResult
 from ..state import State
 from ..utils import (
@@ -32,7 +34,7 @@ from ..utils import (
     process_random_seed,
     remove_heralds_from_state,
 )
-from .task import Task
+from .task import Task, TaskData
 
 
 class Sampler(Task):
@@ -59,9 +61,9 @@ class Sampler(Task):
             detector probabilities. This defaults to None, which will assume a
             perfect detector.
 
-        post_select (PostSelection | function, optional) : A PostSelection
-            object or function which applies a provided set of
-            post-selection criteria to a state.
+        post_selection (PostSelection | function, optional) : A PostSelection
+            object or function which applies a provided set of post-selection
+            criteria to a state.
 
         min_detection (int, optional) : Post-select on a given minimum
             total number of photons, this should not include any heralded
@@ -557,3 +559,29 @@ class Sampler(Task):
         ]:
             vals.append(getattr(self.source, prop))  # noqa: PERF401
         return vals
+
+    def _generate_task(self) -> TaskData:
+        return SamplerTask(
+            circuit=self.circuit._build(),
+            input_state=self.input_state,
+            n_samples=self.n_samples,
+            source=self.source,
+            detector=self.detector,
+            post_selection=self.post_selection,
+            min_detection=self.min_detection,
+            random_seed=self.random_seed,
+            sampling_mode=self.sampling_mode,
+        )
+
+
+@dataclass
+class SamplerTask(TaskData):  # noqa: D101
+    circuit: CompiledPhotonicCircuit
+    input_state: State
+    n_samples: int
+    source: Source
+    detector: Detector
+    post_selection: PostSelectionType
+    min_detection: int
+    random_seed: int | None
+    sampling_mode: str

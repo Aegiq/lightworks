@@ -13,8 +13,14 @@
 # limitations under the License.
 
 from abc import ABCMeta, abstractmethod
+from dataclasses import dataclass
 
-from ...emulator.backends.abc_backend import BackendABC
+
+@dataclass
+class TaskData:
+    """
+    Base class for all task dataclasses.
+    """
 
 
 class Task(metaclass=ABCMeta):
@@ -25,4 +31,4 @@ class Task(metaclass=ABCMeta):
     __compatible_backends__: tuple[str, ...]
 
     @abstractmethod
-    def _run(self, backend: BackendABC) -> dict: ...
+    def _generate_task(self) -> TaskData: ...

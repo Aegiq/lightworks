@@ -13,11 +13,13 @@
 # limitations under the License.
 
 from collections.abc import Callable
+from dataclasses import dataclass
 
 import numpy as np
 
 from ...emulator.backends.fock_backend import FockBackend
 from ..circuit import PhotonicCircuit
+from ..circuit.photonic_compiler import CompiledPhotonicCircuit
 from ..results import SimulationResult
 from ..state import State
 from ..utils import (
@@ -27,7 +29,7 @@ from ..utils import (
     process_post_selection,
 )
 from ..utils.post_selection import PostSelectionType
-from .task import Task
+from .task import Task, TaskData
 from .task_utils import _check_photon_numbers, _validate_states
 
 
@@ -304,3 +306,19 @@ class Analyzer(Task):
             )
 
         return (full_outputs, filtered_outputs)
+
+    def _generate_task(self) -> TaskData:
+        return AnalyzerTask(
+            circuit=self.circuit._build(),
+            inputs=self.inputs,
+            expected=self.expected,
+            post_selection=self.post_selection,
+        )
+
+
+@dataclass
+class AnalyzerTask(TaskData):  # noqa: D101
+    circuit: CompiledPhotonicCircuit
+    inputs: list[State]
+    expected: dict[State, State | list[State]] | None
+    post_selection: PostSelectionType
