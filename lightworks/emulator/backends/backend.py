@@ -47,7 +47,7 @@ class Backend:
                 f"for task are: {', '.join(task.__compatible_backends__)}."
             )
             raise BackendError(msg)
-        return task._run(self.__backend)
+        return self.__backend.run(task)
 
     @property
     def backend(self) -> str:

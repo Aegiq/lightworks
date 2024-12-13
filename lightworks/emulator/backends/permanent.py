@@ -21,7 +21,7 @@ from thewalrus import perm
 from ...__settings import settings
 from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from ...sdk.state import State
-from ...sdk.utils import fock_basis
+from ..utils import fock_basis
 from .fock_backend import FockBackend
 
 
@@ -37,7 +37,10 @@ class PermanentBackend(FockBackend):
         return "permanent"
 
     def probability_amplitude(
-        self, unitary: np.ndarray, input_state: list, output_state: list
+        self,
+        unitary: np.ndarray,
+        input_state: list[int],
+        output_state: list[int],
     ) -> complex:
         """
         Find the probability amplitude between a given input and output state
@@ -71,7 +74,10 @@ class PermanentBackend(FockBackend):
         )
 
     def probability(
-        self, unitary: np.ndarray, input_state: list, output_state: list
+        self,
+        unitary: np.ndarray,
+        input_state: list[int],
+        output_state: list[int],
     ) -> float:
         """
         Calculates the probability of a given output state for a provided
@@ -159,7 +165,7 @@ class PermanentBackend(FockBackend):
 
 
 def partition(
-    unitary: np.ndarray, in_state: list, out_state: list
+    unitary: np.ndarray, in_state: list[int], out_state: list[int]
 ) -> np.ndarray:
     """
     Converts the unitary matrix into a larger matrix used for in the

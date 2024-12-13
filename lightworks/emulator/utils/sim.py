@@ -12,14 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Script to store various useful functions for the simulation aspect of the code.
-"""
+from ...sdk.state import State
+from ...sdk.utils import PhotonNumberError
 
 
-def state_to_string(state: list) -> str:
-    """Converts the provided state to a string with ket notation."""
-    string = "|"
-    for s in state:
-        string += str(s) + ","
-    return string[:-1] + ">"
+def check_photon_numbers(states: list[State]) -> None:
+    """
+    Raises an exception if photon numbers are mixed when running a
+    simulation.
+    """
+    ns = [s.n_photons for s in states]
+    if min(ns) != max(ns):
+        raise PhotonNumberError(
+            "Mismatch in photon numbers between some inputs/outputs, "
+            "this is not currently supported in the Simulator."
+        )

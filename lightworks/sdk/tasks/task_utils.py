@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from ..state import State
-from ..utils import ModeMismatchError, PhotonNumberError
+from ..utils import ModeMismatchError
 
 
 def _validate_states(inputs: State | list[State], n_modes: int) -> list[State]:
@@ -40,16 +40,3 @@ def _validate_states(inputs: State | list[State], n_modes: int) -> list[State]:
         # Also validate state values
         state._validate()
     return inputs
-
-
-def _check_photon_numbers(states: list[State]) -> None:
-    """
-    Raises an exception if photon numbers are mixed when running a
-    simulation.
-    """
-    ns = [s.n_photons for s in states]
-    if min(ns) != max(ns):
-        raise PhotonNumberError(
-            "Mismatch in photon numbers between some inputs/outputs, "
-            "this is not currently supported in the Simulator."
-        )

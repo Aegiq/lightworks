@@ -27,4 +27,3 @@ from .random_utils import (
     random_permutation,
     random_unitary,
 )
-from .state_utils import fock_basis

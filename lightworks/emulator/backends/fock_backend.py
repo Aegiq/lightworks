@@ -16,6 +16,16 @@ import numpy as np
 
 from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from ...sdk.state import State
+from ...sdk.tasks.analyzer import AnalyzerTask
+from ...sdk.tasks.sampler import SamplerTask
+from ...sdk.tasks.simulator import SimulatorTask
+from ...sdk.tasks.task import Task
+from ..simulation import (
+    AnalyzerRunner,
+    RunnerABC,
+    SamplerRunner,
+    SimulatorRunner,
+)
 from ..utils import BackendError
 from .abc_backend import BackendABC
 
@@ -28,15 +38,38 @@ class FockBackend(BackendABC):
     be included here.
     """
 
+    def run(self, task: Task) -> dict:
+        runner: RunnerABC
+        data = task._generate_task()
+        if isinstance(data, SimulatorTask):
+            runner = SimulatorRunner(data, self.probability_amplitude)
+        elif isinstance(data, AnalyzerTask):
+            runner = AnalyzerRunner(data, self.probability)
+        elif isinstance(data, SamplerTask):
+            runner = SamplerRunner(data, self.full_probability_distribution)
+            task.probability_distribution = runner.distribution_calculator()
+        else:
+            raise BackendError("Task not supported on current backend.")
+        return runner.run()
+
+    # Below defaults are defined for all possible methods in case they are
+    # called without being implemented.
+
     def probability_amplitude(
-        self, unitary: np.ndarray, input_state: list, output_state: list
+        self,
+        unitary: np.ndarray,
+        input_state: list[int],
+        output_state: list[int],
     ) -> complex:
         raise BackendError(
             "Current backend does not implement probability_amplitude method."
         )
 
     def probability(
-        self, unitary: np.ndarray, input_state: list, output_state: list
+        self,
+        unitary: np.ndarray,
+        input_state: list[int],
+        output_state: list[int],
     ) -> float:
         raise BackendError(
             "Current backend does not implement probability method."
