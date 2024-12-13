@@ -17,6 +17,11 @@ import numpy as np
 from multimethod import multimethod
 
 from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
+from ...sdk.results import (
+    ProbabilityDistribution,
+    SamplingResult,
+    SimulationResult,
+)
 from ...sdk.state import State
 from ...sdk.tasks.analyzer import Analyzer
 from ...sdk.tasks.sampler import Sampler
@@ -44,26 +49,30 @@ class FockBackend(BackendABC):
         raise BackendError("Task not supported on current backend.")
 
     @run.register
-    def run_simulator(self, task: Simulator) -> dict:
+    def run_simulator(self, task: Simulator) -> SimulationResult:
         data = task._generate_task()
         return SimulatorRunner(data, self.probability_amplitude).run()
 
     @run.register
-    def run_analyzer(self, task: Analyzer) -> dict:
+    def run_analyzer(self, task: Analyzer) -> SimulationResult:
         data = task._generate_task()
         return AnalyzerRunner(data, self.probability).run()
 
     @run.register
-    def run_sampler(self, task: Sampler) -> dict:
+    def run_sampler(self, task: Sampler) -> SamplingResult:
         data = task._generate_task()
         runner = SamplerRunner(data, self.full_probability_distribution)
         cached_results = self._check_cache(data)
         if cached_results is not None:
             runner.probability_distribution = cached_results["pdist"]
             runner.full_to_heralded = cached_results["full_to_herald"]
-            task._probability_distribution = cached_results["pdist"]
+            task._probability_distribution = ProbabilityDistribution(
+                cached_results["pdist"]
+            )
         else:
-            task._probability_distribution = runner.distribution_calculator()
+            task._probability_distribution = ProbabilityDistribution(
+                runner.distribution_calculator()
+            )
             results = {
                 "pdist": runner.probability_distribution,
                 "full_to_herald": runner.full_to_heralded,
