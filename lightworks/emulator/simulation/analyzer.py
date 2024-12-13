@@ -26,7 +26,8 @@ from .runner import RunnerABC
 
 class AnalyzerRunner(RunnerABC):
     """
-    Desc
+    Calculates an output probability distribution under the assigned set of
+    post-selection + heralding constraints.
 
     Args:
 
@@ -45,8 +46,7 @@ class AnalyzerRunner(RunnerABC):
 
     def run(self) -> SimulationResult:
         """
-        Function to perform analysis of probabilities between different
-        inputs/outputs.
+        Runs analyzer process using the configured data.
 
         Returns:
 

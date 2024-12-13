@@ -18,6 +18,7 @@ from types import NoneType
 from ...emulator.components import Detector, Source
 from ...sdk.utils.post_selection import PostSelectionType
 from ..circuit import PhotonicCircuit
+from ..results import ProbabilityDistribution
 from ..state import State
 from ..utils import (
     ModeMismatchError,
@@ -97,7 +98,7 @@ class Sampler(Task):
         self.min_detection = min_detection
         self.random_seed = random_seed
         self.sampling_mode = sampling_mode
-        self._probability_distribution: dict
+        self._probability_distribution: ProbabilityDistribution
 
     @property
     def circuit(self) -> PhotonicCircuit:
@@ -225,10 +226,12 @@ class Sampler(Task):
         self.__sampling_mode = value
 
     @property
-    def probability_distribution(self) -> dict:
+    def probability_distribution(self) -> ProbabilityDistribution:
         """
-        Returns the calculated probability distribution. This can only be run
-        once the Sampler has been run on the backend.
+        Returns the calculated probability distribution. This can only be called
+        once the Sampler has been run on the backend. Note: If any changes are
+        made to the Sampler configuration, it should be re-evaluated with the
+        backend to update this distribution.
         """
         if not hasattr(self, "_probability_distribution"):
             raise SamplerError(

@@ -26,7 +26,8 @@ from .runner import RunnerABC
 
 class SimulatorRunner(RunnerABC):
     """
-    Desc
+    Calculates the probability amplitudes between a set of inputs and outputs
+    from a given circuit.
 
     Args:
 
@@ -45,10 +46,7 @@ class SimulatorRunner(RunnerABC):
 
     def run(self) -> SimulationResult:
         """
-        Function to run a simulation for a number of inputs/outputs, if no
-        outputs are specified then all possible outputs for the photon number
-        are calculated. All inputs and outputs should have the same photon
-        number.
+        Runs the simulation task.
 
         Returns:
 

@@ -38,6 +38,12 @@ class Backend:
     def run(self, task: "Task") -> dict:
         """
         Runs the provided task on the current backend.
+
+        Returns:
+
+            dict: A dictionary like results object containing details of the
+                calculated values from a task.
+
         """
         if not isinstance(task, Task):
             raise TypeError("Object to run on the backend must be a task.")
@@ -51,7 +57,9 @@ class Backend:
 
     @property
     def backend(self) -> str:
-        """Stores data on the selected backend."""
+        """
+        Returns the name of the currently selected backend.
+        """
         return self.__backend.name
 
     @backend.setter

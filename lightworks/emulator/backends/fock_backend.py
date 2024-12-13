@@ -81,7 +81,7 @@ class FockBackend(BackendABC):
         return runner.run()
 
     # Below defaults are defined for all possible methods in case they are
-    # called without being implemented.
+    # called without being implemented. This shouldn't normally happen.
 
     def probability_amplitude(
         self,

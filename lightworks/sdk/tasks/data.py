@@ -24,7 +24,8 @@ from ..utils.post_selection import PostSelectionType
 @dataclass(slots=True)
 class TaskData:
     """
-    Base class for all task dataclasses.
+    Base class for all task dataclasses. This are used to store all information
+    about a task before this is passed to the respective backend for execution.
     """
 
 

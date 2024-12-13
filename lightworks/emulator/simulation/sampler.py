@@ -34,7 +34,8 @@ from .runner import RunnerABC
 
 class SamplerRunner(RunnerABC):
     """
-    Desc
+    Calculates the output probability distribution for a configuration and
+    finds produces a set of N samples from this.
 
     Args:
 
@@ -42,6 +43,16 @@ class SamplerRunner(RunnerABC):
 
         pdist_function (Callable) : Function for calculating probability
             distributions for a provided unitary & input.
+
+    Attributes:
+
+        source (Source) : The in-use Source object. If the source in the data
+            was originally set to None then this a new default Source object is
+            created.
+
+        detector (Detector) : The in-use Detector object. If the detector in the
+            data was originally set to None then this a new default Detector
+            object is created.
 
     """
 
@@ -55,9 +66,8 @@ class SamplerRunner(RunnerABC):
 
     def distribution_calculator(self) -> dict:
         """
-        The output probability distribution for the currently set configuration
-        of the Sampler. This is re-calculated as the Sampler parameters are
-        changed.
+        Calculates the output probability distribution for the provided
+        configuration. This needs to be done before sampling.
         """
         # Check circuit and input modes match
         if self.data.circuit.input_modes != len(self.data.input_state):
@@ -86,8 +96,7 @@ class SamplerRunner(RunnerABC):
 
     def run(self) -> SamplingResult:
         """
-        Function to sample a state from the calculated provided distribution
-        many times, producing N outputs which meet any criteria.
+        Performs sampling using the calculated probability distribution.
 
         Returns:
 

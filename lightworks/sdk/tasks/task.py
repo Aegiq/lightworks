@@ -25,4 +25,7 @@ class Task(metaclass=ABCMeta):
     __compatible_backends__: tuple[str, ...]
 
     @abstractmethod
-    def _generate_task(self) -> TaskData: ...
+    def _generate_task(self) -> TaskData:
+        """
+        Generates the data required to run the current task.
+        """
