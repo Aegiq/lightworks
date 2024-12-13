@@ -13,19 +13,20 @@
 # limitations under the License.
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from types import NoneType
 
 from ...emulator.components import Detector, Source
 from ...sdk.utils.post_selection import PostSelectionType
 from ..circuit import PhotonicCircuit
-from ..circuit.photonic_compiler import CompiledPhotonicCircuit
 from ..state import State
 from ..utils import (
     ModeMismatchError,
+    SamplerError,
     process_post_selection,
     process_random_seed,
 )
-from .task import Task, TaskData
+from .data import SamplerTask
+from .task import Task
 
 
 class Sampler(Task):
@@ -96,6 +97,7 @@ class Sampler(Task):
         self.min_detection = min_detection
         self.random_seed = random_seed
         self.sampling_mode = sampling_mode
+        self._probability_distribution: dict
 
     @property
     def circuit(self) -> PhotonicCircuit:
@@ -132,7 +134,7 @@ class Sampler(Task):
         self.__input_state = value
 
     @property
-    def source(self) -> Source:
+    def source(self) -> Source | None:
         """
         Details the properties of the Source used for creation of inputs to
         the Sampler.
@@ -140,15 +142,13 @@ class Sampler(Task):
         return self.__source
 
     @source.setter
-    def source(self, value: Source) -> None:
-        if value is None:
-            value = Source()
-        if not isinstance(value, Source):
+    def source(self, value: Source | None) -> None:
+        if not isinstance(value, Source | NoneType):
             raise TypeError("Provided source should be a Source object.")
         self.__source = value
 
     @property
-    def detector(self) -> Detector:
+    def detector(self) -> Detector | None:
         """
         Details the properties of the Detector used for photon measurement.
         """
@@ -156,9 +156,7 @@ class Sampler(Task):
 
     @detector.setter
     def detector(self, value: Detector | None) -> None:
-        if value is None:
-            value = Detector()
-        if not isinstance(value, Detector):
+        if not isinstance(value, Detector | NoneType):
             raise TypeError("Provided detector should be a Detector object.")
         self.__detector = value
 
@@ -226,7 +224,20 @@ class Sampler(Task):
             )
         self.__sampling_mode = value
 
-    def _generate_task(self) -> TaskData:
+    @property
+    def probability_distribution(self) -> dict:
+        """
+        Returns the calculated probability distribution. This can only be run
+        once the Sampler has been run on the backend.
+        """
+        if not hasattr(self, "_probability_distribution"):
+            raise SamplerError(
+                "Probability distribution must be calculated by first running "
+                "the Sampler on a backend."
+            )
+        return self._probability_distribution
+
+    def _generate_task(self) -> SamplerTask:
         return SamplerTask(
             circuit=self.circuit._build(),
             input_state=self.input_state,
@@ -238,16 +249,3 @@ class Sampler(Task):
             random_seed=self.random_seed,
             sampling_mode=self.sampling_mode,
         )
-
-
-@dataclass
-class SamplerTask(TaskData):  # noqa: D101
-    circuit: CompiledPhotonicCircuit
-    input_state: State
-    n_samples: int
-    source: Source
-    detector: Detector
-    post_selection: PostSelectionType
-    min_detection: int
-    random_seed: int | None
-    sampling_mode: str

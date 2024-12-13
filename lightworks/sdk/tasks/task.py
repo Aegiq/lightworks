@@ -13,14 +13,8 @@
 # limitations under the License.
 
 from abc import ABCMeta, abstractmethod
-from dataclasses import dataclass
 
-
-@dataclass
-class TaskData:
-    """
-    Base class for all task dataclasses.
-    """
+from .data import TaskData
 
 
 class Task(metaclass=ABCMeta):

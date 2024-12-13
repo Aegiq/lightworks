@@ -27,6 +27,7 @@ from ...sdk.utils import (
     remove_heralds_from_state,
 )
 from ...sdk.utils.post_selection import PostSelectionType
+from ..components import Detector, Source
 from .probability_distribution import pdist_calc
 from .runner import RunnerABC
 
@@ -46,6 +47,10 @@ class SamplerRunner(RunnerABC):
 
     def __init__(self, data: SamplerTask, pdist_function: Callable) -> None:
         self.data = data
+        self.source = Source() if self.data.source is None else self.data.source
+        self.detector = (
+            Detector() if self.data.detector is None else self.data.detector
+        )
         self.func = pdist_function
 
     def distribution_calculator(self) -> dict:
@@ -65,7 +70,7 @@ class SamplerRunner(RunnerABC):
         )
         input_state = State(modified_state)
         # Then build with source
-        all_inputs = self.data.source._build_statistics(input_state)
+        all_inputs = self.source._build_statistics(input_state)
         # And find probability distribution
         pdist = pdist_calc(self.data.circuit, all_inputs, self.func)
         # Special case to catch an empty distribution
@@ -174,10 +179,7 @@ class SamplerRunner(RunnerABC):
         # Get heralds and pre-calculate items
         heralds = self.data.circuit.heralds["output"]
         if heralds:
-            if (
-                max(heralds.values()) > 1
-                and not self.data.detector.photon_counting
-            ):
+            if max(heralds.values()) > 1 and not self.detector.photon_counting:
                 raise SamplerError(
                     "Non photon number resolving detectors cannot be used when"
                     "a heralded mode has more than 1 photon."
@@ -185,10 +187,10 @@ class SamplerRunner(RunnerABC):
         herald_modes = list(heralds.keys())
         herald_items = list(heralds.items())
         # Set detector seed before sampling
-        self.data.detector._set_random_seed(seed)
+        self.detector._set_random_seed(seed)
         # Process output states
         for state in samples:
-            state = self.data.detector._get_output(state)  # noqa: PLW2901
+            state = self.detector._get_output(state)  # noqa: PLW2901
             # Checks herald requirements are met
             for m, n in herald_items:
                 if state[m] != n:
@@ -244,7 +246,7 @@ class SamplerRunner(RunnerABC):
 
         """
         pdist = self.probability_distribution
-        if self.data.detector.p_dark > 0 or self.data.detector.efficiency < 1:
+        if self.detector.p_dark > 0 or self.detector.efficiency < 1:
             raise SamplerError(
                 "To use detector dark counts or sub-unity detector efficiency "
                 "the sampling mode must be set to 'input'."
@@ -252,10 +254,7 @@ class SamplerRunner(RunnerABC):
         # Get heralds and pre-calculate items
         heralds = self.data.circuit.heralds["output"]
         if heralds:
-            if (
-                max(heralds.values()) > 1
-                and not self.data.detector.photon_counting
-            ):
+            if max(heralds.values()) > 1 and not self.detector.photon_counting:
                 raise SamplerError(
                     "Non photon number resolving detectors cannot be used when"
                     "a heralded mode has more than 1 photon."
@@ -266,7 +265,7 @@ class SamplerRunner(RunnerABC):
         new_dist: dict[State, float] = {}
         for s, p in pdist.items():
             # Apply threshold detection
-            if not self.data.detector.photon_counting:
+            if not self.detector.photon_counting:
                 s = State([min(i, 1) for i in s])  # noqa: PLW2901
             # Check heralds
             for m, n in herald_items:
@@ -311,52 +310,3 @@ class SamplerRunner(RunnerABC):
         # Count states and convert to results object
         counted = dict(Counter(samples))
         return SamplingResult(counted, self.data.input_state)
-
-    def _check_parameter_updates(self) -> bool:
-        """
-        Determines if probabilities have already been calculated with a given
-        configuration and if so will return False. If they haven't been
-        calculated yet or the the parameters have changed then this will return
-        True.
-        """
-        # Return True if not already calculated
-        if not hasattr(self, "_Sampler__calculation_values"):
-            return True
-        # Otherwise check entries in the list are equivalent, returning False
-        # if this is the case and true otherwise
-        for i1, i2 in zip(
-            self._gen_calculation_values(),
-            self.__calculation_values,
-            strict=True,
-        ):
-            # Treat arrays and other values differently
-            if isinstance(i1, np.ndarray) and isinstance(i2, np.ndarray):
-                if i1.shape != i2.shape:
-                    return True
-                if not (i1 == i2).all():
-                    return True
-            else:
-                if i1 != i2:
-                    return True
-        return False
-
-    def _gen_calculation_values(self) -> list:
-        """
-        Stores all current parameters used with the sampler in a list and
-        returns this.
-        """
-        # Store circuit unitary and input state
-        vals = [
-            self.data.circuit.U_full,
-            self.data.circuit.heralds,
-            self.data.input_state,
-        ]
-        # Loop through source parameters and add these as well
-        for prop in [
-            "brightness",
-            "purity",
-            "indistinguishability",
-            "probability_threshold",
-        ]:
-            vals.append(getattr(self.data.source, prop))  # noqa: PERF401
-        return vals

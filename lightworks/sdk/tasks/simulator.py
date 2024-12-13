@@ -13,13 +13,11 @@
 # limitations under the License.
 
 
-from dataclasses import dataclass
-
 from ..circuit import PhotonicCircuit
-from ..circuit.photonic_compiler import CompiledPhotonicCircuit
 from ..state import State
-from .task import Task, TaskData
-from .task_utils import _validate_states
+from .data import SimulatorTask
+from .task import Task
+from .task_utils import validate_states
 
 
 class Simulator(Task):
@@ -80,7 +78,7 @@ class Simulator(Task):
 
     @inputs.setter
     def inputs(self, value: State | list[State]) -> None:
-        self.__inputs = _validate_states(value, self.circuit.input_modes)
+        self.__inputs = validate_states(value, self.circuit.input_modes)
 
     @property
     def outputs(self) -> list[State] | None:
@@ -93,19 +91,12 @@ class Simulator(Task):
     @outputs.setter
     def outputs(self, value: State | list[State] | None) -> None:
         if value is not None:
-            value = _validate_states(value, self.circuit.input_modes)
+            value = validate_states(value, self.circuit.input_modes)
         self.__outputs = value
 
-    def _generate_task(self) -> TaskData:
+    def _generate_task(self) -> SimulatorTask:
         return SimulatorTask(
             circuit=self.circuit._build(),
             inputs=self.inputs,
             outputs=self.outputs,
         )
-
-
-@dataclass
-class SimulatorTask(TaskData):  # noqa: D101
-    circuit: CompiledPhotonicCircuit
-    inputs: list[State]
-    outputs: list[State] | None

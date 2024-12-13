@@ -13,17 +13,16 @@
 # limitations under the License.
 
 from collections.abc import Callable
-from dataclasses import dataclass
 
 from ..circuit import PhotonicCircuit
-from ..circuit.photonic_compiler import CompiledPhotonicCircuit
 from ..state import State
 from ..utils import (
     process_post_selection,
 )
 from ..utils.post_selection import PostSelectionType
-from .task import Task, TaskData
-from .task_utils import _validate_states
+from .data import AnalyzerTask
+from .task import Task
+from .task_utils import validate_states
 
 
 class Analyzer(Task):
@@ -110,7 +109,7 @@ class Analyzer(Task):
 
     @inputs.setter
     def inputs(self, value: State | list[State]) -> None:
-        self.__inputs = _validate_states(value, self.circuit.input_modes)
+        self.__inputs = validate_states(value, self.circuit.input_modes)
 
     @property
     def expected(self) -> dict[State, State | list[State]] | None:
@@ -124,18 +123,10 @@ class Analyzer(Task):
     def expected(self, value: dict[State, State | list[State]] | None) -> None:
         self.__expected = value
 
-    def _generate_task(self) -> TaskData:
+    def _generate_task(self) -> AnalyzerTask:
         return AnalyzerTask(
             circuit=self.circuit._build(),
             inputs=self.inputs,
             expected=self.expected,
             post_selection=self.post_selection,
         )
-
-
-@dataclass
-class AnalyzerTask(TaskData):  # noqa: D101
-    circuit: CompiledPhotonicCircuit
-    inputs: list[State]
-    expected: dict[State, State | list[State]] | None
-    post_selection: PostSelectionType

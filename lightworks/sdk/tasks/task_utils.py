@@ -16,7 +16,7 @@ from ..state import State
 from ..utils import ModeMismatchError
 
 
-def _validate_states(inputs: State | list[State], n_modes: int) -> list[State]:
+def validate_states(inputs: State | list[State], n_modes: int) -> list[State]:
     """
     Performs all required processing/checking a list of states from a task.
     """

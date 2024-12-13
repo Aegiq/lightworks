@@ -75,6 +75,7 @@ class TestSamplerGeneral:
         p1 = sampler.probability_distribution
         circuit.bs(0)
         circuit.bs(2)
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
 
@@ -92,6 +93,7 @@ class TestSamplerGeneral:
         P_BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         p.set(0.7)
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
 
@@ -105,6 +107,7 @@ class TestSamplerGeneral:
         P_BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         sampler.input_state = State([0, 1, 0, 1])
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
 
@@ -169,26 +172,31 @@ class TestSamplerGeneral:
         p1 = sampler.probability_distribution
         # Indistinguishability
         source.indistinguishability = 0.2
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
         # Purity (reset previous variable to original value)
         source.indistinguishability = 0.9
         source.purity = 0.7
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
         # Brightness
         source.purity = 0.9
         source.brightness = 0.4
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
         # Probability threshold
         source.brightness = 0.9
         source.probability_threshold = 1e-3
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
         # Return all values to defaults and check this then returns the
         # original distribution
         source.probability_threshold = 1e-6
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 == p2
 
@@ -239,17 +247,16 @@ class TestSamplerGeneral:
     def test_backend_updated_recalculates(self):
         """
         Checks that updating the backend causes recalculation of the
-        probability distribution.
+        probability distribution. This is achieved by checking a cache doesn't
+        exist on the new backend.
         """
         circuit = Unitary(random_unitary(4))
         # Get initial distribution
         sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
         P_BACKEND.run(sampler)
-        sampler.probability_distribution  # noqa: B018
-        # Then switch to SLOS
-        sampler._Sampler__backend = Backend("slos")._Backend__backend
-        # Check method below returns True
-        assert sampler._check_parameter_updates()
+        b2 = Backend("slos")
+        # Check attribute doesn't exist
+        assert not hasattr(b2._Backend__backend, "_cache")
 
 
 @pytest.mark.parametrize("backend", [Backend("permanent"), Backend("slos")])
