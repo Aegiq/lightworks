@@ -21,6 +21,7 @@ from .matrix_utils import (
 )
 from .permutation_conversion import permutation_mat_from_swaps_dict
 from .post_selection import (
+    DefaultPostSelection,
     PostSelection,
     PostSelectionFunction,
     PostSelectionType,

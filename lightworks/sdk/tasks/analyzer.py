@@ -86,7 +86,7 @@ class Analyzer(Task):
         self.__circuit = value
 
     @property
-    def post_selection(self) -> PostSelectionType:
+    def post_selection(self) -> PostSelectionType | None:
         """
         Stores post-selection criteria for analysis.
         """

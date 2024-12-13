@@ -19,7 +19,11 @@ import numpy as np
 from ...sdk.results import SimulationResult
 from ...sdk.state import State
 from ...sdk.tasks import AnalyzerTask
-from ...sdk.utils import PhotonNumberError, add_heralds_to_state
+from ...sdk.utils import (
+    DefaultPostSelection,
+    PhotonNumberError,
+    add_heralds_to_state,
+)
 from ..utils import check_photon_numbers, fock_basis
 from .runner import RunnerABC
 
@@ -204,9 +208,14 @@ class AnalyzerRunner(RunnerABC):
         filtered_outputs = []
         full_outputs = []
         out_heralds = self.data.circuit.heralds["output"]
+        post_selection = (
+            DefaultPostSelection()
+            if self.data.post_selection is None
+            else self.data.post_selection
+        )
         for state in outputs:
             # Check output meets all post selection rules
-            if self.data.post_selection.validate(state):
+            if post_selection.validate(state):
                 filtered_outputs += [State(state)]
                 full_outputs += [add_heralds_to_state(state, out_heralds)]
         # Check some valid outputs found

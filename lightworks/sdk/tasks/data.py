@@ -34,7 +34,7 @@ class AnalyzerTask(TaskData):  # noqa: D101
     circuit: CompiledPhotonicCircuit
     inputs: list[State]
     expected: dict[State, State | list[State]] | None
-    post_selection: PostSelectionType
+    post_selection: PostSelectionType | None
 
 
 @dataclass(slots=True)
@@ -44,7 +44,7 @@ class SamplerTask(TaskData):  # noqa: D101
     n_samples: int
     source: Source | None
     detector: Detector | None
-    post_selection: PostSelectionType
+    post_selection: PostSelectionType | None
     min_detection: int
     random_seed: int | None
     sampling_mode: str

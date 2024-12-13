@@ -91,8 +91,8 @@ class Sampler(Task):
         # Assign provided quantities to attributes
         self.circuit = circuit
         self.input_state = input_state
-        self.source = source  # type: ignore[assignment]
-        self.detector = detector  # type: ignore[assignment]
+        self.source = source
+        self.detector = detector
         self.n_samples = n_samples
         self.post_selection = post_selection  # type: ignore[assignment]
         self.min_detection = min_detection
@@ -173,7 +173,7 @@ class Sampler(Task):
         self.__n_samples = value
 
     @property
-    def post_selection(self) -> PostSelectionType:
+    def post_selection(self) -> PostSelectionType | None:
         """Describes the post-selection criteria to be applied to a state."""
         return self.__post_selection
 

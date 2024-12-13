@@ -13,15 +13,15 @@
 # limitations under the License.
 
 from collections.abc import Callable
-from types import FunctionType
+from types import FunctionType, NoneType
 
 from . import PostSelectionFunction
-from .post_selection import DefaultPostSelection, PostSelectionType
+from .post_selection import PostSelectionType
 
 
 def process_post_selection(
     post_selection: PostSelectionType | Callable | None,
-) -> PostSelectionType:
+) -> PostSelectionType | None:
     """
     Takes a provided post-selection value and converts this into one of the
     PostSelection objects with a validate method.
@@ -35,18 +35,15 @@ def process_post_selection(
 
     Returns:
 
-        PostSelectionType : The created PostSelection object, if the original
-            value wasn't already one.
+        PostSelectionType | None : The created PostSelection object or None, if
+            the original value wasn't one of these types.
 
     """
-    # Create always true post_select if one isn't provided
-    if post_selection is None:
-        post_selection = DefaultPostSelection()
     if isinstance(post_selection, FunctionType):
         post_selection = PostSelectionFunction(post_selection)
-    elif not isinstance(post_selection, PostSelectionType):
+    elif not isinstance(post_selection, PostSelectionType | NoneType):
         raise TypeError(
-            "Provided post_select value should be a function or PostSelection "
-            "object."
+            "Provided post_select value should be a PostSelection object, "
+            "function or None."
         )
     return post_selection

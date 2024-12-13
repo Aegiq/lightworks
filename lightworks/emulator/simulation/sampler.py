@@ -21,6 +21,7 @@ from ...sdk.results import SamplingResult
 from ...sdk.state import State
 from ...sdk.tasks import SamplerTask
 from ...sdk.utils import (
+    DefaultPostSelection,
     PostSelectionType,
     SamplerError,
     add_heralds_to_state,
@@ -110,16 +111,22 @@ class SamplerRunner(RunnerABC):
                 "results from an error in Lightworks."
             )
 
+        post_selection = (
+            DefaultPostSelection()
+            if self.data.post_selection is None
+            else self.data.post_selection
+        )
+
         if self.data.sampling_mode == "input":
             return self._sample_N_inputs(
                 self.data.n_samples,
-                self.data.post_selection,
+                post_selection,
                 self.data.min_detection,
                 self.data.random_seed,
             )
         return self._sample_N_outputs(
             self.data.n_samples,
-            self.data.post_selection,
+            post_selection,
             self.data.min_detection,
             self.data.random_seed,
         )
