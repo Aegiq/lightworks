@@ -23,10 +23,7 @@ from ...sdk.results import (
     SimulationResult,
 )
 from ...sdk.state import State
-from ...sdk.tasks.analyzer import Analyzer
-from ...sdk.tasks.sampler import Sampler
-from ...sdk.tasks.simulator import Simulator
-from ...sdk.tasks.task import Task
+from ...sdk.tasks import Analyzer, Sampler, Simulator, Task
 from ..simulation import (
     AnalyzerRunner,
     SamplerRunner,

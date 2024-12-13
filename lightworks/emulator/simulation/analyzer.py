@@ -18,7 +18,7 @@ import numpy as np
 
 from ...sdk.results import SimulationResult
 from ...sdk.state import State
-from ...sdk.tasks.analyzer import AnalyzerTask
+from ...sdk.tasks import AnalyzerTask
 from ...sdk.utils import PhotonNumberError, add_heralds_to_state
 from ..utils import check_photon_numbers, fock_basis
 from .runner import RunnerABC

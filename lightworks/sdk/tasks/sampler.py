@@ -16,12 +16,12 @@ from collections.abc import Callable
 from types import NoneType
 
 from ...emulator.components import Detector, Source
-from ...sdk.utils.post_selection import PostSelectionType
 from ..circuit import PhotonicCircuit
 from ..results import ProbabilityDistribution
 from ..state import State
 from ..utils import (
     ModeMismatchError,
+    PostSelectionType,
     SamplerError,
     process_post_selection,
     process_random_seed,

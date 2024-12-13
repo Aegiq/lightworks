@@ -19,14 +19,14 @@ import numpy as np
 
 from ...sdk.results import SamplingResult
 from ...sdk.state import State
-from ...sdk.tasks.sampler import SamplerTask
+from ...sdk.tasks import SamplerTask
 from ...sdk.utils import (
+    PostSelectionType,
     SamplerError,
     add_heralds_to_state,
     process_random_seed,
     remove_heralds_from_state,
 )
-from ...sdk.utils.post_selection import PostSelectionType
 from ..components import Detector, Source
 from .probability_distribution import pdist_calc
 from .runner import RunnerABC

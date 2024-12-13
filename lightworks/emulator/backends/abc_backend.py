@@ -14,7 +14,7 @@
 
 from abc import ABCMeta, abstractmethod
 
-from ...sdk.tasks.data import TaskData
+from ...sdk.tasks import TaskData
 from .caching import CacheData, check_parameter_updates, get_calculation_values
 
 # ruff: noqa: D102

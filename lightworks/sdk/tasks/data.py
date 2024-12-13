@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from ...emulator.components import Detector, Source
 from ..circuit.photonic_compiler import CompiledPhotonicCircuit
 from ..state import State
-from ..utils.post_selection import PostSelectionType
+from ..utils import PostSelectionType
 
 
 @dataclass(slots=True)

@@ -19,8 +19,7 @@ from typing import Any
 import numpy as np
 
 from ...__settings import settings
-from ...sdk.tasks.sampler import SamplerTask
-from ...sdk.tasks.task import TaskData
+from ...sdk.tasks import SamplerTask, TaskData
 from ..components import Source
 from ..utils import BackendError
 
