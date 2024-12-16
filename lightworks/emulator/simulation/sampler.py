@@ -123,18 +123,21 @@ class SamplerRunner(RunnerABC):
             if self.data.post_selection is None
             else self.data.post_selection
         )
+        min_detection = (
+            0 if self.data.min_detection is None else self.data.min_detection
+        )
 
         if self.data.sampling_mode == "input":
             return self._sample_N_inputs(
                 self.data.n_samples,
                 post_selection,
-                self.data.min_detection,
+                min_detection,
                 self.data.random_seed,
             )
         return self._sample_N_outputs(
             self.data.n_samples,
             post_selection,
-            self.data.min_detection,
+            min_detection,
             self.data.random_seed,
         )
 

@@ -45,7 +45,7 @@ class SamplerTask(TaskData):  # noqa: D101
     source: Source | None
     detector: Detector | None
     post_selection: PostSelectionType | None
-    min_detection: int
+    min_detection: int | None
     random_seed: int | None
     sampling_mode: str
 
