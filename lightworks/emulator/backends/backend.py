@@ -15,7 +15,9 @@
 
 from typing import Any
 
-from ...sdk.tasks import Task
+from multimethod import multimethod
+
+from ...sdk.tasks import Batch, Task
 from ..utils import BackendError
 from .permanent import PermanentBackend
 from .slos import SLOSBackend
@@ -37,18 +39,28 @@ class Backend:
 
         return
 
-    def run(self, task: "Task") -> dict[Any, Any]:
+    def run(self, task: Task | Batch) -> dict[Any, Any] | list[dict[Any, Any]]:
         """
         Runs the provided task on the current backend.
+
+        Args:
+
+            task (Task|Batch) : A task or batch to run.
 
         Returns:
 
             dict: A dictionary like results object containing details of the
-                calculated values from a task.
+                calculated values from a task. If a batch is run then this will
+                be a list of results in the same order the task were added to
+                the batch.
 
         """
-        if not isinstance(task, Task):
+        if not isinstance(task, Task | Batch):
             raise TypeError("Object to run on the backend must be a task.")
+        return self._run(task)
+
+    @multimethod
+    def _run(self, task: Task) -> dict[Any, Any]:
         if self.backend not in task.__compatible_backends__:
             msg = (
                 "Selected backend not compatible with task, supported backends "
@@ -56,6 +68,10 @@ class Backend:
             )
             raise BackendError(msg)
         return self.__backend.run(task)
+
+    @_run.register
+    def _run_batch(self, task: Batch) -> list[dict[Any, Any]]:
+        return [self._run(t) for t in task.tasks]
 
     @property
     def backend(self) -> str:
