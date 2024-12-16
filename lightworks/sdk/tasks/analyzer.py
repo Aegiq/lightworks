@@ -16,10 +16,9 @@ from collections.abc import Callable
 
 from ..circuit import PhotonicCircuit
 from ..state import State
-from ..utils import PostSelectionType, process_post_selection
+from ..utils import PostSelectionType, process_post_selection, validate_states
 from .data import AnalyzerTask
 from .task import Task
-from .task_utils import validate_states
 
 
 class Analyzer(Task):

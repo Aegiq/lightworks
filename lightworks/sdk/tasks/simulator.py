@@ -15,9 +15,9 @@
 
 from ..circuit import PhotonicCircuit
 from ..state import State
+from ..utils import validate_states
 from .data import SimulatorTask
 from .task import Task
-from .task_utils import validate_states
 
 
 class Simulator(Task):
