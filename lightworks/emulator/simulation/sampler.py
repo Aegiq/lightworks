@@ -17,6 +17,7 @@ from collections.abc import Callable
 
 import numpy as np
 
+from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from ...sdk.results import SamplingResult
 from ...sdk.state import State
 from ...sdk.tasks import SamplerTask
@@ -57,7 +58,13 @@ class SamplerRunner(RunnerABC):
 
     """
 
-    def __init__(self, data: SamplerTask, pdist_function: Callable) -> None:
+    def __init__(
+        self,
+        data: SamplerTask,
+        pdist_function: Callable[
+            [CompiledPhotonicCircuit, State], dict[State, float]
+        ],
+    ) -> None:
         self.data = data
         self.source = Source() if self.data.source is None else self.data.source
         self.detector = (
@@ -65,7 +72,7 @@ class SamplerRunner(RunnerABC):
         )
         self.func = pdist_function
 
-    def distribution_calculator(self) -> dict:
+    def distribution_calculator(self) -> dict[State, float]:
         """
         Calculates the output probability distribution for the provided
         configuration. This needs to be done before sampling.

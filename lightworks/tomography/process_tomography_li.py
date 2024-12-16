@@ -13,7 +13,9 @@
 # limitations under the License.
 
 import numpy as np
+from numpy.typing import NDArray
 
+from ..sdk.state import State
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
 from .utils import (
@@ -52,7 +54,7 @@ class LIProcessTomography(ProcessTomography):
     """
 
     @property
-    def choi(self) -> np.ndarray:
+    def choi(self) -> NDArray[np.complex128]:
         """Returns the calculate choi matrix for a circuit."""
         if not hasattr(self, "_choi"):
             raise AttributeError(
@@ -61,7 +63,7 @@ class LIProcessTomography(ProcessTomography):
             )
         return self._choi
 
-    def process(self) -> np.ndarray:
+    def process(self) -> NDArray[np.complex128]:
         """
         Performs process tomography with the configured elements and calculates
         the choi matrix using linear inversion.
@@ -92,7 +94,7 @@ class LIProcessTomography(ProcessTomography):
         self._choi = _unvec(choi)
         return self.choi
 
-    def fidelity(self, choi_exp: np.ndarray) -> float:
+    def fidelity(self, choi_exp: NDArray[np.complex128]) -> float:
         """
         Calculates fidelity of the calculated choi matrix compared to the
         expected one.
@@ -100,7 +102,7 @@ class LIProcessTomography(ProcessTomography):
         return process_fidelity(self.choi, choi_exp)
 
     def _calculate_expectation_values(
-        self, results: dict[tuple[str, str], dict]
+        self, results: dict[tuple[str, str], dict[State, int]]
     ) -> dict[tuple[str, str], float]:
         """
         Calculates the expectation values from a set of results containing,

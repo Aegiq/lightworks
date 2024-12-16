@@ -13,7 +13,9 @@
 # limitations under the License.
 
 import numpy as np
+from numpy.typing import NDArray
 
+from ..sdk.state import State
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
 from .utils import _calculate_density_matrix, _combine_all, _vec
@@ -56,7 +58,7 @@ class GateFidelity(ProcessTomography):
             )
         return self._fidelity
 
-    def process(self, target_process: np.ndarray) -> float:
+    def process(self, target_process: NDArray[np.complex128]) -> float:
         """
         Calculates gate fidelity for an expected target process
 
@@ -75,7 +77,7 @@ class GateFidelity(ProcessTomography):
         all_inputs = _combine_all(TOMO_INPUTS, self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         # Sorted results per input
-        remapped_results: dict[str, dict[str, dict]] = {
+        remapped_results: dict[str, dict[str, dict[State, int]]] = {
             k[0]: {} for k in results
         }
         for (k1, k2), r in results.items():
@@ -104,7 +106,7 @@ class GateFidelity(ProcessTomography):
 
     def _calculate_alpha_and_u_basis(
         self,
-    ) -> tuple[np.ndarray, list[np.ndarray]]:
+    ) -> tuple[NDArray[np.complex128], list[NDArray[np.complex128]]]:
         """
         Calculates the pauli matrix basis to use for the calculation and finds
         the coefficients of the alpha matrix used which can be used to the

@@ -14,6 +14,7 @@
 
 from collections.abc import Callable
 from types import FunctionType, MethodType
+from typing import Any
 
 from ..sdk.circuit import PhotonicCircuit
 from ..sdk.state import State
@@ -54,8 +55,10 @@ class ProcessTomography:
         self,
         n_qubits: int,
         base_circuit: PhotonicCircuit,
-        experiment: Callable,
-        experiment_args: list | None = None,
+        experiment: Callable[
+            [list[PhotonicCircuit], list[State]], list[dict[State, int]]
+        ],
+        experiment_args: list[Any] | None = None,
     ) -> None:
         # Type check inputs
         if not isinstance(n_qubits, int) or isinstance(n_qubits, bool):
@@ -92,7 +95,9 @@ class ProcessTomography:
         return self._n_qubits
 
     @property
-    def experiment(self) -> Callable:
+    def experiment(
+        self,
+    ) -> Callable[[list[PhotonicCircuit], list[State]], list[dict[State, int]]]:
         """
         A function to call which runs the required experiments. This should
         accept a list of circuits as a single argument and then return a list
@@ -102,7 +107,12 @@ class ProcessTomography:
         return self._experiment
 
     @experiment.setter
-    def experiment(self, value: Callable) -> None:
+    def experiment(
+        self,
+        value: Callable[
+            [list[PhotonicCircuit], list[State]], list[dict[State, int]]
+        ],
+    ) -> None:
         if not isinstance(value, FunctionType | MethodType):
             raise TypeError(
                 "Provided experiment should be a function which accepts a list "

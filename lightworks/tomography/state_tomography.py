@@ -14,10 +14,13 @@
 
 from collections.abc import Callable
 from types import FunctionType, MethodType
+from typing import Any
 
 import numpy as np
+from numpy.typing import NDArray
 
 from ..sdk.circuit import PhotonicCircuit
+from ..sdk.state import State
 from .mappings import MEASUREMENT_MAPPING
 from .utils import (
     _calculate_density_matrix,
@@ -55,8 +58,8 @@ class StateTomography:
         self,
         n_qubits: int,
         base_circuit: PhotonicCircuit,
-        experiment: Callable,
-        experiment_args: list | None = None,
+        experiment: Callable[[list[PhotonicCircuit]], list[dict[State, int]]],
+        experiment_args: list[Any] | None = None,
     ) -> None:
         # Type check inputs
         if not isinstance(n_qubits, int) or isinstance(n_qubits, bool):
@@ -76,7 +79,7 @@ class StateTomography:
         self._base_circuit = base_circuit
         self.experiment = experiment
         self.experiment_args = experiment_args
-        self._rho: np.ndarray
+        self._rho: NDArray[np.complex128]
 
     @property
     def base_circuit(self) -> PhotonicCircuit:
@@ -94,7 +97,9 @@ class StateTomography:
         return self._n_qubits
 
     @property
-    def experiment(self) -> Callable:
+    def experiment(
+        self,
+    ) -> Callable[[list[PhotonicCircuit]], list[dict[State, int]]]:
         """
         A function to call which runs the required experiments. This should
         accept a list of circuits as a single argument and then return a list
@@ -104,7 +109,9 @@ class StateTomography:
         return self._experiment
 
     @experiment.setter
-    def experiment(self, value: Callable) -> None:
+    def experiment(
+        self, value: Callable[[list[PhotonicCircuit]], list[dict[State, int]]]
+    ) -> None:
         if not isinstance(value, FunctionType | MethodType):
             raise TypeError(
                 "Provided experiment should be a function which accepts a list "
@@ -114,7 +121,7 @@ class StateTomography:
         self._experiment = value
 
     @property
-    def rho(self) -> np.ndarray:
+    def rho(self) -> NDArray[np.complex128]:
         """
         The most recently calculated density matrix.
         """
@@ -125,7 +132,7 @@ class StateTomography:
             )
         return self._rho
 
-    def process(self) -> np.ndarray:
+    def process(self) -> NDArray[np.complex128]:
         """
         Performs the state tomography process with the configured elements to
         calculate the density matrix of the output state.
@@ -163,7 +170,7 @@ class StateTomography:
         self._rho = _calculate_density_matrix(results_dict, self.n_qubits)
         return self.rho
 
-    def fidelity(self, rho_exp: np.ndarray) -> float:
+    def fidelity(self, rho_exp: NDArray[np.complex128]) -> float:
         """
         Calculates the fidelity of the calculated quantum state against the
         expected density matrix for the state.

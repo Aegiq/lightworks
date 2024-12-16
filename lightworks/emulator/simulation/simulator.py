@@ -15,6 +15,7 @@
 from collections.abc import Callable
 
 import numpy as np
+from numpy.typing import NDArray
 
 from ...sdk.results import SimulationResult
 from ...sdk.state import State
@@ -39,7 +40,11 @@ class SimulatorRunner(RunnerABC):
     """
 
     def __init__(
-        self, data: SimulatorTask, amplitude_function: Callable
+        self,
+        data: SimulatorTask,
+        amplitude_function: Callable[
+            [NDArray[np.complex128], list[int], list[int]], complex
+        ],
     ) -> None:
         self.data = data
         self.func = amplitude_function

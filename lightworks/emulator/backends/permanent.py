@@ -16,6 +16,7 @@
 from math import factorial, prod
 
 import numpy as np
+from numpy.typing import NDArray
 from thewalrus import perm
 
 from ...__settings import settings
@@ -38,7 +39,7 @@ class PermanentBackend(FockBackend):
 
     def probability_amplitude(
         self,
-        unitary: np.ndarray,
+        unitary: NDArray[np.complex128],
         input_state: list[int],
         output_state: list[int],
     ) -> complex:
@@ -75,7 +76,7 @@ class PermanentBackend(FockBackend):
 
     def probability(
         self,
-        unitary: np.ndarray,
+        unitary: NDArray[np.complex128],
         input_state: list[int],
         output_state: list[int],
     ) -> float:
@@ -111,7 +112,7 @@ class PermanentBackend(FockBackend):
 
     def full_probability_distribution(
         self, circuit: CompiledPhotonicCircuit, input_state: State
-    ) -> dict:
+    ) -> dict[State, float]:
         """
         Finds the output probability distribution for the provided circuit and
         input state.
@@ -165,8 +166,8 @@ class PermanentBackend(FockBackend):
 
 
 def partition(
-    unitary: np.ndarray, in_state: list[int], out_state: list[int]
-) -> np.ndarray:
+    unitary: NDArray[np.complex128], in_state: list[int], out_state: list[int]
+) -> NDArray[np.complex128]:
     """
     Converts the unitary matrix into a larger matrix used for in the
     permanent calculation.

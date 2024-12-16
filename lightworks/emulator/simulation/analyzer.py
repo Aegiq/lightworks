@@ -15,6 +15,7 @@
 from collections.abc import Callable
 
 import numpy as np
+from numpy.typing import NDArray
 
 from ...sdk.results import SimulationResult
 from ...sdk.state import State
@@ -43,7 +44,11 @@ class AnalyzerRunner(RunnerABC):
     """
 
     def __init__(
-        self, data: AnalyzerTask, probability_function: Callable
+        self,
+        data: AnalyzerTask,
+        probability_function: Callable[
+            [NDArray[np.complex128], list[int], list[int]], float
+        ],
     ) -> None:
         self.data = data
         self.func = probability_function
@@ -109,7 +114,7 @@ class AnalyzerRunner(RunnerABC):
 
     def _get_probs(
         self, full_inputs: list[list[int]], full_outputs: list[list[int]]
-    ) -> np.ndarray:
+    ) -> NDArray[np.float64]:
         """
         Create an array of output probabilities for a given set of inputs and
         outputs.
@@ -156,7 +161,7 @@ class AnalyzerRunner(RunnerABC):
 
     def _calculate_error_rate(
         self,
-        probabilities: np.ndarray,
+        probabilities: NDArray[np.float64],
         inputs: list[State],
         outputs: list[State],
         expected: dict[State, State | list[State]],
