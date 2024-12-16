@@ -12,67 +12,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Callable
+
 import numpy as np
 
-from ...sdk.circuit import Circuit
+from ...sdk.results import SimulationResult
 from ...sdk.state import State
+from ...sdk.tasks import SimulatorTask
 from ...sdk.utils import add_heralds_to_state
-from ..backend import Backend
-from ..results import SimulationResult
-from ..utils import ModeMismatchError, PhotonNumberError, fock_basis
+from ..utils import check_photon_numbers, fock_basis
+from .runner import RunnerABC
 
 
-class Simulator:
+class SimulatorRunner(RunnerABC):
     """
-    Simulates a circuit for a provided number of inputs and outputs, returning
-    the probability amplitude between them.
+    Calculates the probability amplitudes between a set of inputs and outputs
+    from a given circuit.
 
     Args:
 
-        circuit : The circuit which is to be used for simulation.
+        data (SimulatorTask) : The task which is to be executed.
+
+        amplitude_function (Callable) : Function for calculating probability
+            amplitudes between an input and output for a given unitary.
 
     """
 
-    def __init__(self, circuit: Circuit) -> None:
-        # Assign circuit to attribute
-        self.circuit = circuit
-        self.__backend = Backend("permanent")
+    def __init__(
+        self, data: SimulatorTask, amplitude_function: Callable
+    ) -> None:
+        self.data = data
+        self.func = amplitude_function
 
-        return
-
-    @property
-    def circuit(self) -> Circuit:
+    def run(self) -> SimulationResult:
         """
-        Stores the circuit to be used for simulation, should be a Circuit
-        object.
-        """
-        return self.__circuit
-
-    @circuit.setter
-    def circuit(self, value: Circuit) -> None:
-        if not isinstance(value, Circuit):
-            raise TypeError(
-                "Provided circuit should be a Circuit or Unitary object."
-            )
-        self.__circuit = value
-
-    def simulate(
-        self, inputs: State | list[State], outputs: list | None = None
-    ) -> SimulationResult:
-        """
-        Function to run a simulation for a number of inputs/outputs, if no
-        outputs are specified then all possible outputs for the photon number
-        are calculated. All inputs and outputs should have the same photon
-        number.
-
-        Args:
-
-            inputs (list) : A list of the input states to simulate. For
-                multiple inputs this should be a list of States.
-
-            outputs (list | None, optional) : A list of the output states to
-                simulate, this can also be set to None to automatically find
-                all possible outputs.
+        Runs the simulation task.
 
         Returns:
 
@@ -82,98 +56,39 @@ class Simulator:
                 state used to create the array.
 
         """
-        circuit = self.circuit._build()
-        # Then process inputs list
-        inputs = self._process_inputs(inputs)
-        # And then either generate or process outputs
-        inputs, outputs = self._process_outputs(inputs, outputs)
-        in_heralds = self.circuit.heralds["input"]
-        out_heralds = self.circuit.heralds["output"]
+        if self.data.outputs is None:
+            check_photon_numbers(self.data.inputs)
+            outputs = fock_basis(
+                self.data.circuit.input_modes, self.data.inputs[0].n_photons
+            )
+            outputs = [State(s) for s in outputs]
+        else:
+            check_photon_numbers(self.data.inputs + self.data.outputs)
+            outputs = self.data.outputs
+        in_heralds = self.data.circuit.heralds["input"]
+        out_heralds = self.data.circuit.heralds["output"]
+        # Pre-add output values to avoid doing this many times
+        full_outputs = [
+            add_heralds_to_state(outs, out_heralds)
+            + [0] * self.data.circuit.loss_modes
+            for outs in outputs
+        ]
         # Calculate permanent for the given inputs and outputs and return
         # values
-        amplitudes = np.zeros((len(inputs), len(outputs)), dtype=complex)
-        for i, ins in enumerate(inputs):
+        amplitudes = np.zeros(
+            (len(self.data.inputs), len(outputs)), dtype=complex
+        )
+        for i, ins in enumerate(self.data.inputs):
             in_state = add_heralds_to_state(ins, in_heralds)
-            in_state += [0] * circuit.loss_modes
-            for j, outs in enumerate(outputs):
-                out_state = add_heralds_to_state(outs, out_heralds)
-                out_state += [0] * circuit.loss_modes
-                amplitudes[i, j] = self.__backend.probability_amplitude(
-                    circuit.U_full, in_state, out_state
+            in_state += [0] * self.data.circuit.loss_modes
+            for j, outs in enumerate(full_outputs):
+                amplitudes[i, j] = self.func(
+                    self.data.circuit.U_full, in_state, outs
                 )
         # Return results and corresponding states as dictionary
         return SimulationResult(
-            amplitudes, "probability_amplitude", inputs=inputs, outputs=outputs
+            amplitudes,
+            "probability_amplitude",
+            inputs=self.data.inputs,
+            outputs=outputs,
         )
-
-    def _process_inputs(self, inputs: State | list) -> list:
-        """Performs all required processing/checking on the input states."""
-        # Convert state to list of States if not provided for single state case
-        if isinstance(inputs, State):
-            inputs = [inputs]
-        input_modes = self.circuit.input_modes
-        # Check each input
-        for state in inputs:
-            # Ensure correct type
-            if not isinstance(state, State):
-                raise TypeError(
-                    "inputs should be a State or list of State objects."
-                )
-            # Dimension check
-            if len(state) != input_modes:
-                msg = (
-                    "One or more input states have an incorrect number of "
-                    f"modes, correct number of modes is {input_modes}."
-                )
-                raise ModeMismatchError(msg)
-            # Also validate state values
-            state._validate()
-        return inputs
-
-    def _process_outputs(
-        self, inputs: list, outputs: list | None
-    ) -> tuple[list, list]:
-        """
-        Processes the provided outputs or generates them if no inputs were
-        provided. Returns both the inputs and outputs.
-        """
-        input_modes = self.circuit.input_modes
-        # If outputs not specified then determine all combinations
-        if outputs is None:
-            ns = [s.n_photons for s in inputs]
-            if min(ns) != max(ns):
-                raise PhotonNumberError(
-                    "Mismatch in total photon number between inputs, this is "
-                    "not currently supported by the Simulator."
-                )
-            outputs = fock_basis(input_modes, max(ns))
-            outputs = [State(s) for s in outputs]
-        # Otherwise check provided outputs
-        else:
-            if isinstance(outputs, State):
-                outputs = [outputs]
-            # Check type and dimension is correct
-            for state in outputs:
-                # Ensure correct type
-                if not isinstance(state, State):
-                    raise TypeError(
-                        "outputs should be a State or list of State objects."
-                    )
-                # Dimension check
-                if len(state) != input_modes:
-                    msg = (
-                        "One or more input states have an incorrect number of "
-                        f"modes, correct number of modes is {input_modes}."
-                    )
-                    raise ModeMismatchError(msg)
-                # Also validate state values
-                state._validate()
-            # Ensure photon numbers are the same in all states - variation not
-            # currently supported
-            ns = [s.n_photons for s in inputs + outputs]
-            if min(ns) != max(ns):
-                raise PhotonNumberError(
-                    "Mismatch in photon numbers between some inputs/outputs, "
-                    "this is not currently supported in the Simulator."
-                )
-        return inputs, outputs

@@ -6,7 +6,7 @@ The Lightworks Qubit module contains methods for converting between quantum prog
 Qiskit
 ------
 
-The :func:`lightworks.qubit.qiskit_converter` function can be used to perform conversion between a provided qiskit `QuantumCircuit <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit>`_ and a lightworks :doc:`../sdk_reference/circuit`.
+The :func:`lightworks.qubit.qiskit_converter` function can be used to perform conversion between a provided qiskit `QuantumCircuit <https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.QuantumCircuit>`_ and a lightworks :doc:`../sdk_reference/photonic_circuit`.
 
 To use this, it should be first be imported from Qubit. An exception will be raised if attempting to use the converter without the qiskit requirements installed, for mode info see :ref:`Qubit Usage <qubit_usage>` 
 
@@ -67,9 +67,14 @@ When used, a ``PostSelection`` object will also be returned, which can then be p
 
 .. code-block:: Python
 
-    sampler = emulator.Sampler(conv_circ, lw.State([1,0,1,0,1,0]))
+    sampler = emulator.Sampler(
+        conv_circ, lw.State([1,0,1,0,1,0]), 10000, 
+        post-selection = post_select, random_seed = 995
+    )
 
-    results = sampler.sample_N_outputs(10000, post_select=post_select, seed=995)
+    backend = emulator.Backend("slos")
+    results = backend.run(sampler)
+    
     results.plot()
 
 .. image:: assets/qiskit_post_select_demo_results.png

@@ -18,8 +18,8 @@ import numpy as np
 import pytest
 from random import random
 
-from lightworks import State
-from lightworks.emulator import Simulator
+from lightworks import State, Simulator
+from lightworks.emulator import Backend
 
 # fmt: off
 from lightworks.qubit import (
@@ -27,6 +27,8 @@ from lightworks.qubit import (
     SX, Sadj, Tadj, P
 )
 # fmt: on
+
+BACKEND = Backend("permanent")
 
 
 class TestSingleQubitGates:
@@ -36,73 +38,79 @@ class TestSingleQubitGates:
 
     def test_I(self):
         """Checks that the output from the I gate is correct."""
-        sim = Simulator(I())
+        sim = Simulator(I(), State([1, 0]))
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))[State([1, 0])]
+        results = BACKEND.run(sim)[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))[State([0, 1])]
+        sim.inputs = State([0, 1])
+        results = BACKEND.run(sim)[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1
 
     def test_hadamard(self):
         """Checks that the output from the Hadamard gate is correct."""
-        sim = Simulator(H())
+        sim = Simulator(H(), State([1, 0]))
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))[State([1, 0])]
+        results = BACKEND.run(sim)[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 2**-0.5
         assert pytest.approx(results[State([0, 1])], 1e-6) == 2**-0.5
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))[State([0, 1])]
+        sim.inputs = State([0, 1])
+        results = BACKEND.run(sim)[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 2**-0.5
         assert pytest.approx(results[State([0, 1])], 1e-6) == -(2**-0.5)
 
     def test_X(self):
         """Checks that the output from the X gate is correct."""
-        sim = Simulator(X())
+        sim = Simulator(X(), State([1, 0]))
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))[State([1, 0])]
+        results = BACKEND.run(sim)[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))[State([0, 1])]
+        sim.inputs = State([0, 1])
+        results = BACKEND.run(sim)[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
 
     def test_Y(self):
         """Checks that the output from the Y gate is correct."""
-        sim = Simulator(Y())
+        sim = Simulator(Y(), State([1, 0]))
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))[State([1, 0])]
+        results = BACKEND.run(sim)[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1j
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))[State([0, 1])]
+        sim.inputs = State([0, 1])
+        results = BACKEND.run(sim)[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == -1j
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
 
     def test_Z(self):
         """Checks that the output from the Z gate is correct."""
-        sim = Simulator(Z())
+        sim = Simulator(Z(), State([1, 0]))
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))[State([1, 0])]
+        results = BACKEND.run(sim)[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))[State([0, 1])]
+        sim.inputs = State([0, 1])
+        results = BACKEND.run(sim)[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == -1
 
     def test_S(self):
         """Checks that the output from the S gate is correct."""
-        sim = Simulator(S())
+        sim = Simulator(S(), State([1, 0]))
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))[State([1, 0])]
+        results = BACKEND.run(sim)[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))[State([0, 1])]
+        sim.inputs = State([0, 1])
+        results = BACKEND.run(sim)[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1j
 
@@ -112,13 +120,14 @@ class TestSingleQubitGates:
 
     def test_T(self):
         """Checks that the output from the T gate is correct."""
-        sim = Simulator(T())
+        sim = Simulator(T(), State([1, 0]))
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))[State([1, 0])]
+        results = BACKEND.run(sim)[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))[State([0, 1])]
+        sim.inputs = State([0, 1])
+        results = BACKEND.run(sim)[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == np.exp(
             1j * np.pi / 4
@@ -130,26 +139,28 @@ class TestSingleQubitGates:
 
     def test_SX(self):
         """Checks that the output from the SX gate is correct."""
-        sim = Simulator(SX())
+        sim = Simulator(SX(), State([1, 0]))
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))[State([1, 0])]
+        results = BACKEND.run(sim)[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1 / 2 * (1 + 1j)
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1 / 2 * (1 - 1j)
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))[State([0, 1])]
+        sim.inputs = State([0, 1])
+        results = BACKEND.run(sim)[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1 / 2 * (1 - 1j)
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1 / 2 * (1 + 1j)
 
     def test_P(self):
         """Checks that the output from the phase gate is correct."""
         phase = 6.28 * random()
-        sim = Simulator(P(phase))
+        sim = Simulator(P(phase), State([1, 0]))
         # Input |1,0>
-        results = sim.simulate(State([1, 0]))[State([1, 0])]
+        results = BACKEND.run(sim)[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
         # Input |0,1>
-        results = sim.simulate(State([0, 1]))[State([0, 1])]
+        sim.inputs = State([0, 1])
+        results = BACKEND.run(sim)[State([0, 1])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 0
         assert pytest.approx(results[State([0, 1])], 1e-6) == np.exp(1j * phase)
 
@@ -168,8 +179,8 @@ class TestTwoQubitGates:
         states = [[1, 0, 1, 0], [1, 0, 0, 1], [0, 1, 1, 0], [0, 1, 0, 1]]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
-        sim = Simulator(CZ())
-        results = sim.simulate(states, states)
+        sim = Simulator(CZ(), states, states)
+        results = BACKEND.run(sim)
         # Check all results are identical except for |1,1> which has a -1
         amp = results[states[0], states[0]]
         assert pytest.approx(amp, 1e-6) == results[states[1], states[1]]
@@ -187,8 +198,8 @@ class TestTwoQubitGates:
         states = [[1, 0, 1, 0], [1, 0, 0, 1], [0, 1, 1, 0], [0, 1, 0, 1]]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
-        sim = Simulator(CNOT())
-        results = sim.simulate(states, states)
+        sim = Simulator(CNOT(), states, states)
+        results = BACKEND.run(sim)
         # Check that swap occurs when control qubit is 1 but not otherwise
         amp = results[states[0], states[0]]
         assert pytest.approx(amp, 1e-6) == results[states[1], states[1]]
@@ -206,8 +217,8 @@ class TestTwoQubitGates:
         states = [[1, 0, 1, 0], [1, 0, 0, 1], [0, 1, 1, 0], [0, 1, 0, 1]]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
-        sim = Simulator(CNOT(target_qubit=0))
-        results = sim.simulate(states, states)
+        sim = Simulator(CNOT(target_qubit=0), states, states)
+        results = BACKEND.run(sim)
         # Check that swap occurs when control qubit is 1 but not otherwise
         amp = results[states[0], states[0]]
         assert pytest.approx(amp, 1e-6) == results[states[2], states[2]]
@@ -225,8 +236,8 @@ class TestTwoQubitGates:
         states = [[1, 0, 1, 0], [1, 0, 0, 1], [0, 1, 1, 0], [0, 1, 0, 1]]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
-        sim = Simulator(CZ_Heralded())
-        results = sim.simulate(states, states)
+        sim = Simulator(CZ_Heralded(), states, states)
+        results = BACKEND.run(sim)
         # Check all results are identical except for |1,1> which has a -1
         amp = results[states[0], states[0]]
         assert pytest.approx(amp, 1e-6) == results[states[1], states[1]]
@@ -244,8 +255,8 @@ class TestTwoQubitGates:
         states = [[1, 0, 1, 0], [1, 0, 0, 1], [0, 1, 1, 0], [0, 1, 0, 1]]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
-        sim = Simulator(CNOT_Heralded())
-        results = sim.simulate(states, states)
+        sim = Simulator(CNOT_Heralded(), states, states)
+        results = BACKEND.run(sim)
         # Check that swap occurs when control qubit is 1 but not otherwise
         amp = results[states[0], states[0]]
         assert pytest.approx(amp, 1e-6) == results[states[1], states[1]]
@@ -263,8 +274,8 @@ class TestTwoQubitGates:
         states = [[1, 0, 1, 0], [1, 0, 0, 1], [0, 1, 1, 0], [0, 1, 0, 1]]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
-        sim = Simulator(CNOT_Heralded(target_qubit=0))
-        results = sim.simulate(states, states)
+        sim = Simulator(CNOT_Heralded(target_qubit=0), states, states)
+        results = BACKEND.run(sim)
         # Check that swap occurs when control qubit is 1 but not otherwise
         amp = results[states[0], states[0]]
         assert pytest.approx(amp, 1e-6) == results[states[2], states[2]]
@@ -280,17 +291,17 @@ class TestTwoQubitGates:
         # Define gate
         swap = SWAP((0, 1), (4, 5))
         # Create simulator
-        sim = Simulator(swap)
-        # Check 0 mode of first qubit maps to 0 of second qubit
-        results = sim.simulate(
-            State([1, 0, 0, 0, 0, 0]), State([0, 0, 0, 0, 1, 0])
+        sim = Simulator(
+            swap, State([1, 0, 0, 0, 0, 0]), State([0, 0, 0, 0, 1, 0])
         )
+        # Check 0 mode of first qubit maps to 0 of second qubit
+        results = BACKEND.run(sim)
         amp = results.array[0, 0]
         assert amp == pytest.approx(1 + 0j, 1e-6)
         # Check 1 mode of second qubit maps to 1 of first qubit
-        results = sim.simulate(
-            State([0, 0, 0, 0, 0, 1]), State([0, 1, 0, 0, 0, 0])
-        )
+        sim.inputs = State([0, 0, 0, 0, 0, 1])
+        sim.outputs = State([0, 1, 0, 0, 0, 0])
+        results = BACKEND.run(sim)
         amp = results.array[0, 0]
         assert amp == pytest.approx(1 + 0j, 1e-6)
 
@@ -318,8 +329,8 @@ class TestThreeQubitGates:
         ]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
-        sim = Simulator(CCZ())
-        results = sim.simulate(states, states)
+        sim = Simulator(CCZ(), states, states)
+        results = BACKEND.run(sim)
         # Check all results are identical except for |1,1,1> which has a -1
         amp = results[states[0], states[0]]
         for i in range(7):
@@ -350,8 +361,8 @@ class TestThreeQubitGates:
         ]
         states = [State(s) for s in states]
         # Calculate probability amplitudes
-        sim = Simulator(CCNOT(target_qubit=target))
-        results = sim.simulate(states, states)
+        sim = Simulator(CCNOT(target_qubit=target), states, states)
+        results = BACKEND.run(sim)
         # Check swap occurs when both control qubits are 1 but not otherwise
         non_swapped = [i for i in range(8) if i not in swap_indices]
         amp = results[states[non_swapped[0]], states[non_swapped[0]]]

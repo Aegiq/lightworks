@@ -15,21 +15,19 @@
 import pytest
 
 from lightworks import (
-    Circuit,
+    ModeMismatchError,
     Parameter,
+    PhotonicCircuit,
     PostSelection,
+    Sampler,
     State,
     Unitary,
     db_loss_to_decimal,
     random_unitary,
 )
-from lightworks.emulator import (
-    Backend,
-    Detector,
-    ModeMismatchError,
-    Sampler,
-    Source,
-)
+from lightworks.emulator import Backend, Detector, Source
+
+P_BACKEND = Backend("permanent")
 
 
 class TestSamplerGeneral:
@@ -43,9 +41,9 @@ class TestSamplerGeneral:
         produce the same result.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = Sampler(circuit, State([1, 0, 1, 0]))
-        results = sampler.sample_N_inputs(5000, seed=1)
-        results2 = sampler.sample_N_inputs(5000, seed=1)
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 5000, random_seed=1)
+        results = P_BACKEND.run(sampler)
+        results2 = P_BACKEND.run(sampler)
         assert results == results2
 
     def test_sample_n_states_seed_detector(self):
@@ -57,10 +55,13 @@ class TestSamplerGeneral:
         sampler = Sampler(
             circuit,
             State([1, 0, 1, 0]),
+            5000,
             detector=Detector(efficiency=0.5, p_dark=1e-3),
+            random_seed=1,
+            sampling_mode="input",
         )
-        results = sampler.sample_N_inputs(5000, seed=1)
-        results2 = sampler.sample_N_inputs(5000, seed=1)
+        results = P_BACKEND.run(sampler)
+        results2 = P_BACKEND.run(sampler)
         assert results == results2
 
     def test_circuit_update_with_sampler(self):
@@ -69,10 +70,12 @@ class TestSamplerGeneral:
         the probability distribution.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = Sampler(circuit, State([1, 0, 1, 0]))
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
+        P_BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         circuit.bs(0)
         circuit.bs(2)
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
 
@@ -82,13 +85,15 @@ class TestSamplerGeneral:
         corresponding probability distribution is modified.
         """
         p = Parameter(0.3)
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0, reflectivity=p)
         circuit.bs(2, reflectivity=p)
         circuit.bs(1, reflectivity=p)
-        sampler = Sampler(circuit, State([1, 0, 1, 0]))
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
+        P_BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         p.set(0.7)
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
 
@@ -98,19 +103,21 @@ class TestSamplerGeneral:
         produced results.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = Sampler(circuit, State([1, 0, 1, 0]))
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
+        P_BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         sampler.input_state = State([0, 1, 0, 1])
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
 
     def test_circuit_assignment(self):
         """
-        Confirms that a Circuit cannot be replaced with a non-Circuit through
-        the circuit attribute.
+        Confirms that a PhotonicCircuit cannot be replaced with a
+        non-PhotonicCircuit through the circuit attribute.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = Sampler(circuit, State([1, 0, 1, 0]))
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
         with pytest.raises(TypeError):
             sampler.circuit = random_unitary(4)
 
@@ -120,7 +127,7 @@ class TestSamplerGeneral:
         non-State value and requires the correct number of modes.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = Sampler(circuit, State([1, 0, 1, 0]))
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
         # Incorrect type
         with pytest.raises(TypeError):
             sampler.input_state = [1, 2, 3, 4]
@@ -134,7 +141,7 @@ class TestSamplerGeneral:
         through the source attribute.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = Sampler(circuit, State([1, 0, 1, 0]))
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
         with pytest.raises(TypeError):
             sampler.source = random_unitary(4)
 
@@ -144,7 +151,7 @@ class TestSamplerGeneral:
         through the detector attribute.
         """
         circuit = Unitary(random_unitary(4))
-        sampler = Sampler(circuit, State([1, 0, 1, 0]))
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
         with pytest.raises(TypeError):
             sampler.detector = random_unitary(4)
 
@@ -160,30 +167,36 @@ class TestSamplerGeneral:
             indistinguishability=0.9,
             probability_threshold=1e-6,
         )
-        sampler = Sampler(circuit, State([1, 0, 1, 0]), source=source)
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000, source=source)
+        P_BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         # Indistinguishability
         source.indistinguishability = 0.2
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
         # Purity (reset previous variable to original value)
         source.indistinguishability = 0.9
         source.purity = 0.7
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
         # Brightness
         source.purity = 0.9
         source.brightness = 0.4
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
         # Probability threshold
         source.brightness = 0.9
         source.probability_threshold = 1e-3
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 != p2
         # Return all values to defaults and check this then returns the
         # original distribution
         source.probability_threshold = 1e-6
+        P_BACKEND.run(sampler)
         p2 = sampler.probability_distribution
         assert p1 == p2
 
@@ -194,10 +207,11 @@ class TestSamplerGeneral:
         """
         circuit = Unitary(random_unitary(4))
         # Permanent
-        sampler = Sampler(circuit, State([1, 0, 1, 0]), backend="permanent")
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
+        P_BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         # SLOS
-        sampler.backend = "slos"
+        Backend("slos").run(sampler)
         p2 = sampler.probability_distribution
         for s in p1:
             if round(p1[s], 8) != round(p2[s], 8):
@@ -215,11 +229,15 @@ class TestSamplerGeneral:
         source = Source(indistinguishability=0.9, brightness=0.9, purity=0.9)
         # Permanent
         sampler = Sampler(
-            circuit, State([1, 0, 1, 0]), source=source, backend="permanent"
+            circuit,
+            State([1, 0, 1, 0]),
+            1000,
+            source=source,
         )
+        P_BACKEND.run(sampler)
         p1 = sampler.probability_distribution
         # SLOS
-        sampler.backend = "slos"
+        Backend("slos").run(sampler)
         p2 = sampler.probability_distribution
         # Test equivalence
         for s in p1:
@@ -229,28 +247,16 @@ class TestSamplerGeneral:
     def test_backend_updated_recalculates(self):
         """
         Checks that updating the backend causes recalculation of the
-        probability distribution.
+        probability distribution. This is achieved by checking a cache doesn't
+        exist on the new backend.
         """
         circuit = Unitary(random_unitary(4))
         # Get initial distribution
-        sampler = Sampler(circuit, State([1, 0, 1, 0]), backend="permanent")
-        sampler.probability_distribution  # noqa: B018
-        # Then switch to SLOS
-        sampler.backend = "slos"
-        # Check method below returns True
-        assert sampler._check_parameter_updates()
-
-    def test_backend_assignment(self):
-        """
-        Tests that backend can be set both by assigning backend object and by
-        providing a string.
-        """
-        sampler = Sampler(Circuit(4), State([1, 0, 1, 0]))
-        # Assign object directly
-        sampler.backend = Backend("permanent")
-        # Assign string
-        sampler.backend = "permanent"
-        assert isinstance(sampler.backend, Backend)
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
+        P_BACKEND.run(sampler)
+        b2 = Backend("slos")
+        # Check attribute doesn't exist
+        assert not hasattr(b2._Backend__backend, "_cache")
 
 
 @pytest.mark.parametrize("backend", [Backend("permanent"), Backend("slos")])
@@ -265,11 +271,11 @@ class TestSamplerCalculationBackends:
         Checks sampling a basic 2 photon input onto a 50:50 beam splitter,
         which should undergo HOM, producing outputs of |2,0> and |0,2>.
         """
-        circuit = Circuit(2)
+        circuit = PhotonicCircuit(2)
         circuit.bs(0)
-        sampler = Sampler(circuit, State([1, 1]), backend=backend)
         n_sample = 100000
-        results = sampler.sample_N_inputs(n_sample, seed=21)
+        sampler = Sampler(circuit, State([1, 1]), n_sample, random_seed=21)
+        results = backend.run(sampler)
         assert len(results) == 2
         assert 0.49 < results[State([2, 0])] / n_sample < 0.51
         assert 0.49 < results[State([0, 2])] / n_sample < 0.51
@@ -279,11 +285,13 @@ class TestSamplerCalculationBackends:
         Checks a lossy hom experiment with sample N outputs produces outputs of
         |2,0> and |0,2>.
         """
-        circuit = Circuit(2)
+        circuit = PhotonicCircuit(2)
         circuit.bs(0, loss=0.1)
-        sampler = Sampler(circuit, State([1, 1]), backend=backend)
         n_sample = 100000
-        results = sampler.sample_N_outputs(n_sample, seed=54, min_detection=2)
+        sampler = Sampler(
+            circuit, State([1, 1]), n_sample, random_seed=54, min_detection=2
+        )
+        results = backend.run(sampler)
         assert sum(results.values()) == n_sample
         assert 0.49 < results[State([2, 0])] / n_sample < 0.51
         assert 0.49 < results[State([0, 2])] / n_sample < 0.51
@@ -294,13 +302,13 @@ class TestSamplerCalculationBackends:
         at the output.
         """
         # Build circuit
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(1)
         circuit.mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
         circuit.bs(0, 3)
         # And check output counts
-        sampler = Sampler(circuit, State([1, 0, 0, 1]), backend=backend)
-        results = sampler.sample_N_inputs(1000)
+        sampler = Sampler(circuit, State([1, 0, 0, 1]), 1000)
+        results = backend.run(sampler)
         assert results[State([0, 1, 1, 0])] == 1000
 
     def test_known_result_single_sample(self, backend):
@@ -309,13 +317,13 @@ class TestSamplerCalculationBackends:
         at the output, when using the sample method to get a single value.
         """
         # Build circuit
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(1)
         circuit.mode_swaps({0: 1, 1: 0, 2: 3, 3: 2})
         circuit.bs(0, 3)
         # And check output counts
-        sampler = Sampler(circuit, State([1, 0, 0, 1]), backend=backend)
-        output = sampler.sample()
+        sampler = Sampler(circuit, State([1, 0, 0, 1]), 1)
+        output = next(iter(backend.run(sampler)))
         assert output == State([0, 1, 1, 0])
 
     def test_sampling_perfect_source(self, backend):
@@ -324,7 +332,8 @@ class TestSamplerCalculationBackends:
         correct for a perfect source.
         """
         unitary = Unitary(random_unitary(4, seed=20))
-        sampler = Sampler(unitary, State([1, 0, 1, 0]), backend=backend)
+        sampler = Sampler(unitary, State([1, 0, 1, 0]), 1000)
+        backend.run(sampler)
         p = sampler.probability_distribution[State([0, 1, 1, 0])]
         assert p == pytest.approx(0.112093500, 1e-8)
 
@@ -335,9 +344,8 @@ class TestSamplerCalculationBackends:
         """
         unitary = Unitary(random_unitary(4, seed=20))
         source = Source(purity=0.9, brightness=0.9, indistinguishability=0.9)
-        sampler = Sampler(
-            unitary, State([1, 0, 1, 0]), source=source, backend=backend
-        )
+        sampler = Sampler(unitary, State([1, 0, 1, 0]), 1000, source=source)
+        backend.run(sampler)
         p = sampler.probability_distribution[State([0, 0, 1, 0])]
         assert p == pytest.approx(0.0129992654, 1e-8)
 
@@ -347,7 +355,8 @@ class TestSamplerCalculationBackends:
         correct for a perfect source with 2 photons in single input mode.
         """
         unitary = Unitary(random_unitary(4, seed=20))
-        sampler = Sampler(unitary, State([0, 2, 0, 0]), backend=backend)
+        sampler = Sampler(unitary, State([0, 2, 0, 0]), 1000)
+        backend.run(sampler)
         p = sampler.probability_distribution[State([0, 1, 1, 0])]
         assert p == pytest.approx(0.2875114938, 1e-8)
 
@@ -358,9 +367,8 @@ class TestSamplerCalculationBackends:
         """
         unitary = Unitary(random_unitary(4, seed=20))
         source = Source(purity=0.9, brightness=0.9, indistinguishability=0.9)
-        sampler = Sampler(
-            unitary, State([0, 2, 0, 0]), source=source, backend=backend
-        )
+        sampler = Sampler(unitary, State([0, 2, 0, 0]), 1000, source=source)
+        backend.run(sampler)
         p = sampler.probability_distribution[State([0, 0, 1, 0])]
         assert p == pytest.approx(0.09767722765, 1e-8)
 
@@ -370,7 +378,7 @@ class TestSamplerCalculationBackends:
         a lossy circuit is correct for a perfect source.
         """
         # Build circuit
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0, loss=db_loss_to_decimal(1))
         circuit.bs(2, loss=db_loss_to_decimal(2))
         circuit.ps(1, 0.3, loss=db_loss_to_decimal(0.5))
@@ -379,7 +387,8 @@ class TestSamplerCalculationBackends:
         circuit.bs(2, loss=db_loss_to_decimal(2))
         circuit.ps(1, 0.3, loss=db_loss_to_decimal(0.5))
         # Sample from circuit
-        sampler = Sampler(circuit, State([1, 0, 1, 0]), backend=backend)
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
+        backend.run(sampler)
         p = sampler.probability_distribution[State([0, 1, 1, 0])]
         assert p == pytest.approx(0.01111424631, 1e-8)
         p = sampler.probability_distribution[State([0, 0, 0, 0])]
@@ -391,7 +400,7 @@ class TestSamplerCalculationBackends:
         a lossy circuit is correct for an imperfect source.
         """
         # Build circuit
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0, loss=db_loss_to_decimal(1))
         circuit.bs(2, loss=db_loss_to_decimal(2))
         circuit.ps(1, 0.3, loss=db_loss_to_decimal(0.5))
@@ -401,9 +410,8 @@ class TestSamplerCalculationBackends:
         circuit.ps(1, 0.3, loss=db_loss_to_decimal(0.5))
         # Sample from circuit
         source = Source(purity=0.9, brightness=0.9, indistinguishability=0.9)
-        sampler = Sampler(
-            circuit, State([1, 0, 1, 0]), source=source, backend=backend
-        )
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000, source=source)
+        backend.run(sampler)
         p = sampler.probability_distribution[State([0, 0, 1, 0])]
         assert p == pytest.approx(0.03122592963, 1e-8)
         p = sampler.probability_distribution[State([0, 0, 0, 0])]
@@ -415,9 +423,13 @@ class TestSamplerCalculationBackends:
         # Control
         detector = Detector(efficiency=1)
         sampler = Sampler(
-            circuit, State([1, 0, 1, 0]), detector=detector, backend=backend
+            circuit,
+            State([1, 0, 1, 0]),
+            1000,
+            detector=detector,
+            sampling_mode="input",
         )
-        results = sampler.sample_N_inputs(1000)
+        results = backend.run(sampler)
         undetected_photons = False
         for s in results:
             if s.n_photons < 2:
@@ -426,10 +438,8 @@ class TestSamplerCalculationBackends:
         assert not undetected_photons
         # With lossy detector
         detector = Detector(efficiency=0.5)
-        sampler = Sampler(
-            circuit, State([1, 0, 1, 0]), detector=detector, backend=backend
-        )
-        results = sampler.sample_N_inputs(1000)
+        sampler.detector = detector
+        results = backend.run(sampler)
         undetected_photons = False
         for s in results:
             if s.n_photons < 2:
@@ -443,9 +453,13 @@ class TestSamplerCalculationBackends:
         # Control
         detector = Detector(p_dark=0)
         sampler = Sampler(
-            circuit, State([0, 0, 0, 0]), detector=detector, backend=backend
+            circuit,
+            State([0, 0, 0, 0]),
+            1000,
+            detector=detector,
+            sampling_mode="input",
         )
-        results = sampler.sample_N_inputs(1000)
+        results = backend.run(sampler)
         dark_counts = False
         for s in results:
             if s.n_photons > 0:
@@ -454,10 +468,8 @@ class TestSamplerCalculationBackends:
         assert not dark_counts
         # With dark counts enabled
         detector = Detector(p_dark=0.1)
-        sampler = Sampler(
-            circuit, State([0, 0, 0, 0]), detector=detector, backend=backend
-        )
-        results = sampler.sample_N_inputs(1000)
+        sampler.detector = detector
+        results = backend.run(sampler)
         dark_counts = False
         for s in results:
             if s.n_photons > 0:
@@ -473,10 +485,8 @@ class TestSamplerCalculationBackends:
         circuit = Unitary(random_unitary(4))
         # Photon number resolving
         detector = Detector(photon_counting=True)
-        sampler = Sampler(
-            circuit, State([1, 0, 1, 0]), detector=detector, backend=backend
-        )
-        results = sampler.sample_N_inputs(1000)
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000, detector=detector)
+        results = backend.run(sampler)
         all_2_photon_states = True
         for s in results:
             if s.n_photons < 2:
@@ -485,10 +495,8 @@ class TestSamplerCalculationBackends:
         assert all_2_photon_states
         # Non-photon number resolving
         detector = Detector(photon_counting=False)
-        sampler = Sampler(
-            circuit, State([0, 0, 0, 0]), detector=detector, backend=backend
-        )
-        results = sampler.sample_N_inputs(1000)
+        sampler.detector = detector
+        results = backend.run(sampler)
         sub_2_photon_states = False
         for s in results:
             if s.n_photons < 2:
@@ -504,15 +512,18 @@ class TestSamplerCalculationBackends:
         """
         circuit = Unitary(random_unitary(6))
         # Sampler without built-in heralds
-        sampler = Sampler(circuit, State([1, 1, 0, 1, 0, 0]), backend=backend)
-        results = sampler.sample_N_outputs(
-            50000, post_select=lambda s: s[1] == 1 and s[3] == 0
+        sampler = Sampler(
+            circuit,
+            State([1, 1, 0, 1, 0, 0]),
+            50000,
+            post_selection=lambda s: s[1] == 1 and s[3] == 0,
         )
+        results = backend.run(sampler)
         # Then add and re-sample
         circuit.herald(1, 0, 1)
         circuit.herald(0, 2, 3)
-        sampler = Sampler(circuit, State([1, 1, 0, 0]), backend=backend)
-        results2 = sampler.sample_N_outputs(50000)
+        sampler = Sampler(circuit, State([1, 1, 0, 0]), 50000)
+        results2 = backend.run(sampler)
         # Check all results with outputs greater than 2000
         for s, c in results2.items():
             if c > 2000:
@@ -532,18 +543,18 @@ class TestSamplerCalculationBackends:
         source = Source(purity=0.9, brightness=0.9, indistinguishability=0.9)
         # Sampler without built-in heralds
         sampler = Sampler(
-            circuit, State([1, 1, 0, 1, 0, 0]), backend=backend, source=source
+            circuit,
+            State([1, 1, 0, 1, 0, 0]),
+            50000,
+            source=source,
+            post_selection=lambda s: s[1] == 1 and s[3] == 0,
         )
-        results = sampler.sample_N_outputs(
-            50000, post_select=lambda s: s[1] == 1 and s[3] == 0
-        )
+        results = backend.run(sampler)
         # Then add and re-sample
         circuit.herald(1, 0, 1)
         circuit.herald(0, 2, 3)
-        sampler = Sampler(
-            circuit, State([1, 1, 0, 0]), backend=backend, source=source
-        )
-        results2 = sampler.sample_N_outputs(50000)
+        sampler = Sampler(circuit, State([1, 1, 0, 0]), 50000, source=source)
+        results2 = backend.run(sampler)
         # Check all results with outputs greater than 2000
         for s, c in results2.items():
             if c > 2000:
@@ -561,15 +572,18 @@ class TestSamplerCalculationBackends:
         for i in range(6):
             circuit.loss(i, (i + 1) / 10)
         # Sampler without built-in heralds
-        sampler = Sampler(circuit, State([1, 1, 0, 1, 0, 0]), backend=backend)
-        results = sampler.sample_N_outputs(
-            50000, post_select=lambda s: s[1] == 1 and s[3] == 0
+        sampler = Sampler(
+            circuit,
+            State([1, 1, 0, 1, 0, 0]),
+            50000,
+            post_selection=lambda s: s[1] == 1 and s[3] == 0,
         )
+        results = backend.run(sampler)
         # Then add and re-sample
         circuit.herald(1, 0, 1)
         circuit.herald(0, 2, 3)
-        sampler = Sampler(circuit, State([1, 1, 0, 0]), backend=backend)
-        results2 = sampler.sample_N_outputs(50000)
+        sampler = Sampler(circuit, State([1, 1, 0, 0]), 50000)
+        results2 = backend.run(sampler)
         # Check all results with outputs greater than 2000
         for s, c in results2.items():
             if c > 2000:
@@ -590,20 +604,22 @@ class TestSamplerCalculationBackends:
         # Define source to use
         source = Source(purity=0.9, brightness=0.9, indistinguishability=0.9)
         # Sampler without built-in heralds
-        sampler = Sampler(
-            circuit, State([1, 1, 0, 1, 0, 0]), backend=backend, source=source
-        )
         post_select = PostSelection()
         post_select.add(1, 1)
         post_select.add(3, 0)
-        results = sampler.sample_N_outputs(50000, post_select=post_select)
+        sampler = Sampler(
+            circuit,
+            State([1, 1, 0, 1, 0, 0]),
+            50000,
+            source=source,
+            post_selection=post_select,
+        )
+        results = backend.run(sampler)
         # Then add and re-sample
         circuit.herald(1, 0, 1)
         circuit.herald(0, 2, 3)
-        sampler = Sampler(
-            circuit, State([1, 1, 0, 0]), backend=backend, source=source
-        )
-        results2 = sampler.sample_N_outputs(50000)
+        sampler = Sampler(circuit, State([1, 1, 0, 0]), 50000, source=source)
+        results2 = backend.run(sampler)
         # Check all results with outputs greater than 2000
         for s, c in results2.items():
             if c > 2000:
@@ -617,16 +633,18 @@ class TestSamplerCalculationBackends:
         which should undergo HOM, producing outputs of |2,0> and |0,2>.
         Includes imperfect brightness.
         """
-        circuit = Circuit(2)
+        circuit = PhotonicCircuit(2)
         circuit.bs(0)
+        n_sample = 100000
         sampler = Sampler(
             circuit,
             State([1, 1]),
-            backend=backend,
+            n_sample,
             source=Source(brightness=0.8),
+            random_seed=21,
+            min_detection=2,
         )
-        n_sample = 100000
-        results = sampler.sample_N_outputs(n_sample, seed=21, min_detection=2)
+        results = backend.run(sampler)
         assert len(results) == 2
         assert 0.49 < results[State([2, 0])] / n_sample < 0.51
         assert 0.49 < results[State([0, 2])] / n_sample < 0.51
@@ -637,13 +655,13 @@ class TestSamplerCalculationBackends:
         changing if these are part of a parameterized circuits.
         """
         loss = Parameter(0)
-        circuit = Circuit(4)
+        circuit = PhotonicCircuit(4)
         circuit.bs(0, loss=loss)
         circuit.bs(2, loss=loss)
         circuit.bs(1, loss=loss)
         # Initially sample
-        sampler = Sampler(circuit, State([1, 0, 1, 0]), backend=backend)
-        sampler.sample_N_inputs(10000)
+        sampler = Sampler(circuit, State([1, 0, 1, 0]), 10000)
+        backend.run(sampler)
         # Add loss and resample
         loss.set(1)
-        sampler.sample_N_inputs(10000)
+        backend.run(sampler)

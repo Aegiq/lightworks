@@ -12,19 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Callable
 from typing import Any
 
 from multimethod import multimethod
 
-from ...sdk.circuit.compiler import CompiledCircuit
+from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from ...sdk.state import State
-from ..backend import Backend
 from ..state import AnnotatedState
 
 
 @multimethod
 def pdist_calc(
-    circuit: CompiledCircuit, inputs: dict[State, int | float], backend: Backend
+    circuit: CompiledPhotonicCircuit,
+    inputs: dict[State, int | float],
+    probability_func: Callable,
 ) -> dict[State, float]:
     """
     Calculate the output state probability distribution for cases where
@@ -33,14 +35,14 @@ def pdist_calc(
 
     Args:
 
-        circuit (CompiledCircuit) : The compiled circuit that is to be
+        circuit (CompiledPhotonicCircuit) : The compiled circuit that is to be
             sampled from.
 
         inputs (dict) : The inputs to the system and their associated
             probabilities.
 
-        backend (Backend) : A backend object which provides the required
-            methods for calculation of the probability distribution.
+        probability_func (Callable) : A method for calculation of a probability
+            distribution, given a circuit and input state.
 
     Returns:
 
@@ -51,7 +53,7 @@ def pdist_calc(
     # Loop over each possible input
     for istate, prob in inputs.items():
         # Calculate sub distribution
-        sub_dist = backend.full_probability_distribution(circuit, istate)
+        sub_dist = probability_func(circuit, istate)
         if not pdist:
             if prob == 1:
                 pdist = sub_dist
@@ -73,9 +75,9 @@ def pdist_calc(
 
 @pdist_calc.register
 def annotated_state_pdist_calc(
-    circuit: CompiledCircuit,
+    circuit: CompiledPhotonicCircuit,
     inputs: dict[AnnotatedState, int | float],
-    backend: Backend,
+    probability_func: Callable,
 ) -> dict[State, float]:
     """
     Perform output state probability distribution calculation using complex
@@ -83,14 +85,14 @@ def annotated_state_pdist_calc(
 
     Args:
 
-        circuit (CompiledCircuit) : The compiled circuit that is to be
+        circuit (CompiledPhotonicCircuit) : The compiled circuit that is to be
                                     sampled from.
 
         inputs (dict) : The inputs to the system and their associated
                         probabilities.
 
-        backend (Backend) : A backend object which provides the required
-            methods for calculation of the probability distribution.
+        probability_func (Callable) : A method for calculation of a probability
+            distribution, given a circuit and input state.
 
     Returns:
 
@@ -122,8 +124,8 @@ def annotated_state_pdist_calc(
     unique_results: dict[State, Any] = {}
     for in_state in unique_inputs:
         # Calculate sub distribution and store
-        unique_results[in_state[: circuit.n_modes]] = (
-            backend.full_probability_distribution(circuit, in_state)
+        unique_results[in_state[: circuit.n_modes]] = probability_func(
+            circuit, in_state
         )
 
     # Pre-calculate dictionary items to improve speed
@@ -156,5 +158,4 @@ def annotated_state_pdist_calc(
                 stats_dict[ostate] = ip * op
             else:
                 stats_dict[ostate] += ip * op
-
     return stats_dict

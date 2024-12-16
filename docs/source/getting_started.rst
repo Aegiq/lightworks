@@ -23,18 +23,18 @@ First we need to import Lightworks and the emulator with the following:
     import lightworks as lw
     from lightworks import emulator
 
-We will configure a circuit to simulate by creating a new Circuit object. This Circuit object is one of the key components of Lightworks and is used in almost all interactions with it. When creating a circuit, the required number of circuit modes is provided, in this case 2. This number of modes is then fixed and cannot be modified without creating a new circuit.
+We will configure a circuit to simulate by creating a new PhotonicCircuit object. This PhotonicCircuit object is one of the key components of Lightworks and is used in almost all interactions with it. When creating a circuit, the required number of circuit modes is provided, in this case 2. This number of modes is then fixed and cannot be modified without creating a new circuit.
 
 .. code-block:: Python
 
-    circuit = lw.Circuit(2)
+    circuit = lw.PhotonicCircuit(2)
 
 If print is then used on the circuit, this will display the total number of modes.
 
 .. code-block:: Python
 
     print(circuit)
-    # Output: Circuit(2)
+    # Output: PhotonicCircuit(2)
 
 Next, we add a beam splitter to the circuit, this is achieved with the ``bs`` method. The default reflectivity of a beam splitter is 0.5 (50%), so we do not need to specify this. The value we specify in the method arguments is the first mode that the beam splitter is placed on. By default, if a second mode isn't specified then it will be set to the first mode + 1, so below we could have equivalently used ``bs(0,1)``.
 
@@ -45,7 +45,7 @@ Next, we add a beam splitter to the circuit, this is achieved with the ``bs`` me
 .. note::
     Like Python itself, indexing in Lightworks starts from 0, meaning this is always the first mode. So for example, in a 4 mode circuit, the modes would be referred to using the indices 0, 1, 2 & 3.
 
-Once a Circuit has been created, we can then view it using the display method. For the circuit above this will produce the following:
+Once a circuit has been created, we can then view it using the display method. For the circuit above this will produce the following:
 
 .. code-block:: Python
 
@@ -55,7 +55,7 @@ Once a Circuit has been created, we can then view it using the display method. F
     :scale: 200%
     :align: center
 
-Which, as expected, is a single 50:50 beam splitter (reflectivity = 0.5) across the two modes. For more information about the exact usage of circuit all of its components, visit the :doc:`sdk/circuit` section.
+Which, as expected, is a single 50:50 beam splitter (reflectivity = 0.5) across the two modes. For more information about the exact usage of circuit all of its components, visit the :doc:`sdk/photonic_circuit` section.
 
 Initial Simulation
 ------------------
@@ -68,14 +68,21 @@ Once we have built a circuit, we can then move on to simulating it with the emul
 
 The exact functionality of the State object is discussed further in the :doc:`sdk/state` section.
 
-For this initial simulation, we will choose to use the :doc:`emulator_reference/sampler` to emulate the process of measuring photon outputs after they have propagated through the system. On creation of the Sampler, we specify the circuit and the input state to sample from. By default, it is assumed that all photons are indistinguishable, and so we do not need to set anything for this. We then use the ``sample_N_outputs`` method to generate N samples from the system, in this case choosing N = 10000. We will also specify a random seed to ensure results are reproducible, but this is optional.
+For this initial simulation, we will choose to use the :doc:`sdk_reference/tasks/sampler` to emulate the process of measuring photon outputs after they have propagated through the system. On creation of the Sampler, we specify the circuit, input state to sample from, and number of samples. A random seed can also be set to produce repeatable results. By default, it is assumed that all photons are indistinguishable, and so we do not need to set anything for this. 
 
 .. code-block:: Python
 
-    sampler = emulator.Sampler(circuit, input_state)
-    results = sampler.sample_N_outputs(10000, seed = 1)
+    n_samples = 10000
+    sampler = lw.Sampler(circuit, input_state, n_samples, random_seed = 1)
 
-This produces a :doc:`emulator_reference/sampling_result` object, we can quickly view the contents of this using the print statement.
+A backend from the emulator then needs to be selected to run the sampler task on. In this case the permanent backend is chosen, more information about this can be found in :doc:`emulator/backend`. The task is then executed using this backend with ``run``.
+
+.. code-block:: Python
+
+    backend = emulator.Backend("permanent")
+    results = backend.run(sampler)
+
+This produces a :doc:`sdk_reference/results/sampling_result` object, we can quickly view the contents of this using the print statement.
 
 .. code-block:: Python
 
@@ -102,9 +109,9 @@ With the emulator, we can also simulate distinguishable particles, to confirm th
 .. code-block:: Python
 
     source = emulator.Source(indistinguishability = 0)
-    sampler = emulator.Sampler(circuit, input_state, source = source)
+    sampler = lw.Sampler(circuit, input_state, n_samples, source = source, random_seed = 1)
 
-    results = sampler.sample_N_outputs(10000, seed = 1)
+    results = backend.run(Sampler)
     results.plot()
 
 .. image:: assets/getting_started_demo_plot2.png

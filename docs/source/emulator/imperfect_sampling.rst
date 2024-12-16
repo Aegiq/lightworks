@@ -37,7 +37,7 @@ To include the imperfect source when sampling, the Source should be included as 
     source = emulator.Source(purity = 0.95, indistinguishability = 0.9)
 
     # And finally add this in the Sampler
-    sampler = emulator.Sampler(circuit, input_state, source = source)
+    sampler = lw.Sampler(circuit, input_state, 10000, source = source)
 
 The system can then be sampled in the usual way, and the source properties will also affect the calculated probability distribution assigned to the ``probability_distribution`` attribute.
 
@@ -62,6 +62,9 @@ There is also a number of detector imperfections that can be included, through t
 
 As with the Source, the Detector is then included in the initial Sampler creation.
 
+.. note::
+    Sub-unity efficiency and dark counts can only be introduced when utilising the input mode of the Sampler.
+
 .. code-block:: Python
 
     # Create circuit and unitary
@@ -72,6 +75,6 @@ As with the Source, the Detector is then included in the initial Sampler creatio
     detector = emulator.Detector(photon_counting = False, p_dark = 1e-6)
 
     # And finally add this in the Sampler
-    sampler = emulator.Sampler(circuit, input_state, detector = detector)
+    sampler = lw.Sampler(circuit, input_state, 10000, detector = detector, sampling_mode = "input")
 
 When the sample methods are used the detector is then applied as a post-processing step on the output state, before any heralding and post-selection options are included. It is important to note that, unlike when using a source, the detector options will not alter the values seen in the ``probability_distribution`` attribute. For example, using a Detector with ``photon_counting = False`` wouldn't produce states with a maximum of one photon per mode in the probability distribution.

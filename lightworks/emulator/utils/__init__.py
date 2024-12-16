@@ -15,5 +15,5 @@
 # ruff: noqa: F401, F403
 
 from .exceptions import *
-from .post_selection_processing import process_post_selection
+from .sim import check_photon_numbers
 from .state_utils import annotated_state_to_string, fock_basis

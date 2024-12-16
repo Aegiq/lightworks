@@ -170,9 +170,9 @@ The two qubit gates can then be created in the same way as the single qubit gate
     #                       c0 c1 t0 t1
     input_state = lw.State([0, 1, 1, 0])
 
-    sampler = emulator.Sampler(cnot, input_state)
     # Then sample 10,000 times
-    results = sampler.sample_N_inputs(10000, seed = 8)
+    sampler = emulator.Sampler(cnot, input_state, 10000, seed = 8)
+    results = Backend("slos").run(sampler)
 
     # View measured counts
     print(results)

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .analyzer import Analyzer
-from .quick_sampler import QuickSampler
-from .sampler import Sampler
-from .simulator import Simulator
+from .analyzer import AnalyzerRunner
+from .runner import RunnerABC
+from .sampler import SamplerRunner
+from .simulator import SimulatorRunner

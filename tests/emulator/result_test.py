@@ -17,9 +17,11 @@ import matplotlib.pyplot as plt
 import pytest
 from numpy import array
 
-from lightworks import State
-from lightworks.emulator.results import SamplingResult, SimulationResult
-from lightworks.emulator.utils import ResultCreationError
+from lightworks import ResultCreationError, State
+from lightworks.sdk.results import (
+    SamplingResult,
+    SimulationResult,
+)
 
 
 class TestSamplingResult:

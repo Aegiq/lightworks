@@ -17,7 +17,7 @@ from random import random
 import numpy as np
 import pytest
 
-from lightworks import Circuit, random_unitary
+from lightworks import PhotonicCircuit, random_unitary
 from lightworks.interferometers.decomposition import (
     bs_matrix,
     check_null,
@@ -68,7 +68,7 @@ class TestDecomposition:
         # Get beam splitter matrix
         bs_u = bs_matrix(0, 1, theta, phi, 2)
         # Create unit cell circuit
-        circ = Circuit(2)
+        circ = PhotonicCircuit(2)
         circ.ps(0, phi)
         circ.bs(0)
         circ.ps(1, theta)

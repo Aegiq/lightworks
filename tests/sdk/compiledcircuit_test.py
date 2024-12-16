@@ -16,8 +16,8 @@ import numpy as np
 import pytest
 
 from lightworks import Parameter, random_unitary
-from lightworks.sdk.circuit.compiler import CompiledCircuit
-from lightworks.sdk.circuit.components import (
+from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
+from lightworks.sdk.circuit.photonic_components import (
     Barrier,
     BeamSplitter,
     Group,
@@ -31,21 +31,21 @@ from lightworks.sdk.utils import ModeRangeError
 
 class TestCompiledCircuit:
     """
-    Unit tests to confirm correct functioning of the CompiledCircuit class when
-    various operations are performed.
+    Unit tests to confirm correct functioning of the CompiledPhotonicCircuit
+    class when various operations are performed.
     """
 
     def test_creation(self):
         """
         Checks creation of a compiled circuit doesn't raise any issues.
         """
-        CompiledCircuit(10)
+        CompiledPhotonicCircuit(10)
 
     def test_creation_modes(self):
         """
         Checks number of modes are correct on creation of a circuit.
         """
-        c = CompiledCircuit(10)
+        c = CompiledPhotonicCircuit(10)
         assert c.n_modes == 10
         assert c.loss_modes == 00
         assert c.n_modes == c.total_modes
@@ -54,7 +54,7 @@ class TestCompiledCircuit:
         """
         Checks that default array type is complex.
         """
-        c = CompiledCircuit(10)
+        c = CompiledPhotonicCircuit(10)
         assert c.U_full.dtype == complex
 
     @pytest.mark.parametrize(
@@ -73,7 +73,7 @@ class TestCompiledCircuit:
         Confirms each component can be added to a circuit and the configured
         unitary matches that from the component.
         """
-        c = CompiledCircuit(5)
+        c = CompiledPhotonicCircuit(5)
         c.add(component)
         assert (
             c.U_full.round(8) == component.get_unitary(c.total_modes).round(8)
@@ -91,7 +91,7 @@ class TestCompiledCircuit:
             ModeSwaps({0: 2, 2: 1, 1: 0}),
         ]
         group = Group(spec, "test", 1, 3, {})
-        c = CompiledCircuit(5)
+        c = CompiledPhotonicCircuit(5)
         c.add(group)
         # Find expected unitary from components individually
         expected = np.identity(c.total_modes)
@@ -107,12 +107,12 @@ class TestCompiledCircuit:
         param = Parameter(0.9)
         bs = BeamSplitter(1, 3, param, "H")
         # Get first unitary
-        c = CompiledCircuit(4)
+        c = CompiledPhotonicCircuit(4)
         c.add(bs)
         u1 = c.U_full
         # Then update parameter and get second
         param.set(0.3)
-        c = CompiledCircuit(4)
+        c = CompiledPhotonicCircuit(4)
         c.add(bs)
         u2 = c.U_full
         assert (u1.round(8) != u2.round(8)).any()
@@ -122,7 +122,7 @@ class TestCompiledCircuit:
         Confirms that heralding being added to a circuit works as expected and
         is reflected in the heralds attribute.
         """
-        circuit = CompiledCircuit(4)
+        circuit = CompiledPhotonicCircuit(4)
         circuit.add_herald(1, 0, 2)
         # Check heralds added
         assert 0 in circuit.heralds["input"]
@@ -136,7 +136,7 @@ class TestCompiledCircuit:
         Confirms that heralding being added to a circuit works as expected and
         is reflected in the heralds attribute, when only a single mode is set
         """
-        circuit = CompiledCircuit(4)
+        circuit = CompiledPhotonicCircuit(4)
         circuit.add_herald(2, 1)
         # Check heralds added
         assert 1 in circuit.heralds["input"]
@@ -151,7 +151,7 @@ class TestCompiledCircuit:
         Checks error is raised when a non-integer photon number is provided to
         the herald method.
         """
-        circuit = CompiledCircuit(4)
+        circuit = CompiledPhotonicCircuit(4)
         with pytest.raises(TypeError):
             circuit.add_herald(value, 0)
 
@@ -161,7 +161,7 @@ class TestCompiledCircuit:
         Checks error is raised when a non-integer mode number is provided to
         the herald method.
         """
-        circuit = CompiledCircuit(4)
+        circuit = CompiledPhotonicCircuit(4)
         with pytest.raises((TypeError, ModeRangeError)):
             circuit.add_herald(0, value)
 
@@ -171,7 +171,7 @@ class TestCompiledCircuit:
         Checks error is raised when a non-integer output mode number is provided
         to the herald method.
         """
-        circuit = CompiledCircuit(4)
+        circuit = CompiledPhotonicCircuit(4)
         with pytest.raises((TypeError, ModeRangeError)):
             circuit.add_herald(0, 0, value)
 
@@ -179,7 +179,7 @@ class TestCompiledCircuit:
         """
         Checks error is raised if a duplicate mode is provided to the herald.
         """
-        circuit = CompiledCircuit(4)
+        circuit = CompiledPhotonicCircuit(4)
         circuit.add_herald(0, 0)
         with pytest.raises(ValueError):
             circuit.add_herald(0, 0)
@@ -189,7 +189,7 @@ class TestCompiledCircuit:
         Checks error is raised if a duplicate output mode is provided to the
         herald.
         """
-        circuit = CompiledCircuit(4)
+        circuit = CompiledPhotonicCircuit(4)
         circuit.add_herald(0, 0, 1)
         with pytest.raises(ValueError):
             circuit.add_herald(0, 1, 1)

@@ -14,220 +14,127 @@
 
 from collections import Counter
 from collections.abc import Callable
-from random import random
 
 import numpy as np
 
-from ...sdk.circuit import Circuit
+from ...sdk.results import SamplingResult
 from ...sdk.state import State
+from ...sdk.tasks import SamplerTask
 from ...sdk.utils import (
+    DefaultPostSelection,
+    PostSelectionType,
+    SamplerError,
     add_heralds_to_state,
     process_random_seed,
     remove_heralds_from_state,
 )
-from ...sdk.utils.post_selection import PostSelectionType
-from ..backend import Backend
 from ..components import Detector, Source
-from ..results import SamplingResult
-from ..utils import ModeMismatchError, SamplerError, process_post_selection
 from .probability_distribution import pdist_calc
+from .runner import RunnerABC
 
 
-class Sampler:
+class SamplerRunner(RunnerABC):
     """
-    Used to randomly sample from the photon number distribution output of a
-    provided circuit. The distribution is calculated when the class is first
-    called and then used to return output states with the sample function. Also
-    supports the inclusion of imperfect source and detection properties.
+    Calculates the output probability distribution for a configuration and
+    finds produces a set of N samples from this.
 
     Args:
 
-        circuit : The circuit to sample output states from.
+        data (SamplerTask) : The task which is to be executed.
 
-        input_state (State) : The input state to use with the circuit for
-            sampling.
+        pdist_function (Callable) : Function for calculating probability
+            distributions for a provided unitary & input.
 
-        source (Source, optional) : Provide a source object to simulate an
-            imperfect input. This defaults to None, which will create a perfect
-            source.
+    Attributes:
 
-        detector (Detector, optional) : Provide detector to simulate imperfect
-            detector probabilities. This defaults to None, which will assume a
-            perfect detector.
+        source (Source) : The in-use Source object. If the source in the data
+            was originally set to None then this a new default Source object is
+            created.
 
-        backend (Backend | str, optional) : Specify which backend is to be used
-            for the sampling process. If not selected this will default to
-            permanent calculation.
+        detector (Detector) : The in-use Detector object. If the detector in the
+            data was originally set to None then this a new default Detector
+            object is created.
 
     """
 
-    def __init__(
-        self,
-        circuit: Circuit,
-        input_state: State,
-        source: Source | None = None,
-        detector: Detector | None = None,
-        backend: Backend | str | None = None,
-    ) -> None:
-        # Assign provided quantities to attributes
-        self.circuit = circuit
-        self.input_state = input_state
-        self.source = source  # type: ignore
-        self.detector = detector  # type: ignore
-        self.backend = backend  # type: ignore
+    def __init__(self, data: SamplerTask, pdist_function: Callable) -> None:
+        self.data = data
+        self.source = Source() if self.data.source is None else self.data.source
+        self.detector = (
+            Detector() if self.data.detector is None else self.data.detector
+        )
+        self.func = pdist_function
 
-        return
-
-    @property
-    def circuit(self) -> Circuit:
+    def distribution_calculator(self) -> dict:
         """
-        Stores the circuit to be used for simulation, should be a Circuit
-        object.
+        Calculates the output probability distribution for the provided
+        configuration. This needs to be done before sampling.
         """
-        return self.__circuit
-
-    @circuit.setter
-    def circuit(self, value: Circuit) -> None:
-        if not isinstance(value, Circuit):
-            raise TypeError(
-                "Provided circuit should be a Circuit or Unitary object."
+        # Check circuit and input modes match
+        if self.data.circuit.input_modes != len(self.data.input_state):
+            raise ValueError(
+                "Mismatch in number of modes between input and circuit."
             )
-        self.__circuit = value
+        # Add heralds to the included input
+        modified_state = add_heralds_to_state(
+            self.data.input_state, self.data.circuit.heralds["input"]
+        )
+        input_state = State(modified_state)
+        # Then build with source
+        all_inputs = self.source._build_statistics(input_state)
+        # And find probability distribution
+        pdist = pdist_calc(self.data.circuit, all_inputs, self.func)
+        # Special case to catch an empty distribution
+        if not pdist:
+            pdist = {State([0] * self.data.circuit.n_modes): 1}
+        # Assign calculated distribution to attribute
+        self.probability_distribution = pdist
+        herald_modes = list(self.data.circuit.heralds["output"].keys())
+        self.full_to_heralded = {
+            s: State(remove_heralds_from_state(s, herald_modes)) for s in pdist
+        }
+        return pdist
 
-    @property
-    def input_state(self) -> State:
-        """The input state to be used for sampling."""
-        return self.__input_state
-
-    @input_state.setter
-    def input_state(self, value: State) -> None:
-        if not isinstance(value, State):
-            raise TypeError("A single input of type State should be provided.")
-        if len(value) != self.circuit.input_modes:
-            raise ModeMismatchError(
-                "Incorrect input length for provided circuit."
-            )
-        # Also validate state values
-        value._validate()
-        self.__input_state = value
-
-    @property
-    def source(self) -> Source:
+    def run(self) -> SamplingResult:
         """
-        Details the properties of the Source used for creation of inputs to
-        the Sampler.
-        """
-        return self.__source
-
-    @source.setter
-    def source(self, value: Source) -> None:
-        if value is None:
-            value = Source()
-        if not isinstance(value, Source):
-            raise TypeError("Provided source should be a Source object.")
-        self.__source = value
-
-    @property
-    def detector(self) -> Detector:
-        """
-        Details the properties of the Detector used for photon measurement.
-        """
-        return self.__detector
-
-    @detector.setter
-    def detector(self, value: Detector | None) -> None:
-        if value is None:
-            value = Detector()
-        if not isinstance(value, Detector):
-            raise TypeError("Provided detector should be a Detector object.")
-        self.__detector = value
-
-    @property
-    def backend(self) -> Backend:
-        """
-        Stores backend which is currently in use.
-        """
-        return self.__backend
-
-    @backend.setter
-    def backend(self, value: Backend | str | None) -> None:
-        if value is None:
-            value = Backend("permanent")
-        if isinstance(value, str):
-            value = Backend(value)
-        if not isinstance(value, Backend):
-            raise TypeError("Provided backend should be a Backend object.")
-        self.__backend = value
-
-    @property
-    def probability_distribution(self) -> dict:
-        """
-        The output probability distribution for the currently set configuration
-        of the Sampler. This is re-calculated as the Sampler parameters are
-        changed.
-        """
-        if self._check_parameter_updates():
-            # Check circuit and input modes match
-            if self.circuit.input_modes != len(self.input_state):
-                raise ValueError(
-                    "Mismatch in number of modes between input and circuit."
-                )
-            # Add heralds to the included input
-            modified_state = add_heralds_to_state(
-                self.input_state, self.circuit.heralds["input"]
-            )
-            input_state = State(modified_state)
-            # Then build with source
-            all_inputs = self.source._build_statistics(input_state)
-            # And find probability distribution
-            pdist = pdist_calc(self.circuit._build(), all_inputs, self.backend)
-            # Special case to catch an empty distribution
-            if not pdist:
-                pdist = {State([0] * self.circuit.n_modes): 1}
-            # Assign calculated distribution to attribute
-            self.__probability_distribution = pdist
-            herald_modes = list(self.circuit.heralds["output"].keys())
-            self.__full_to_heralded = {
-                s: State(remove_heralds_from_state(s, herald_modes))
-                for s in pdist
-            }
-            self.__calculation_values = self._gen_calculation_values()
-            # Also pre-calculate continuous distribution
-            self.__continuous_distribution = self._convert_to_continuous(pdist)
-        return self.__probability_distribution
-
-    @property
-    def continuous_distribution(self) -> dict:
-        """
-        The probability distribution as a continuous distribution. This can be
-        used for random sampling from the distribution.
-        """
-        if self._check_parameter_updates():
-            self.probability_distribution  # noqa: B018
-        return self.__continuous_distribution
-
-    def sample(self) -> State:
-        """
-        Function to sample a state from the provided distribution.
+        Performs sampling using the calculated probability distribution.
 
         Returns:
 
-            State : The sampled output state from the circuit.
+            SamplingResult : A dictionary containing the different output
+                states and the number of counts for each one.
 
         """
-        # Get random number and find first point continuous distribution is
-        # below this value
-        pval = random()
-        for state, cd in self.continuous_distribution.items():
-            if pval < cd:
-                # Return this as the found state
-                return self.detector._get_output(state)
-        return self.detector._get_output(state)
+        if not hasattr(self, "probability_distribution"):
+            raise RuntimeError(
+                "Probability distribution has not been calculated. This likely "
+                "results from an error in Lightworks."
+            )
 
-    def sample_N_inputs(  # noqa: N802
+        post_selection = (
+            DefaultPostSelection()
+            if self.data.post_selection is None
+            else self.data.post_selection
+        )
+
+        if self.data.sampling_mode == "input":
+            return self._sample_N_inputs(
+                self.data.n_samples,
+                post_selection,
+                self.data.min_detection,
+                self.data.random_seed,
+            )
+        return self._sample_N_outputs(
+            self.data.n_samples,
+            post_selection,
+            self.data.min_detection,
+            self.data.random_seed,
+        )
+
+    def _sample_N_inputs(  # noqa: N802
         self,
         N: int,  # noqa: N803
-        post_select: PostSelectionType | Callable | None = None,
+        post_select: PostSelectionType,
         min_detection: int = 0,
         seed: int | None = None,
     ) -> SamplingResult:
@@ -243,9 +150,9 @@ class Sampler:
 
             N (int) : The number of samples to take from the circuit.
 
-            post_select (PostSelection | function, optional) : A PostSelection
-                object or function which applies a provided set of
-                post-selection criteria to a state.
+            post_select (PostSelection) : A PostSelection object or function
+                which applies a provided set of post-selection criteria to a
+                state.
 
             min_detection (int, optional) : Post-select on a given minimum
                 total number of photons, this should not include any heralded
@@ -261,21 +168,32 @@ class Sampler:
                 states and the number of counts for each one.
 
         """
-        post_select = process_post_selection(post_select)
-        if not isinstance(min_detection, int) or isinstance(
-            min_detection, bool
-        ):
-            raise TypeError("min_detection value should be an integer.")
         pdist = self.probability_distribution
         vals = np.zeros(len(pdist), dtype=object)
         for i, k in enumerate(pdist.keys()):
             vals[i] = k
         # Generate N random samples and then process and count output states
         rng = np.random.default_rng(process_random_seed(seed))
-        samples = rng.choice(vals, p=list(pdist.values()), size=N)
+        try:
+            samples = rng.choice(vals, p=list(pdist.values()), size=N)
+        # Sometimes the probability distribution will not quite be normalized,
+        # in this case try to re-normalize it.
+        except ValueError as e:
+            total_p = sum(pdist.values())
+            if abs(total_p - 1) > 0.01:
+                msg = (
+                    "Probability distribution significantly deviated from "
+                    f"required normalisation ({total_p})."
+                )
+                raise ValueError(msg) from e
+            norm_p = [p / total_p for p in pdist.values()]
+            samples = rng.choice(vals, p=norm_p, size=N)
+            self.probability_distribution = {
+                k: v / total_p for k, v in self.probability_distribution.items()
+            }
         filtered_samples = []
         # Get heralds and pre-calculate items
-        heralds = self.circuit.heralds["output"]
+        heralds = self.data.circuit.heralds["output"]
         if heralds:
             if max(heralds.values()) > 1 and not self.detector.photon_counting:
                 raise SamplerError(
@@ -296,22 +214,22 @@ class Sampler:
             # If met then remove heralded modes and store
             else:
                 if heralds:
-                    if state not in self.__full_to_heralded:
-                        self.__full_to_heralded[state] = State(
+                    if state not in self.full_to_heralded:
+                        self.full_to_heralded[state] = State(
                             remove_heralds_from_state(state, herald_modes)
                         )
-                    hs = self.__full_to_heralded[state]
+                    hs = self.full_to_heralded[state]
                 else:
                     hs = state
                 if post_select.validate(hs) and hs.n_photons >= min_detection:
                     filtered_samples.append(hs)
         counted = dict(Counter(filtered_samples))
-        return SamplingResult(counted, self.input_state)
+        return SamplingResult(counted, self.data.input_state)
 
-    def sample_N_outputs(  # noqa: N802
+    def _sample_N_outputs(  # noqa: N802
         self,
         N: int,  # noqa: N803
-        post_select: PostSelectionType | Callable | None = None,
+        post_select: PostSelectionType,
         min_detection: int = 0,
         seed: int | None = None,
     ) -> SamplingResult:
@@ -325,9 +243,9 @@ class Sampler:
 
             N (int) : The number of samples that are to be returned.
 
-            post_select (PostSelection | function, optional) : A PostSelection
-                object or function which applies a provided set of
-                post-selection criteria to a state.
+            post_select (PostSelection) : A PostSelection object or function
+                which applies a provided set of post-selection criteria to a
+                state.
 
             min_detection (int, optional) : Post-select on a given minimum
                 total number of photons, this should not include any heralded
@@ -343,19 +261,14 @@ class Sampler:
                 states and the number of counts for each one.
 
         """
-        post_select = process_post_selection(post_select)
-        if not isinstance(min_detection, int) or isinstance(
-            min_detection, bool
-        ):
-            raise TypeError("min_detection value should be an integer.")
         pdist = self.probability_distribution
-        # Check no detector dark counts included
-        if self.detector.p_dark != 0:
+        if self.detector.p_dark > 0 or self.detector.efficiency < 1:
             raise SamplerError(
-                "sample_N_outputs not compatible with detector dark counts"
+                "To use detector dark counts or sub-unity detector efficiency "
+                "the sampling mode must be set to 'input'."
             )
         # Get heralds and pre-calculate items
-        heralds = self.circuit.heralds["output"]
+        heralds = self.data.circuit.heralds["output"]
         if heralds:
             if max(heralds.values()) > 1 and not self.detector.photon_counting:
                 raise SamplerError(
@@ -377,11 +290,11 @@ class Sampler:
             else:
                 # Then remove herald modes
                 if heralds:
-                    if s not in self.__full_to_heralded:
-                        self.__full_to_heralded[s] = State(
+                    if s not in self.full_to_heralded:
+                        self.full_to_heralded[s] = State(
                             remove_heralds_from_state(s, herald_modes)
                         )
-                    new_s = self.__full_to_heralded[s]
+                    new_s = self.full_to_heralded[s]
                 else:
                     new_s = s
                 # Check state meets min detection and post-selection criteria
@@ -412,61 +325,4 @@ class Sampler:
         samples = rng.choice(vals, p=probs, size=N)
         # Count states and convert to results object
         counted = dict(Counter(samples))
-        return SamplingResult(counted, self.input_state)
-
-    def _check_parameter_updates(self) -> bool:
-        """
-        Determines if probabilities have already been calculated with a given
-        configuration and if so will return False. If they haven't been
-        calculated yet or the the parameters have changed then this will return
-        True.
-        """
-        # Return True if not already calculated
-        if not hasattr(self, "_Sampler__calculation_values"):
-            return True
-        # Otherwise check entries in the list are equivalent, returning False
-        # if this is the case and true otherwise
-        for i1, i2 in zip(
-            self._gen_calculation_values(),
-            self.__calculation_values,
-            strict=True,
-        ):
-            # Treat arrays and other values differently
-            if isinstance(i1, np.ndarray) and isinstance(i2, np.ndarray):
-                if i1.shape != i2.shape:
-                    return True
-                if not (i1 == i2).all():
-                    return True
-            else:
-                if i1 != i2:
-                    return True
-        return False
-
-    def _gen_calculation_values(self) -> list:
-        """
-        Stores all current parameters used with the sampler in a list and
-        returns this.
-        """
-        # Store circuit unitary and input state
-        vals = [self.__circuit.U_full, self.input_state, self.backend.backend]
-        # Loop through source parameters and add these as well
-        for prop in [
-            "brightness",
-            "purity",
-            "indistinguishability",
-            "probability_threshold",
-        ]:
-            vals.append(getattr(self.source, prop))  # noqa: PERF401
-        return vals
-
-    def _convert_to_continuous(self, dist: dict) -> dict:
-        """
-        Convert a probability distribution to continuous for sampling, with
-        normalisation also being applied.
-        """
-        cdist, pcon = {}, 0
-        total = sum(dist.values())
-        for s, p in dist.items():
-            pcon += p
-            cdist[s] = pcon / total
-        return cdist
+        return SamplingResult(counted, self.data.input_state)

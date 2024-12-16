@@ -18,7 +18,7 @@ import drawsvg as draw
 import numpy as np
 from multimethod import multimethod
 
-from ..circuit.components import (
+from ..circuit.photonic_components import (
     Barrier,
     BeamSplitter,
     Group,
@@ -32,7 +32,7 @@ from .display_components_svg import DrawSVGComponents
 from .display_utils import process_parameter_value
 
 if TYPE_CHECKING:
-    from ..circuit import Circuit
+    from ..circuit import PhotonicCircuit
 
 
 class DrawCircuitSVG:
@@ -44,7 +44,7 @@ class DrawCircuitSVG:
 
     Args:
 
-        circuit (Circuit) : The circuit which is to be displayed.
+        circuit (PhotonicCircuit) : The circuit which is to be displayed.
 
         display_loss (bool, optional) : Choose whether to display loss
             components in the figure, defaults to False.
@@ -60,7 +60,7 @@ class DrawCircuitSVG:
 
     def __init__(
         self,
-        circuit: "Circuit",
+        circuit: "PhotonicCircuit",
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
         show_parameter_values: bool = False,

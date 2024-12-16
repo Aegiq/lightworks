@@ -20,10 +20,10 @@ import numpy as np
 import pytest
 
 from lightworks import (
-    Circuit,
     Display,
     DisplayError,
     Parameter,
+    PhotonicCircuit,
     Unitary,
     db_loss_to_decimal,
     random_unitary,
@@ -38,7 +38,7 @@ class TestDisplay:
         Create a circuit for testing with, this should utilise all components
         to ensure thorough testing.
         """
-        self.circuit = Circuit(4)
+        self.circuit = PhotonicCircuit(4)
         for i, m in enumerate([0, 2, 1, 2, 0, 1]):
             self.circuit.bs(m)
             self.circuit.ps(m, phi=Parameter(i, label=f"p{i}"))
@@ -67,7 +67,7 @@ class TestDisplay:
         self.circuit.add(Unitary(random_unitary(3, seed=1)), 1)
         self.circuit.add(Unitary(random_unitary(3, seed=1)), 0, group=True)
         self.circuit.barrier()
-        circuit2 = Circuit(2)
+        circuit2 = PhotonicCircuit(2)
         circuit2.bs(0)
         circuit2.ps(1, 2)
         circuit2.herald(2, 1, 1)

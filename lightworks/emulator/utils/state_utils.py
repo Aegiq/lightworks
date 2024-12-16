@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections.abc import Iterable
-
 """
 Script to store various useful functions for the simulation aspect of the code.
 """
+
+from collections.abc import Iterable
 
 
 def fock_basis(N: int, n: int) -> list:  # noqa: N803

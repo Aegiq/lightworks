@@ -2,14 +2,16 @@ SDK Reference
 =============
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
-    circuit
-    components
-    compiled_circuit
+    photonic_circuit
+    photonic_components
+    photonic_compiled_circuit
     state
     display
     parameter
     parameter_dict
     unitary
+    tasks/index
+    results/index
     utils

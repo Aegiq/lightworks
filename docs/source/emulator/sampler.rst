@@ -1,7 +1,7 @@
 Sampler
 =======
 
-The :doc:`../emulator_reference/sampler` can be used to simulate the process of running jobs with an interferometer-based photonic system, in which the same input is placed into the system many times and the output distribution measured. As this output from the system is inherently probabilistic, the output distribution will tend towards the true distribution as more samples are collected. The number of samples collected from the system will depend on resource constraints, but will never be infinite, meaning there will always be some small variation from the ideal distribution. 
+The :doc:`../sdk_reference/tasks/sampler` can be used to simulate the process of running jobs with an interferometer-based photonic system, in which the same input is placed into the system many times and the output distribution measured. As this output from the system is inherently probabilistic, the output distribution will tend towards the true distribution as more samples are collected. The number of samples collected from the system will depend on resource constraints, but will never be infinite, meaning there will always be some small variation from the ideal distribution. 
 
 As sampling is predominately how a hardware system is utilised, it is very useful to be able to understand how the process will look like for a given job. To demonstrate sampling we will show how the 2 qubit CNOT gate from :cite:p:`ralph2002` can be tested with the emulator. The circuit to define this gate is shown below, it occupies 6 modes, where the 4 central modes c0, c1, t0 & t1 are used for qubit encoding. 
 
@@ -11,11 +11,12 @@ As sampling is predominately how a hardware system is utilised, it is very usefu
 
 .. code-block:: Python
 
-    cnot_circuit = lw.Circuit(6)
+    cnot_circuit = lw.PhotonicCircuit(6)
 
     theta = np.arccos(1/3)
-    to_add = [(3, np.pi/2, 0), (0, theta, 0), (2, theta, np.pi), (4, theta, 0), 
-              (3, np.pi/2, 0)]
+    to_add = [
+        (3, np.pi/2, 0), (0, theta, 0), (2, theta, np.pi), (4, theta, 0), (3, np.pi/2, 0)
+    ]
 
     for m, t, p in to_add:
         cnot_circuit.bs(m, reflectivity = 0.5)
@@ -37,24 +38,25 @@ An input state to the system also needs to be defined. In this case, we'll choos
 
 .. code-block:: Python
 
-    input_state = lw.State([0,0,1,1,0,0])
+    input_state = lw.State([0, 0, 1, 1, 0, 0])
 
 Sampling
 --------
 
-Once the circuit and input state are defined, these can then be used in the creation of the Sampler object.
+Once the circuit and input state are defined, these can then be used in the creation of the Sampler object. The target number of samples and a random seed is also configured.
 
 .. code-block:: Python
 
-    sampler = emulator.Sampler(cnot_circuit, input_state)
+    sampler = lw.Sampler(cnot_circuit, input_state, 10000, random_seed = 1)
 
-It is possible to view the output probability distribution by accessing the ``probability_distribution`` attribute, but this is not really the intended functionality of the Sampler. Instead, one of the sample methods should be used to simulate the process of generating samples from the system. The most commonly used will be ``sample_N_outputs``, which will replicate the process of measuring from a system until we retrieve N valid outputs. For example, to generate 10000 samples the following is used:
+Once created, the sampling procedure can be run on a selected backend. The sampler currently supports both permanent and slos backends.
 
 .. code-block:: Python
     
-    results = sampler.sample_N_outputs(10000, seed = 1)
+    backend = emulator.Backend("slos")
+    results = backend.run(sampler)
 
-This method also supports supplying a random seed for the creation of repeatable results. It returns a :doc:`../emulator_reference/sampling_result` object, which has a range of useful functionality, but primarily the ``plot`` method can be used to view the output counts from the sampling experiment.
+This returns a :doc:`../sdk_reference/results/sampling_result` object, which has a range of useful functionality, but primarily the ``plot`` method can be used to view the output counts from the sampling experiment.
 
 .. code-block:: Python
 
@@ -66,17 +68,10 @@ This method also supports supplying a random seed for the creation of repeatable
 
 For the plot above, it can be seen there is no clear output, which is expected as the post-selection rules have not yet been applied. This is implemented in the next section.
 
-The other sample methods are ``sample``, which is used to generate single outputs from the system and ``sample_N_inputs`` which will emulate the process of running a photonic sampling system for N clock samples. An example of using the former is shown below:
-
-.. code-block:: Python
-
-    print(sampler.sample())
-    # Output: |0,0,1,0,0,1> (Your output will vary here)
-
 Post-selection & Heralding
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As mentioned, post-selection/heralding is required for the CNOT gate above to work correctly. In particular, the gate requires that no photons are measured on the a0 & a1 modes. Additionally, there is a condition that only one photon is measured across c0 & c1 and another across t0 & t1. These can be implemented in the ``sample_N_outputs`` method by providing a function to the ``post_select`` option. This can either be a dedicated function or can use the lambda function included with Python, but must take a single argument as the input, with this argument expected to be a State object. There is also a ``min_detection`` option, which is used to set the minimum number of photons that should be detected at the output. In this case the function we supply will enforce this condition and so it is not necessary. 
+As mentioned, post-selection/heralding is required for the CNOT gate above to work correctly. In particular, the gate requires that no photons are measured on the a0 & a1 modes. Additionally, there is a condition that only one photon is measured across c0 & c1 and another across t0 & t1. These can be implemented by providing a function to the ``post_selection`` option on creation of the sampler or by assigning to the corresponding attribute. This can either be a dedicated function or can use the lambda function included with Python, but must take a single argument as the input, with this argument expected to be a State object. Alternatively, the built-in PostSelection object in the SDK can be used. There is also a ``min_detection`` option, which is used to set the minimum number of photons that should be detected at the output. In this case the function we supply will enforce this condition and so it is not necessary. 
 
 .. code-block:: Python
 
@@ -84,12 +79,20 @@ As mentioned, post-selection/heralding is required for the CNOT gate above to wo
     def post_select(s):
         return not s[0] and not s[5] and sum(s[1:3]) == 1 and sum(s[3:5]) == 1
 
-    # Also define as equivalent lambda function
+    # Alternatively define as equivalent lambda function
     post_select = lambda s: not s[0] and not s[5] and sum(s[1:3]) == 1 and sum(s[3:5]) == 1
 
+    # Or with post-selection object
+    post_select = lw.PostSelection()
+    post_select.add((1, 2), 1)
+    post_select.add((3, 4), 1)
+
+    sampler.post_selection = post_select
+    sampler.min_detection = 2 # Not required
+    sampler.sampling_mode = "input"
+
     # Sample from the system again
-    results = sampler.sample_N_inputs(10000, post_select = post_select, seed = 1,
-                                      min_detection = 2) # Not needed
+    results = backend.run(sampler)
 
     # View results
     results.plot()
@@ -98,49 +101,4 @@ As mentioned, post-selection/heralding is required for the CNOT gate above to wo
     :scale: 100%
     :align: center
 
-It can be seen from the output that the correct state is now measured, as :math:`\ket{001010}` is equivalent to :math:`\ket{11}` in qubit language. One important thing to notice is that the number of measured outputs is significantly less than the 10,000 inputs. This results from the 1/9 success probability of the gate, and the fact that the ``sample_N_inputs`` method will generate 10,000 samples from an unconstrained system, and then filter any which don't meet the criteria. This is analogous to the process that would occur in real systems.
-
-Backend
--------
-
-The Sampler also supports calculation through multiple different methods with the :doc:`../emulator_reference/backend` object. Currently, it is possible to switch between permanent and SLOS methods of calculation, with each calculation type used for determining the full output probability distribution.
-
-.. note::
-
-    The SLOS calculation method is still in development, but some initial performance gains should be seen with the initial version of this.
-
-To use a different calculation method with the sampler, a new Backend object should be created, specifying the calculation method that is to be used. This will always be in lower case. Once a Backend has been created, using the print function on it will then display the currently selected method.
-
-.. code-block:: Python
-
-    backend = emulator.Backend("slos")
-
-    print(backend)
-    # Output: slos
-
-This created Backend should then be passed to the Sampler on creation of a new object with the ``backend`` keyword. It is also possible to supply a string with the name of the calculation method for this argument, in which case a new Backend object will then be created. This will be assigned to the backend attribute of the sampler.
-
-.. code-block:: Python
-
-    # Create random unitary and define an input
-    circuit = lw.Unitary(lw.random_unitary(6, seed = 10))
-    input_state = lw.State([1,0,1,0,1,0])
-
-    # Then define Sampler
-    sampler = emulator.Sampler(circuit, input_state, backend = backend)
-    # Or alternatively
-    sampler = emulator.Sampler(circuit, input_state, backend = "slos")
-
-    # Can view and modify backend through this attribute
-    sampler.backend
-
-Once setup, the sampler can be used in the same way as shown above, with any of the sampling functions being called to determine the expected output from the system. Alternatively it is possible to directly view the calculated probability distribution by accessing the ``probability_distribution`` attribute.
-
-.. code-block:: Python
-
-    # Access probability distribution
-    pdist = sampler.probability_distribution
-
-    # View probability that the output matches the input
-    print(pdist[input_state])
-    # Output: 0.013298074625999835
+It can be seen from the output that the correct state is now measured, as :math:`\ket{001010}` is equivalent to :math:`\ket{11}` in qubit language. One important thing to notice is that the number of measured outputs is significantly less than the 10,000 inputs. This results from the 1/9 success probability of the gate, and the fact that the input sampling mode was used here, as this will generate 10,000 inputs to the system - some of which are then subsequently filtered out.

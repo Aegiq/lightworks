@@ -14,7 +14,7 @@ To use the unitary component, first the unitary to implement should be specified
 
     unitary = lw.Unitary(U)
 
-The Unitary object is a child class of Circuit, this means it behaves in the same way and offers access to all the same methods and attributes. For example, the number of modes can be viewed and additional components, such as a beam splitter, can be added. The created circuit can also be viewed, where the unitary component will be displayed with a U.
+The Unitary object is a child class of PhotonicCircuit, this means it behaves in the same way and offers access to all the same methods and attributes. For example, the number of modes can be viewed and additional components, such as a beam splitter, can be added. The created circuit can also be viewed, where the unitary component will be displayed with a U.
 
 .. code-block:: Python
 
@@ -34,11 +34,11 @@ The Unitary object is a child class of Circuit, this means it behaves in the sam
 Addition to Circuits
 --------------------
 
-As Unitary objects are a subclass of Circuit, they are also compatible with the ``add`` method, meaning it is possible to add a Unitary to an existing, potentially larger, circuit. Below, a 4x4 unitary transformation is added to the last 4 modes of a created 6 mode circuit.
+As Unitary objects are a subclass of PhotonicCircuit, they are also compatible with the ``add`` method, meaning it is possible to add a Unitary to an existing, potentially larger, circuit. Below, a 4x4 unitary transformation is added to the last 4 modes of a created 6 mode circuit.
 
 .. code-block:: Python
 
-    circuit = lw.Circuit(6)
+    circuit = lw.PhotonicCircuit(6)
     for m in [0, 3, 1, 4]:
         circuit.bs(m, reflectivity = 0.4)
         circuit.ps(m, 1)

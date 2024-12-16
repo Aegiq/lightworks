@@ -51,7 +51,10 @@ class Parameter:
     """
 
     def __init__(
-        self, value: Any, bounds: list | None = None, label: str | None = None
+        self,
+        value: Any,
+        bounds: list[Number] | None = None,
+        label: str | None = None,
     ) -> None:
         # Assign value to attribute
         self.__value = value
@@ -183,11 +186,11 @@ class ParameterDict:
                 self.__pdict[k] = v
 
     @property
-    def params(self) -> list:
+    def params(self) -> list[str]:
         """Returns a list of all parameter keys used in the dictionary."""
         return list(self.keys())
 
-    def get_bounds(self) -> dict:
+    def get_bounds(self) -> dict[str, tuple[Number | float, Number | float]]:
         """
         Retrieves the bounds for all parameters stored in the ParameterDict and
         returns as a dictionary, where the keys match those used to store the
@@ -214,7 +217,7 @@ class ParameterDict:
         """Returns all keys associated with the Parameters as an iterable."""
         return self.__pdict.keys()
 
-    def items(self) -> list:
+    def items(self) -> list[tuple[str, Any]]:
         """Returns pairs of keys and parameter values in a list."""
         return [(k, v.get()) for k, v in self.__pdict.items()]
 
