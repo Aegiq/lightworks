@@ -67,6 +67,14 @@ class CompiledPhotonicCircuit:
             "output": copy(self._out_heralds),
         }
 
+    @property
+    def input_modes(self) -> int:
+        """
+        The number of input modes that should be specified, accounting for the
+        heralds used in the circuit.
+        """
+        return self.n_modes - len(self.heralds["input"])
+
     def add(self, spec: Component) -> None:
         """Adds elements to the spec."""
         if isinstance(spec, Loss):

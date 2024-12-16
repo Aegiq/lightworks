@@ -39,7 +39,7 @@ class State:
 
     __slots__ = ["__s"]
 
-    def __init__(self, state: list) -> None:
+    def __init__(self, state: list[int]) -> None:
         # If already list then assign to attribute
         if isinstance(state, list):
             self.__s = state
@@ -54,7 +54,7 @@ class State:
         return sum(self.__s)
 
     @property
-    def s(self) -> list:
+    def s(self) -> list[int]:
         """Returns a copy of the contents of the state as a list."""
         return copy(self.__s)
 

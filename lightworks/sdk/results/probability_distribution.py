@@ -12,20 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABCMeta, abstractmethod
+from ..state import State
+from ..utils import ProbabilityDistributionError
 
-from .data import TaskData
 
-
-class Task(metaclass=ABCMeta):
+class ProbabilityDistribution(dict):
     """
-    Base class for all tasks, which requires implementation of the run method.
+    Stores a created ProbabilityDistribution and prevents modification to
+    values.
     """
 
-    __compatible_backends__: tuple[str, ...]
+    def __repr__(self) -> str:
+        return f"lightworks.ProbabilityDistribution({super().__repr__()})"
 
-    @abstractmethod
-    def _generate_task(self) -> TaskData:
-        """
-        Generates the data required to run the current task.
-        """
+    def __setitem__(self, key: State, value: complex) -> None:
+        raise ProbabilityDistributionError(
+            "Probability distribution should not be modified directly, to edit "
+            "this make a copy using dict(ProbabilityDistribution)."
+        )

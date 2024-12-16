@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from ...sdk.tasks.task import Task
+from ...sdk.tasks import Task
 from ..utils import BackendError
 from .permanent import PermanentBackend
 from .slos import SLOSBackend
@@ -38,6 +38,12 @@ class Backend:
     def run(self, task: "Task") -> dict:
         """
         Runs the provided task on the current backend.
+
+        Returns:
+
+            dict: A dictionary like results object containing details of the
+                calculated values from a task.
+
         """
         if not isinstance(task, Task):
             raise TypeError("Object to run on the backend must be a task.")
@@ -47,11 +53,13 @@ class Backend:
                 f"for task are: {', '.join(task.__compatible_backends__)}."
             )
             raise BackendError(msg)
-        return task._run(self.__backend)
+        return self.__backend.run(task)
 
     @property
     def backend(self) -> str:
-        """Stores data on the selected backend."""
+        """
+        Returns the name of the currently selected backend.
+        """
         return self.__backend.name
 
     @backend.setter

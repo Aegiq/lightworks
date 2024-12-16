@@ -12,10 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import numpy as np
+from multimethod import multimethod
 
 from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
+from ...sdk.results import (
+    ProbabilityDistribution,
+    SamplingResult,
+    SimulationResult,
+)
 from ...sdk.state import State
+from ...sdk.tasks import Analyzer, Sampler, Simulator, Task
+from ..simulation import (
+    AnalyzerRunner,
+    SamplerRunner,
+    SimulatorRunner,
+)
 from ..utils import BackendError
 from .abc_backend import BackendABC
 
@@ -28,15 +41,60 @@ class FockBackend(BackendABC):
     be included here.
     """
 
+    @multimethod
+    def run(self, task: Task) -> None:
+        raise BackendError("Task not supported on current backend.")
+
+    @run.register
+    def run_simulator(self, task: Simulator) -> SimulationResult:
+        data = task._generate_task()
+        return SimulatorRunner(data, self.probability_amplitude).run()
+
+    @run.register
+    def run_analyzer(self, task: Analyzer) -> SimulationResult:
+        data = task._generate_task()
+        return AnalyzerRunner(data, self.probability).run()
+
+    @run.register
+    def run_sampler(self, task: Sampler) -> SamplingResult:
+        data = task._generate_task()
+        runner = SamplerRunner(data, self.full_probability_distribution)
+        cached_results = self._check_cache(data)
+        if cached_results is not None:
+            runner.probability_distribution = cached_results["pdist"]
+            runner.full_to_heralded = cached_results["full_to_herald"]
+            task._probability_distribution = ProbabilityDistribution(
+                cached_results["pdist"]
+            )
+        else:
+            task._probability_distribution = ProbabilityDistribution(
+                runner.distribution_calculator()
+            )
+            results = {
+                "pdist": runner.probability_distribution,
+                "full_to_herald": runner.full_to_heralded,
+            }
+            self._add_to_cache(data, results)
+        return runner.run()
+
+    # Below defaults are defined for all possible methods in case they are
+    # called without being implemented. This shouldn't normally happen.
+
     def probability_amplitude(
-        self, unitary: np.ndarray, input_state: list, output_state: list
+        self,
+        unitary: np.ndarray,
+        input_state: list[int],
+        output_state: list[int],
     ) -> complex:
         raise BackendError(
             "Current backend does not implement probability_amplitude method."
         )
 
     def probability(
-        self, unitary: np.ndarray, input_state: list, output_state: list
+        self,
+        unitary: np.ndarray,
+        input_state: list[int],
+        output_state: list[int],
     ) -> float:
         raise BackendError(
             "Current backend does not implement probability method."

@@ -13,43 +13,30 @@
 # limitations under the License.
 
 from ..state import State
-from ..utils import ModeMismatchError, PhotonNumberError
+from . import ModeMismatchError
 
 
-def _validate_states(inputs: State | list[State], n_modes: int) -> list[State]:
+def validate_states(states: State | list[State], n_modes: int) -> list[State]:
     """
     Performs all required processing/checking a list of states from a task.
     """
     # Convert state to list of States if not provided for single state case
-    if isinstance(inputs, State):
-        inputs = [inputs]
+    if isinstance(states, State):
+        states = [states]
     # Check each input
-    for state in inputs:
+    for s in states:
         # Ensure correct type
-        if not isinstance(state, State):
+        if not isinstance(s, State):
             raise TypeError(
-                "inputs should be a State or list of State objects."
+                "Assigned states should be a State or list of State objects."
             )
         # Dimension check
-        if len(state) != n_modes:
+        if len(s) != n_modes:
             msg = (
-                "One or more input states have an incorrect number of "
-                f"modes, correct number of modes is {n_modes}."
+                "One or more states have an incorrect number of modes, correct "
+                f"number of modes is {n_modes}."
             )
             raise ModeMismatchError(msg)
         # Also validate state values
-        state._validate()
-    return inputs
-
-
-def _check_photon_numbers(states: list[State]) -> None:
-    """
-    Raises an exception if photon numbers are mixed when running a
-    simulation.
-    """
-    ns = [s.n_photons for s in states]
-    if min(ns) != max(ns):
-        raise PhotonNumberError(
-            "Mismatch in photon numbers between some inputs/outputs, "
-            "this is not currently supported in the Simulator."
-        )
+        s._validate()
+    return states

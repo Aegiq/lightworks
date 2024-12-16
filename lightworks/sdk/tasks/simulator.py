@@ -13,18 +13,11 @@
 # limitations under the License.
 
 
-import numpy as np
-
-from ...emulator.backends.fock_backend import FockBackend
 from ..circuit import PhotonicCircuit
-from ..results import SimulationResult
 from ..state import State
-from ..utils import (
-    add_heralds_to_state,
-    fock_basis,
-)
+from ..utils import validate_states
+from .data import SimulatorTask
 from .task import Task
-from .task_utils import _check_photon_numbers, _validate_states
 
 
 class Simulator(Task):
@@ -85,7 +78,7 @@ class Simulator(Task):
 
     @inputs.setter
     def inputs(self, value: State | list[State]) -> None:
-        self.__inputs = _validate_states(value, self.circuit.input_modes)
+        self.__inputs = validate_states(value, self.circuit.input_modes)
 
     @property
     def outputs(self) -> list[State] | None:
@@ -98,59 +91,12 @@ class Simulator(Task):
     @outputs.setter
     def outputs(self, value: State | list[State] | None) -> None:
         if value is not None:
-            value = _validate_states(value, self.circuit.input_modes)
+            value = validate_states(value, self.circuit.input_modes)
         self.__outputs = value
 
-    def _run(self, backend: FockBackend) -> SimulationResult:  # type: ignore[override]
-        """
-        Function to run a simulation for a number of inputs/outputs, if no
-        outputs are specified then all possible outputs for the photon number
-        are calculated. All inputs and outputs should have the same photon
-        number.
-
-        Args:
-
-            backend (FockBackend) : The target backend to run the task with.
-
-        Returns:
-
-            SimulationResult : A dictionary containing the calculated
-                probability amplitudes, where the first index of the array
-                corresponds to the input state, as well as the input and output
-                state used to create the array.
-
-        """
-        circuit = self.circuit._build()
-        if self.outputs is None:
-            _check_photon_numbers(self.inputs)
-            outputs = fock_basis(
-                self.circuit.input_modes, self.inputs[0].n_photons
-            )
-            outputs = [State(s) for s in outputs]
-        else:
-            _check_photon_numbers(self.inputs + self.outputs)
-            outputs = self.outputs
-        in_heralds = self.circuit.heralds["input"]
-        out_heralds = self.circuit.heralds["output"]
-        # Pre-add output values to avoid doing this many times
-        full_outputs = [
-            add_heralds_to_state(outs, out_heralds) + [0] * circuit.loss_modes
-            for outs in outputs
-        ]
-        # Calculate permanent for the given inputs and outputs and return
-        # values
-        amplitudes = np.zeros((len(self.inputs), len(outputs)), dtype=complex)
-        for i, ins in enumerate(self.inputs):
-            in_state = add_heralds_to_state(ins, in_heralds)
-            in_state += [0] * circuit.loss_modes
-            for j, outs in enumerate(full_outputs):
-                amplitudes[i, j] = backend.probability_amplitude(
-                    circuit.U_full, in_state, outs
-                )
-        # Return results and corresponding states as dictionary
-        return SimulationResult(
-            amplitudes,
-            "probability_amplitude",
+    def _generate_task(self) -> SimulatorTask:
+        return SimulatorTask(
+            circuit=self.circuit._build(),
             inputs=self.inputs,
-            outputs=outputs,
+            outputs=self.outputs,
         )

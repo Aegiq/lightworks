@@ -81,6 +81,12 @@ class ResultCreationError(LightworksError):
     """
 
 
+class ProbabilityDistributionError(LightworksError):
+    """
+    For errors occurring with the ProbabilityDistribution object.
+    """
+
+
 class BackendError(LightworksError):
     """
     Raised when errors occur in the Backend object.

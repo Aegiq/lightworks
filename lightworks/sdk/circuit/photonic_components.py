@@ -22,7 +22,7 @@ from ..utils import check_unitary, permutation_mat_from_swaps_dict
 from .parameters import Parameter
 
 
-@dataclass(slots=False)
+@dataclass(slots=True)
 class Component(metaclass=ABCMeta):
     """
     Generic baseclass for all components. Implements a number of useful methods.

@@ -13,7 +13,9 @@
 # limitations under the License.
 
 from .analyzer import Analyzer
+from .data import AnalyzerTask, SamplerTask, SimulatorTask, TaskData
 from .sampler import Sampler
 from .simulator import Simulator
+from .task import Task
 
 __all__ = ["Analyzer", "Sampler", "Simulator"]
