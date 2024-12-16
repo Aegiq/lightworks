@@ -12,18 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any
+from typing import Any, overload
 
 import matplotlib.figure
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from numpy.typing import NDArray
 
 from ..state import State
 from ..utils import ResultCreationError
 
 
-class SimulationResult(dict):
+class SimulationResult(dict[State, dict[State, float | complex]]):
     """
     Stores results data from a given simulation in the emulator. There is then
     a range of options for displaying the data, or alternatively the data can
@@ -32,7 +33,7 @@ class SimulationResult(dict):
 
     Args:
 
-        results (dict | np.ndarray) : The results which are to be stored.
+        results (np.ndarray) : The results which are to be stored.
 
         result_type (str) : The type of results which are being stored. This
             should either be probability, probability_amplitude or counts.
@@ -45,10 +46,10 @@ class SimulationResult(dict):
 
     def __init__(
         self,
-        results: dict | np.ndarray,
+        results: NDArray[np.float64 | np.complex128],
         result_type: str,
-        inputs: list,
-        outputs: list,
+        inputs: list[State],
+        outputs: list[State],
         **kwargs: Any,
     ) -> None:
         # Store result_type if valid
@@ -87,7 +88,7 @@ class SimulationResult(dict):
         return
 
     @property
-    def array(self) -> np.ndarray:
+    def array(self) -> NDArray[np.float64 | np.complex128]:
         """
         The calculated array of data, where the first dimension corresponds to
         the inputs and the second dimension to the outputs.
@@ -95,12 +96,12 @@ class SimulationResult(dict):
         return self.__array
 
     @property
-    def inputs(self) -> list:
+    def inputs(self) -> list[State]:
         """All inputs which values were calculated for."""
         return self.__inputs
 
     @property
-    def outputs(self) -> list:
+    def outputs(self) -> list[State]:
         """All outputs which values were calculated for."""
         return self.__outputs
 
@@ -111,7 +112,20 @@ class SimulationResult(dict):
         """
         return self.__result_type
 
-    def __getitem__(self, item: State | tuple) -> float | dict:
+    @overload
+    def __getitem__(self, item: State) -> dict[State, float | complex]: ...
+
+    @overload
+    def __getitem__(
+        self, item: tuple[State]
+    ) -> dict[State, float | complex]: ...
+
+    @overload
+    def __getitem__(self, item: tuple[State, State]) -> float | complex: ...
+
+    def __getitem__(
+        self, item: State | tuple[State] | tuple[State, State]
+    ) -> float | complex | dict[State, float | complex]:
         """Custom get item behaviour - used when object accessed with []."""
         if isinstance(item, State):
             if item not in self:
@@ -136,9 +150,9 @@ class SimulationResult(dict):
             if ostate is None:
                 return sub_r
             # Else return requested value
-            if ostate not in sub_r:  # type: ignore[operator]
+            if ostate not in sub_r:
                 raise KeyError("Requested output state not in data.")
-            return sub_r[ostate]  # type: ignore[index]
+            return sub_r[ostate]
         raise TypeError("Get item value must be either one or two States.")
 
     def apply_threshold_mapping(
@@ -164,7 +178,7 @@ class SimulationResult(dict):
                 "Threshold mapping cannot be applied to probability "
                 "amplitudes."
             )
-        mapped_result: dict[State, dict] = {}
+        mapped_result: dict[State, dict[State, float | complex]] = {}
         for in_state, results in self.items():
             mapped_result[in_state] = {}
             for out_state, val in results.items():
@@ -198,7 +212,7 @@ class SimulationResult(dict):
             raise ValueError(
                 "Parity mapping cannot be applied to probability amplitudes."
             )
-        mapped_result: dict[State, dict] = {}
+        mapped_result: dict[State, dict[State, float | complex]] = {}
         for in_state, results in self.items():
             mapped_result[in_state] = {}
             for out_state, val in results.items():
@@ -213,7 +227,7 @@ class SimulationResult(dict):
         return self._recombine_mapped_result(mapped_result)
 
     def _recombine_mapped_result(
-        self, mapped_result: dict
+        self, mapped_result: dict[State, dict[State, float | complex]]
     ) -> "SimulationResult":
         """Creates a new Result object from mapped data."""
         unique_outputs = set()
@@ -236,8 +250,8 @@ class SimulationResult(dict):
         self,
         conv_to_probability: bool = False,
         show: bool = True,
-        state_labels: dict | None = None,
-    ) -> tuple[matplotlib.figure.Figure, plt.Axes | np.ndarray] | None:
+        state_labels: dict[State, str | State] | None = None,
+    ) -> tuple[matplotlib.figure.Figure, plt.Axes | NDArray[Any]] | None:
         """
         Create a plot of the data contained in the result. This will either
         take the form of a heatmap or bar chart, depending on the nature of the
@@ -358,8 +372,8 @@ class SimulationResult(dict):
         return pd.DataFrame(data, index=in_strings, columns=out_strings)
 
     def _plot_array(
-        self, conv_to_probability: bool, state_labels: dict
-    ) -> tuple[matplotlib.figure.Figure, plt.Axes | np.ndarray]:
+        self, conv_to_probability: bool, state_labels: dict[State, str | State]
+    ) -> tuple[matplotlib.figure.Figure, plt.Axes | NDArray[Any]]:
         """
         Plots an array of the data contained within the Result object.
         """
@@ -385,9 +399,9 @@ class SimulationResult(dict):
             fig.colorbar(im, ax=ax, fraction=0.046 * im_ratio, pad=0.04)
             # Label states on each axis
             ax.set_xticks(range(len(self.outputs)))
-            ax.set_xticklabels(xlabels, rotation=90)
+            ax.set_xticklabels(xlabels, rotation=90)  # type: ignore[arg-type]
             ax.set_yticks(range(len(self.inputs)))
-            ax.set_yticklabels(ylabels)
+            ax.set_yticklabels(ylabels)  # type: ignore[arg-type]
             return fig, ax
         # Otherwise create two plots
         fig, axes = plt.subplots(1, 2, figsize=(20, 6))
@@ -407,8 +421,8 @@ class SimulationResult(dict):
         return (fig, axes)
 
     def _plot_bar(
-        self, conv_to_probability: bool, state_labels: dict
-    ) -> tuple[matplotlib.figure.Figure, plt.Axes | np.ndarray]:
+        self, conv_to_probability: bool, state_labels: dict[State, str | State]
+    ) -> tuple[matplotlib.figure.Figure, plt.Axes | NDArray[Any]]:
         """
         Plots bar chart with data contained in Results object. This should only
         be used if there is a single input.
@@ -417,13 +431,14 @@ class SimulationResult(dict):
         results = dict(self[istate])  # type: ignore[arg-type]
         # Vary plot depending on result type
         if self.result_type != "probability_amplitude" or conv_to_probability:
+            d_data: dict[State, float]
             if self.result_type == "probability_amplitude":
                 d_data = {}
                 for s, p in results.items():
                     d_data[s] = abs(p) ** 2
                 title = "Probability"
             else:
-                d_data = results
+                d_data = results  # type: ignore[assignment]
                 title = self.result_type.capitalize()
 
             fig, ax = plt.subplots(figsize=(7, 6))
@@ -433,7 +448,7 @@ class SimulationResult(dict):
             labels = [
                 state_labels[s] if s in state_labels else str(s) for s in d_data
             ]
-            ax.set_xticklabels(labels, rotation=90)
+            ax.set_xticklabels(labels, rotation=90)  # type: ignore[arg-type]
             ax.set_xlabel("State")
             ax.set_ylabel(title)
             return (fig, ax)

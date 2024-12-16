@@ -141,7 +141,7 @@ class PostSelectionFunction(PostSelectionType):
     Allows for post-selection to be implemented with a provided function.
     """
 
-    def __init__(self, function: Callable) -> None:
+    def __init__(self, function: Callable[[State], bool]) -> None:
         if not isinstance(function, FunctionType):
             raise TypeError("Post-selection not a function.")
         self.__function = function

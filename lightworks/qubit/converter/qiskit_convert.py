@@ -275,7 +275,7 @@ class QiskitConverter:
 
 def convert_two_qubits_to_adjacent(
     q0: int, q1: int
-) -> tuple[int, int, list[tuple]]:
+) -> tuple[int, int, list[tuple[int, int]]]:
     """
     Takes two qubit indices and converts these so that they are adjacent to each
     other, and determining the swaps required for this. The order of the two
