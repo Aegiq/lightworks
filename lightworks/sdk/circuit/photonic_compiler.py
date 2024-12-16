@@ -15,6 +15,7 @@
 from copy import copy
 
 import numpy as np
+from numpy.typing import NDArray
 
 from ..utils import ModeRangeError
 from .photonic_components import Barrier, Component, Group, Loss
@@ -55,7 +56,7 @@ class CompiledPhotonicCircuit:
         return self.n_modes + self.loss_modes
 
     @property
-    def U_full(self) -> np.ndarray:  # noqa: N802
+    def U_full(self) -> NDArray[np.complex128]:  # noqa: N802
         """Full unitary matrix."""
         return self._unitary
 

@@ -13,8 +13,10 @@
 # limitations under the License.
 
 from math import factorial
+from typing import Any
 
 import numpy as np
+from numpy.typing import NDArray
 
 from ...__settings import settings
 from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
@@ -34,7 +36,7 @@ class SLOSBackend(FockBackend):
 
     def full_probability_distribution(
         self, circuit: CompiledPhotonicCircuit, input_state: State
-    ) -> dict:
+    ) -> dict[State, float]:
         """
         Finds the output probability distribution for the provided circuit and
         input state.
@@ -69,14 +71,16 @@ class SLOSBackend(FockBackend):
         # Combine results to remote lossy modes
         for s, p in full_dist.items():
             if abs(p) ** 2 > settings.sampler_probability_threshold:
-                new_s = State(s[: circuit.n_modes])
+                new_s = State(s[: circuit.n_modes])  # type: ignore[arg-type]
                 if new_s in pdist:
                     pdist[new_s] += abs(p) ** 2
                 else:
                     pdist[new_s] = abs(p) ** 2
         return pdist
 
-    def calculate(self, unitary: np.ndarray, input_state: State) -> dict:
+    def calculate(
+        self, unitary: NDArray[np.complex128], input_state: State
+    ) -> dict[tuple[int, ...], complex]:
         """
         Performs calculation of full probability distribution given a unitary
         matrix and input state.
@@ -89,7 +93,7 @@ class SLOSBackend(FockBackend):
 
         # Successively apply the matrices A_k
         for i in p:  # Each matrix is indexed by the components of p
-            output: dict[tuple, float] = {}
+            output: dict[tuple[int, ...], complex] = {}
             for j in range(n_modes):  # Sum over i
                 step = a_i_dagger(
                     input_, j, unitary[j, i]
@@ -100,7 +104,9 @@ class SLOSBackend(FockBackend):
         return input_
 
 
-def a_i_dagger(dist: dict, mode: int, multiplier: complex) -> dict:
+def a_i_dagger(
+    dist: dict[tuple[int, ...], complex], mode: int, multiplier: complex
+) -> dict[tuple[int, ...], complex]:
     """
     Ladder operator for the ith mode applied to the state v, where v is a
     dictionary
@@ -108,20 +114,20 @@ def a_i_dagger(dist: dict, mode: int, multiplier: complex) -> dict:
     updated_dist = {}  # Create a new dictionary to store updated values
 
     for key, value in dist.items():
-        key = list(key)  # noqa: PLW2901
-        key[mode] += 1  # Increase the number of photons in the ith mode by 1
+        key = list(key)  # type: ignore[assignment] # noqa: PLW2901
+        key[mode] += 1  # type: ignore[index]
         # Update the new dictionary with modified key, value + normalisation
         updated_dist[tuple(key)] = key[mode] ** 0.5 * value * multiplier
 
     return updated_dist
 
 
-def vector_factorial(vector: list) -> int:
+def vector_factorial(vector: list[int]) -> int:
     """Calculates the product of factorials of the elements of the vector v"""
     return int(np.prod([factorial(i) for i in vector]))
 
 
-def add_dicts(dict1: dict, dict2: dict) -> dict:
+def add_dicts(dict1: dict[Any, Any], dict2: dict[Any, Any]) -> dict[Any, Any]:
     """Function for combining two dictionaries together"""
     for key, value in dict2.items():
         if key in dict1:

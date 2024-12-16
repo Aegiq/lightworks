@@ -188,7 +188,9 @@ class SWAP(PhotonicCircuit):
 
     """
 
-    def __init__(self, qubit_1: tuple, qubit_2: tuple) -> None:
+    def __init__(
+        self, qubit_1: tuple[int, int], qubit_2: tuple[int, int]
+    ) -> None:
         # Confirm supplied form is correct
         if len(qubit_1) != 2:
             raise ValueError(

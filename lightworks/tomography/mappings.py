@@ -13,26 +13,27 @@
 # limitations under the License.
 
 import numpy as np
+from numpy.typing import NDArray
 
 from .. import qubit
 from ..sdk.circuit import PhotonicCircuit
 from ..sdk.state import State
 
-PAULI_MAPPING: dict[str, np.ndarray] = {
-    "I": np.array([[1, 0], [0, 1]]),
-    "X": np.array([[0, 1], [1, 0]]),
-    "Y": np.array([[0, -1j], [1j, 0]]),
-    "Z": np.array([[1, 0], [0, -1]]),
+PAULI_MAPPING: dict[str, NDArray[np.complex128]] = {
+    "I": np.array([[1, 0], [0, 1]], dtype=np.complex128),
+    "X": np.array([[0, 1], [1, 0]], dtype=np.complex128),
+    "Y": np.array([[0, -1j], [1j, 0]], dtype=np.complex128),
+    "Z": np.array([[1, 0], [0, -1]], dtype=np.complex128),
 }
 
 # Pre-calculated density matrices for different quantum states
-RHO_MAPPING: dict[str, np.ndarray] = {
-    "X+": np.array([[1, 1], [1, 1]]) / 2,
-    "X-": np.array([[1, -1], [-1, 1]]) / 2,
-    "Y+": np.array([[1, -1j], [1j, 1]]) / 2,
-    "Y-": np.array([[1, 1j], [-1j, 1]]) / 2,
-    "Z+": np.array([[1, 0], [0, 0]]),
-    "Z-": np.array([[0, 0], [0, 1]]),
+RHO_MAPPING: dict[str, NDArray[np.complex128]] = {
+    "X+": np.array([[1, 1], [1, 1]], dtype=np.complex128) / 2,
+    "X-": np.array([[1, -1], [-1, 1]], dtype=np.complex128) / 2,
+    "Y+": np.array([[1, -1j], [1j, 1]], dtype=np.complex128) / 2,
+    "Y-": np.array([[1, 1j], [-1j, 1]], dtype=np.complex128) / 2,
+    "Z+": np.array([[1, 0], [0, 0]], dtype=np.complex128),
+    "Z-": np.array([[0, 0], [0, 1]], dtype=np.complex128),
 }
 
 # Details the actual input state and transformation required to achieve a target

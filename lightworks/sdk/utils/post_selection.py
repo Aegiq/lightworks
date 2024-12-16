@@ -27,7 +27,7 @@ class PostSelectionType(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def validate(self, state: State) -> bool:
+    def validate(self, state: State | list[int]) -> bool:
         """Enforces all post-selection classes have the validate method."""
 
 
@@ -48,20 +48,22 @@ class PostSelection(PostSelectionType):
         self.__modes_with_rules: set[int] = set()
 
     @property
-    def rules(self) -> list:
+    def rules(self) -> list["Rule"]:
         """
         Returns currently applied post-selection rules.
         """
         return self.__rules
 
     @property
-    def modes(self) -> list:
+    def modes(self) -> list[int]:
         """
         Returns modes on which rules are currently applied.
         """
         return sorted(self.__modes_with_rules)
 
-    def add(self, modes: int | tuple, n_photons: int | tuple) -> None:
+    def add(
+        self, modes: int | tuple[int, ...], n_photons: int | tuple[int, ...]
+    ) -> None:
         """
         Adds a post-selection rule across the provided modes, conditioning that
         the total number of photons across the modes is equal to any of the
@@ -100,7 +102,7 @@ class PostSelection(PostSelectionType):
         for m in modes:
             self.__modes_with_rules.add(m)
 
-    def validate(self, state: State) -> bool:
+    def validate(self, state: State | list[int]) -> bool:
         """
         Validates whether a provided State meets the set post-selection
         criteria.
@@ -124,14 +126,14 @@ class Rule:
     Stores a post-selection rule for a number of modes and n_photons.
     """
 
-    modes: tuple[int]
-    n_photons: tuple[int]
+    modes: tuple[int, ...]
+    n_photons: tuple[int, ...]
 
-    def as_tuple(self) -> tuple:
+    def as_tuple(self) -> tuple[tuple[int, ...], tuple[int, ...]]:
         """Returns a tuple representation of the post-selection rule."""
         return (self.modes, self.n_photons)
 
-    def validate(self, state: State) -> bool:
+    def validate(self, state: State | list[int]) -> bool:
         """Validates a provided state meets the post-selection rule."""
         return sum(state[m] for m in self.modes) in self.n_photons
 
@@ -141,12 +143,12 @@ class PostSelectionFunction(PostSelectionType):
     Allows for post-selection to be implemented with a provided function.
     """
 
-    def __init__(self, function: Callable) -> None:
+    def __init__(self, function: Callable[[State], bool]) -> None:
         if not isinstance(function, FunctionType):
             raise TypeError("Post-selection not a function.")
         self.__function = function
 
-    def validate(self, state: State) -> bool:
+    def validate(self, state: State | list[int]) -> bool:
         """
         Validates whether a provided State meets the set post-selection
         criteria.
@@ -169,14 +171,14 @@ class DefaultPostSelection(PostSelectionType):
     Provides a default post-selection function which always returns True.
     """
 
-    def validate(self, state: State) -> bool:  # noqa: ARG002
+    def validate(self, state: State | list[int]) -> bool:  # noqa: ARG002
         """
         Will return True regardless of provided state.
         """
         return True
 
 
-def check_int_or_tuple(value: int | Sequence) -> tuple:
+def check_int_or_tuple(value: int | Sequence[int]) -> tuple[int, ...]:
     """
     Process a provided value, if it is a sequence then it will check all values
     are integers, otherwise it will validate the value and convert to a tuple.

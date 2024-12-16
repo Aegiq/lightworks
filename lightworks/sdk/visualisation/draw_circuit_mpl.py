@@ -604,7 +604,10 @@ class DrawCircuitMPL:
         return
 
     def _add_heralds(
-        self, heralds: dict, start_loc: float, end_loc: float
+        self,
+        heralds: dict[str, dict[int, int]],
+        start_loc: float,
+        end_loc: float,
     ) -> None:
         """
         Adds display of all heralds to circuit.

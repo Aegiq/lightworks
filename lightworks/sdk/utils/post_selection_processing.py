@@ -15,12 +15,13 @@
 from collections.abc import Callable
 from types import FunctionType, NoneType
 
+from ..state import State
 from . import PostSelectionFunction
 from .post_selection import PostSelectionType
 
 
 def process_post_selection(
-    post_selection: PostSelectionType | Callable | None,
+    post_selection: PostSelectionType | Callable[[State], bool] | None,
 ) -> PostSelectionType | None:
     """
     Takes a provided post-selection value and converts this into one of the

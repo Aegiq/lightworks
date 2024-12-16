@@ -26,7 +26,9 @@ from ..state import AnnotatedState
 def pdist_calc(
     circuit: CompiledPhotonicCircuit,
     inputs: dict[State, int | float],
-    probability_func: Callable,
+    probability_func: Callable[
+        [CompiledPhotonicCircuit, State], dict[State, float]
+    ],
 ) -> dict[State, float]:
     """
     Calculate the output state probability distribution for cases where
@@ -77,7 +79,9 @@ def pdist_calc(
 def annotated_state_pdist_calc(
     circuit: CompiledPhotonicCircuit,
     inputs: dict[AnnotatedState, int | float],
-    probability_func: Callable,
+    probability_func: Callable[
+        [CompiledPhotonicCircuit, State], dict[State, float]
+    ],
 ) -> dict[State, float]:
     """
     Perform output state probability distribution calculation using complex
@@ -101,7 +105,7 @@ def annotated_state_pdist_calc(
     """
     # Determine the input state combinations given the labels
     unique_inputs: set[State] = set()
-    input_combinations: dict[AnnotatedState, list] = {}
+    input_combinations: dict[AnnotatedState, list[State]] = {}
     for state in inputs:
         # Find all labels in a given state
         all_labels = []

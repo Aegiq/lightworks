@@ -17,7 +17,9 @@ from copy import copy
 from ..state import State
 
 
-def add_heralds_to_state(state: State | list, heralds: dict) -> list:
+def add_heralds_to_state(
+    state: State | list[int], heralds: dict[int, int]
+) -> list[int]:
     """
     Takes a provided input state and includes any heralding photons/modes.
 
@@ -49,7 +51,9 @@ def add_heralds_to_state(state: State | list, heralds: dict) -> list:
     return new_state
 
 
-def remove_heralds_from_state(state: State | list, herald_modes: list) -> list:
+def remove_heralds_from_state(
+    state: State | list[int], herald_modes: list[int]
+) -> list[int]:
     """
     Removes all heralded modes from a provided state.
 

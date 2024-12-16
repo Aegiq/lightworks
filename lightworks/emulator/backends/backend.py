@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+from typing import Any
+
 from ...sdk.tasks import Task
 from ..utils import BackendError
 from .permanent import PermanentBackend
@@ -35,7 +37,7 @@ class Backend:
 
         return
 
-    def run(self, task: "Task") -> dict:
+    def run(self, task: "Task") -> dict[Any, Any]:
         """
         Runs the provided task on the current backend.
 

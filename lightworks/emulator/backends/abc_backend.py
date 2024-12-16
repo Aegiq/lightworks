@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from abc import ABCMeta, abstractmethod
+from typing import Any
 
 from ...sdk.tasks import TaskData
 from .caching import CacheData, check_parameter_updates, get_calculation_values
@@ -30,7 +31,7 @@ class BackendABC(metaclass=ABCMeta):
     @abstractmethod
     def name(self) -> str: ...
 
-    def _check_cache(self, data: TaskData) -> dict | None:
+    def _check_cache(self, data: TaskData) -> dict[str, Any] | None:
         name = data.__class__.__name__
         if hasattr(self, "_cache") and name in self._cache:
             old_values = self._cache[name].values
@@ -40,7 +41,7 @@ class BackendABC(metaclass=ABCMeta):
         # Return false if cache doesn't exist or name not found
         return None
 
-    def _add_to_cache(self, data: TaskData, results: dict) -> None:
+    def _add_to_cache(self, data: TaskData, results: dict[str, Any]) -> None:
         if not hasattr(self, "_cache"):
             self._cache = {}
         name = data.__class__.__name__

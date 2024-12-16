@@ -17,6 +17,7 @@ from dataclasses import dataclass, fields
 from typing import Any
 
 import numpy as np
+from numpy.typing import NDArray
 
 from ..utils import check_unitary, permutation_mat_from_swaps_dict
 from .parameters import Parameter
@@ -29,7 +30,7 @@ class Component(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def get_unitary(self, n_modes: int) -> np.ndarray:
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:
         """
         Returns a unitary matrix corresponding to the transformation implemented
         by the component with size n_modes.
@@ -83,7 +84,7 @@ class BeamSplitter(Component):
             return self.reflectivity.get()
         return self.reflectivity
 
-    def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:  # noqa: D102
         self.validate()
         theta = np.arccos(self._reflectivity**0.5)
         unitary = np.identity(n_modes, dtype=complex)
@@ -115,7 +116,7 @@ class PhaseShifter(Component):
             return self.phi.get()
         return self.phi
 
-    def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:  # noqa: D102
         unitary = np.identity(n_modes, dtype=complex)
         unitary[self.mode, self.mode] = np.exp(1j * self._phi)
         return unitary
@@ -144,7 +145,7 @@ class Loss(Component):
             return self.loss.get()
         return self.loss
 
-    def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:  # noqa: D102
         self.validate()
         transmission = 1 - self._loss
         # Assumes loss mode to use is last mode in circuit
@@ -164,7 +165,7 @@ class Barrier(Component):
 
     modes: list[int]
 
-    def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:  # noqa: D102
         return np.identity(n_modes, dtype=complex)
 
 
@@ -186,7 +187,7 @@ class ModeSwaps(Component):
                 "contain the same modes."
             )
 
-    def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:  # noqa: D102
         return permutation_mat_from_swaps_dict(self.swaps, n_modes)
 
 
@@ -213,7 +214,7 @@ class UnitaryMatrix(Component):
     """
 
     mode: int
-    unitary: np.ndarray
+    unitary: NDArray[np.complex128]
     label: str
 
     def __post_init__(self) -> None:
@@ -230,7 +231,7 @@ class UnitaryMatrix(Component):
         if not isinstance(self.label, str):
             raise TypeError("Label for unitary should be a string.")
 
-    def get_unitary(self, n_modes: int) -> np.ndarray:  # noqa: D102
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:  # noqa: D102
         unitary = np.identity(n_modes, dtype=complex)
         nm = self.unitary.shape[0]
         unitary[self.mode : self.mode + nm, self.mode : self.mode + nm] = (

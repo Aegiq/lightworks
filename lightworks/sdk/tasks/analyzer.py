@@ -57,7 +57,9 @@ class Analyzer(Task):
         circuit: PhotonicCircuit,
         inputs: State | list[State],
         expected: dict[State, State | list[State]] | None = None,
-        post_selection: PostSelectionType | Callable | None = None,
+        post_selection: PostSelectionType
+        | Callable[[State], bool]
+        | None = None,
     ) -> None:
         # Assign key parameters to attributes
         self.circuit = circuit
@@ -93,7 +95,7 @@ class Analyzer(Task):
 
     @post_selection.setter
     def post_selection(
-        self, value: PostSelectionType | Callable | None
+        self, value: PostSelectionType | Callable[[State], bool] | None
     ) -> None:
         value = process_post_selection(value)
         self.__post_selection = value

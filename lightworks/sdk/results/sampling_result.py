@@ -23,7 +23,7 @@ from ..state import State
 from ..utils import ResultCreationError
 
 
-class SamplingResult(dict):
+class SamplingResult(dict[State, int]):
     """
     Stores results data from a sampling experiment in the emulator. There is
     then a range of options for displaying the data, or alternatively the data
@@ -38,7 +38,9 @@ class SamplingResult(dict):
 
     """
 
-    def __init__(self, results: dict, input: State, **kwargs: Any) -> None:
+    def __init__(
+        self, results: dict[State, int], input: State, **kwargs: Any
+    ) -> None:
         super().__init__(results)
         if not isinstance(input, State):
             raise ResultCreationError("Input state should have type State.")
@@ -59,7 +61,7 @@ class SamplingResult(dict):
         """All outputs measured in the sampling experiment."""
         return self.__outputs
 
-    def __getitem__(self, item: State) -> float | dict:
+    def __getitem__(self, item: State) -> int:
         """Custom get item behaviour - used when object accessed with []."""
         if not isinstance(item, State):
             raise TypeError("Get item value must be a State.")
@@ -83,7 +85,7 @@ class SamplingResult(dict):
                 distribution.
 
         """
-        mapped_result: dict[State, float] = {}
+        mapped_result: dict[State, int] = {}
         for out_state, val in self.items():
             new_s = State([1 if s >= 1 else 0 for s in out_state])
             if invert:
@@ -111,7 +113,7 @@ class SamplingResult(dict):
                 distribution.
 
         """
-        mapped_result: dict[State, float] = {}
+        mapped_result: dict[State, int] = {}
         for out_state, val in self.items():
             if invert:
                 new_s = State([1 - (s % 2) for s in out_state])
@@ -123,12 +125,16 @@ class SamplingResult(dict):
                 mapped_result[new_s] = val
         return self._recombine_mapped_result(mapped_result)
 
-    def _recombine_mapped_result(self, mapped_result: dict) -> "SamplingResult":
+    def _recombine_mapped_result(
+        self, mapped_result: dict[State, int]
+    ) -> "SamplingResult":
         """Creates a new Result object from mapped data."""
         return SamplingResult(mapped_result, self.input)
 
     def plot(
-        self, show: bool = True, state_labels: dict | None = None
+        self,
+        show: bool = True,
+        state_labels: dict[State, str | State] | None = None,
     ) -> tuple[matplotlib.figure.Figure, plt.Axes] | None:
         """
         Create a plot of the data contained in the result. This will either
@@ -163,7 +169,7 @@ class SamplingResult(dict):
         labels = [
             state_labels[s] if s in state_labels else str(s) for s in self
         ]
-        ax.set_xticklabels(labels, rotation=90)
+        ax.set_xticklabels(labels, rotation=90)  # type: ignore[arg-type]
         ax.set_xlabel("State")
         ax.set_ylabel("Counts")
 

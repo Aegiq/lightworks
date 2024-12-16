@@ -81,7 +81,9 @@ class Sampler(Task):
         circuit: PhotonicCircuit,
         input_state: State,
         n_samples: int,
-        post_selection: PostSelectionType | Callable | None = None,
+        post_selection: PostSelectionType
+        | Callable[[State], bool]
+        | None = None,
         min_detection: int = 0,
         source: Source | None = None,
         detector: Detector | None = None,
@@ -179,7 +181,7 @@ class Sampler(Task):
 
     @post_selection.setter
     def post_selection(
-        self, value: PostSelectionType | Callable | None
+        self, value: PostSelectionType | Callable[[State], bool] | None
     ) -> None:
         self.__post_selection = process_post_selection(value)
 

@@ -110,18 +110,18 @@ class AnnotatedState:
             "AnnotatedState object does not support item assignment."
         )
 
-    def __iter__(self) -> Iterator[list]:
+    def __iter__(self) -> Iterator[list[int]]:
         yield from self.s
 
     @overload
-    def __getitem__(self, indices: int) -> list: ...
+    def __getitem__(self, indices: int) -> list[int]: ...
 
     @overload
     def __getitem__(self, indices: slice) -> "AnnotatedState": ...
 
     def __getitem__(
         self, indices: int | slice
-    ) -> Union["AnnotatedState", list]:
+    ) -> Union["AnnotatedState", list[int]]:
         if isinstance(indices, slice):
             return AnnotatedState(self.__s[indices])
         if isinstance(indices, int):

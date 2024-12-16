@@ -16,6 +16,7 @@ from typing import Any
 
 import numpy as np
 from multimethod import multimethod
+from numpy.typing import NDArray
 from scipy.linalg import sqrtm
 
 from lightworks.sdk.state import State
@@ -26,7 +27,9 @@ from .mappings import MEASUREMENT_MAPPING, PAULI_MAPPING
 # should begin with _
 
 
-def state_fidelity(rho: np.ndarray, rho_exp: np.ndarray) -> float:
+def state_fidelity(
+    rho: NDArray[np.complex128], rho_exp: NDArray[np.complex128]
+) -> float:
     """
     Calculates the fidelity of the density matrix for a quantum state against
     the expected density matrix.
@@ -54,7 +57,9 @@ def state_fidelity(rho: np.ndarray, rho_exp: np.ndarray) -> float:
     return abs(np.trace(sqrtm(inner)))
 
 
-def process_fidelity(choi: np.ndarray, choi_exp: np.ndarray) -> float:
+def process_fidelity(
+    choi: NDArray[np.complex128], choi_exp: NDArray[np.complex128]
+) -> float:
     """
     Calculates the fidelity of a process compared to an expected choi matrix.
 
@@ -79,7 +84,9 @@ def process_fidelity(choi: np.ndarray, choi_exp: np.ndarray) -> float:
     return state_fidelity(choi / 2**n_qubits, choi_exp / 2**n_qubits)
 
 
-def density_from_state(state: list | np.ndarray) -> np.ndarray:
+def density_from_state(
+    state: list[complex] | NDArray[np.complex128],
+) -> NDArray[np.complex128]:
     """
     Calculates the expected density matrix from a given state.
 
@@ -97,7 +104,9 @@ def density_from_state(state: list | np.ndarray) -> np.ndarray:
     return np.outer(state, np.conj(state.T))
 
 
-def choi_from_unitary(unitary: np.ndarray) -> np.ndarray:
+def choi_from_unitary(
+    unitary: NDArray[np.complex128],
+) -> NDArray[np.complex128]:
     """
     Calculates the expected choi matrix from a given unitary representation of a
     process.
@@ -115,14 +124,14 @@ def choi_from_unitary(unitary: np.ndarray) -> np.ndarray:
     return np.outer(unitary.flatten(), np.conj(unitary.flatten()))
 
 
-def _vec(mat: np.ndarray) -> np.ndarray:
+def _vec(mat: NDArray[Any]) -> NDArray[Any]:
     """
     Applies flatten operation to a provided matrix to convert it into a vector.
     """
     return mat.flatten()
 
 
-def _unvec(mat: np.ndarray) -> np.ndarray:
+def _unvec(mat: NDArray[Any]) -> NDArray[Any]:
     """
     Takes a provided vector and converts it into a square matrix.
     """
@@ -139,7 +148,7 @@ def _combine_all(value: Any, n: int) -> None:  # noqa: ARG001
 
 
 @_combine_all.register
-def _combine_all_list(value: list[str], n: int) -> list:
+def _combine_all_list(value: list[str], n: int) -> list[str]:
     """
     Sums string values within list.
     """
@@ -150,7 +159,9 @@ def _combine_all_list(value: list[str], n: int) -> list:
 
 
 @_combine_all.register
-def _combine_all_list_array(value: list[np.ndarray], n: int) -> list:
+def _combine_all_list_array(
+    value: list[NDArray[Any]], n: int
+) -> list[NDArray[Any]]:
     """
     Performs tensor product of all combinations of arrays within list.
     """
@@ -161,7 +172,9 @@ def _combine_all_list_array(value: list[np.ndarray], n: int) -> list:
 
 
 @_combine_all.register
-def _combine_all_dict_mat(value: dict[str, np.ndarray], n: int) -> dict:
+def _combine_all_dict_mat(
+    value: dict[str, NDArray[Any]], n: int
+) -> dict[str, NDArray[Any]]:
     """
     Sums keys of dictionary and performs tensor products of the dictionary
     values.
@@ -202,7 +215,7 @@ def _get_tomo_measurements(
 
 def _get_required_tomo_measurements(
     n_qubits: int, remove_trivial: bool = False
-) -> tuple[list, dict]:
+) -> tuple[list[str], dict[str, str]]:
     """
     Calculates reduced list of required measurements assuming that any
     measurements in the I basis can be replaced with a Z measurement.
@@ -275,8 +288,8 @@ def _calculate_expectation_value(
 
 
 def _calculate_density_matrix(
-    results: dict[str, dict], n_qubits: int
-) -> np.ndarray:
+    results: dict[str, dict[State, int]], n_qubits: int
+) -> NDArray[np.complex128]:
     """
     Calculates the density matrix using a provided dictionary of results
     data.

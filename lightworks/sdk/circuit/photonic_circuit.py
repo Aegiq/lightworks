@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING, Any, Union
 import matplotlib.pyplot as plt
 import numpy as np
 from IPython import display
+from numpy.typing import NDArray
 
 from ..utils import (
     CircuitCompilationError,
@@ -106,7 +107,7 @@ class PhotonicCircuit:
         return f"lightworks.PhotonicCircuit({self.n_modes})"
 
     @property
-    def U(self) -> np.ndarray:  # noqa: N802
+    def U(self) -> NDArray[np.complex128]:  # noqa: N802
         """
         The effective unitary that the circuit implements across modes. This
         will include the effect of any loss within a circuit. It is calculated
@@ -115,7 +116,7 @@ class PhotonicCircuit:
         return self._build().U_full[: self.n_modes, : self.n_modes]
 
     @property
-    def U_full(self) -> np.ndarray:  # noqa: N802
+    def U_full(self) -> NDArray[np.complex128]:  # noqa: N802
         """
         The full unitary for the created circuit, this will include the
         additional modes used for the simulation of loss, if this has been
