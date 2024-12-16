@@ -19,12 +19,12 @@ Script to store various useful functions for the simulation aspect of the code.
 from collections.abc import Iterable
 
 
-def fock_basis(N: int, n: int) -> list:  # noqa: N803
+def fock_basis(N: int, n: int) -> list[list[int]]:  # noqa: N803
     """Returns the Fock basis for n photons in N modes."""
     return list(_sums(N, n))
 
 
-def _sums(length: int, total_sum: int) -> Iterable:
+def _sums(length: int, total_sum: int) -> Iterable[list[int]]:
     if length == 1:
         yield [
             total_sum,
@@ -35,7 +35,7 @@ def _sums(length: int, total_sum: int) -> Iterable:
                 yield [*permutation, value]
 
 
-def annotated_state_to_string(state: list) -> str:
+def annotated_state_to_string(state: list[list[int]]) -> str:
     """Converts the provided annotated state to a string with ket notation."""
     string = "|"
     for s in state:

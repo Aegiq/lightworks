@@ -154,28 +154,15 @@ class Source:
                 input properties.
 
         """
-        # Vary the method used depending on the parameter type.
+        # Basic method
         if self.purity == 1 and self.indistinguishability == 1:
-            stats_dict = self._build_statistics_basic(state)
-        else:
-            stats_dict = self._build_statistics_full(state)
+            basic_stats_dict = self._build_statistics_basic(state)
+            return apply_threshold(basic_stats_dict, self.probability_threshold)
+        # Full method
+        stats_dict = self._build_statistics_full(state)
+        return apply_threshold(stats_dict, self.probability_threshold)
 
-        # Apply probability thresholding if required
-        if self.probability_threshold:
-            thresholded_dict = {
-                s: p
-                for s, p in stats_dict.items()
-                if p >= self.probability_threshold
-            }
-            # Re-normalize after removing values
-            total = sum(thresholded_dict.values())
-            for s, p in thresholded_dict.items():
-                thresholded_dict[s] = p / total
-            stats_dict = thresholded_dict
-
-        return stats_dict
-
-    def _build_statistics_basic(self, state: State) -> dict:
+    def _build_statistics_basic(self, state: State) -> dict[State, float]:
         """
         Build a basic version of statistics which only accounts for source
         brightness.
@@ -228,7 +215,7 @@ class Source:
                             )
                     stats = new_stats
         # Combine any duplicate results
-        stats_dict: dict[State, float] = {}  # Convert stats to dict
+        stats_dict = {}
         for probs, s in stats:
             s_conv = State(s)
             if s_conv not in stats_dict:
@@ -240,7 +227,9 @@ class Source:
             stats_dict[state] = 1.0
         return stats_dict
 
-    def _build_statistics_full(self, state: State) -> dict:
+    def _build_statistics_full(
+        self, state: State
+    ) -> dict[AnnotatedState, float]:
         """
         Builds a full version of statistics which can account for the
         brightness, indistinguishability and purity of the source.
@@ -263,7 +252,9 @@ class Source:
         stats_dict = self._full_distribution(state)
         return self._remap_distribution(stats_dict)
 
-    def _remap_distribution(self, distribution: dict) -> dict:
+    def _remap_distribution(
+        self, distribution: dict[AnnotatedState, float]
+    ) -> dict[AnnotatedState, float]:
         """
         Remaps a provided distribution to a common form, enabling equivalent
         entries to be removed.
@@ -279,12 +270,12 @@ class Source:
             all_labels = list(dict.fromkeys(all_labels))
             mapping = {all_labels[i]: i for i in range(len(all_labels))}
             # Apply determined mapping to each state
-            state = state.s  # noqa: PLW2901
-            for j, mode in enumerate(state):
+            list_state = state.s
+            for j, mode in enumerate(list_state):
                 for i, m in enumerate(mode):
                     mode[i] = mapping[m]
-                state[j] = mode
-            state = AnnotatedState(state)  # noqa: PLW2901
+                list_state[j] = mode
+            state = AnnotatedState(list_state)  # noqa: PLW2901
             # Add new state to new distribution
             if state not in new_dist:
                 new_dist[state] = p
@@ -293,7 +284,7 @@ class Source:
 
         return new_dist
 
-    def _full_distribution(self, state: State) -> dict:
+    def _full_distribution(self, state: State) -> dict[AnnotatedState, float]:
         """
         Calculates the full input state probability distribution for a given
         state.
@@ -308,7 +299,7 @@ class Source:
             # Added groups of empty photons
             if i in to_group:
                 if not input_dist:
-                    input_dist = {AnnotatedState([[]] * len(to_group[i])): 1}
+                    input_dist = {AnnotatedState([[]] * len(to_group[i])): 1.0}
                 else:
                     input_dist = {
                         s1 + AnnotatedState([[]] * len(to_group[i])): p1
@@ -328,15 +319,17 @@ class Source:
 
         return input_dist
 
-    def _single_mode_distribution(self, n_photons: int) -> dict:
+    def _single_mode_distribution(
+        self, n_photons: int
+    ) -> dict[AnnotatedState, float]:
         """
         Finds the input state statistics for a number of photons on a given
         mode.
         """
         # Check for special case in which a mode is empty
         if n_photons == 0:
-            return {AnnotatedState([[]]): 1}
-        mode_dist: list[tuple[list, float]] = []
+            return {AnnotatedState([[]]): 1.0}
+        mode_dist: list[tuple[list[int], float]] = []
         # Get distribution for each photon and combine with mode distribution
         for _i in range(n_photons):
             calc_dist = self._single_photon_distribution()
@@ -362,7 +355,7 @@ class Source:
                 dist_dict[state] += p
         return dist_dict
 
-    def _single_photon_distribution(self) -> list[tuple[list, float]]:
+    def _single_photon_distribution(self) -> list[tuple[list[int], float]]:
         """
         Calculates the distribution for a single photon with imperfect
         properties. This uses the probabilities as shown on page 15 of
@@ -400,7 +393,22 @@ class Source:
         return [(s, p) for s, p in to_add if p > 0]
 
 
-def group_empty_modes(state: State) -> tuple[dict, list]:
+def apply_threshold(
+    distribution: dict[State, float] | dict[AnnotatedState, float],
+    threshold: float,
+) -> dict[State, float] | dict[AnnotatedState, float]:
+    """
+    Applies a threshold to a provided source probability distribution
+    """
+    thresholded_dict = {s: p for s, p in distribution.items() if p >= threshold}
+    # Re-normalize after removing values
+    total = sum(thresholded_dict.values())
+    for s, p in thresholded_dict.items():
+        thresholded_dict[s] = p / total
+    return thresholded_dict  # type: ignore[return-value]
+
+
+def group_empty_modes(state: State) -> tuple[dict[int, list[int]], list[int]]:
     """
     Used to find groups of empty modes, this can be used to speed up the source
     distribution calculation.

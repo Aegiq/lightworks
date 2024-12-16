@@ -213,7 +213,7 @@ class ParameterDict:
         # If any parameters has bounds return True, else return False
         return any(v.has_bounds() for v in self.__pdict.values())
 
-    def keys(self) -> Iterable:
+    def keys(self) -> Iterable[str]:
         """Returns all keys associated with the Parameters as an iterable."""
         return self.__pdict.keys()
 

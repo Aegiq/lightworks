@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from abc import ABCMeta, abstractmethod
+from typing import Any
 
 
 class RunnerABC(metaclass=ABCMeta):
@@ -21,4 +22,4 @@ class RunnerABC(metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def run(self) -> dict: ...  # noqa: D102
+    def run(self) -> dict[Any, Any]: ...  # noqa: D102

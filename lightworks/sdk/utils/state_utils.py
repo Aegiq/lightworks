@@ -17,7 +17,7 @@ Script to store various useful functions for the simulation aspect of the code.
 """
 
 
-def state_to_string(state: list) -> str:
+def state_to_string(state: list[int]) -> str:
     """Converts the provided state to a string with ket notation."""
     string = "|"
     for s in state:

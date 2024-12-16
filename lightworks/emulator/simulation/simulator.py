@@ -63,10 +63,12 @@ class SimulatorRunner(RunnerABC):
         """
         if self.data.outputs is None:
             check_photon_numbers(self.data.inputs)
-            outputs = fock_basis(
-                self.data.circuit.input_modes, self.data.inputs[0].n_photons
-            )
-            outputs = [State(s) for s in outputs]
+            outputs = [
+                State(s)
+                for s in fock_basis(
+                    self.data.circuit.input_modes, self.data.inputs[0].n_photons
+                )
+            ]
         else:
             check_photon_numbers(self.data.inputs + self.data.outputs)
             outputs = self.data.outputs

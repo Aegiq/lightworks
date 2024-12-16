@@ -16,7 +16,7 @@ from ..state import State
 from ..utils import ProbabilityDistributionError
 
 
-class ProbabilityDistribution(dict):
+class ProbabilityDistribution(dict[State, float]):
     """
     Stores a created ProbabilityDistribution and prevents modification to
     values.

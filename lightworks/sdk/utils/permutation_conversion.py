@@ -13,9 +13,12 @@
 # limitations under the License.
 
 import numpy as np
+from numpy.typing import NDArray
 
 
-def permutation_mat_from_swaps_dict(swaps: dict, n_modes: int) -> np.ndarray:
+def permutation_mat_from_swaps_dict(
+    swaps: dict[int, int], n_modes: int
+) -> NDArray[np.complex128]:
     """
     Calculates the permutation unitary for a given dictionary of swaps across
     the n_modes of a circuit.

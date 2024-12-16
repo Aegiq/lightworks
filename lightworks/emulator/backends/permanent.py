@@ -152,11 +152,11 @@ class PermanentBackend(FockBackend):
             p = self.probability(circuit.U_full, input_state.s, ostate)
             if p > settings.sampler_probability_threshold:
                 # Only care about non-loss modes
-                ostate = State(ostate[: circuit.n_modes])  # noqa: PLW2901
-                if ostate in pdist:
-                    pdist[ostate] += p
+                meas_state = State(ostate[: circuit.n_modes])
+                if meas_state in pdist:
+                    pdist[meas_state] += p
                 else:
-                    pdist[ostate] = p
+                    pdist[meas_state] = p
         # Work out zero photon component before saving to unique results
         total_prob = sum(pdist.values())
         if total_prob < 1 and circuit.loss_modes > 0:
