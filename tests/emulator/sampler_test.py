@@ -504,7 +504,7 @@ class TestSamplerCalculationBackends:
                 break
         assert sub_2_photon_states
 
-    @pytest.mark.flaky(reruns=2)
+    @pytest.mark.flaky(reruns=3)
     def test_herald_equivalent(self, backend):
         """
         Checks that results are equivalent if a herald is used vs

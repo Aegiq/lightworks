@@ -48,7 +48,7 @@ from .__settings import settings
 from .__version import __version__
 from .sdk.circuit import Parameter, ParameterDict, PhotonicCircuit, Unitary
 from .sdk.state import State
-from .sdk.tasks import Analyzer, Sampler, Simulator
+from .sdk.tasks import Analyzer, Batch, Sampler, Simulator
 from .sdk.utils import (
     PostSelection,
     PostSelectionFunction,
