@@ -14,7 +14,7 @@
 
 from typing import Any
 
-from ..circuit import Parameter
+from ..circuit import Parameter, PhotonicCircuit
 from .task import Task
 
 
@@ -42,15 +42,17 @@ class Batch:
         )
         # Loop over number of variations and create a task for each
         for i in range(n_vars):
-            sub_args = [a[i] for a in args] if args is not None else []
-            sub_kwargs = (
-                {k: v[i] for k, v in kwargs.items()}
-                if kwargs is not None
-                else {}
-            )
             if params is not None:
                 for p, v in params.items():
                     p.set(v[i])
+            sub_args = (
+                [copy_circuit(a[i]) for a in args] if args is not None else []
+            )
+            sub_kwargs = (
+                {k: copy_circuit(v[i]) for k, v in kwargs.items()}
+                if kwargs is not None
+                else {}
+            )
             self.__tasks.append(task(*sub_args, **sub_kwargs))
 
     def __iter__(self) -> Any:
@@ -72,6 +74,16 @@ class Batch:
         if not isinstance(task, Task):
             raise TypeError("Provided task must be a Task object.")
         self.__tasks.append(task)
+
+
+def copy_circuit(arg: Any) -> Any:
+    """
+    Checks if a provided argument is a circuit and if so makes a copy and freeze
+    the circuit parameters.
+    """
+    if isinstance(arg, PhotonicCircuit):
+        return arg.copy(freeze_parameters=True)
+    return arg
 
 
 def process_values(
