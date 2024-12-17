@@ -71,7 +71,7 @@ class Backend:
 
     @_run.register
     def _run_batch(self, task: Batch) -> list[dict[Any, Any]]:
-        return [self._run(t) for t in task.tasks]
+        return [self._run(t) for t in task]
 
     @property
     def backend(self) -> str:

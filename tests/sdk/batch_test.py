@@ -71,6 +71,15 @@ class TestBatchTask:
         """
         Batch()
 
+    def test_setup_task_initialised(self):
+        """
+        Checks an error is raised when an already initialized task is provided
+        to Batch.
+        """
+        sim = Simulator(PhotonicCircuit(2), State([1, 0]))
+        with pytest.raises(TypeError):
+            Batch(sim)
+
     def test_task_setup_all_kwargs(self):
         """
         Checks basic Batch setup works correctly when all arguments are
@@ -112,6 +121,24 @@ class TestBatchTask:
             task_kwargs={"min_detection": self.min_detections},
         )
         assert bc.num == 4
+
+    def test_add(self):
+        """
+        Checks add function allows a task to be added, and raised an error for
+        not-tasks.
+        """
+        sim = Simulator(PhotonicCircuit(2), State([1, 0]))
+        batch = Batch()
+        batch.add(sim)
+        assert batch.num == 1
+
+    def test_add_not_task(self):
+        """
+        Checks an error is raised when a non-task is added to Batch.
+        """
+        batch = Batch()
+        with pytest.raises(TypeError):
+            batch.add(PhotonicCircuit(4))
 
     def test_task_number_all_kwargs(self):
         """
