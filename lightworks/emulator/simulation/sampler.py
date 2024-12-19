@@ -204,12 +204,15 @@ class SamplerRunner(RunnerABC):
         filtered_samples = []
         # Get heralds and pre-calculate items
         heralds = self.data.circuit.heralds["output"]
-        if heralds:
-            if max(heralds.values()) > 1 and not self.detector.photon_counting:
-                raise SamplerError(
-                    "Non photon number resolving detectors cannot be used when"
-                    "a heralded mode has more than 1 photon."
-                )
+        if (
+            heralds
+            and max(heralds.values()) > 1
+            and not self.detector.photon_counting
+        ):
+            raise SamplerError(
+                "Non photon number resolving detectors cannot be used when"
+                "a heralded mode has more than 1 photon."
+            )
         herald_modes = list(heralds.keys())
         herald_items = list(heralds.items())
         # Set detector seed before sampling
@@ -279,12 +282,15 @@ class SamplerRunner(RunnerABC):
             )
         # Get heralds and pre-calculate items
         heralds = self.data.circuit.heralds["output"]
-        if heralds:
-            if max(heralds.values()) > 1 and not self.detector.photon_counting:
-                raise SamplerError(
-                    "Non photon number resolving detectors cannot be used when"
-                    "a heralded mode has more than 1 photon."
-                )
+        if (
+            heralds
+            and max(heralds.values()) > 1
+            and not self.detector.photon_counting
+        ):
+            raise SamplerError(
+                "Non photon number resolving detectors cannot be used when"
+                "a heralded mode has more than 1 photon."
+            )
         herald_modes = list(heralds.keys())
         herald_items = list(heralds.items())
         # Convert distribution using provided data

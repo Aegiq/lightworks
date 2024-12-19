@@ -43,6 +43,8 @@ Key objects:
 
 """
 
+import contextlib
+
 from . import emulator, interferometers, qubit, tomography
 from .__settings import settings
 from .__version import __version__
@@ -61,17 +63,28 @@ from .sdk.utils.exceptions import *
 from .sdk.visualisation import Display
 
 # If installed then also import the remote module
-try:
-    import lightworks_remote as remote  # type: ignore
-except ModuleNotFoundError:
-    pass
+with contextlib.suppress(ModuleNotFoundError):
+    import lightworks_remote as remote
 
-# fmt: off
 __all__ = [
-    "emulator", "qubit", "interferometers", "tomography", "settings",
-    "PhotonicCircuit", "Unitary", "Display", "State", "random_unitary",
-    "random_permutation", "db_loss_to_decimal", "decimal_to_db_loss",
-    "Parameter", "ParameterDict", "PostSelection", "PostSelectionFunction",
-    "Simulator", "Sampler", "Analyzer"
+    "Analyzer",
+    "Display",
+    "Parameter",
+    "ParameterDict",
+    "PhotonicCircuit",
+    "PostSelection",
+    "PostSelectionFunction",
+    "Sampler",
+    "Simulator",
+    "State",
+    "Unitary",
+    "db_loss_to_decimal",
+    "decimal_to_db_loss",
+    "emulator",
+    "interferometers",
+    "qubit",
+    "random_permutation",
+    "random_unitary",
+    "settings",
+    "tomography",
 ]
-# fmt: on

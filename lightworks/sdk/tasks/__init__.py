@@ -19,4 +19,4 @@ from .sampler import Sampler
 from .simulator import Simulator
 from .task import Task
 
-__all__ = ["Analyzer", "Sampler", "Simulator", "Batch"]
+__all__ = ["Analyzer", "Batch", "Sampler", "Simulator"]
