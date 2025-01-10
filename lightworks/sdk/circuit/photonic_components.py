@@ -22,6 +22,8 @@ from numpy.typing import NDArray
 from ..utils import check_unitary, permutation_mat_from_swaps_dict
 from .parameters import Parameter
 
+# ruff: noqa: D102
+
 
 @dataclass(slots=True)
 class Component(metaclass=ABCMeta):
@@ -34,6 +36,12 @@ class Component(metaclass=ABCMeta):
         """
         Returns a unitary matrix corresponding to the transformation implemented
         by the component with size n_modes.
+        """
+
+    @abstractmethod
+    def serialize(self) -> tuple[str, dict[str, Any]] | None:
+        """
+        Creates a serializable tuple of details for the current component.
         """
 
     def fields(self) -> list[str]:
@@ -86,7 +94,7 @@ class BeamSplitter(Component):
             return self.reflectivity.get()
         return self.reflectivity
 
-    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:  # noqa: D102
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:
         self.validate()
         theta = np.arccos(self._reflectivity**0.5)
         unitary = np.identity(n_modes, dtype=complex)
@@ -101,6 +109,17 @@ class BeamSplitter(Component):
             unitary[self.mode_2, self.mode_1] = np.sin(theta)
             unitary[self.mode_2, self.mode_2] = -np.cos(theta)
         return unitary
+
+    def serialize(self) -> tuple[str, dict[str, Any]]:
+        return (
+            "BeamSplitter",
+            {
+                "mode_1": self.mode_1,
+                "mode_2": self.mode_2,
+                "reflectivity": self._reflectivity,
+                "convention": self.convention,
+            },
+        )
 
 
 @dataclass(slots=True)
@@ -118,10 +137,13 @@ class PhaseShifter(Component):
             return self.phi.get()
         return self.phi
 
-    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:  # noqa: D102
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:
         unitary = np.identity(n_modes, dtype=complex)
         unitary[self.mode, self.mode] = np.exp(1j * self._phi)
         return unitary
+
+    def serialize(self) -> tuple[str, dict[str, Any]]:
+        return ("PhaseShifter", {"mode": self.mode, "phi": self._phi})
 
 
 @dataclass(slots=True)
@@ -147,7 +169,7 @@ class Loss(Component):
             return self.loss.get()
         return self.loss
 
-    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:  # noqa: D102
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:
         self.validate()
         transmission = 1 - self._loss
         # Assumes loss mode to use is last mode in circuit
@@ -158,6 +180,9 @@ class Loss(Component):
         unitary[n_modes - 1, self.mode] = (1 - transmission) ** 0.5
         return unitary
 
+    def serialize(self) -> tuple[str, dict[str, Any]]:
+        return ("Loss", {"mode": self.mode, "loss": self._loss})
+
 
 @dataclass(slots=True)
 class Barrier(Component):
@@ -167,8 +192,11 @@ class Barrier(Component):
 
     modes: list[int]
 
-    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:  # noqa: D102
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:
         return np.identity(n_modes, dtype=complex)
+
+    def serialize(self) -> None:
+        return
 
 
 @dataclass(slots=True)
@@ -189,8 +217,11 @@ class ModeSwaps(Component):
                 "contain the same modes."
             )
 
-    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:  # noqa: D102
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:
         return permutation_mat_from_swaps_dict(self.swaps, n_modes)
+
+    def serialize(self) -> tuple[str, dict[str, Any]]:
+        return ("ModeSwaps", {"swaps": self.swaps})
 
 
 @dataclass(slots=True)
@@ -205,8 +236,14 @@ class Group(Component):
     mode_2: int
     heralds: dict[str, dict[int, int]]
 
-    def get_unitary(self, n_modes: int) -> None:  # type: ignore[override] # noqa: ARG002, D102
+    def get_unitary(self, n_modes: int) -> None:  # type: ignore[override] # noqa: ARG002
         return None
+
+    def serialize(self) -> None:
+        raise RuntimeError(
+            "Groups must be unpacked before attempting to serialize"
+        )
+        return
 
 
 @dataclass(slots=True)
@@ -233,10 +270,20 @@ class UnitaryMatrix(Component):
         if not isinstance(self.label, str):
             raise TypeError("Label for unitary should be a string.")
 
-    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:  # noqa: D102
+    def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:
         unitary = np.identity(n_modes, dtype=complex)
         nm = self.unitary.shape[0]
         unitary[self.mode : self.mode + nm, self.mode : self.mode + nm] = (
             self.unitary[:, :]
         )
         return unitary
+
+    def serialize(self) -> tuple[str, dict[str, Any]]:
+        return (
+            "UnitaryMatrix",
+            {
+                "mode": self.mode,
+                "unitary": self.unitary.astype(str).tolist(),
+                "label": self.label,
+            },
+        )
