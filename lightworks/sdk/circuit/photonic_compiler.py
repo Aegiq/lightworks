@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from copy import copy
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -39,6 +40,7 @@ class CompiledPhotonicCircuit:
         self._unitary = np.identity(n_modes, dtype=complex)
         self._in_heralds: dict[int, int] = {}
         self._out_heralds: dict[int, int] = {}
+        self._circuit_spec: list[tuple[str, dict[str, Any]] | None] = []
 
     @property
     def n_modes(self) -> int:
@@ -84,6 +86,7 @@ class CompiledPhotonicCircuit:
                 self._unitary, (0, 1), "constant", constant_values=0j
             )
             self._unitary[-1, -1] = 1 + 0j
+            self._circuit_spec.append(spec.serialize())
         if isinstance(spec, Group):
             for s in spec.circuit_spec:
                 self.add(s)
@@ -91,6 +94,7 @@ class CompiledPhotonicCircuit:
             pass
         else:
             self._unitary = spec.get_unitary(self.total_modes) @ self._unitary
+            self._circuit_spec.append(spec.serialize())
 
     def add_herald(
         self, n_photons: int, input_mode: int, output_mode: int | None = None
