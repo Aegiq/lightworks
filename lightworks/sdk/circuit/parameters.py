@@ -138,18 +138,16 @@ class Parameter:
     def set(self, value: Any) -> None:
         """Update the current value of the parameter."""
         # Don't allow parameter to be set to non-numeric value if bounds set
-        if self.has_bounds():
+        if self.has_bounds():  # noqa: SIM102
             if not isinstance(value, Number) or isinstance(value, bool):
                 raise ParameterValueError(
                     "Parameter cannot be set to non-numeric value when "
                     "bounds are assigned to parameter."
                 )
-        if self.min_bound is not None:
-            if value < self.min_bound:
-                raise ParameterValueError("Set value is below minimum bound.")
-        if self.max_bound is not None:
-            if value > self.max_bound:
-                raise ParameterValueError("Set value is above maximum bound.")
+        if self.min_bound is not None and value < self.min_bound:
+            raise ParameterValueError("Set value is below minimum bound.")
+        if self.max_bound is not None and value > self.max_bound:
+            raise ParameterValueError("Set value is above maximum bound.")
         self.__value = value
         return
 

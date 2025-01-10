@@ -31,9 +31,9 @@ from .utils import (
 )
 
 __all__ = [
-    "StateTomography",
     "LIProcessTomography",
     "MLEProcessTomography",
+    "StateTomography",
     "choi_from_unitary",
     "density_from_state",
     "process_fidelity",

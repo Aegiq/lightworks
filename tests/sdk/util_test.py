@@ -231,7 +231,7 @@ class TestPostSelection:
         "post_select",
         [
             PostSelection(),
-            PostSelectionFunction(lambda s: True),
+            PostSelectionFunction(lambda s: True),  # noqa: ARG005
             DefaultPostSelection(),
         ],
     )

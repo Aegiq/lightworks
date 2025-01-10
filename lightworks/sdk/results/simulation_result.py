@@ -351,9 +351,8 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
         out_strings = [str(s) for s in self.outputs]
         # Switch to probability if required
         data = self.array.copy()
-        if conv_to_probability:
-            if self.result_type == "probability_amplitude":
-                data = abs(data) ** 2
+        if conv_to_probability and self.result_type == "probability_amplitude":
+            data = abs(data) ** 2
         # Apply thresholding to values
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):

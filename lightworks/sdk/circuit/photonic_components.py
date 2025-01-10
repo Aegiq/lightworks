@@ -66,9 +66,11 @@ class BeamSplitter(Component):
         are valid.
         """
         # Validate reflectivity
-        if not isinstance(self.reflectivity, Parameter):
-            if not 0 <= self.reflectivity <= 1:
-                raise ValueError("Reflectivity must be in range [0,1].")
+        if (
+            not isinstance(self.reflectivity, Parameter)
+            and not 0 <= self.reflectivity <= 1
+        ):
+            raise ValueError("Reflectivity must be in range [0,1].")
         # And check beam splitter convention
         all_convs = ["Rx", "H"]
         if self.convention not in all_convs:
