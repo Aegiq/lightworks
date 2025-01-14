@@ -33,6 +33,19 @@ class _Settings:
     def __init__(self) -> None:
         self.__frozen = True
 
+    @property
+    def all(self) -> str:
+        return ["unitary_precision", "sampler_probability_threshold"]
+
+    def __str__(self) -> str:
+        output = ""
+        for val in self.all:
+            output += f"{val}: {getattr(self, val)}\n"
+        return output[:-1]
+
+    def __repr__(self) -> str:
+        return f"lightworks.Settings(\n{self!s}\n)"
+
     def __setattr__(self, name: str, value: Any) -> None:
         if not hasattr(self, name) and self.__frozen:
             msg = f"Setting with name '{name}' does not exist."
