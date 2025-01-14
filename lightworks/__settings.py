@@ -34,7 +34,7 @@ class _Settings:
         self.__frozen = True
 
     @property
-    def all(self) -> str:
+    def all(self) -> list[str]:
         return ["unitary_precision", "sampler_probability_threshold"]
 
     def __str__(self) -> str:
