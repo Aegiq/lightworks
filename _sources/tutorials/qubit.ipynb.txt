@@ -1,0 +1,833 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Qubit Components"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "import numpy as np\n",
+    "\n",
+    "import lightworks as lw\n",
+    "from lightworks import emulator\n",
+    "\n",
+    "# Define backend to use for all simulations here\n",
+    "backend = emulator.Backend(\"permanent\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Using Qubit Gates\n",
+    "All qubit components are in a dedicated 'qubit' sub-module of Lightworks. To access these, either the existing Lightworks import or a dedicated import of the qubit module can be used. As an example, to create a hadamard gate, either of the following would be valid."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "hadamard = lw.qubit.H()\n",
+    "\n",
+    "from lightworks import qubit  # Could go at the top of the notebook\n",
+    "\n",
+    "hadamard = qubit.H()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Within this notebook we will use the latter for simplicity.\n",
+    "\n",
+    "All qubit components are designed to act on dual-rail encoded qubits, where a photon in the upper mode is the $\\ket{0}$ state and the $\\ket{1}$ mode is the lower state. This means for single qubit gates they act across two modes, dual qubit gates act across 4 modes etc... . It is assumed that the modes that the gate is acting on are adjacent to each other, so mode swaps may be required if this is not the case.\n",
+    "\n",
+    "Below, a circuit is created to support a single qubit, with each mode labelled, and the Hadamard gate is applied. This is then simulated to check the expected outputs, and it can be seen how this varies depending on whether the $\\ket{0}$ or $\\ket{1}$ state is input into the system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/svg+xml": [
+       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
+       "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n",
+       "     width=\"240.0\" height=\"180.0\" viewBox=\"0 0 500.0 375\">\n",
+       "<defs>\n",
+       "</defs>\n",
+       "<rect x=\"0\" y=\"0\" width=\"500.0\" height=\"375\" fill=\"white\" stroke=\"none\" />\n",
+       "<rect x=\"100.0\" y=\"25\" width=\"300.0\" height=\"325\" fill=\"none\" stroke=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"124.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"249.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<text x=\"80.0\" y=\"127\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 127)\">|0&gt;</text>\n",
+       "<text x=\"80.0\" y=\"252\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 252)\">|1&gt;</text>\n",
+       "<rect x=\"149.95\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"149.95\" y=\"246.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"200.0\" y=\"100.0\" width=\"100\" height=\"175\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"250.0\" y=\"187.5\" font-size=\"35\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 250.0, 187.5)\">H</text>\n",
+       "<rect x=\"299.95\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"299.95\" y=\"246.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "</svg>"
+      ],
+      "text/plain": [
+       "<drawsvg.drawing.Drawing at 0x2418fa0b7d0>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>|1,0&gt;</th>\n",
+       "      <th>|0,1&gt;</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>|1,0&gt;</th>\n",
+       "      <td>0.707107+0.000000j</td>\n",
+       "      <td>0.707107+0.000000j</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>|0,1&gt;</th>\n",
+       "      <td>0.707107+0.000000j</td>\n",
+       "      <td>-0.707107+0.000000j</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                    |1,0>               |0,1>\n",
+       "|1,0>  0.707107+0.000000j  0.707107+0.000000j\n",
+       "|0,1>  0.707107+0.000000j -0.707107+0.000000j"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "circuit = lw.PhotonicCircuit(2)  # Dual rail circuit\n",
+    "\n",
+    "circuit.add(hadamard, 0)  # Add hadamard\n",
+    "\n",
+    "circuit.display(mode_labels=[\"|0>\", \"|1>\"])\n",
+    "#                                           |0>               |1>\n",
+    "sim = lw.Simulator(circuit, [lw.State([1, 0]), lw.State([0, 1])])\n",
+    "results = backend.run(sim)\n",
+    "\n",
+    "results.display_as_dataframe()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Single Qubit Gates\n",
+    "As mentioned, single qubit gates act across a pair of modes which encode a dual-rail encoded qubit. When adding these gates, it is important they are not used to mix modes which encode two different qubits as this creates an invalid result. \n",
+    "\n",
+    "The gates currently included in Lightworks are H, X, Y, Z, T and S, below these are applied across 3 different qubits, labelled A, B & C."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/svg+xml": [
+       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
+       "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n",
+       "     width=\"378.40000000000003\" height=\"440.00000000000006\" viewBox=\"0 0 752.5 875\">\n",
+       "<defs>\n",
+       "</defs>\n",
+       "<rect x=\"0\" y=\"0\" width=\"752.5\" height=\"875\" fill=\"white\" stroke=\"none\" />\n",
+       "<rect x=\"152.5\" y=\"25\" width=\"500.0\" height=\"825\" fill=\"none\" stroke=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"124.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"249.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"374.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"499.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"624.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"749.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<text x=\"132.5\" y=\"127\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 127)\">A : |0&gt;</text>\n",
+       "<text x=\"132.5\" y=\"252\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 252)\">A : |1&gt;</text>\n",
+       "<text x=\"132.5\" y=\"377\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 377)\">B : |0&gt;</text>\n",
+       "<text x=\"132.5\" y=\"502\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 502)\">B : |1&gt;</text>\n",
+       "<text x=\"132.5\" y=\"627\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 627)\">C : |0&gt;</text>\n",
+       "<text x=\"132.5\" y=\"752\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 752)\">C : |1&gt;</text>\n",
+       "<rect x=\"202.45\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"246.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"252.5\" y=\"100.0\" width=\"100\" height=\"175\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"302.5\" y=\"187.5\" font-size=\"35\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 302.5, 187.5)\">H</text>\n",
+       "<rect x=\"352.45\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"352.45\" y=\"246.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"246.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"452.5\" y=\"100.0\" width=\"100\" height=\"175\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"502.5\" y=\"187.5\" font-size=\"35\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 502.5, 187.5)\">X</text>\n",
+       "<rect x=\"552.45\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"552.45\" y=\"246.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"371.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"496.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"252.5\" y=\"350.0\" width=\"100\" height=\"175\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"302.5\" y=\"437.5\" font-size=\"35\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 302.5, 437.5)\">Y</text>\n",
+       "<rect x=\"352.45\" y=\"371.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"352.45\" y=\"496.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"371.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"496.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"452.5\" y=\"350.0\" width=\"100\" height=\"175\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"502.5\" y=\"437.5\" font-size=\"35\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 502.5, 437.5)\">Z</text>\n",
+       "<rect x=\"552.45\" y=\"371.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"552.45\" y=\"496.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"621.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"746.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"252.5\" y=\"600.0\" width=\"100\" height=\"175\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"302.5\" y=\"687.5\" font-size=\"35\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 302.5, 687.5)\">S</text>\n",
+       "<rect x=\"352.45\" y=\"621.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"352.45\" y=\"746.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"621.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"746.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"452.5\" y=\"600.0\" width=\"100\" height=\"175\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"502.5\" y=\"687.5\" font-size=\"35\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 502.5, 687.5)\">T</text>\n",
+       "<rect x=\"552.45\" y=\"621.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"552.45\" y=\"746.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "</svg>"
+      ],
+      "text/plain": [
+       "<drawsvg.drawing.Drawing at 0x241920cc850>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "circuit = lw.PhotonicCircuit(6)\n",
+    "\n",
+    "# Qubit A\n",
+    "circuit.add(qubit.H(), 0)\n",
+    "circuit.add(qubit.X(), 0)\n",
+    "\n",
+    "# Qubit B\n",
+    "circuit.add(qubit.Y(), 2)\n",
+    "circuit.add(qubit.Z(), 2)\n",
+    "\n",
+    "# Qubit C\n",
+    "circuit.add(qubit.S(), 4)\n",
+    "circuit.add(qubit.T(), 4)\n",
+    "\n",
+    "circuit.display(\n",
+    "    mode_labels=[\n",
+    "        \"A : |0>\",\n",
+    "        \"A : |1>\",\n",
+    "        \"B : |0>\",\n",
+    "        \"B : |1>\",\n",
+    "        \"C : |0>\",\n",
+    "        \"C : |1>\",\n",
+    "    ]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Two Qubit Gates\n",
+    "With two qubit gates, it is often more complicated as they typically require some sort of post-selection or heralding. Lightworks aims to make this easier by including integration of the heralding modes/photons within the circuit, meaning these can automatically be applied to simulation inputs and routed around when adding new components to the circuit. Depending on the component, however, some additional post-selection may still be required, information on this can be found in the documentation or the component docstring.\n",
+    "\n",
+    "To get started, below we create a 2 qubit CNOT gate. It can be seen how the heralds are shown on the upper and lower parts of the component, but not included within the main circuit modes. This particular gate requires post-selection on measuring 1 photon across the control qubit modes (0 & 1) and 1 photon across the target qubit modes (2 & 3)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/svg+xml": [
+       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
+       "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n",
+       "     width=\"280.258064516129\" height=\"362.0\" viewBox=\"0 0 600.0 775\">\n",
+       "<defs>\n",
+       "</defs>\n",
+       "<rect x=\"0\" y=\"0\" width=\"600.0\" height=\"775\" fill=\"white\" stroke=\"none\" />\n",
+       "<rect x=\"100.0\" y=\"25\" width=\"400.0\" height=\"725\" fill=\"none\" stroke=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"124.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"199.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"324.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"449.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"574.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"649.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<text x=\"80.0\" y=\"127\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 127)\">-</text>\n",
+       "<text x=\"80.0\" y=\"202\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 202)\">0</text>\n",
+       "<text x=\"80.0\" y=\"327\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 327)\">1</text>\n",
+       "<text x=\"80.0\" y=\"452\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 452)\">2</text>\n",
+       "<text x=\"80.0\" y=\"577\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 577)\">3</text>\n",
+       "<text x=\"80.0\" y=\"652\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 652)\">-</text>\n",
+       "<rect x=\"199.95\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"149.95\" y=\"196.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"149.95\" y=\"321.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"149.95\" y=\"446.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"149.95\" y=\"571.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"199.95\" y=\"646.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"250.0\" y=\"100.0\" width=\"100\" height=\"575\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"300.0\" y=\"387.5\" font-size=\"25\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(270, 300.0, 387.5)\">CNOT (0, 1)</text>\n",
+       "<rect x=\"349.95\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"196.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"321.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"446.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"571.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"646.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<circle cx=\"200.0\" cy=\"125\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"200.0\" y=\"127.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 200.0, 127.5)\">0</text>\n",
+       "<circle cx=\"200.0\" cy=\"650\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"200.0\" y=\"652.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 200.0, 652.5)\">0</text>\n",
+       "<circle cx=\"400.0\" cy=\"125\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"400.0\" y=\"127.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 400.0, 127.5)\">0</text>\n",
+       "<circle cx=\"400.0\" cy=\"650\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"400.0\" y=\"652.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 400.0, 652.5)\">0</text>\n",
+       "</svg>"
+      ],
+      "text/plain": [
+       "<drawsvg.drawing.Drawing at 0x241920a6a10>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "cnot = lw.qubit.CNOT()\n",
+    "\n",
+    "cnot.display()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This CNOT gate can then be added to a circuit. In the following example, we'll aim to create the 3 qubit GHZ using a hadamard and 2 CNOTs. To start, we create the circuit, as it is a 3 qubit circuit it should have 6 modes. The H gate and CNOT are then added, it can be seen below how only the non-heralded modes of the CNOT are attached to the circuit modes."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/svg+xml": [
+       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
+       "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n",
+       "     width=\"430.18461538461537\" height=\"491.99999999999994\" viewBox=\"0 0 852.5 975\">\n",
+       "<defs>\n",
+       "</defs>\n",
+       "<rect x=\"0\" y=\"0\" width=\"852.5\" height=\"975\" fill=\"white\" stroke=\"none\" />\n",
+       "<rect x=\"152.5\" y=\"25\" width=\"600.0\" height=\"925\" fill=\"none\" stroke=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"124.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"199.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"324.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"449.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"574.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"649.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"724.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"849.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<text x=\"132.5\" y=\"127\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 127)\">-</text>\n",
+       "<text x=\"132.5\" y=\"202\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 202)\">A : |0&gt;</text>\n",
+       "<text x=\"132.5\" y=\"327\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 327)\">A : |1&gt;</text>\n",
+       "<text x=\"132.5\" y=\"452\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 452)\">B : |0&gt;</text>\n",
+       "<text x=\"132.5\" y=\"577\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 577)\">B : |1&gt;</text>\n",
+       "<text x=\"132.5\" y=\"652\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 652)\">-</text>\n",
+       "<text x=\"132.5\" y=\"727\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 727)\">C : |0&gt;</text>\n",
+       "<text x=\"132.5\" y=\"852\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 852)\">C : |1&gt;</text>\n",
+       "<rect x=\"202.45\" y=\"196.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"321.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"252.5\" y=\"175.0\" width=\"100\" height=\"175\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"302.5\" y=\"262.5\" font-size=\"35\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 302.5, 262.5)\">H</text>\n",
+       "<rect x=\"352.45\" y=\"196.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"352.45\" y=\"321.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"446.0\" width=\"200.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"571.0\" width=\"200.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"452.45\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"196.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"321.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"446.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"571.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"452.45\" y=\"646.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"502.5\" y=\"100.0\" width=\"100\" height=\"575\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"552.5\" y=\"387.5\" font-size=\"25\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(270, 552.5, 387.5)\">CNOT (0, 1)</text>\n",
+       "<rect x=\"602.45\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"602.45\" y=\"196.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"602.45\" y=\"321.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"602.45\" y=\"446.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"602.45\" y=\"571.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"602.45\" y=\"646.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<circle cx=\"452.5\" cy=\"125\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"452.5\" y=\"127.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 452.5, 127.5)\">0</text>\n",
+       "<circle cx=\"452.5\" cy=\"650\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"452.5\" y=\"652.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 452.5, 652.5)\">0</text>\n",
+       "<circle cx=\"652.5\" cy=\"125\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"652.5\" y=\"127.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 652.5, 127.5)\">0</text>\n",
+       "<circle cx=\"652.5\" cy=\"650\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"652.5\" y=\"652.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 652.5, 652.5)\">0</text>\n",
+       "<rect x=\"202.45\" y=\"721.0\" width=\"500.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"846.0\" width=\"500.1\" height=\"8\" fill=\"black\" />\n",
+       "</svg>"
+      ],
+      "text/plain": [
+       "<drawsvg.drawing.Drawing at 0x241920e2dd0>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "circ = lw.PhotonicCircuit(6)\n",
+    "circ.add(lw.qubit.H(), 0)\n",
+    "circ.add(cnot, 0)\n",
+    "\n",
+    "circ.display(\n",
+    "    mode_labels=[\n",
+    "        \"A : |0>\",\n",
+    "        \"A : |1>\",\n",
+    "        \"B : |0>\",\n",
+    "        \"B : |1>\",\n",
+    "        \"C : |0>\",\n",
+    "        \"C : |1>\",\n",
+    "    ]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "A second CNOT is then integrated into the system, again this is automatically reconfigured to include the heralding requirements without these needing to be accounted for.\n",
+    "\n",
+    "One question you may have is if the CNOT above requires post-selection on the output, then why are we able to cascade the CNOTs without performing post-selection between each one. This works because we only interact the A and B qubits once, meaning at the output if we measure 1 photon across A0 & A1 then we can be sure that as long as the other photon is not lost and is not on the heralding modes then the gate worked correctly."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/svg+xml": [
+       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
+       "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n",
+       "     width=\"583.2186046511628\" height=\"544.0\" viewBox=\"0 0 1152.5 1075\">\n",
+       "<defs>\n",
+       "</defs>\n",
+       "<rect x=\"0\" y=\"0\" width=\"1152.5\" height=\"1075\" fill=\"white\" stroke=\"none\" />\n",
+       "<rect x=\"152.5\" y=\"25\" width=\"900.0\" height=\"1025\" fill=\"none\" stroke=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"124.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"199.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"324.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"399.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"474.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"599.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"674.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"749.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"874.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"144.5\" y=\"949.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<text x=\"132.5\" y=\"127\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 127)\">-</text>\n",
+       "<text x=\"132.5\" y=\"202\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 202)\">A : |0&gt;</text>\n",
+       "<text x=\"132.5\" y=\"327\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 327)\">A : |1&gt;</text>\n",
+       "<text x=\"132.5\" y=\"402\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 402)\">-</text>\n",
+       "<text x=\"132.5\" y=\"477\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 477)\">B : |0&gt;</text>\n",
+       "<text x=\"132.5\" y=\"602\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 602)\">B : |1&gt;</text>\n",
+       "<text x=\"132.5\" y=\"677\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 677)\">-</text>\n",
+       "<text x=\"132.5\" y=\"752\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 752)\">C : |0&gt;</text>\n",
+       "<text x=\"132.5\" y=\"877\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 877)\">C : |1&gt;</text>\n",
+       "<text x=\"132.5\" y=\"952\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 132.5, 952)\">-</text>\n",
+       "<rect x=\"202.45\" y=\"196.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"321.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"252.5\" y=\"175.0\" width=\"100\" height=\"175\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"302.5\" y=\"262.5\" font-size=\"35\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 302.5, 262.5)\">H</text>\n",
+       "<rect x=\"352.45\" y=\"196.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"352.45\" y=\"321.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"471.0\" width=\"200.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"596.0\" width=\"200.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"452.45\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"196.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"321.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"471.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"402.45\" y=\"596.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"452.45\" y=\"671.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"502.5\" y=\"100.0\" width=\"100\" height=\"600\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"552.5\" y=\"400.0\" font-size=\"25\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(270, 552.5, 400.0)\">CNOT (0, 1)</text>\n",
+       "<rect x=\"602.45\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"602.45\" y=\"196.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"602.45\" y=\"321.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"602.45\" y=\"471.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"602.45\" y=\"596.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"602.45\" y=\"671.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<circle cx=\"452.5\" cy=\"125\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"452.5\" y=\"127.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 452.5, 127.5)\">0</text>\n",
+       "<circle cx=\"452.5\" cy=\"675\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"452.5\" y=\"677.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 452.5, 677.5)\">0</text>\n",
+       "<circle cx=\"652.5\" cy=\"125\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"652.5\" y=\"127.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 652.5, 127.5)\">0</text>\n",
+       "<circle cx=\"652.5\" cy=\"675\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"652.5\" y=\"677.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 652.5, 677.5)\">0</text>\n",
+       "<rect x=\"202.45\" y=\"746.0\" width=\"500.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"202.45\" y=\"871.0\" width=\"500.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"752.45\" y=\"396.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"702.45\" y=\"471.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"702.45\" y=\"596.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"702.45\" y=\"746.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"702.45\" y=\"871.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"752.45\" y=\"946.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"802.5\" y=\"375.0\" width=\"100\" height=\"600\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"852.5\" y=\"675.0\" font-size=\"25\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(270, 852.5, 675.0)\">CNOT (0, 1)</text>\n",
+       "<rect x=\"902.45\" y=\"396.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"902.45\" y=\"471.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"902.45\" y=\"596.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"902.45\" y=\"746.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"902.45\" y=\"871.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"902.45\" y=\"946.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<circle cx=\"752.5\" cy=\"400\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"752.5\" y=\"402.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 752.5, 402.5)\">0</text>\n",
+       "<circle cx=\"752.5\" cy=\"950\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"752.5\" y=\"952.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 752.5, 952.5)\">0</text>\n",
+       "<circle cx=\"952.5\" cy=\"400\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"952.5\" y=\"402.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 952.5, 402.5)\">0</text>\n",
+       "<circle cx=\"952.5\" cy=\"950\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"952.5\" y=\"952.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 952.5, 952.5)\">0</text>\n",
+       "<rect x=\"702.45\" y=\"196.0\" width=\"300.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"702.45\" y=\"321.0\" width=\"300.1\" height=\"8\" fill=\"black\" />\n",
+       "</svg>"
+      ],
+      "text/plain": [
+       "<drawsvg.drawing.Drawing at 0x241920db0d0>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "circ.add(cnot, 2)\n",
+    "\n",
+    "circ.display(\n",
+    "    mode_labels=[\n",
+    "        \"A : |0>\",\n",
+    "        \"A : |1>\",\n",
+    "        \"B : |0>\",\n",
+    "        \"B : |1>\",\n",
+    "        \"C : |0>\",\n",
+    "        \"C : |1>\",\n",
+    "    ]\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Once the system has been configured, it can be simulated through creation of a new Sampler object."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "post_select = lw.PostSelection()\n",
+    "post_select.add((0, 1), 1)\n",
+    "post_select.add((2, 3), 1)\n",
+    "post_select.add((4, 5), 1)\n",
+    "\n",
+    "sampler = lw.Sampler(\n",
+    "    circ, lw.State([1, 0, 1, 0, 1, 0]), 10000, post_selection=post_select\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "A number of samples are then measured from the system, and we apply a post-selection function to require only 1 photon is measured across each pair of photons corresponding to a qubit."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "results = backend.run(sampler)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The results can then be viewed, as expected only the states $\\ket{1,0,1,0,1,0}$ and $\\ket{0,1,0,1,0,1}$ are measured, which correspond to the two expected measurements of the GHZ state, $\\ket{0,0,0}$ and $\\ket{1,1,1}$ respectively. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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cj4AAABUoEohV1paqpKSEknSF198oUGDBkmSgoODdfr0ac9NBwAAgApVKeR69Oihl156Se+//76Sk5MVHf3vm+Klp6crMDDQowMCAACgfFUKufj4eO3Zs0cTJkzQc889pw4dOkiS/u///k933HGHRwcEAABA+ar0Xatdu3Z1+9RqmXnz5qluXUu/vhUAAOCGUaUzcjfddJN++eWXy54vKCjQLbfcct1DAQAA4OqqFHIZGRkqLi6+7PnCwkL99NNP1z0UAAAArq5S74N++umnrn9v2rRJ/v7+rp+Li4uVlJSkkJAQz00HAACAClUq5O6//35JkpeXl0aOHOm2Vq9ePbVv317z58/32HAAAACoWKVCruzecSEhIdq9e7eaN29eLUMBAADg6qr0EdP09HRPzwEAAIBKqvK9QpKSkpSUlKScnBzXmboyy5Ytu+7BAAAAcGVVCrkXX3xRs2fPVo8ePdSqVSt5eXl5ei4AAABcRZVCbsmSJUpISNBjjz3m6XkAAABwjap0H7mioiK+igsAAMBiVQq50aNHa8WKFZ6eBQAAAJVQpbdWCwoK9I9//ENffPGFunTponr16rmtL1iwwCPDAQAAoGJVCrl9+/apW7dukqQDBw64rfHBBwAAgJpRpZD78ssvPT0HAAAAKqlK18gBAADAelU6I9e7d+8rvoW6ZcuWKg8EAACAa1OlkCu7Pq7MxYsXlZaWpgMHDmjkyJGemAsAAABXUaWQi4+PL/f5F154QefPn7+ugQAAAHBtPHqN3KOPPsr3rAIAANQQj4ZcSkqK6tev78mXBAAAQAWq9Nbq0KFD3X4uLS3VyZMn9e233+r555/3yGAAAAC4siqFnL+/v9vP3t7euvXWWzV79mz179/fI4MBAADgyqoUcu+++66n5wAAAEAlVSnkyqSmpur777+XJN12223q3r27R4YCAADA1VUp5HJycjR8+HBt3bpVAQEBkqTc3Fz17t1bK1euVIsWLTw5IwAAAMpRpU+tTpw4UefOndPBgwd15swZnTlzRgcOHJDT6dTTTz/t6RkBAABQjiqdkdu4caO++OILhYaGup4LCwvT4sWL+bADAABADanSGbmSkhLVq1fvsufr1aunkpKS6x4KAAAAV1elkOvTp48mTZqkrKws13M///yzpkyZonvvvddjwwEAAKBiVQq5RYsWyel0qn379rr5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BwAAYChCDgAAwFCEHAAAgKEIOQAAAEMRcgAAAIYi5AAAAAxFyAEAABiKkAMAADAUIQcAAGAoQg4AAMBQhBwAAIChCDkAAABDEXIAAACGIuQAAAAMRcgBAAAYipADAAAwFCEHAABgKEIOAADAUIQcAACAoQg5AAAAQxFyAAAAhiLkAAAADEXIAQAAGIqQAwAAMBQhBwAAYChCDgAAwFCEHAAAgKEIOQAAAEMRcgAAAIYi5AAAAAxFyAEAABiKkAMAADAUIQcAAGAoS0Nu27ZtGjJkiFq3bi0vLy+tXbvWbb20tFQzZ85Uq1at1KBBA/Xt21c//PCD2zZnzpzRI488IpvNpoCAAI0aNUrnz59322bfvn266667VL9+fQUHB2vu3LnVvWsAAADVztKQu3Dhgrp27arFixeXuz537ly99tprWrJkiXbu3KmGDRsqKipKBQUFrm0eeeQRHTx4UJs3b9b69eu1bds2jRkzxrXudDrVv39/tWvXTqmpqZo3b55eeOEF/eMf/6j2/QMAAKhOda384wMHDtTAgQPLXSstLdWrr76qGTNm6L777pMkvffeewoMDNTatWs1fPhwff/999q4caN2796tHj16SJJef/11DRo0SK+88opat26tDz/8UEVFRVq2bJl8fHx02223KS0tTQsWLHALPgAAANPU2mvk0tPTlZ2drb59+7qe8/f3V2RkpFJSUiRJKSkpCggIcEWcJPXt21fe3t7auXOna5tevXrJx8fHtU1UVJSOHDmis2fPlvu3CwsL5XQ63R4AAAC1Ta0NuezsbElSYGCg2/OBgYGutezsbLVs2dJtvW7dumratKnbNuW9xm//xu/NmTNH/v7+rkdwcPD17xAAAICH1dqQs9L06dOVl5fnepw4ccLqkQAAAC5Ta0MuKChIkuRwONyedzgcrrWgoCDl5OS4rV+6dElnzpxx26a81/jt3/g9X19f2Ww2twcAAEBtU2tDLiQkREFBQUpKSnI953Q6tXPnTtntdkmS3W5Xbm6uUlNTXdts2bJFJSUlioyMdG2zbds2Xbx40bXN5s2bdeutt6pJkyY1tDcAAACeZ2nInT9/XmlpaUpLS5P07w84pKWlKTMzU15eXpo8ebJeeuklffrpp9q/f79GjBih1q1b6/7775ckhYaGasCAAXrqqae0a9cuffPNN5owYYKGDx+u1q1b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",
+      "text/plain": [
+       "<Figure size 700x600 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "results.plot()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Three Qubit Gates\n",
+    "\n",
+    "The Toffoli (CCNOT) & CCZ three qubit gates are also included within Lightworks. Similar to the two qubit gates above these require post-selection on measuring one photon across each of the qubit modes.\n",
+    "\n",
+    "In this tutorial we will look at the action of the CCNOT gate, which is created and displayed below."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/svg+xml": [
+       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
+       "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n",
+       "     width=\"277.7872340425532\" height=\"544.0\" viewBox=\"0 0 600.0 1175\">\n",
+       "<defs>\n",
+       "</defs>\n",
+       "<rect x=\"0\" y=\"0\" width=\"600.0\" height=\"1175\" fill=\"white\" stroke=\"none\" />\n",
+       "<rect x=\"100.0\" y=\"25\" width=\"400.0\" height=\"1125\" fill=\"none\" stroke=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"124.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"199.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"274.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"399.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"524.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"649.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"774.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"899.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"974.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<rect x=\"92.0\" y=\"1049.5\" width=\"8\" height=\"1\" fill=\"black\" />\n",
+       "<text x=\"80.0\" y=\"127\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 127)\">-</text>\n",
+       "<text x=\"80.0\" y=\"202\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 202)\">-</text>\n",
+       "<text x=\"80.0\" y=\"277\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 277)\">0</text>\n",
+       "<text x=\"80.0\" y=\"402\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 402)\">1</text>\n",
+       "<text x=\"80.0\" y=\"527\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 527)\">2</text>\n",
+       "<text x=\"80.0\" y=\"652\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 652)\">3</text>\n",
+       "<text x=\"80.0\" y=\"777\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 777)\">4</text>\n",
+       "<text x=\"80.0\" y=\"902\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 902)\">5</text>\n",
+       "<text x=\"80.0\" y=\"977\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 977)\">-</text>\n",
+       "<text x=\"80.0\" y=\"1052\" font-size=\"25\" fill=\"black\" text-anchor=\"end\" dominant-baseline=\"middle\" transform=\"rotate(0, 80.0, 1052)\">-</text>\n",
+       "<rect x=\"199.95\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"199.95\" y=\"196.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"149.95\" y=\"271.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"149.95\" y=\"396.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"149.95\" y=\"521.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"149.95\" y=\"646.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"149.95\" y=\"771.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"149.95\" y=\"896.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"199.95\" y=\"971.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"199.95\" y=\"1046.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"250.0\" y=\"100.0\" width=\"100\" height=\"975\" fill=\"#1a0f36\" stroke=\"black\" rx=\"5\" ry=\"5\" />\n",
+       "<text x=\"300.0\" y=\"587.5\" font-size=\"25\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(270, 300.0, 587.5)\">CCNOT ((0, 1), 2)</text>\n",
+       "<rect x=\"349.95\" y=\"121.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"196.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"271.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"396.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"521.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"646.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"771.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"896.0\" width=\"100.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"971.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<rect x=\"349.95\" y=\"1046.0\" width=\"50.1\" height=\"8\" fill=\"black\" />\n",
+       "<circle cx=\"200.0\" cy=\"125\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"200.0\" y=\"127.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 200.0, 127.5)\">0</text>\n",
+       "<circle cx=\"200.0\" cy=\"200\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"200.0\" y=\"202.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 200.0, 202.5)\">0</text>\n",
+       "<circle cx=\"200.0\" cy=\"975\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"200.0\" y=\"977.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 200.0, 977.5)\">0</text>\n",
+       "<circle cx=\"200.0\" cy=\"1050\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"200.0\" y=\"1052.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 200.0, 1052.5)\">0</text>\n",
+       "<circle cx=\"400.0\" cy=\"125\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"400.0\" y=\"127.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 400.0, 127.5)\">0</text>\n",
+       "<circle cx=\"400.0\" cy=\"200\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"400.0\" y=\"202.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 400.0, 202.5)\">0</text>\n",
+       "<circle cx=\"400.0\" cy=\"975\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"400.0\" y=\"977.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 400.0, 977.5)\">0</text>\n",
+       "<circle cx=\"400.0\" cy=\"1050\" r=\"25\" fill=\"#3e368d\" stroke=\"black\" />\n",
+       "<text x=\"400.0\" y=\"1052.5\" font-size=\"30\" fill=\"white\" text-anchor=\"middle\" dominant-baseline=\"middle\" transform=\"rotate(0, 400.0, 1052.5)\">0</text>\n",
+       "</svg>"
+      ],
+      "text/plain": [
+       "<drawsvg.drawing.Drawing at 0x24192105c10>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "gate = lw.qubit.CCNOT()\n",
+    "\n",
+    "gate.display()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Each of the possible valid input and outputs can then be simulated to view the action of the gate. We'll define a function to make it easier to go between qubit and mode configurations of the qubit."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def qubit_to_mode(qubit_state):\n",
+    "    mode_state = []\n",
+    "    for q in qubit_state:\n",
+    "        mode_state += [1, 0] if q == \"0\" else [0, 1]\n",
+    "    return mode_state"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "After completion of the simulation, the data is extracted into an array in the order defined in all_inputs."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Define qubit inputs\n",
+    "all_inputs = [\"000\", \"001\", \"100\", \"101\", \"010\", \"011\", \"110\", \"111\"]\n",
+    "\n",
+    "# Convert to mode values\n",
+    "mapping = {i: lw.State(qubit_to_mode(i)) for i in all_inputs}\n",
+    "\n",
+    "# Simulate all combinations\n",
+    "sim = lw.Simulator(gate, list(mapping.values()), list(mapping.values()))\n",
+    "results = backend.run(sim)\n",
+    "\n",
+    "# Extract all results int array\n",
+    "array = np.zeros((len(all_inputs), len(all_inputs)), dtype=complex)\n",
+    "for i, si in enumerate(all_inputs):\n",
+    "    for j, sj in enumerate(all_inputs):\n",
+    "        array[i, j] = results[mapping[si], mapping[sj]]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "It can then be seen how a swap only takes place when both of the control qubits are in the 1 state."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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",
+      "text/plain": [
+       "<Figure size 640x480 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "plt.imshow(abs(array) ** 2)\n",
+    "plt.xticks(range(len(all_inputs)), all_inputs)\n",
+    "plt.yticks(range(len(all_inputs)), all_inputs)\n",
+    "plt.ylabel(\"Input\")\n",
+    "plt.xlabel(\"Output\")\n",
+    "plt.show()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "venv",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
