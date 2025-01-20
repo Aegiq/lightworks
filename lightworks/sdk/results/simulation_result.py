@@ -175,8 +175,7 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
         """
         if self.result_type == "probability_amplitude":
             raise ValueError(
-                "Threshold mapping cannot be applied to probability "
-                "amplitudes."
+                "Threshold mapping cannot be applied to probability amplitudes."
             )
         mapped_result: dict[State, dict[State, float | complex]] = {}
         for in_state, results in self.items():
@@ -352,7 +351,7 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
         # Switch to probability if required
         data = self.array.copy()
         if conv_to_probability and self.result_type == "probability_amplitude":
-            data = abs(data) ** 2
+            data = abs(data) ** 2  # type: ignore[assignment]
         # Apply thresholding to values
         for i in range(data.shape[0]):
             for j in range(data.shape[1]):
