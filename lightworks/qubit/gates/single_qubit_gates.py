@@ -41,7 +41,7 @@ class H(Unitary):
     """
 
     def __init__(self) -> None:
-        unitary = np.array([[1, 1], [1, -1]]) / 2**0.5
+        unitary = np.array([[1, 1], [1, -1]], dtype=np.complex128) / 2**0.5
         super().__init__(unitary, "H")
 
 
@@ -129,7 +129,9 @@ class SX(Unitary):
     """
 
     def __init__(self) -> None:
-        unitary = 0.5 * np.array([[1 + 1j, 1 - 1j], [1 - 1j, 1 + 1j]])
+        unitary = 0.5 * np.array(
+            [[1 + 1j, 1 - 1j], [1 - 1j, 1 + 1j]], dtype=np.complex128
+        )
         super().__init__(unitary, "SX")
 
 

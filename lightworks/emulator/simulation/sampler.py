@@ -17,6 +17,7 @@ from collections.abc import Callable
 
 import numpy as np
 
+from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from ...sdk.results import SamplingResult
 from ...sdk.state import State
 from ...sdk.tasks import SamplerTask
@@ -57,7 +58,13 @@ class SamplerRunner(RunnerABC):
 
     """
 
-    def __init__(self, data: SamplerTask, pdist_function: Callable) -> None:
+    def __init__(
+        self,
+        data: SamplerTask,
+        pdist_function: Callable[
+            [CompiledPhotonicCircuit, State], dict[State, float]
+        ],
+    ) -> None:
         self.data = data
         self.source = Source() if self.data.source is None else self.data.source
         self.detector = (
@@ -65,7 +72,7 @@ class SamplerRunner(RunnerABC):
         )
         self.func = pdist_function
 
-    def distribution_calculator(self) -> dict:
+    def distribution_calculator(self) -> dict[State, float]:
         """
         Calculates the output probability distribution for the provided
         configuration. This needs to be done before sampling.
@@ -116,18 +123,21 @@ class SamplerRunner(RunnerABC):
             if self.data.post_selection is None
             else self.data.post_selection
         )
+        min_detection = (
+            0 if self.data.min_detection is None else self.data.min_detection
+        )
 
         if self.data.sampling_mode == "input":
             return self._sample_N_inputs(
                 self.data.n_samples,
                 post_selection,
-                self.data.min_detection,
+                min_detection,
                 self.data.random_seed,
             )
         return self._sample_N_outputs(
             self.data.n_samples,
             post_selection,
-            self.data.min_detection,
+            min_detection,
             self.data.random_seed,
         )
 
@@ -194,12 +204,15 @@ class SamplerRunner(RunnerABC):
         filtered_samples = []
         # Get heralds and pre-calculate items
         heralds = self.data.circuit.heralds["output"]
-        if heralds:
-            if max(heralds.values()) > 1 and not self.detector.photon_counting:
-                raise SamplerError(
-                    "Non photon number resolving detectors cannot be used when"
-                    "a heralded mode has more than 1 photon."
-                )
+        if (
+            heralds
+            and max(heralds.values()) > 1
+            and not self.detector.photon_counting
+        ):
+            raise SamplerError(
+                "Non photon number resolving detectors cannot be used when"
+                "a heralded mode has more than 1 photon."
+            )
         herald_modes = list(heralds.keys())
         herald_items = list(heralds.items())
         # Set detector seed before sampling
@@ -269,12 +282,15 @@ class SamplerRunner(RunnerABC):
             )
         # Get heralds and pre-calculate items
         heralds = self.data.circuit.heralds["output"]
-        if heralds:
-            if max(heralds.values()) > 1 and not self.detector.photon_counting:
-                raise SamplerError(
-                    "Non photon number resolving detectors cannot be used when"
-                    "a heralded mode has more than 1 photon."
-                )
+        if (
+            heralds
+            and max(heralds.values()) > 1
+            and not self.detector.photon_counting
+        ):
+            raise SamplerError(
+                "Non photon number resolving detectors cannot be used when"
+                "a heralded mode has more than 1 photon."
+            )
         herald_modes = list(heralds.keys())
         herald_items = list(heralds.items())
         # Convert distribution using provided data

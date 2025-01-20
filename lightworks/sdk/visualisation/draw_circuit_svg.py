@@ -72,7 +72,7 @@ class DrawCircuitSVG:
         # Set a waveguide width and get mode number
         self.wg_width = 8
         self.n_modes = self.circuit.n_modes
-        self.draw_spec: list[tuple] = []
+        self.draw_spec: list[tuple[str, tuple[Any, ...]]] = []
         self.dy = 125
         self.dy_smaller = 75
         self.y_locations = []
@@ -624,7 +624,10 @@ class DrawCircuitSVG:
         return
 
     def _add_heralds(
-        self, heralds: dict, start_loc: float, end_loc: float
+        self,
+        heralds: dict[str, dict[int, int]],
+        start_loc: float,
+        end_loc: float,
     ) -> None:
         """
         Adds display of all heralds to circuit.

@@ -17,6 +17,7 @@ Dedicated unitary component for implementing unitary matrices on a circuit.
 """
 
 import numpy as np
+from numpy.typing import NDArray
 
 from .photonic_circuit import PhotonicCircuit
 from .photonic_components import UnitaryMatrix
@@ -34,7 +35,9 @@ class Unitary(PhotonicCircuit):
 
     """
 
-    def __init__(self, unitary: np.ndarray, label: str = "U") -> None:
+    def __init__(
+        self, unitary: NDArray[np.complex128], label: str = "U"
+    ) -> None:
         unitary = np.array(unitary)
         super().__init__(int(unitary.shape[0]))
         self._PhotonicCircuit__circuit_spec = [UnitaryMatrix(0, unitary, label)]

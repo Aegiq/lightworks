@@ -15,6 +15,7 @@
 from collections.abc import Callable
 
 import numpy as np
+from numpy.typing import NDArray
 
 from ...sdk.results import SimulationResult
 from ...sdk.state import State
@@ -39,7 +40,11 @@ class SimulatorRunner(RunnerABC):
     """
 
     def __init__(
-        self, data: SimulatorTask, amplitude_function: Callable
+        self,
+        data: SimulatorTask,
+        amplitude_function: Callable[
+            [NDArray[np.complex128], list[int], list[int]], complex
+        ],
     ) -> None:
         self.data = data
         self.func = amplitude_function
@@ -58,10 +63,12 @@ class SimulatorRunner(RunnerABC):
         """
         if self.data.outputs is None:
             check_photon_numbers(self.data.inputs)
-            outputs = fock_basis(
-                self.data.circuit.input_modes, self.data.inputs[0].n_photons
-            )
-            outputs = [State(s) for s in outputs]
+            outputs = [
+                State(s)
+                for s in fock_basis(
+                    self.data.circuit.input_modes, self.data.inputs[0].n_photons
+                )
+            ]
         else:
             check_photon_numbers(self.data.inputs + self.data.outputs)
             outputs = self.data.outputs

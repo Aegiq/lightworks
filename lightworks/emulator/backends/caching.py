@@ -39,7 +39,7 @@ class CacheData:
     """
 
     values: list[Any]
-    results: dict
+    results: dict[Any, Any]
 
 
 def check_parameter_updates(values1: list[Any], values2: list[Any]) -> bool:

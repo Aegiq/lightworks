@@ -348,13 +348,15 @@ class TestCircuit:
         # Apply method and check all remaining beam splitters
         circuit.remove_non_adjacent_bs()
         for spec in circuit._get_circuit_spec():
-            if isinstance(spec, BeamSplitter):
-                # Check it acts on adjacent modes, otherwise fail
-                if spec.mode_1 != spec.mode_2 - 1:
-                    pytest.fail(
-                        "Beam splitter which acts on non-adjacent modes found "
-                        "in circuit spec."
-                    )
+            # Check it acts on adjacent modes, otherwise fail
+            if (
+                isinstance(spec, BeamSplitter)
+                and spec.mode_1 != spec.mode_2 - 1
+            ):
+                pytest.fail(
+                    "Beam splitter which acts on non-adjacent modes found "
+                    "in circuit spec."
+                )
 
     def test_remove_non_adj_bs_grouped_success(self):
         """
@@ -379,13 +381,15 @@ class TestCircuit:
         circuit.remove_non_adjacent_bs()
         circuit.unpack_groups()
         for spec in circuit._get_circuit_spec():
-            if isinstance(spec, BeamSplitter):
-                # Check it acts on adjacent modes, otherwise fail
-                if spec.mode_1 != spec.mode_2 - 1:
-                    pytest.fail(
-                        "Beam splitter which acts on non-adjacent modes found "
-                        "in circuit spec."
-                    )
+            # Check it acts on adjacent modes, otherwise fail
+            if (
+                isinstance(spec, BeamSplitter)
+                and spec.mode_1 != spec.mode_2 - 1
+            ):
+                pytest.fail(
+                    "Beam splitter which acts on non-adjacent modes found "
+                    "in circuit spec."
+                )
 
     def test_remove_non_adj_bs_equivalence(self):
         """

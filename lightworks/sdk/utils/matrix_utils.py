@@ -17,12 +17,13 @@ Contains a collection of different useful functions for operations on matrices.
 """
 
 import numpy as np
+from numpy.typing import NDArray
 
 from ...__settings import settings
 
 
 def check_unitary(
-    U: np.ndarray,  # noqa: N803
+    U: NDArray[np.complex128],  # noqa: N803
     precision: float | None = None,
 ) -> bool:
     """
@@ -60,7 +61,9 @@ def check_unitary(
     )
 
 
-def add_mode_to_unitary(unitary: np.ndarray, add_mode: int) -> np.ndarray:
+def add_mode_to_unitary(
+    unitary: NDArray[np.complex128], add_mode: int
+) -> NDArray[np.complex128]:
     """
     Adds a new mode (through inclusion of an extra row/column) to the provided
     unitary at the selected location.

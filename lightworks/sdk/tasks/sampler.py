@@ -58,9 +58,10 @@ class Sampler(Task):
             object or function which applies a provided set of post-selection
             criteria to a state.
 
-        min_detection (int, optional) : Post-select on a given minimum
+        min_detection (int | None, optional) : Post-select on a given minimum
             total number of photons, this should not include any heralded
-            photons.
+            photons. If set to None then this will be the smallest valuable
+            possible on a platform.
 
         random_seed (int|None, optional) : Option to provide a random seed to
             reproducibly generate samples from the function. This is
@@ -81,8 +82,10 @@ class Sampler(Task):
         circuit: PhotonicCircuit,
         input_state: State,
         n_samples: int,
-        post_selection: PostSelectionType | Callable | None = None,
-        min_detection: int = 0,
+        post_selection: PostSelectionType
+        | Callable[[State], bool]
+        | None = None,
+        min_detection: int | None = None,
         source: Source | None = None,
         detector: Detector | None = None,
         random_seed: int | None = None,
@@ -170,6 +173,8 @@ class Sampler(Task):
     def n_samples(self, value: int) -> None:
         if not isinstance(value, int) or isinstance(value, bool):
             raise TypeError("n_samples must be an integer")
+        if value < 0:
+            raise ValueError("Number of samples should be larger than 0.")
         self.__n_samples = value
 
     @property
@@ -179,12 +184,12 @@ class Sampler(Task):
 
     @post_selection.setter
     def post_selection(
-        self, value: PostSelectionType | Callable | None
+        self, value: PostSelectionType | Callable[[State], bool] | None
     ) -> None:
         self.__post_selection = process_post_selection(value)
 
     @property
-    def min_detection(self) -> int:
+    def min_detection(self) -> int | None:
         """
         Stores the minimum number of photons to be measured in an experiment,
         this excludes heralded photons.
@@ -192,9 +197,9 @@ class Sampler(Task):
         return self.__min_detection
 
     @min_detection.setter
-    def min_detection(self, value: int) -> None:
-        if not isinstance(value, int) or isinstance(value, bool):
-            raise TypeError("min_detection must be an integer")
+    def min_detection(self, value: int | None) -> None:
+        if not isinstance(value, int | NoneType) or isinstance(value, bool):
+            raise TypeError("min_detection must be an integer or None.")
         self.__min_detection = value
 
     @property

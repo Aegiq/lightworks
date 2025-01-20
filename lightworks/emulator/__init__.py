@@ -48,4 +48,4 @@ from .backends import Backend
 from .components import Detector, Source
 from .utils.exceptions import *
 
-__all__ = ["Source", "Detector", "Backend"]
+__all__ = ["Backend", "Detector", "Source"]

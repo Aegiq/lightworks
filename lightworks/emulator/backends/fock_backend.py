@@ -15,6 +15,7 @@
 
 import numpy as np
 from multimethod import multimethod
+from numpy.typing import NDArray
 
 from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from ...sdk.results import (
@@ -82,7 +83,7 @@ class FockBackend(BackendABC):
 
     def probability_amplitude(
         self,
-        unitary: np.ndarray,
+        unitary: NDArray[np.complex128],
         input_state: list[int],
         output_state: list[int],
     ) -> complex:
@@ -92,7 +93,7 @@ class FockBackend(BackendABC):
 
     def probability(
         self,
-        unitary: np.ndarray,
+        unitary: NDArray[np.complex128],
         input_state: list[int],
         output_state: list[int],
     ) -> float:
@@ -102,7 +103,7 @@ class FockBackend(BackendABC):
 
     def full_probability_distribution(
         self, circuit: CompiledPhotonicCircuit, input_state: State
-    ) -> dict:
+    ) -> dict[State, float]:
         raise BackendError(
             "Current backend does not implement full_probability_distribution "
             "method."

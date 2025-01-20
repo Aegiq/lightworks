@@ -33,9 +33,10 @@ strict_equality = true
 extra_checks = true
 check_untyped_defs = true
 
+disallow_any_generics = true
+disallow_incomplete_defs = true
 disallow_subclassing_any = true
 disallow_untyped_decorators = true
-disallow_incomplete_defs = true
 disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
@@ -65,25 +66,18 @@ select = [
 ]
 fixable = ["ALL"]
 ignore = [
-    "ARG005",
     "ANN401",
     "D100",
     "D104",
     "D105",
     "D107",
     "D200",
-    "D203",
     "D205",
     "D212",
-    "D400",
-    "D407",
     "D412",
     "D415",
     "PT011",
-    "RUF022",
     "S311",
-    "SIM102",
-    "SIM105",
     "TRY003",
 ]
 

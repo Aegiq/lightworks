@@ -13,11 +13,14 @@
 # limitations under the License.
 
 import numpy as np
+from numpy.typing import NDArray
 
 from ..sdk.utils import DecompositionUnsuccessful, check_unitary
 
 
-def reck_decomposition(unitary: np.ndarray) -> tuple[dict[str, float], list]:
+def reck_decomposition(
+    unitary: NDArray[np.complex128],
+) -> tuple[dict[str, float], list[float]]:
     """
     Performs the triangular decomposition procedure for a provided unitary
     matrix.
@@ -77,7 +80,7 @@ def reck_decomposition(unitary: np.ndarray) -> tuple[dict[str, float], list]:
 
 def bs_matrix(
     mode1: int, mode2: int, theta: float, phi: float, n_modes: int
-) -> np.ndarray:
+) -> NDArray[np.complex128]:
     """
     Generates a n_modes X n_modes matrix which implements the beam
     transformation of the unit cell between two modes.
@@ -91,7 +94,7 @@ def bs_matrix(
     return mat
 
 
-def check_null(mat: np.ndarray, precision: float = 1e-10) -> bool:
+def check_null(mat: NDArray[np.complex128], precision: float = 1e-10) -> bool:
     """
     A function to check if a provided matrix has been nulled correctly by
     the algorithm.

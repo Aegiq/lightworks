@@ -15,6 +15,7 @@
 import warnings
 
 import numpy as np
+from numpy.typing import NDArray
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
@@ -55,7 +56,7 @@ class MLEProcessTomography(ProcessTomography):
     """
 
     @property
-    def choi(self) -> np.ndarray:
+    def choi(self) -> NDArray[np.complex128]:
         """Returns the calculate choi matrix for a circuit."""
         if not hasattr(self, "_choi"):
             raise AttributeError(
@@ -64,7 +65,7 @@ class MLEProcessTomography(ProcessTomography):
             )
         return self._choi
 
-    def process(self) -> np.ndarray:
+    def process(self) -> NDArray[np.complex128]:
         """
         Performs process tomography with the configured elements and calculates
         the choi matrix using maximum likelihood estimation.
@@ -88,7 +89,7 @@ class MLEProcessTomography(ProcessTomography):
         self._choi = mle.pgdb(nij)
         return self.choi
 
-    def fidelity(self, choi_exp: np.ndarray) -> float:
+    def fidelity(self, choi_exp: NDArray[np.complex128]) -> float:
         """
         Calculates fidelity of the calculated choi matrix compared to the
         expected one.
@@ -125,7 +126,7 @@ class MLETomographyAlgorithm:
         data: dict[tuple[str, str], float],
         max_iter: int = 1000,
         stop_threshold: float = 1e-10,
-    ) -> np.ndarray:
+    ) -> NDArray[np.complex128]:
         """
         Runs the pgdB algorithm on the provided data set.
 
@@ -192,7 +193,7 @@ class MLETomographyAlgorithm:
 
     def _n_vec_from_data(
         self, data: dict[tuple[str, str], float]
-    ) -> np.ndarray:
+    ) -> NDArray[np.float64]:
         """
         Converts the data from dictionary format into the required vector,
         ensuring this is correct regardless of the data ordering of the
@@ -206,7 +207,7 @@ class MLETomographyAlgorithm:
                 n_vec[coord : coord + 2] = [(1 + n) / 2, (1 - n) / 2]
         return n_vec / len(data)
 
-    def _a_mat(self) -> np.ndarray:
+    def _a_mat(self) -> NDArray[np.complex128]:
         """
         Calculates the A matrix which is used for vectorisation of the pgdB
         algorithm.
@@ -226,27 +227,33 @@ class MLETomographyAlgorithm:
                 )[:]
         return a_mat / (2 ** (2 * self.n_qubits))
 
-    def _p_vec(self, choi: np.ndarray) -> np.ndarray:
+    def _p_vec(self, choi: NDArray[np.complex128]) -> NDArray[np.complex128]:
         """
         Calculates the expected measurement outcomes from the provided choi
         matrix.
         """
         return (self._a_matrix @ _vec(choi.T)).clip(1e-8)
 
-    def _cost(self, choi: np.ndarray, n_vec: np.ndarray) -> np.ndarray:
+    def _cost(
+        self, choi: NDArray[np.complex128], n_vec: NDArray[np.float64]
+    ) -> NDArray[np.complex128]:
         """
         Computes the variation between the current choi matrix and the
         calculated values.
         """
         return -n_vec.T @ np.log(self._p_vec(choi))
 
-    def _gradient(self, choi: np.ndarray, n_vec: np.ndarray) -> np.ndarray:
+    def _gradient(
+        self, choi: NDArray[np.complex128], n_vec: NDArray[np.float64]
+    ) -> NDArray[np.complex128]:
         """
         Finds gradient between expected and measured expectation values.
         """
         return -_unvec(np.conj(self._a_matrix.T) @ (n_vec / self._p_vec(choi)))
 
-    def _cptp_proj(self, choi: np.ndarray, max_iter: int = 1000) -> np.ndarray:
+    def _cptp_proj(
+        self, choi: NDArray[np.complex128], max_iter: int = 1000
+    ) -> NDArray[np.complex128]:
         """
         Performs the CPTP algorithm, ensuring the matrix is completely positive
         and trace preserving. This uses a series of repeat TP and CP steps until
@@ -278,7 +285,7 @@ class MLETomographyAlgorithm:
 
         return _unvec(x_k)
 
-    def _cp_proj(self, choi: np.ndarray) -> np.ndarray:
+    def _cp_proj(self, choi: NDArray[np.complex128]) -> NDArray[np.complex128]:
         """
         Performs the CP part of the projection by enforcing that the eigenvalues
         of the matrix are all positive.
@@ -287,7 +294,7 @@ class MLETomographyAlgorithm:
         d = np.diag([max(v, 0) for v in vals])
         return vecs @ d @ np.conj(vecs.T)
 
-    def _tp_proj(self, choi: np.ndarray) -> np.ndarray:
+    def _tp_proj(self, choi: NDArray[np.complex128]) -> NDArray[np.complex128]:
         """
         Performs the TP part of the projection by enforcing that the partial
         trace of the choi matrix is equal to the identity matrix.
@@ -295,7 +302,7 @@ class MLETomographyAlgorithm:
         # Compute partial trace
         dim = int(choi.shape[0] ** 0.5)
         partial_trace = choi.reshape(np.tile([dim, dim], 2))
-        partial_trace = np.einsum(partial_trace, [0, 1, 2, 1])
+        partial_trace = np.einsum(partial_trace, np.array([0, 1, 2, 1]))  # type: ignore[arg-type]
         partial_trace = partial_trace.reshape(dim, dim)
         # Then find the variation and subtract this from the choi matrix
         variation = partial_trace - np.identity(dim)

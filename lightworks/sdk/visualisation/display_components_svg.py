@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 import drawsvg as draw
 import numpy as np
 
@@ -29,7 +31,7 @@ class DrawSVGComponents:
 
         return
 
-    def add(self, draw_spec: list[tuple]) -> None:
+    def add(self, draw_spec: list[tuple[str, tuple[Any, ...]]]) -> None:
         """
         Adds components to the provided drawing using the draw spec.
         """
@@ -150,7 +152,9 @@ class DrawSVGComponents:
         self.d.append(t)
         return
 
-    def _draw_mode_swaps(self, x: float, ys: list, size_x: float) -> None:
+    def _draw_mode_swaps(
+        self, x: float, ys: list[tuple[float, float]], size_x: float
+    ) -> None:
         for y0, y1 in ys:
             w = self.wg_width / 2
             m = np.arctan(abs(y1 - y0) / size_x)

@@ -16,6 +16,7 @@ from types import NoneType
 from typing import Any
 
 import numpy as np
+from numpy.typing import NDArray
 from scipy.stats import unitary_group
 
 
@@ -41,7 +42,10 @@ def process_random_seed(seed: Any) -> int | None:
     return seed
 
 
-def random_unitary(N: int, seed: int | None = None) -> np.ndarray:  # noqa: N803
+def random_unitary(
+    N: int,  # noqa: N803
+    seed: int | None = None,
+) -> NDArray[np.complex128]:
     """
     Generate a random NxN unitary matrix. Seed can be used to produce the same
     unitary each time the function is called.
@@ -71,7 +75,7 @@ def random_unitary(N: int, seed: int | None = None) -> np.ndarray:  # noqa: N803
 def random_permutation(
     N: int,  # noqa: N803
     seed: int | None = None,
-) -> np.ndarray:
+) -> NDArray[np.complex128]:
     """
     Generate a random NxN permutation. Seed can be used to produce the same
     unitary each time the function is called.
