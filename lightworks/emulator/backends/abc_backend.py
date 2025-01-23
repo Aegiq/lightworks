@@ -33,7 +33,7 @@ class EmulatorBackend(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def compatible_tasks(self) -> list[str]: ...
+    def compatible_tasks(self) -> tuple[str, ...]: ...
 
     def _check_cache(self, data: TaskData) -> dict[str, Any] | None:
         name = data.__class__.__name__

@@ -40,7 +40,7 @@ class PermanentBackend(FockBackend):
     @property
     def compatible_tasks(self) -> tuple[str, ...]:
         """Returns backends which are compatible with the backend."""
-        return ["Sampler", "Analyzer", "Simulator"]
+        return ("Sampler", "Analyzer", "Simulator")
 
     def probability_amplitude(
         self,

@@ -37,7 +37,7 @@ class SLOSBackend(FockBackend):
     @property
     def compatible_tasks(self) -> tuple[str, ...]:
         """Returns backends which are compatible with the backend."""
-        return ["Sampler", "Analyzer", "Simulator"]
+        return ("Sampler",)
 
     def full_probability_distribution(
         self, circuit: CompiledPhotonicCircuit, input_state: State
