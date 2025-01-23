@@ -31,12 +31,12 @@ from ..simulation import (
     SimulatorRunner,
 )
 from ..utils import BackendError
-from .abc_backend import BackendABC
+from .abc_backend import EmulatorBackend
 
 # ruff: noqa: ARG002, D102
 
 
-class FockBackend(BackendABC):
+class FockBackend(EmulatorBackend):
     """
     Base class for all backends. An outline of all possible functions should
     be included here.

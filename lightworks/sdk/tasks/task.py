@@ -22,8 +22,6 @@ class Task(metaclass=ABCMeta):
     Base class for all tasks, which requires implementation of the run method.
     """
 
-    __compatible_backends__: tuple[str, ...]
-
     @abstractmethod
     def _generate_task(self) -> TaskData:
         """

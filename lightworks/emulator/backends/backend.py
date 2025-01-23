@@ -61,10 +61,11 @@ class Backend:
 
     @multimethod
     def _run(self, task: Task) -> dict[Any, Any]:
-        if self.backend not in task.__compatible_backends__:
+        if task.__class__.__name__ not in self.__backend.compatible_tasks:
             msg = (
-                "Selected backend not compatible with task, supported backends "
-                f"for task are: {', '.join(task.__compatible_backends__)}."
+                "Selected backend not compatible with task, supported tasks for"
+                f"the backend are: {', '.join(self.__backend.compatible_tasks)}"
+                "."
             )
             raise BackendError(msg)
         return self.__backend.run(task)
