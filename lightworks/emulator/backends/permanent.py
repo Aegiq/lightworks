@@ -37,6 +37,11 @@ class PermanentBackend(FockBackend):
         """Returns the name of the backend"""
         return "permanent"
 
+    @property
+    def compatible_tasks(self) -> tuple[str, ...]:
+        """Returns backends which are compatible with the backend."""
+        return ("Sampler", "Analyzer", "Simulator")
+
     def probability_amplitude(
         self,
         unitary: NDArray[np.complex128],

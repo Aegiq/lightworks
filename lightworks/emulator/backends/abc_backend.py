@@ -21,15 +21,19 @@ from .caching import CacheData, check_parameter_updates, get_calculation_values
 # ruff: noqa: D102
 
 
-class BackendABC(metaclass=ABCMeta):
+class EmulatorBackend(metaclass=ABCMeta):
     """
-    Base class for all backends. An outline of all possible functions should
-    be included here.
+    Base class for all emulator backends. An outline of all possible functions
+    should be included here.
     """
 
     @property
     @abstractmethod
     def name(self) -> str: ...
+
+    @property
+    @abstractmethod
+    def compatible_tasks(self) -> tuple[str, ...]: ...
 
     def _check_cache(self, data: TaskData) -> dict[str, Any] | None:
         name = data.__class__.__name__
