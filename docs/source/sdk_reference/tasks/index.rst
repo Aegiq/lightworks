@@ -5,5 +5,6 @@ Tasks
     :maxdepth: 1
 
     analyzer
+    batch
     sampler
     simulator

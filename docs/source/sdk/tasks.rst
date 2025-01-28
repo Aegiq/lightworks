@@ -17,6 +17,8 @@ Currently included within Lightworks are the following:
       - Calculates the complex probability amplitudes between input and output states.
     * - :doc:`../sdk_reference/tasks/analyzer`
       - Determines possible outputs and their probability based on a set of constraints placed on a system. 
+    * - :doc:`../sdk_reference/tasks/batch`
+      - Compiles a number of tasks and enables them to be run all at once.
 
 Usage
 -----
@@ -44,3 +46,50 @@ Alternatively, this value (and any others provided to the Sampler) can be edited
     sampler.min_detection = 1
 
 Once created, a task can then be run on a compatible backend. Demonstrations of the usage of tasks with a backend can be found in the `../emulator/index` section. 
+
+Batch tasks
+-----------
+
+It is also possible to use the ``Batch`` task to compile a number of different variations of tasks and run these on a target backend. To achieve this, the task type and the arguments to be used for each task need to be specified. To avoid confusion, each argument needs to be provided as a list, but in the case where an argument doesn't change then this can be a single valued list. Otherwise, all argument numbers need to be the same. For example, the following two configurations where the input state is varied for a target circuit, would be applicable:
+
+.. code-block:: Python
+
+    circ = lw.PhotonicCircuit(3)
+    n_samples = 10000
+
+    batch = lw.Batch(
+        lw.Sampler, 
+        task_args=[
+            [circ], 
+            [lw.State([1, 0, 0]), lw.State([0, 1, 0]), lw.State([0, 0, 1])], 
+            [n_samples]
+        ]
+    )
+
+    batch = lw.Batch(
+        lw.Sampler, 
+        task_args=[
+            [circ, circ, circ], 
+            [lw.State([1, 0, 0]), lw.State([0, 1, 0]), lw.State([0, 0, 1])], 
+            [n_samples, n_samples, n_samples]
+        ]
+    )
+
+Optional arguments can also introduced using the ``task_kwargs`` argument. For example, the Sampler ``min_detection`` and ``random_seed`` options could be modified using:
+
+.. code-block:: Python
+
+    batch = lw.Batch(
+        lw.Sampler, 
+        task_args=[
+            [circ, circ, circ], 
+            [lw.State([1, 0, 0]), lw.State([0, 1, 0]), lw.State([0, 0, 1])], 
+            [n_samples]
+        ],
+        task_kwargs={
+            "min_detection": [0, 1, 0],
+            "random_seed": [10]
+        }
+    )
+
+Once created, the batch can then be run on a backend in the same way as any other task.
