@@ -45,7 +45,7 @@ Alternatively, this value (and any others provided to the Sampler) can be edited
 
     sampler.min_detection = 1
 
-Once created, a task can then be run on a compatible backend. Demonstrations of the usage of tasks with a backend can be found in the `../emulator/index` section. 
+Once created, a task can then be run on a compatible backend. Demonstrations of the usage of tasks with a backend can be found in the :doc:`../emulator/index` section. 
 
 Batch tasks
 -----------
