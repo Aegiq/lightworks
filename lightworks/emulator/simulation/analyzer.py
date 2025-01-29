@@ -144,8 +144,7 @@ class AnalyzerRunner(RunnerABC):
                         n_loss = sum(ins) - sum(outs)
                         if n_loss < 0:
                             raise PhotonNumberError(
-                                "Output photon number larger than input "
-                                "number."
+                                "Output photon number larger than input number."
                             )
                         # Find loss states and find probability of each
                         loss_states = fock_basis(

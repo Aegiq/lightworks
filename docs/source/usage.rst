@@ -11,13 +11,13 @@ Lightworks requires Python 3.10 - 3.13. If not already installed, it can be down
 Installation
 ------------
 
-To use Lightworks, it can be installed directly through pip using the command:
+It is recommended to install Lightworks into a virtual environment, such as `venv <https://docs.python.org/3/library/venv.html/>`_. This will help to avoid conflicts with other modules. Lightworks can then be directly installed through pip with the command:
 
 .. code-block:: console
 
    (.venv) $ pip install lightworks
 
-This will also install all required module dependencies for the project.
+This will also install all required dependencies for the project.
 
 .. note::
     Lightworks has been primarily designed for interaction through Jupyter notebooks, and this is where tools such as the circuit visualization will work best. Jupyter notebooks can be accessed through the Jupyter software directly or through an IDE such as Visual Studio Code.

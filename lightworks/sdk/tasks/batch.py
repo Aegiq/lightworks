@@ -114,8 +114,7 @@ def process_values(
                 raise TypeError("'task_kwargs' keys should be strings.")
             if not isinstance(v, list | tuple):
                 raise TypeError(
-                    "Each value for task_kwargs should be provided as a "
-                    "list."
+                    "Each value for task_kwargs should be provided as a list."
                 )
         n_vars = max([len(a) for a in task_kwargs.values()] + [n_vars])
     if parameters is not None:
