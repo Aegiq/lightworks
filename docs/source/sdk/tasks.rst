@@ -92,4 +92,19 @@ Optional arguments can also introduced using the ``task_kwargs`` argument. For e
         }
     )
 
+Alternatively, a batch can be created through the manual addition of tasks. To achieve this an empty batch is first created and then tasks added with the ``add`` method.
+
+.. code-block:: Python
+
+    batch = lw.Batch()
+
+    task1 = lw.Sampler(lw.PhotonicCircuit(2), lw.State([1, 1]), 10000)
+    task2 = lw.Sampler(lw.PhotonicCircuit(3), lw.State([1, 0, 1]), 10000)
+
+    batch.add(task1)
+    batch.add(task2)
+
+    print(batch.num)
+    # Output: 2
+
 Once created, the batch can then be run on a backend in the same way as any other task.
