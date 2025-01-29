@@ -75,8 +75,6 @@ class Sampler(Task):
 
     """
 
-    __compatible_backends__ = ("permanent", "slos")
-
     def __init__(
         self,
         circuit: PhotonicCircuit,

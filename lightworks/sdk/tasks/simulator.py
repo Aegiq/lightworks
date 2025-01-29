@@ -39,8 +39,6 @@ class Simulator(Task):
 
     """
 
-    __compatible_backends__ = ("permanent",)
-
     def __init__(
         self,
         circuit: PhotonicCircuit,
