@@ -19,6 +19,14 @@ Utilities
 
 .. _db_loss_to_tr:
 
+.. autofunction:: lightworks.qubit_to_dual_rail
+
+.. _db_loss_to_tr:
+
+.. autofunction:: lightworks.dual_rail_to_qubit
+
+.. _post_selection:
+
 .. autoclass:: lightworks.PostSelection
     :members:
 

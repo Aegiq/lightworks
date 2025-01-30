@@ -41,6 +41,9 @@ Key objects:
     qubit : Module for implementing the qubit paradigm of quantum computing on
         photonic linear optic systems.
 
+    tomography : Module for performing quantum tomography on linear optic
+        gate-based circuits.
+
 """
 
 import contextlib
@@ -56,6 +59,8 @@ from .sdk.utils import (
     PostSelectionFunction,
     db_loss_to_decimal,
     decimal_to_db_loss,
+    dual_rail_to_qubit,
+    qubit_to_dual_rail,
     random_permutation,
     random_unitary,
 )
@@ -68,6 +73,7 @@ with contextlib.suppress(ModuleNotFoundError):
 
 __all__ = [
     "Analyzer",
+    "Batch",
     "Display",
     "Parameter",
     "ParameterDict",
@@ -80,9 +86,11 @@ __all__ = [
     "Unitary",
     "db_loss_to_decimal",
     "decimal_to_db_loss",
+    "dual_rail_to_qubit",
     "emulator",
     "interferometers",
     "qubit",
+    "qubit_to_dual_rail",
     "random_permutation",
     "random_unitary",
     "settings",
