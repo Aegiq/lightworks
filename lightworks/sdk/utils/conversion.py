@@ -87,7 +87,7 @@ def qubit_to_dual_rail(state: State) -> State:
     for s in state:
         if s not in (0, 1):
             raise ValueError(
-                "Elements of a qubit state can only take values 0 or 1."
+                "Elements of a qubit state can only take integer values 0 or 1."
             )
         new_state += [1, 0] if not s else [0, 1]
     return State(new_state)

@@ -55,3 +55,25 @@ Converts a decimal loss value into a positive dB loss.
     loss = lw.decimal_to_db_loss(0.3)
     print(loss)
     # Output: 1.5490195998574319
+
+:func:`lightworks.qubit_to_dual_rail`
+------------------------------------------
+
+Converts from qubit to dual-rail encoding.
+
+.. code-block:: Python
+
+    dr_state = lw.qubit_to_dual_rail([1, 0, 1])
+    print(dr_state)
+    # Output: |0,1,1,0,0,1>
+
+:func:`lightworks.dual_rail_to_qubit`
+------------------------------------------
+
+Converts from a dual-rail encoding on pairs of adjacent modes into a qubit state.
+
+.. code-block:: Python
+
+    dr_state = lw.dual_rail_to_qubit([1, 0, 0, 1, 1, 0])
+    print(dr_state)
+    # Output: |0,1,0>
