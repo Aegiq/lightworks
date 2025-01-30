@@ -23,6 +23,8 @@ from lightworks import (
     State,
     db_loss_to_decimal,
     decimal_to_db_loss,
+    dual_rail_to_qubit,
+    qubit_to_dual_rail,
     random_permutation,
     random_unitary,
     settings,
@@ -214,6 +216,64 @@ class TestUtils:
         """
         with pytest.raises(TypeError):
             process_random_seed(value)
+
+    @pytest.mark.parametrize(
+        "value", [State([1, 0, 0, 1, 1, 0]), [1, 0, 0, 1, 1, 0]]
+    )
+    def test_valid_dual_rail_to_qubit(self, value):
+        """
+        Checks conversion from dual-rail to qubit states works correctly for
+        valid values.
+        """
+        conv_state = dual_rail_to_qubit(value)
+        assert conv_state == State([0, 1, 0])
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            State([1, 0, 0, 1, 1]),
+            [1, 1, 0, 1, 1, 0],
+            [0, 0, 0, 1, 1, 0],
+            [0, 2, 0, 1, 1, 0],
+        ],
+    )
+    def test_invalid_dual_rail_to_qubit(self, value):
+        """
+        Checks conversion from dual-rail to qubit raises a ValueError for
+        incorrect values.
+        """
+        with pytest.raises(ValueError):
+            dual_rail_to_qubit(value)
+
+    @pytest.mark.parametrize("value", [State([0, 1, 0]), [0, 1, 0]])
+    def test_valid_qubit_to_dual_rail(self, value):
+        """
+        Checks conversion from qubit to dual-rail states works correctly for
+        valid values.
+        """
+        conv_state = qubit_to_dual_rail(value)
+        assert conv_state == State([1, 0, 0, 1, 1, 0])
+
+    @pytest.mark.parametrize(
+        "value", [State([0, 1, 2]), [-1, 1, 0], [0, 1.5, 1]]
+    )
+    def test_invalid_qubit_to_dual_rail(self, value):
+        """
+        Checks conversion from qubit to dual-rail states works raises a
+        ValueError for incorrect values.
+        """
+        with pytest.raises(ValueError):
+            qubit_to_dual_rail(value)
+
+    def test_state_preservation(self):
+        """
+        Checks conversion to and from dual rail state to ensure the original
+        state is always preserved
+        """
+        original_state = State([randint(0, 1) for _ in range(10)])
+        conv_state = qubit_to_dual_rail(original_state)
+        recovered_state = dual_rail_to_qubit(conv_state)
+        assert original_state == recovered_state
 
 
 class TestPostSelection:
