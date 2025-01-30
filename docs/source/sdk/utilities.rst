@@ -74,6 +74,6 @@ Converts from a dual-rail encoding on pairs of adjacent modes into a qubit state
 
 .. code-block:: Python
 
-    dr_state = lw.dual_rail_to_qubit([1, 0, 0, 1, 1, 0])
-    print(dr_state)
+    qubit_state = lw.dual_rail_to_qubit([1, 0, 0, 1, 1, 0])
+    print(qubit_state)
     # Output: |0,1,0>
