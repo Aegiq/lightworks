@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Callable
+from types import FunctionType, MethodType
 from typing import Any, overload
 
 import matplotlib.figure
@@ -155,6 +157,30 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
             return sub_r[ostate]
         raise TypeError("Get item value must be either one or two States.")
 
+    def map(self, mapping: Callable[[State], State]) -> "SimulationResult":
+        """
+        Performs a generic remapping of states based on a provided function.
+        """
+        if not isinstance(mapping, FunctionType | MethodType):
+            raise TypeError(
+                "Provided mapping should be a callable function which accepts "
+                "and returns a State object."
+            )
+        if self.result_type == "probability_amplitude":
+            raise ValueError(
+                "Threshold mapping cannot be applied to probability amplitudes."
+            )
+        mapped_result: dict[State, dict[State, float | complex]] = {}
+        for in_state, results in self.items():
+            mapped_result[in_state] = {}
+            for out_state, val in results.items():
+                new_s = mapping(out_state)
+                if new_s in mapped_result[in_state]:
+                    mapped_result[in_state][new_s] += val
+                else:
+                    mapped_result[in_state][new_s] = val
+        return self._recombine_mapped_result(mapped_result)
+
     def apply_threshold_mapping(
         self, invert: bool = False
     ) -> "SimulationResult":
@@ -173,22 +199,11 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
                 distribution.
 
         """
-        if self.result_type == "probability_amplitude":
-            raise ValueError(
-                "Threshold mapping cannot be applied to probability amplitudes."
-            )
-        mapped_result: dict[State, dict[State, float | complex]] = {}
-        for in_state, results in self.items():
-            mapped_result[in_state] = {}
-            for out_state, val in results.items():
-                new_s = State([1 if s >= 1 else 0 for s in out_state])
-                if invert:
-                    new_s = State([1 - s for s in new_s])
-                if new_s in mapped_result[in_state]:
-                    mapped_result[in_state][new_s] += val
-                else:
-                    mapped_result[in_state][new_s] = val
-        return self._recombine_mapped_result(mapped_result)
+
+        def mapping(state: State) -> State:
+            return State([abs(min(s, 1) - invert) for s in state])
+
+        return self.map(mapping)
 
     def apply_parity_mapping(self, invert: bool = False) -> "SimulationResult":
         """
@@ -207,23 +222,11 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
                 distribution.
 
         """
-        if self.result_type == "probability_amplitude":
-            raise ValueError(
-                "Parity mapping cannot be applied to probability amplitudes."
-            )
-        mapped_result: dict[State, dict[State, float | complex]] = {}
-        for in_state, results in self.items():
-            mapped_result[in_state] = {}
-            for out_state, val in results.items():
-                if invert:
-                    new_s = State([1 - (s % 2) for s in out_state])
-                else:
-                    new_s = State([s % 2 for s in out_state])
-                if new_s in mapped_result[in_state]:
-                    mapped_result[in_state][new_s] += val
-                else:
-                    mapped_result[in_state][new_s] = val
-        return self._recombine_mapped_result(mapped_result)
+
+        def mapping(state: State) -> State:
+            return State([abs((s % 2) - invert) for s in state])
+
+        return self.map(mapping)
 
     def _recombine_mapped_result(
         self, mapped_result: dict[State, dict[State, float | complex]]

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Callable
+from types import FunctionType, MethodType
 from typing import Any
 
 import matplotlib.figure
@@ -69,6 +71,24 @@ class SamplingResult(dict[State, int]):
             raise KeyError("Provided output state not in data.")
         return super().__getitem__(item)
 
+    def map(self, mapping: Callable[[State], State]) -> "SamplingResult":
+        """
+        Performs a generic remapping of states based on a provided function.
+        """
+        if not isinstance(mapping, FunctionType | MethodType):
+            raise TypeError(
+                "Provided mapping should be a callable function which accepts "
+                "and returns a State object."
+            )
+        mapped_result: dict[State, int] = {}
+        for out_state, val in self.items():
+            new_s = mapping(out_state)
+            if new_s in mapped_result:
+                mapped_result[new_s] += val
+            else:
+                mapped_result[new_s] = val
+        return self._recombine_mapped_result(mapped_result)
+
     def apply_threshold_mapping(self, invert: bool = False) -> "SamplingResult":
         """
         Apply a threshold mapping to the results from the object and return
@@ -85,16 +105,11 @@ class SamplingResult(dict[State, int]):
                 distribution.
 
         """
-        mapped_result: dict[State, int] = {}
-        for out_state, val in self.items():
-            new_s = State([1 if s >= 1 else 0 for s in out_state])
-            if invert:
-                new_s = State([1 - s for s in new_s])
-            if new_s in mapped_result:
-                mapped_result[new_s] += val
-            else:
-                mapped_result[new_s] = val
-        return self._recombine_mapped_result(mapped_result)
+
+        def mapping(state: State) -> State:
+            return State([abs(min(s, 1) - invert) for s in state])
+
+        return self.map(mapping)
 
     def apply_parity_mapping(self, invert: bool = False) -> "SamplingResult":
         """
@@ -113,17 +128,11 @@ class SamplingResult(dict[State, int]):
                 distribution.
 
         """
-        mapped_result: dict[State, int] = {}
-        for out_state, val in self.items():
-            if invert:
-                new_s = State([1 - (s % 2) for s in out_state])
-            else:
-                new_s = State([s % 2 for s in out_state])
-            if new_s in mapped_result:
-                mapped_result[new_s] += val
-            else:
-                mapped_result[new_s] = val
-        return self._recombine_mapped_result(mapped_result)
+
+        def mapping(state: State) -> State:
+            return State([abs((s % 2) - invert) for s in state])
+
+        return self.map(mapping)
 
     def _recombine_mapped_result(
         self, mapped_result: dict[State, int]
