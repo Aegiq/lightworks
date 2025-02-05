@@ -14,7 +14,7 @@
 
 from collections.abc import Callable
 from types import FunctionType, MethodType
-from typing import Any
+from typing import Any, Concatenate
 
 import matplotlib.figure
 import matplotlib.pyplot as plt
@@ -71,7 +71,12 @@ class SamplingResult(dict[State, int]):
             raise KeyError("Provided output state not in data.")
         return super().__getitem__(item)
 
-    def map(self, mapping: Callable[[State], State]) -> "SamplingResult":
+    def map(
+        self,
+        mapping: Callable[Concatenate[State, ...], State],
+        *args: list[Any],
+        **kwargs: dict[str, Any],
+    ) -> "SamplingResult":
         """
         Performs a generic remapping of states based on a provided function.
         """
@@ -82,57 +87,12 @@ class SamplingResult(dict[State, int]):
             )
         mapped_result: dict[State, int] = {}
         for out_state, val in self.items():
-            new_s = mapping(out_state)
+            new_s = mapping(out_state, *args, **kwargs)
             if new_s in mapped_result:
                 mapped_result[new_s] += val
             else:
                 mapped_result[new_s] = val
         return self._recombine_mapped_result(mapped_result)
-
-    def apply_threshold_mapping(self, invert: bool = False) -> "SamplingResult":
-        """
-        Apply a threshold mapping to the results from the object and return
-        this as a dictionary.
-
-        Args:
-
-            invert (bool, optional) : Select whether to invert the threshold
-                mapping. This will swap the 0s and 1s of the produced states.
-
-        Returns:
-
-            Result : A new Result containing the threshold mapped state
-                distribution.
-
-        """
-
-        def mapping(state: State) -> State:
-            return State([abs(min(s, 1) - invert) for s in state])
-
-        return self.map(mapping)
-
-    def apply_parity_mapping(self, invert: bool = False) -> "SamplingResult":
-        """
-        Apply a parity mapping to the results from the object and return this
-        as a dictionary.
-
-        Args:
-
-            invert (bool, optional) : Select whether to invert the parity
-                mapping. This will swap between even->0 & odd->1 and even->1 &
-                odd->0.
-
-        Returns:
-
-            Result : A new Result containing the parity mapped state
-                distribution.
-
-        """
-
-        def mapping(state: State) -> State:
-            return State([abs((s % 2) - invert) for s in state])
-
-        return self.map(mapping)
 
     def _recombine_mapped_result(
         self, mapped_result: dict[State, int]

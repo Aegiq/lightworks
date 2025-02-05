@@ -127,3 +127,44 @@ def dual_rail_to_qubit(state: State) -> State:
             )
         new_state.append(sub_s[1])
     return State(new_state)
+
+
+def threshold_mapping(state: State, invert: bool = False) -> State:
+    """
+    Apply a threshold mapping to a State, in which any values above 1 will be
+    reduced to 1.
+
+    Args:
+
+        state (State) : The state to be converted.
+
+        invert (bool, optional) : Select whether to invert the threshold
+            mapping. This will swap the 0s and 1s of the produced states.
+
+    Returns:
+
+        State : The threshold mapped state.
+
+    """
+    return State([abs(min(s, 1) - invert) for s in state])
+
+
+def parity_mapping(state: State, invert: bool = False) -> State:
+    """
+    Apply a parity mapping to a State, in which the state values are converted
+    to either 0 or 1 depending on if the value is odd or even.
+
+    Args:
+
+        state (State) : The state to be converted.
+
+        invert (bool, optional) : Select whether to invert the parity
+            mapping. This will swap between even->0 & odd->1 and even->1 &
+            odd->0.
+
+    Returns:
+
+        State : The parity mapped state.
+
+    """
+    return State([abs((s % 2) - invert) for s in state])
