@@ -14,7 +14,7 @@
 
 from collections.abc import Callable
 from types import FunctionType, MethodType
-from typing import Any, Concatenate, overload
+from typing import Any, overload
 
 import matplotlib.figure
 import matplotlib.pyplot as plt
@@ -159,9 +159,9 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
 
     def map(
         self,
-        mapping: Callable[Concatenate[State, ...], State],
-        *args: list[Any],
-        **kwargs: dict[str, Any],
+        mapping: Callable[[State, Any], State],
+        *args: Any,
+        **kwargs: Any,
     ) -> "SimulationResult":
         """
         Performs a generic remapping of states based on a provided function.

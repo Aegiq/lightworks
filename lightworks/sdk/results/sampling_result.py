@@ -14,7 +14,7 @@
 
 from collections.abc import Callable
 from types import FunctionType, MethodType
-from typing import Any, Concatenate
+from typing import Any
 
 import matplotlib.figure
 import matplotlib.pyplot as plt
@@ -73,9 +73,9 @@ class SamplingResult(dict[State, int]):
 
     def map(
         self,
-        mapping: Callable[Concatenate[State, ...], State],
-        *args: list[Any],
-        **kwargs: dict[str, Any],
+        mapping: Callable[[State, Any], State],
+        *args: Any,
+        **kwargs: Any,
     ) -> "SamplingResult":
         """
         Performs a generic remapping of states based on a provided function.
