@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Callable
+from types import FunctionType, MethodType
 from typing import Any, overload
 
 import matplotlib.figure
@@ -155,24 +157,20 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
             return sub_r[ostate]
         raise TypeError("Get item value must be either one or two States.")
 
-    def apply_threshold_mapping(
-        self, invert: bool = False
+    def map(
+        self,
+        mapping: Callable[[State, Any], State],
+        *args: Any,
+        **kwargs: Any,
     ) -> "SimulationResult":
         """
-        Apply a threshold mapping to the results from the object and return
-        this as a dictionary.
-
-        Args:
-
-            invert (bool, optional) : Select whether to invert the threshold
-                mapping. This will swap the 0s and 1s of the produced states.
-
-        Returns:
-
-            Result : A new Result containing the threshold mapped state
-                distribution.
-
+        Performs a generic remapping of states based on a provided function.
         """
+        if not isinstance(mapping, FunctionType | MethodType):
+            raise TypeError(
+                "Provided mapping should be a callable function which accepts "
+                "and returns a State object."
+            )
         if self.result_type == "probability_amplitude":
             raise ValueError(
                 "Threshold mapping cannot be applied to probability amplitudes."
@@ -181,44 +179,7 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
         for in_state, results in self.items():
             mapped_result[in_state] = {}
             for out_state, val in results.items():
-                new_s = State([1 if s >= 1 else 0 for s in out_state])
-                if invert:
-                    new_s = State([1 - s for s in new_s])
-                if new_s in mapped_result[in_state]:
-                    mapped_result[in_state][new_s] += val
-                else:
-                    mapped_result[in_state][new_s] = val
-        return self._recombine_mapped_result(mapped_result)
-
-    def apply_parity_mapping(self, invert: bool = False) -> "SimulationResult":
-        """
-        Apply a parity mapping to the results from the object and return this
-        as a dictionary.
-
-        Args:
-
-            invert (bool, optional) : Select whether to invert the parity
-                mapping. This will swap between even->0 & odd->1 and even->1 &
-                odd->0.
-
-        Returns:
-
-            Result : A new Result containing the parity mapped state
-                distribution.
-
-        """
-        if self.result_type == "probability_amplitude":
-            raise ValueError(
-                "Parity mapping cannot be applied to probability amplitudes."
-            )
-        mapped_result: dict[State, dict[State, float | complex]] = {}
-        for in_state, results in self.items():
-            mapped_result[in_state] = {}
-            for out_state, val in results.items():
-                if invert:
-                    new_s = State([1 - (s % 2) for s in out_state])
-                else:
-                    new_s = State([s % 2 for s in out_state])
+                new_s = mapping(out_state, *args, **kwargs)
                 if new_s in mapped_result[in_state]:
                     mapped_result[in_state][new_s] += val
                 else:

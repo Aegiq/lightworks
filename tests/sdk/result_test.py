@@ -17,7 +17,12 @@ import matplotlib.pyplot as plt
 import pytest
 from numpy import array
 
-from lightworks import ResultCreationError, State
+from lightworks import (
+    ResultCreationError,
+    State,
+    parity_mapping,
+    threshold_mapping,
+)
 from lightworks.sdk.results import (
     SamplingResult,
     SimulationResult,
@@ -70,29 +75,47 @@ class TestSamplingResult:
         r = SamplingResult(self.test_dict, self.test_input)
         assert list(r.keys()) == r.outputs
 
-    def test_threshold_mapping(self):
+    @pytest.mark.parametrize("invert", [True, False])
+    def test_threshold_mapping(self, invert):
         """Check threshold mapping returns the correct result."""
         r = SamplingResult(self.test_dict, self.test_input)
-        r2 = r.apply_threshold_mapping()
+        r2 = r.map(threshold_mapping, invert=invert)
         # Round results returned from mapping and compare
         out_dict = {s: round(p, 4) for s, p in r2.items()}
-        assert out_dict == {
-            State([1, 0, 0, 1]): 0.3,
-            State([0, 1, 0, 1]): 0.6,
-            State([0, 0, 1, 0]): 0.3,
-        }
+        if not invert:
+            expected = {
+                State([1, 0, 0, 1]): 0.3,
+                State([0, 1, 0, 1]): 0.6,
+                State([0, 0, 1, 0]): 0.3,
+            }
+        else:
+            expected = {
+                State([0, 1, 1, 0]): 0.3,
+                State([1, 0, 1, 0]): 0.6,
+                State([1, 1, 0, 1]): 0.3,
+            }
+        assert out_dict == expected
 
-    def test_parity_mapping(self):
+    @pytest.mark.parametrize("invert", [True, False])
+    def test_parity_mapping(self, invert):
         """Check parity mapping returns the correct result."""
         r = SamplingResult(self.test_dict, self.test_input)
-        r2 = r.apply_parity_mapping()
+        r2 = r.map(parity_mapping, invert=invert)
         # Round results returned from mapping and compare
         out_dict = {s: round(p, 4) for s, p in r2.items()}
-        assert out_dict == {
-            State([1, 0, 0, 1]): 0.3,
-            State([0, 1, 0, 1]): 0.6,
-            State([0, 0, 0, 0]): 0.3,
-        }
+        if not invert:
+            expected = {
+                State([1, 0, 0, 1]): 0.3,
+                State([0, 1, 0, 1]): 0.6,
+                State([0, 0, 0, 0]): 0.3,
+            }
+        else:
+            expected = {
+                State([0, 1, 1, 0]): 0.3,
+                State([1, 0, 1, 0]): 0.6,
+                State([1, 1, 1, 1]): 0.3,
+            }
+        assert out_dict == expected
 
     def test_single_input_plot(self):
         """
@@ -390,7 +413,7 @@ class TestSimulationResult:
             inputs=self.test_single_inputs,
             outputs=self.test_single_outputs,
         )
-        new_r = r.apply_parity_mapping()
+        new_r = r.map(parity_mapping)
         assert new_r == {
             State([1, 1, 0, 0]): {
                 State([1, 0, 1, 0]): 0.4,
@@ -398,7 +421,8 @@ class TestSimulationResult:
             }
         }
 
-    def test_multi_input_parity_mapping(self):
+    @pytest.mark.parametrize("invert", [True, False])
+    def test_multi_input_parity_mapping(self, invert):
         """
         Tests result is correct when the parity mapping is applied in the
         multi input case.
@@ -409,17 +433,30 @@ class TestSimulationResult:
             inputs=self.test_multi_inputs,
             outputs=self.test_multi_outputs,
         )
-        new_r = r.apply_parity_mapping()
-        assert new_r == {
-            State([1, 1, 0, 0]): {
-                State([1, 0, 1, 0]): 0.4,
-                State([0, 1, 0, 1]): 0.2,
-            },
-            State([0, 0, 1, 1]): {
-                State([1, 0, 1, 0]): 0.7,
-                State([0, 1, 0, 1]): 0.4,
-            },
-        }
+        new_r = r.map(parity_mapping, invert=invert)
+        if not invert:
+            expected = {
+                State([1, 1, 0, 0]): {
+                    State([1, 0, 1, 0]): 0.4,
+                    State([0, 1, 0, 1]): 0.2,
+                },
+                State([0, 0, 1, 1]): {
+                    State([1, 0, 1, 0]): 0.7,
+                    State([0, 1, 0, 1]): 0.4,
+                },
+            }
+        else:
+            expected = {
+                State([1, 1, 0, 0]): {
+                    State([1, 0, 1, 0]): 0.2,
+                    State([0, 1, 0, 1]): 0.4,
+                },
+                State([0, 0, 1, 1]): {
+                    State([1, 0, 1, 0]): 0.4,
+                    State([0, 1, 0, 1]): 0.7,
+                },
+            }
+        assert new_r == expected
 
     def test_single_input_threshold_mapping(self):
         """
@@ -432,7 +469,7 @@ class TestSimulationResult:
             inputs=self.test_single_inputs,
             outputs=self.test_single_outputs,
         )
-        new_r = r.apply_threshold_mapping()
+        new_r = r.map(threshold_mapping)
         assert new_r == {
             State([1, 1, 0, 0]): {
                 State([1, 0, 1, 0]): 0.4,
@@ -440,7 +477,8 @@ class TestSimulationResult:
             }
         }
 
-    def test_multi_input_threshold_mapping(self):
+    @pytest.mark.parametrize("invert", [True, False])
+    def test_multi_input_threshold_mapping(self, invert):
         """
         Tests result is correct when the threshold mapping is applied in the
         single multi case.
@@ -451,14 +489,27 @@ class TestSimulationResult:
             inputs=self.test_multi_inputs,
             outputs=self.test_multi_outputs,
         )
-        new_r = r.apply_threshold_mapping()
-        assert new_r == {
-            State([1, 1, 0, 0]): {
-                State([1, 0, 1, 0]): 0.4,
-                State([0, 1, 0, 1]): 0.2,
-            },
-            State([0, 0, 1, 1]): {
-                State([1, 0, 1, 0]): 0.7,
-                State([0, 1, 0, 1]): 0.4,
-            },
-        }
+        new_r = r.map(threshold_mapping, invert=invert)
+        if not invert:
+            expected = {
+                State([1, 1, 0, 0]): {
+                    State([1, 0, 1, 0]): 0.4,
+                    State([0, 1, 0, 1]): 0.2,
+                },
+                State([0, 0, 1, 1]): {
+                    State([1, 0, 1, 0]): 0.7,
+                    State([0, 1, 0, 1]): 0.4,
+                },
+            }
+        else:
+            expected = {
+                State([1, 1, 0, 0]): {
+                    State([1, 0, 1, 0]): 0.2,
+                    State([0, 1, 0, 1]): 0.4,
+                },
+                State([0, 0, 1, 1]): {
+                    State([1, 0, 1, 0]): 0.4,
+                    State([0, 1, 0, 1]): 0.7,
+                },
+            }
+        assert new_r == expected

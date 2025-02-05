@@ -77,3 +77,26 @@ Converts from a dual-rail encoding on pairs of adjacent modes into a qubit state
     qubit_state = lw.dual_rail_to_qubit([1, 0, 0, 1, 1, 0])
     print(qubit_state)
     # Output: |0,1,0>
+
+:func:`lightworks.threshold_mapping`
+------------------------------------------
+
+Applies a threshold mapping to the provided state.
+
+.. code-block:: Python
+
+    qubit_state = lw.threshold_mapping([1, 2, 0, 3, 1, 0])
+    print(qubit_state)
+    # Output: |1,1,0,1,1,0>
+
+
+:func:`lightworks.parity_mapping`
+------------------------------------------
+
+Applies a parity mapping to the provided state, in which even & odd values are mapped to 0 & 1 respectively.
+
+.. code-block:: Python
+
+    qubit_state = lw.parity_mapping([1, 2, 0, 3, 1, 0])
+    print(qubit_state)
+    # Output: |1,0,0,1,1,0>
