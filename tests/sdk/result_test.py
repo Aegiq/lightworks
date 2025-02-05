@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pytest
 from numpy import array
@@ -297,8 +297,8 @@ class TestSimulationResult:
         # with the subplots method in mpl. This can be fixed by altering the
         # backend to Agg for these tests. Issue noted here:
         # https://stackoverflow.com/questions/71443540/intermittent-pytest-failures-complaining-about-missing-tcl-files-even-though-the
-        original_backend = matplotlib.get_backend()
-        matplotlib.use("Agg")
+        original_backend = mpl.get_backend()
+        mpl.use("Agg")
         r = SimulationResult(
             self.test_multi_array,
             rtype,
@@ -309,7 +309,7 @@ class TestSimulationResult:
         r.plot(conv_to_probability=conv_to_probability, show=False)
         plt.close()
         # Reset backend after test
-        matplotlib.use(original_backend)
+        mpl.use(original_backend)
 
     @pytest.mark.parametrize(
         ("conv_to_probability", "rtype"),
@@ -324,8 +324,8 @@ class TestSimulationResult:
         """
         Confirm plotting is able to work without errors for single input case.
         """
-        original_backend = matplotlib.get_backend()
-        matplotlib.use("Agg")
+        original_backend = mpl.get_backend()
+        mpl.use("Agg")
         r = SimulationResult(
             self.test_single_array,
             rtype,
@@ -336,7 +336,7 @@ class TestSimulationResult:
         r.plot(conv_to_probability=conv_to_probability, show=False)
         plt.close()
         # Reset backend after test
-        matplotlib.use(original_backend)
+        mpl.use(original_backend)
 
     def test_extra_attribute_assignment(self):
         """

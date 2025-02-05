@@ -26,6 +26,7 @@ from lightworks.qubit import (
     CCNOT, CCZ, CNOT, CZ, SWAP, CNOT_Heralded, CZ_Heralded, I, H, S, T, X, Y, Z,
     SX, Sadj, Tadj, P
 )
+import math
 # fmt: on
 
 BACKEND = Backend("permanent")
@@ -152,7 +153,7 @@ class TestSingleQubitGates:
 
     def test_P(self):
         """Checks that the output from the phase gate is correct."""
-        phase = 6.28 * random()
+        phase = math.tau * random()
         sim = Simulator(P(phase), State([1, 0]))
         # Input |1,0>
         results = BACKEND.run(sim)[State([1, 0])]

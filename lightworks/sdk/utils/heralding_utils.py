@@ -14,7 +14,7 @@
 
 from copy import copy
 
-from ..state import State
+from lightworks.sdk.state import State
 
 
 def add_heralds_to_state(
@@ -46,7 +46,7 @@ def add_heralds_to_state(
         if i in heralds:
             new_state[i] = heralds[i]
         else:
-            new_state[i] = state[count]  # type: ignore
+            new_state[i] = state[count]
             count += 1
     return new_state
 

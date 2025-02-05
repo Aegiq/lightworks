@@ -529,7 +529,7 @@ class TestSamplerCalculationBackends:
             if c > 2000:
                 full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
                 # Check results are within 10%
-                assert pytest.approx(results[full_s], 0.1) == results2[s]
+                assert pytest.approx(results[full_s], 0.1) == c
 
     @pytest.mark.flaky(reruns=2)
     def test_herald_equivalent_imperfect_source(self, backend):
@@ -560,7 +560,7 @@ class TestSamplerCalculationBackends:
             if c > 2000:
                 full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
                 # Check results are within 10%
-                assert pytest.approx(results[full_s], 0.1) == results2[s]
+                assert pytest.approx(results[full_s], 0.1) == c
 
     @pytest.mark.flaky(reruns=2)
     def test_herald_equivalent_lossy(self, backend):
@@ -589,7 +589,7 @@ class TestSamplerCalculationBackends:
             if c > 2000:
                 full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
                 # Check results are within 10%
-                assert pytest.approx(results[full_s], 0.1) == results2[s]
+                assert pytest.approx(results[full_s], 0.1) == c
 
     @pytest.mark.flaky(reruns=3)
     def test_herald_equivalent_lossy_imperfect_source(self, backend):
@@ -625,7 +625,7 @@ class TestSamplerCalculationBackends:
             if c > 2000:
                 full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
                 # Check results are within 10%
-                assert pytest.approx(results[full_s], 0.1) == results2[s]
+                assert pytest.approx(results[full_s], 0.1) == c
 
     def test_hom_imperfect_brightness(self, backend):
         """

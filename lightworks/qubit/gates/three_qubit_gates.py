@@ -19,7 +19,8 @@ qubit processing functionality in lightworks.
 
 import numpy as np
 
-from ...sdk.circuit import PhotonicCircuit, Unitary
+from lightworks.sdk.circuit import PhotonicCircuit, Unitary
+
 from .single_qubit_gates import H
 
 
@@ -78,7 +79,7 @@ class CCNOT(PhotonicCircuit):
     """
 
     def __init__(self, target_qubit: int = 2) -> None:
-        if target_qubit not in [0, 1, 2]:
+        if target_qubit not in {0, 1, 2}:
             raise ValueError(
                 "target_qubit setting must have a value of either 0, 1 or 3."
             )

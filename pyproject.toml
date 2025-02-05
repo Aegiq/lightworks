@@ -58,15 +58,12 @@ convention = "google"
 
 [tool.ruff.lint]
 preview = true
-select = [
-    "E", "F", "W", "N", "D", "B", "CPY", "TRY", "PLE", "PLW", "YTT", "ANN", "S",
-    "Q", "SIM", "ARG", "PERF", "I", "EM102", "EM103", "RET", "FURB148", 
-    "FURB168", "RUF", "BLE", "UP", "NPY", "T20", "PT", "C4", "A", "PYI", "PIE",
-    "SLOT", "PD"
-]
+select = ["ALL"]
 fixable = ["ALL"]
 ignore = [
     "ANN401",
+    "C901",
+    "COM812",
     "D100",
     "D104",
     "D105",
@@ -76,8 +73,24 @@ ignore = [
     "D212",
     "D412",
     "D415",
+    "DOC201",
+    "DOC402",
+    "DOC501",
+    "EM101",
+    "FBT",
     "PT011",
+    "PLR0904",
+    "PLR0911",
+    "PLR0912",
+    "PLR0913",
+    "PLR0915",
+    "PLR0917",
+    "PLR1702",
+    "PLR2004",
+    "PLR6301",
     "S311",
+    "SLF001",
+    "TD",
     "TRY003",
 ]
 
@@ -88,9 +101,10 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["PERF", "ANN", "S101"]
+"tests/*" = ["PERF", "ANN", "S101", "PLC2701", "SLF001", "DOC201"]
 "__init__.py" = ["F401", "F403"]
 "docs/*" = ["ANN", "B905", "CPY001", "D", "E731", "T201"]
+"docs/source/conf.py" = ["INP001"]
 "docs/source/tutorials/qubit.ipynb" = ["E402"]
 
 [tool.ruff.lint.flake8-pytest-style]

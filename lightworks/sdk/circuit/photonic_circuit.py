@@ -25,11 +25,9 @@ import numpy as np
 from IPython import display
 from numpy.typing import NDArray
 
-from ..utils import (
-    CircuitCompilationError,
-    ModeRangeError,
-)
-from ..visualisation import Display
+from lightworks.sdk.utils import CircuitCompilationError, ModeRangeError
+from lightworks.sdk.visualisation import Display
+
 from .circuit_utils import (
     add_empty_mode_to_circuit_spec,
     add_modes_to_circuit_spec,
@@ -287,14 +285,13 @@ class PhotonicCircuit:
 
         # Then add circuit spec, adjusting how this is included
         if not group:
-            self.__circuit_spec = self.__circuit_spec + add_cs
+            self.__circuit_spec += add_cs
         else:
             self.__circuit_spec.append(
                 Group(
                     add_cs, name, mode, mode + circuit.n_modes - 1, new_heralds
                 )
             )
-        return
 
     def bs(
         self,
@@ -504,7 +501,6 @@ class PhotonicCircuit:
             plt.show()
         elif display_type == "svg":
             display.display(return_)
-        return
 
     def get_all_params(self) -> list[Parameter]:
         """
@@ -556,7 +552,6 @@ class PhotonicCircuit:
         self.__external_in_heralds = self.__in_heralds
         self.__external_out_heralds = self.__out_heralds
         self.__circuit_spec = unpack_circuit_spec(self.__circuit_spec)
-        return
 
     def compress_mode_swaps(self) -> None:
         """

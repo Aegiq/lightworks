@@ -17,9 +17,9 @@ from typing import Any
 
 from multimethod import multimethod
 
-from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
-from ...sdk.state import State
-from ..state import AnnotatedState
+from lightworks.emulator.state import AnnotatedState
+from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
+from lightworks.sdk.state import State
 
 
 @multimethod
@@ -118,7 +118,7 @@ def annotated_state_pdist_calc(
                 for m in mode:
                     results[m][i] += 1
             states = [State(s) for s in results.values()]
-            unique_inputs = unique_inputs | set(states)
+            unique_inputs |= set(states)
         else:  # Special case for empty annotated state
             states = [State([0] * circuit.n_modes)]
             unique_inputs.add(State([0] * circuit.n_modes))

@@ -62,11 +62,6 @@ def random_unitary(
 
         np.ndarray : The created random unitary matrix.
 
-    Raises:
-
-        TypeError : In cases where the supplied random seed is not an integer
-            value.
-
     """
     seed = process_random_seed(seed)
     return unitary_group.rvs(N, random_state=seed)
@@ -92,11 +87,6 @@ def random_permutation(
     Returns:
 
         np.ndarray : The created random permutation matrix.
-
-    Raises:
-
-        TypeError : In cases where the supplied random seed is not an integer
-            value.
 
     """
     seed = process_random_seed(seed)

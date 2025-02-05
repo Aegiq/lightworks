@@ -17,11 +17,12 @@ from collections.abc import Callable
 import numpy as np
 from numpy.typing import NDArray
 
-from ...sdk.results import SimulationResult
-from ...sdk.state import State
-from ...sdk.tasks import SimulatorTask
-from ...sdk.utils import add_heralds_to_state
-from ..utils import check_photon_numbers, fock_basis
+from lightworks.emulator.utils import check_photon_numbers, fock_basis
+from lightworks.sdk.results import SimulationResult
+from lightworks.sdk.state import State
+from lightworks.sdk.tasks import SimulatorTask
+from lightworks.sdk.utils import add_heralds_to_state
+
 from .runner import RunnerABC
 
 

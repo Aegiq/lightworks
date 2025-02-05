@@ -82,7 +82,7 @@ class TestCNOT:
             cnot_circuit.ps(m + 1, t)
             cnot_circuit.bs(m, loss=loss, reflectivity=0.5)
             cnot_circuit.ps(m + 1, p)
-            if m in [3, 4, 3]:
+            if m in {3, 4}:
                 cnot_circuit.barrier()
         # Define imperfect source and detector
         source = Source(purity=0.99, brightness=0.4, indistinguishability=0.96)
@@ -128,7 +128,7 @@ class TestCNOT:
             cnot_circuit.ps(m + 1, t)
             cnot_circuit.bs(m, loss=loss, reflectivity=0.5)
             cnot_circuit.ps(m + 1, p)
-            if m in [3, 4, 3]:
+            if m in {3, 4}:
                 cnot_circuit.barrier()
         # Define imperfect source and detector
         source = Source(purity=0.99, brightness=0.4, indistinguishability=0.94)

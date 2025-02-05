@@ -20,7 +20,10 @@ It is not intended that this class will be ordinarily accessible to users.
 from collections.abc import Iterator
 from typing import Any, Union, overload
 
-from ..utils import AnnotatedStateError, annotated_state_to_string
+from lightworks.emulator.utils import (
+    AnnotatedStateError,
+    annotated_state_to_string,
+)
 
 
 class AnnotatedState:
@@ -45,7 +48,6 @@ class AnnotatedState:
             if not isinstance(s, list):
                 raise TypeError("Provided state labels should be lists.")
         self.__s = [sorted(s) for s in state]
-        return
 
     @property
     def n_photons(self) -> int:

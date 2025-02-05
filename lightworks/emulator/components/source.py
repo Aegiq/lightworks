@@ -20,8 +20,8 @@ photon stream and indistinguishability between different photons.
 
 from numbers import Number
 
-from ...sdk.state import State
-from ..state import AnnotatedState
+from lightworks.emulator.state import AnnotatedState
+from lightworks.sdk.state import State
 
 
 class Source:
@@ -59,8 +59,6 @@ class Source:
         self.brightness = brightness
         self.indistinguishability = indistinguishability
         self.probability_threshold = probability_threshold
-
-        return
 
     def __str__(self) -> str:
         return (

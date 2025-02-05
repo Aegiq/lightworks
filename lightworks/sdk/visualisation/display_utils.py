@@ -14,7 +14,7 @@
 
 from typing import Any
 
-from ..circuit.parameters import Parameter
+from lightworks.sdk.circuit.parameters import Parameter
 
 
 def process_parameter_value(value: Any, show_parameter_value: bool) -> Any:

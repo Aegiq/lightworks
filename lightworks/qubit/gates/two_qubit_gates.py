@@ -20,8 +20,9 @@ lightworks.
 
 import numpy as np
 
-from ...sdk.circuit import PhotonicCircuit, Unitary
-from ...sdk.utils import permutation_mat_from_swaps_dict
+from lightworks.sdk.circuit import PhotonicCircuit, Unitary
+from lightworks.sdk.utils import permutation_mat_from_swaps_dict
+
 from .single_qubit_gates import H
 
 
@@ -66,7 +67,7 @@ class CNOT(PhotonicCircuit):
     """
 
     def __init__(self, target_qubit: int = 1) -> None:
-        if target_qubit not in [0, 1]:
+        if target_qubit not in {0, 1}:
             raise ValueError(
                 "target_qubit setting must have a value of either 0 or 1."
             )
@@ -155,7 +156,7 @@ class CNOT_Heralded(PhotonicCircuit):  # noqa: N801
     """
 
     def __init__(self, target_qubit: int = 1) -> None:
-        if target_qubit not in [0, 1]:
+        if target_qubit not in {0, 1}:
             raise ValueError(
                 "target_qubit setting must have a value of either 0 or 1."
             )

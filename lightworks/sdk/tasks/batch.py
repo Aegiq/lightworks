@@ -14,7 +14,8 @@
 
 from typing import Any
 
-from ..circuit import Parameter, PhotonicCircuit
+from lightworks.sdk.circuit import Parameter, PhotonicCircuit
+
 from .task import Task
 
 

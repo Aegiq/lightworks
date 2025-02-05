@@ -15,7 +15,7 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from ..sdk.utils import DecompositionUnsuccessful, check_unitary
+from lightworks.sdk.utils import DecompositionUnsuccessful, check_unitary
 
 
 def reck_decomposition(
@@ -63,7 +63,7 @@ def reck_decomposition(
             # Create transformation matrix
             tr_ij = bs_matrix(j, j + 1, theta, phi, n_modes)
             # Null element
-            unitary = unitary @ np.conj(tr_ij.T)
+            unitary @= np.conj(tr_ij.T)
             phase_map[f"bs_{j + 2 * i}_{j}"] = theta
             phase_map[f"ps_{j + 2 * i}_{j}"] = phi
 

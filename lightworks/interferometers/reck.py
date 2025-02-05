@@ -14,7 +14,8 @@
 
 import numpy as np
 
-from ..sdk.circuit import PhotonicCircuit
+from lightworks.sdk.circuit import PhotonicCircuit
+
 from .decomposition import reck_decomposition
 from .error_model import ErrorModel
 
@@ -37,8 +38,6 @@ class Reck:
         if error_model is None:
             error_model = ErrorModel()
         self.error_model = error_model
-
-        return
 
     @property
     def error_model(self) -> ErrorModel:

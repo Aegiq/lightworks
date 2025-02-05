@@ -15,9 +15,9 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from .. import qubit
-from ..sdk.circuit import PhotonicCircuit
-from ..sdk.state import State
+from lightworks import qubit
+from lightworks.sdk.circuit import PhotonicCircuit
+from lightworks.sdk.state import State
 
 PAULI_MAPPING: dict[str, NDArray[np.complex128]] = {
     "I": np.array([[1, 0], [0, 1]], dtype=np.complex128),

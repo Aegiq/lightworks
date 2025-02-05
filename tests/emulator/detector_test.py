@@ -60,15 +60,19 @@ class TestDetector:
         efficiency is as expected.
         """
         measured = set()
-        for _i in range(1000):
-            measured.add(self.lossy_detector._get_output(State([0, 2, 1, 0])))
+        measured.update(
+            self.lossy_detector._get_output(State([0, 2, 1, 0]))
+            for _ in range(1000)
+        )
         assert State([0, 1, 0, 0]) in measured
 
     def test_dark_counts(self):
         """Test that dark counts are working as expected."""
         measured = set()
-        for _i in range(1000):
-            measured.add(self.dc_detector._get_output(State([0, 0, 0, 0])))
+        measured.update(
+            self.dc_detector._get_output(State([0, 0, 0, 0]))
+            for _ in range(1000)
+        )
         n_photons = [s.n_photons for s in measured]
         assert max(n_photons) > 0
 

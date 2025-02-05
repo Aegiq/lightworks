@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any
 
 
-class RunnerABC(metaclass=ABCMeta):
+class RunnerABC(ABC):
     """
     Base class for all simulation routines in the emulator.
     """

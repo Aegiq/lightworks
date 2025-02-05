@@ -22,8 +22,8 @@ import numpy as np
 import pandas as pd
 from numpy.typing import NDArray
 
-from ..state import State
-from ..utils import ResultCreationError
+from lightworks.sdk.state import State
+from lightworks.sdk.utils import ResultCreationError
 
 
 class SimulationResult(dict[State, dict[State, float | complex]]):
@@ -55,7 +55,7 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
         **kwargs: Any,
     ) -> None:
         # Store result_type if valid
-        if result_type in ["probability", "probability_amplitude"]:
+        if result_type in {"probability", "probability_amplitude"}:
             self.__result_type = result_type
         else:
             raise ResultCreationError(
@@ -84,10 +84,8 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
         super().__init__(dict_results)
 
         # Store any additional provided data from kwargs as attributes
-        for k in kwargs:
-            setattr(self, k, kwargs[k])
-
-        return
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
     @property
     def array(self) -> NDArray[np.float64 | np.complex128]:
@@ -190,10 +188,9 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
         self, mapped_result: dict[State, dict[State, float | complex]]
     ) -> "SimulationResult":
         """Creates a new Result object from mapped data."""
-        unique_outputs = set()
+        unique_outputs: set[State] = set()
         for pdist in mapped_result.values():
-            for out_state in pdist:
-                unique_outputs.add(out_state)
+            unique_outputs.update(pdist)
         array = np.zeros((len(self.inputs), len(unique_outputs)))
         for i, in_state in enumerate(self.inputs):
             for j, out_state in enumerate(unique_outputs):
@@ -278,8 +275,6 @@ class SimulationResult(dict[State, dict[State, float | complex]]):
                         to_print += str(p) + "*" + str(ostate) + " + "
             to_print = to_print[:-2]
             print(to_print)  # noqa: T201
-
-        return
 
     def display_as_dataframe(
         self, threshold: float = 1e-12, conv_to_probability: bool = False

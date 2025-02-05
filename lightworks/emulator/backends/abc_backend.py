@@ -12,16 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any
 
-from ...sdk.tasks import TaskData
+from lightworks.sdk.tasks import TaskData
+
 from .caching import CacheData, check_parameter_updates, get_calculation_values
 
 # ruff: noqa: D102
 
 
-class EmulatorBackend(metaclass=ABCMeta):
+class EmulatorBackend(ABC):
     """
     Base class for all emulator backends. An outline of all possible functions
     should be included here.

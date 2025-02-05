@@ -19,7 +19,7 @@ Contains a collection of different useful functions for operations on matrices.
 import numpy as np
 from numpy.typing import NDArray
 
-from ...__settings import settings
+from lightworks.__settings import settings
 
 
 def check_unitary(

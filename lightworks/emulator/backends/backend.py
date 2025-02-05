@@ -17,8 +17,9 @@ from typing import Any
 
 from multimethod import multimethod
 
-from ...sdk.tasks import Batch, Task
-from ..utils import BackendError
+from lightworks.emulator.utils import BackendError
+from lightworks.sdk.tasks import Batch, Task
+
 from .permanent import PermanentBackend
 from .slos import SLOSBackend
 
@@ -36,8 +37,6 @@ class Backend:
 
     def __init__(self, backend: str) -> None:
         self.backend = backend
-
-        return
 
     def run(self, task: Task | Batch) -> dict[Any, Any] | list[dict[Any, Any]]:
         """

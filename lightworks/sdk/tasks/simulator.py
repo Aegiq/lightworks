@@ -13,9 +13,10 @@
 # limitations under the License.
 
 
-from ..circuit import PhotonicCircuit
-from ..state import State
-from ..utils import validate_states
+from lightworks.sdk.circuit import PhotonicCircuit
+from lightworks.sdk.state import State
+from lightworks.sdk.utils import validate_states
+
 from .data import SimulatorTask
 from .task import Task
 
@@ -49,8 +50,6 @@ class Simulator(Task):
         self.circuit = circuit
         self.inputs = inputs  # type: ignore[assignment]
         self.outputs = outputs  # type: ignore[assignment]
-
-        return
 
     @property
     def circuit(self) -> PhotonicCircuit:

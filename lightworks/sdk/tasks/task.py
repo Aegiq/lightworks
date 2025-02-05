@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 
 from .data import TaskData
 
 
-class Task(metaclass=ABCMeta):
+class Task(ABC):
     """
     Base class for all tasks, which requires implementation of the run method.
     """
