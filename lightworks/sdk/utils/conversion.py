@@ -95,6 +95,8 @@ class convert:  # noqa: N801
         """
         new_state = []
         for s in state:
+            if s in {"0", "1"}:  # Support string values
+                s = int(s)  # noqa: PLW2901
             if s not in {0, 1}:
                 raise ValueError(
                     "Elements of a qubit state can only take integer values 0 "
