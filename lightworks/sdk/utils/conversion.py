@@ -74,7 +74,7 @@ class convert:  # noqa: N801
         return abs(10 * log10(1 - loss))
 
     @staticmethod
-    def qubit_to_dual_rail(state: State) -> State:
+    def qubit_to_dual_rail(state: State | list[int] | str) -> State:
         """
         Converts from a qubit encoding into a dual-rail encoded state between
         modes.
@@ -106,7 +106,9 @@ class convert:  # noqa: N801
         return State(new_state)
 
     @staticmethod
-    def dual_rail_to_qubit(state: State, allow_invalid: bool = False) -> State:
+    def dual_rail_to_qubit(
+        state: State | list[int], allow_invalid: bool = False
+    ) -> State:
         """
         Converts from a dual-rail encoded Fock state into the qubit encoded
         equivalent.
@@ -129,7 +131,7 @@ class convert:  # noqa: N801
             ValueError: Raised when an invalid state is provided for conversion.
 
         """
-        new_state = []
+        new_state: list[int | str] = []
         if len(state) % 2 != 0:
             raise ValueError(
                 "Dual-rail encoded state should have an even number of modes."
@@ -147,7 +149,7 @@ class convert:  # noqa: N801
                 new_state.append("X")
             else:
                 new_state.append(sub_s[1])
-        return State(new_state)
+        return State(new_state)  # type: ignore[arg-type]
 
     @staticmethod
     def threshold_mapping(state: State, invert: bool = False) -> State:
