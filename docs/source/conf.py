@@ -14,12 +14,12 @@ sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from lightworks import __version__ as ver
 
 project = "Lightworks"
-project_copyright = f"{datetime.now(tz=datetime.timezone.utc).year}, Aegiq Ltd."
+project_copyright = f"{datetime.now(tz=timezone.utc).year}, Aegiq Ltd."  # noqa: UP017
 author = "Aegiq Ltd."
 release = ".".join(ver.split(".")[:2])
 version = ver
