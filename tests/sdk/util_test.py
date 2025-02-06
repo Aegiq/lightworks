@@ -226,11 +226,23 @@ class TestUtils:
         assert conv_state == State([0, 1, 0])
 
     @pytest.mark.parametrize(
+        "value", [State([1, 0, 3, 1, 1, 0]), [1, 0, 3, 1, 1, 0]]
+    )
+    def test_allow_invalid_dual_rail_to_qubit(self, value):
+        """
+        Checks conversion from dual-rail to qubit states works correctly for
+        valid values.
+        """
+        conv_state = convert.dual_rail_to_qubit(value, allow_invalid=True)
+        assert conv_state == State([0, "X", 0])
+
+    @pytest.mark.parametrize(
         "value",
         [
             State([1, 0, 0, 1, 1]),
-            [1, 1, 0, 1, 1, 0],
-            [0, 0, 0, 1, 1, 0],
+            State([1, 1, 0, 1, 1, 0]),
+            State([0, 0, 0, 1, 1, 0]),
+            State([0, 2, 0, 1, 1, 0]),
             [0, 2, 0, 1, 1, 0],
         ],
     )
