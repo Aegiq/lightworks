@@ -94,11 +94,11 @@ When using the emulator to simulate a circuit, it is also possible to include lo
     circuit.bs(1, reflectivity = 0.4, convention = "H", loss = 0.3)
 
 .. warning:: 
-    All losses in Lightworks should be provided as a decimal loss value, meaning loss = 0 corresponds to a ideal non-lossy component and loss = 1 will block all photons on a mode. It is also possible to specify loss in terms of dB using the include ``db_loss_to_decimal`` function, for example, to include a 3 dB loss the following would be valid.
+    All losses in Lightworks should be provided as a decimal loss value, meaning loss = 0 corresponds to a ideal non-lossy component and loss = 1 will block all photons on a mode. It is also possible to specify loss in terms of dB using the included ``db_loss_to_decimal`` function of ``convert``, for example, to include a 3 dB loss the following would be valid.
 
   .. code-block:: Python
 
-    circuit.bs(1, reflectivity = 0.4, convention = "H", loss = 1 - lw.db_loss_to_decimal(3))
+    circuit.bs(1, reflectivity = 0.4, convention = "H", loss = 1 - lw.convert.db_loss_to_decimal(3))
 
 .. _phaseshifter:
 

@@ -32,8 +32,8 @@ Generates an NxN permutation matrix, which is a unitary matrix with only values 
     # Create 8x8 matrix with random seed to return the same matrix
     U = lw.random_permutation(8, seed = 4)
 
-:func:`lightworks.db_loss_to_decimal`
-------------------------------------------
+:func:`lightworks.convert.db_loss_to_decimal`
+---------------------------------------------
 
 Converts a positive dB loss into a decimal loss value, which can be used with the circuit loss elements.
 
@@ -44,8 +44,8 @@ Converts a positive dB loss into a decimal loss value, which can be used with th
     print(loss)
     # Output: 0.49881276637272776
 
-:func:`lightworks.decimal_to_db_loss`
-------------------------------------------
+:func:`lightworks.convert.decimal_to_db_loss`
+---------------------------------------------
 
 Converts a decimal loss value into a positive dB loss.
 
@@ -56,8 +56,8 @@ Converts a decimal loss value into a positive dB loss.
     print(loss)
     # Output: 1.5490195998574319
 
-:func:`lightworks.qubit_to_dual_rail`
-------------------------------------------
+:func:`lightworks.convert.qubit_to_dual_rail`
+---------------------------------------------
 
 Converts from qubit to dual-rail encoding.
 
@@ -67,8 +67,8 @@ Converts from qubit to dual-rail encoding.
     print(dr_state)
     # Output: |0,1,1,0,0,1>
 
-:func:`lightworks.dual_rail_to_qubit`
-------------------------------------------
+:func:`lightworks.convert.dual_rail_to_qubit`
+---------------------------------------------
 
 Converts from a dual-rail encoding on pairs of adjacent modes into a qubit state.
 
@@ -78,8 +78,8 @@ Converts from a dual-rail encoding on pairs of adjacent modes into a qubit state
     print(qubit_state)
     # Output: |0,1,0>
 
-:func:`lightworks.threshold_mapping`
-------------------------------------------
+:func:`lightworks.convert.threshold_mapping`
+--------------------------------------------
 
 Applies a threshold mapping to the provided state.
 
@@ -90,8 +90,8 @@ Applies a threshold mapping to the provided state.
     # Output: |1,1,0,1,1,0>
 
 
-:func:`lightworks.parity_mapping`
-------------------------------------------
+:func:`lightworks.convert.parity_mapping`
+-----------------------------------------
 
 Applies a parity mapping to the provided state, in which even & odd values are mapped to 0 & 1 respectively.
 
