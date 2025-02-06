@@ -19,8 +19,9 @@ from typing import Any
 import numpy as np
 from numpy.typing import NDArray
 
-from ..sdk.circuit import PhotonicCircuit
-from ..sdk.state import State
+from lightworks.sdk.circuit import PhotonicCircuit
+from lightworks.sdk.state import State
+
 from .mappings import MEASUREMENT_MAPPING
 from .utils import (
     _calculate_density_matrix,

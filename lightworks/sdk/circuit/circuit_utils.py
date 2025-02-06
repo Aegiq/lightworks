@@ -21,7 +21,8 @@ Contains a number of different utility functions for modifying circuits.
 from copy import copy
 from numbers import Number
 
-from ..utils import add_mode_to_unitary
+from lightworks.sdk.utils import add_mode_to_unitary
+
 from .parameters import Parameter
 from .photonic_components import (
     Barrier,
@@ -258,13 +259,11 @@ def compress_mode_swaps(circuit_spec: list[Component]) -> list[Component]:
                     blocked_modes.add(spec2.mode_1)
                     blocked_modes.add(spec2.mode_2)
                 elif isinstance(spec2, Group):
-                    for m in range(spec2.mode_1, spec2.mode_2 + 1):
-                        blocked_modes.add(m)
+                    blocked_modes.update(range(spec2.mode_1, spec2.mode_2 + 1))
                 elif isinstance(spec2, UnitaryMatrix):
-                    for m in range(
-                        spec2.mode, spec2.mode + spec2.unitary.shape[0]
-                    ):
-                        blocked_modes.add(m)
+                    blocked_modes.update(
+                        range(spec2.mode, spec2.mode + spec2.unitary.shape[0])
+                    )
                 elif isinstance(spec2, ModeSwaps):
                     # When a mode swap is found check if any of its mode
                     # are in the blocked mode
@@ -272,8 +271,7 @@ def compress_mode_swaps(circuit_spec: list[Component]) -> list[Component]:
                     for m in swaps:
                         # If they are then block all other modes of swap
                         if m in blocked_modes:
-                            for m in swaps:
-                                blocked_modes.add(m)
+                            blocked_modes.update(swaps)
                             break
                     else:
                         # Otherwise combine the original and found swap
@@ -310,21 +308,19 @@ def combine_mode_swap_dicts(
     # Store overall swaps in new dictionary
     new_swaps = {}
     added_swaps = []
-    for s1 in swaps1:
-        for s2 in swaps2:
+    for k1, v1 in swaps1.items():
+        for k2, v2 in swaps2.items():
             # Loop over swaps to combine when a key from swap 2 is in the
             # values of swap 1
-            if swaps1[s1] == s2:
-                new_swaps[s1] = swaps2[s2]
-                added_swaps.append(s2)
+            if v1 == k2:
+                new_swaps[k1] = v2
+                added_swaps.append(k2)
                 break
         # If it isn't found then add key and value from swap 1
         else:
-            new_swaps[s1] = swaps1[s1]
+            new_swaps[k1] = v1
     # Add any keys from swaps2 that weren't used
-    for s2 in swaps2:
-        if s2 not in added_swaps:
-            new_swaps[s2] = swaps2[s2]
+    new_swaps.update({k: v for k, v in swaps2.items() if k not in added_swaps})
     # Remove any modes that are unchanged as these are not required
     return {m1: m2 for m1, m2 in new_swaps.items() if m1 != m2}
 
@@ -337,6 +333,5 @@ def check_loss(loss: float | Parameter) -> None:
         loss = loss.get()
     if not isinstance(loss, Number) or isinstance(loss, bool):
         raise TypeError("Loss value should be numerical or a Parameter.")
-    if not 0 <= loss <= 1:  # type: ignore
+    if not 0 <= loss <= 1:  # type: ignore[operator]
         raise ValueError("Provided loss values should be in the range [0,1].")
-    return

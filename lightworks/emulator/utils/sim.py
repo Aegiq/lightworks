@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ...sdk.state import State
-from ...sdk.utils import PhotonNumberError
+from lightworks.sdk.state import State
+from lightworks.sdk.utils import PhotonNumberError
 
 
 def check_photon_numbers(states: list[State]) -> None:

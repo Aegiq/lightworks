@@ -19,10 +19,11 @@ import numpy as np
 from numpy.typing import NDArray
 from thewalrus import perm
 
-from ...__settings import settings
-from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
-from ...sdk.state import State
-from ..utils import fock_basis
+from lightworks.__settings import settings
+from lightworks.emulator.utils import fock_basis
+from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
+from lightworks.sdk.state import State
+
 from .fock_backend import FockBackend
 
 
@@ -66,11 +67,6 @@ class PermanentBackend(FockBackend):
 
             complex : The calculated probability amplitude.
 
-        Raises:
-
-            BackendError: Raised if this method is called with an incompatible
-                backend.
-
         """
         factor_m = prod([factorial(i) for i in input_state])
         factor_n = prod([factorial(i) for i in output_state])
@@ -104,11 +100,6 @@ class PermanentBackend(FockBackend):
             float : The calculated probability of transition between the input
                 and output.
 
-        Raises:
-
-            BackendError: Raised if this method is called with an incompatible
-                backend.
-
         """
         return (
             abs(self.probability_amplitude(unitary, input_state, output_state))
@@ -134,11 +125,6 @@ class PermanentBackend(FockBackend):
 
             dict : The calculated full probability distribution for the input.
 
-        Raises:
-
-            BackendError: Raised if this method is called with an incompatible
-                backend.
-
         """
         # Return empty distribution when 0 photons in input
         if input_state.n_photons == 0:
@@ -147,7 +133,7 @@ class PermanentBackend(FockBackend):
         pdist: dict[State, float] = {}
         # Add extra states for loss modes here when included
         if circuit.loss_modes > 0:
-            input_state = input_state + State([0] * circuit.loss_modes)
+            input_state += State([0] * circuit.loss_modes)
         # For a given input work out all possible outputs
         out_states = fock_basis(len(input_state), input_state.n_photons)
         for ostate in out_states:

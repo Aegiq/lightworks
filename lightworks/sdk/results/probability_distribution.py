@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..state import State
-from ..utils import ProbabilityDistributionError
+from lightworks.sdk.state import State
+from lightworks.sdk.utils import ProbabilityDistributionError
 
 
 class ProbabilityDistribution(dict[State, float]):

@@ -20,7 +20,7 @@ second mode.
 
 import numpy as np
 
-from ...sdk.circuit import Unitary
+from lightworks.sdk.circuit import Unitary
 
 
 class I(Unitary):  # noqa: E742

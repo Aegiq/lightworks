@@ -20,7 +20,7 @@ efficiency, dark counts and non-photon number resolving detectors.
 from numbers import Number
 from random import random, seed
 
-from ...sdk.state import State
+from lightworks.sdk.state import State
 
 
 class Detector:
@@ -52,8 +52,6 @@ class Detector:
         self.efficiency = efficiency
         self.p_dark = p_dark
         self.photon_counting = photon_counting
-
-        return
 
     def __str__(self) -> str:
         return (

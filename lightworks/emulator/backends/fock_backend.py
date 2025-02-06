@@ -17,20 +17,21 @@ import numpy as np
 from multimethod import multimethod
 from numpy.typing import NDArray
 
-from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
-from ...sdk.results import (
-    ProbabilityDistribution,
-    SamplingResult,
-    SimulationResult,
-)
-from ...sdk.state import State
-from ...sdk.tasks import Analyzer, Sampler, Simulator, Task
-from ..simulation import (
+from lightworks.emulator.simulation import (
     AnalyzerRunner,
     SamplerRunner,
     SimulatorRunner,
 )
-from ..utils import BackendError
+from lightworks.emulator.utils import BackendError
+from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
+from lightworks.sdk.results import (
+    ProbabilityDistribution,
+    SamplingResult,
+    SimulationResult,
+)
+from lightworks.sdk.state import State
+from lightworks.sdk.tasks import Analyzer, Sampler, Simulator, Task
+
 from .abc_backend import EmulatorBackend
 
 # ruff: noqa: ARG002, D102

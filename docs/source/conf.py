@@ -14,12 +14,12 @@ sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from lightworks import __version__ as ver
 
 project = "Lightworks"
-project_copyright = f"{datetime.now().year}, Aegiq Ltd."
+project_copyright = f"{datetime.now(tz=timezone.utc).year}, Aegiq Ltd."  # noqa: UP017
 author = "Aegiq Ltd."
 release = ".".join(ver.split(".")[:2])
 version = ver
@@ -40,7 +40,7 @@ templates_path = ["_templates"]
 exclude_patterns = []
 
 # Set python path variable to enable nbsphinx to run notebooks if required
-os.environ["PYTHONPATH"] = os.path.abspath("../../../lightworks")
+os.environ["PYTHONPATH"] = os.path.abspath("../../../lightworks")  # noqa: PTH100
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

@@ -16,7 +16,7 @@
 Contains all custom exceptions created for the emulator section of Lightworks.
 """
 
-from ...sdk.utils import LightworksError
+from lightworks.sdk.utils import LightworksError
 
 
 class EmulatorError(LightworksError):

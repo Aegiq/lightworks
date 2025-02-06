@@ -17,15 +17,16 @@ from collections.abc import Callable
 import numpy as np
 from numpy.typing import NDArray
 
-from ...sdk.results import SimulationResult
-from ...sdk.state import State
-from ...sdk.tasks import AnalyzerTask
-from ...sdk.utils import (
+from lightworks.emulator.utils import check_photon_numbers, fock_basis
+from lightworks.sdk.results import SimulationResult
+from lightworks.sdk.state import State
+from lightworks.sdk.tasks import AnalyzerTask
+from lightworks.sdk.utils import (
     DefaultPostSelection,
     PhotonNumberError,
     add_heralds_to_state,
 )
-from ..utils import check_photon_numbers, fock_basis
+
 from .runner import RunnerABC
 
 
@@ -108,7 +109,7 @@ class AnalyzerRunner(RunnerABC):
             performance=performance,
         )
         if error_rate is not None:
-            results.error_rate = error_rate  # type: ignore
+            results.error_rate = error_rate  # type: ignore[attr-defined]
         # Return dict
         return results
 
@@ -128,33 +129,31 @@ class AnalyzerRunner(RunnerABC):
                         self.data.circuit.U_full, ins, outs
                     )
                 # Lossy case
+                # Photon number preserved
+                elif sum(ins) == sum(outs):
+                    probs[i, j] += self.func(
+                        self.data.circuit.U_full,
+                        ins,
+                        outs + [0] * self.data.circuit.loss_modes,
+                    )
+                # Otherwise
                 else:
-                    # Photon number preserved
-                    if sum(ins) == sum(outs):
-                        outs = (  # noqa: PLW2901
-                            outs + [0] * self.data.circuit.loss_modes
+                    # If n_out < n_in work out all loss mode combinations
+                    # and find probability of each
+                    n_loss = sum(ins) - sum(outs)
+                    if n_loss < 0:
+                        raise PhotonNumberError(
+                            "Output photon number larger than input number."
                         )
+                    # Find loss states and find probability of each
+                    loss_states = fock_basis(
+                        self.data.circuit.loss_modes, n_loss
+                    )
+                    for ls in loss_states:
+                        fs = outs + ls
                         probs[i, j] += self.func(
-                            self.data.circuit.U_full, ins, outs
+                            self.data.circuit.U_full, ins, fs
                         )
-                    # Otherwise
-                    else:
-                        # If n_out < n_in work out all loss mode combinations
-                        # and find probability of each
-                        n_loss = sum(ins) - sum(outs)
-                        if n_loss < 0:
-                            raise PhotonNumberError(
-                                "Output photon number larger than input number."
-                            )
-                        # Find loss states and find probability of each
-                        loss_states = fock_basis(
-                            self.data.circuit.loss_modes, n_loss
-                        )
-                        for ls in loss_states:
-                            fs = outs + ls
-                            probs[i, j] += self.func(
-                                self.data.circuit.U_full, ins, fs
-                            )
 
         return probs
 

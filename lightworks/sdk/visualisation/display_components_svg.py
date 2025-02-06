@@ -17,7 +17,7 @@ from typing import Any
 import drawsvg as draw
 import numpy as np
 
-from ..utils import DisplayError
+from lightworks.sdk.utils import DisplayError
 
 
 class DrawSVGComponents:
@@ -28,8 +28,6 @@ class DrawSVGComponents:
     def __init__(self, drawing: draw.Drawing, wg_width: float) -> None:
         self.d = drawing
         self.wg_width = wg_width
-
-        return
 
     def add(self, draw_spec: list[tuple[str, tuple[Any, ...]]]) -> None:
         """
@@ -63,7 +61,6 @@ class DrawSVGComponents:
             x, y - self.wg_width / 2, length, self.wg_width, fill="black"
         )
         self.d.append(r)
-        return
 
     def _draw_ps(self, x: float, y: float, size: float) -> None:
         r = draw.Rectangle(
@@ -77,7 +74,6 @@ class DrawSVGComponents:
             ry=5,
         )
         self.d.append(r)
-        return
 
     def _draw_bs(
         self, x: float, y: float, size_x: float, size_y: float, offset_y: float
@@ -93,7 +89,6 @@ class DrawSVGComponents:
             ry=5,
         )
         self.d.append(r)
-        return
 
     def _draw_unitary(
         self, x: float, y: float, size_x: float, size_y: float, offset_y: float
@@ -109,14 +104,12 @@ class DrawSVGComponents:
             ry=5,
         )
         self.d.append(r)
-        return
 
     def _draw_loss(self, x: float, y: float, size: float) -> None:
         r = draw.Rectangle(
             x, y - size / 2, size, size, fill="grey", stroke="black", rx=5, ry=5
         )
         self.d.append(r)
-        return
 
     def _draw_text(
         self,
@@ -150,7 +143,6 @@ class DrawSVGComponents:
             transform=f"rotate({rotation}, {x}, {y})",
         )
         self.d.append(t)
-        return
 
     def _draw_mode_swaps(
         self, x: float, ys: list[tuple[float, float]], size_x: float
@@ -186,8 +178,6 @@ class DrawSVGComponents:
             poly = draw.Lines(*points, fill="black", close=True)
             self.d.append(poly)
 
-        return
-
     def _draw_grouped_circuit(
         self, x: float, y: float, size_x: float, size_y: float, offset_y: float
     ) -> None:
@@ -202,9 +192,7 @@ class DrawSVGComponents:
             ry=5,
         )
         self.d.append(r)
-        return
 
     def _draw_herald(self, x: float, y: float, size: float) -> None:
         c = draw.Circle(x, y, size, fill="#3e368d", stroke="black")
         self.d.append(c)
-        return

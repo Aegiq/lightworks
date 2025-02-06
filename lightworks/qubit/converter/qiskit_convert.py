@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ...sdk.circuit import PhotonicCircuit
-from ...sdk.utils import LightworksError, PostSelection
-from ..gates import (
+from lightworks.qubit.gates import (
     CCNOT,
     CCZ,
     CNOT,
@@ -36,6 +34,9 @@ from ..gates import (
     Y,
     Z,
 )
+from lightworks.sdk.circuit import PhotonicCircuit
+from lightworks.sdk.utils import LightworksError, PostSelection
+
 from . import QISKIT_INSTALLED
 
 if QISKIT_INSTALLED:
@@ -218,7 +219,7 @@ class QiskitConverter:
             self.circuit.add(
                 TWO_QUBIT_GATES_MAP["swap"](self.modes[q0], self.modes[q1]), 0
             )
-        elif gate in ["cx", "cz"]:
+        elif gate in {"cx", "cz"}:
             mapper = (
                 TWO_QUBIT_GATES_MAP
                 if not post_selection
@@ -246,7 +247,7 @@ class QiskitConverter:
         """
         Adds a three qubit gate to the circuit on the selected qubits.
         """
-        if gate in ["ccx", "ccz"]:
+        if gate in {"ccx", "ccz"}:
             if not post_selection:
                 raise ValueError(
                     "Three qubit gates can only be used with post-selection. "

@@ -14,7 +14,8 @@
 
 from numpy import random
 
-from ..sdk.utils import process_random_seed
+from lightworks.sdk.utils import process_random_seed
+
 from .dists import Constant, Distribution
 
 
@@ -28,8 +29,6 @@ class ErrorModel:
         self.bs_reflectivity = Constant(0.5)
         self.loss = Constant(0)
         self.phase_offset = Constant(0)
-
-        return
 
     def __str__(self) -> str:
         return (

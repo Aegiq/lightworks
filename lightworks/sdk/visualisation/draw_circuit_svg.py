@@ -18,7 +18,7 @@ import drawsvg as draw
 import numpy as np
 from multimethod import multimethod
 
-from ..circuit.photonic_components import (
+from lightworks.sdk.circuit.photonic_components import (
     Barrier,
     BeamSplitter,
     Group,
@@ -27,12 +27,13 @@ from ..circuit.photonic_components import (
     PhaseShifter,
     UnitaryMatrix,
 )
-from ..utils import DisplayError
+from lightworks.sdk.utils import DisplayError
+
 from .display_components_svg import DrawSVGComponents
 from .display_utils import process_parameter_value
 
 if TYPE_CHECKING:
-    from ..circuit import PhotonicCircuit
+    from lightworks.sdk.circuit import PhotonicCircuit
 
 
 class DrawCircuitSVG:
@@ -158,8 +159,6 @@ class DrawCircuitSVG:
         for i in range(self.n_modes):
             self.x_locations[i] += 50
 
-        return
-
     def draw(self) -> draw.Drawing:
         """
         Draws the circuit as defined in the initial class class:
@@ -218,7 +217,6 @@ class DrawCircuitSVG:
         )
         # Adjust size of figure to meet target scale
         target_scale = min(50 + mode_width * 65, 900)
-        # target_scale = max(target_scale, 200)
         self.d.set_pixel_scale(1)
         _w, h = self.d.calc_render_size()
         self.d.set_pixel_scale(target_scale / h)
@@ -231,8 +229,6 @@ class DrawCircuitSVG:
         """
         # Add a waveguide of the required length to the drawing spec
         self.draw_spec += [("wg", (x - 0.05, y, length + 0.1))]
-
-        return
 
     @multimethod
     def _add(self, spec: Any) -> None:  # noqa: ARG002
@@ -304,8 +300,6 @@ class DrawCircuitSVG:
         self._add_wg(xloc, yloc, con_length)
         self.x_locations[spec.mode] = xloc + con_length
 
-        return
-
     @_add.register
     def _add_bs(self, spec: BeamSplitter) -> None:
         """
@@ -337,7 +331,6 @@ class DrawCircuitSVG:
         xloc += con_length
         # Add beam splitter section
         self.draw_spec += [("bs", (xloc, yloc, size_x, size_y, offset / 2))]
-        # TODO: Need to tweak how the beam splitter location is decided
         mode_between = 0
         for i in range(mode1 + 1, mode2 + 1, 1):
             if i not in self.herald_modes:
@@ -385,8 +378,6 @@ class DrawCircuitSVG:
                 self._add_wg(xloc, self.y_locations[i], con_length)
             self.x_locations[i] = xloc + con_length
 
-        return
-
     @_add.register
     def _add_unitary(self, spec: UnitaryMatrix) -> None:
         """
@@ -414,9 +405,10 @@ class DrawCircuitSVG:
         self.draw_spec += [
             ("unitary", (xloc, yloc, size_x, size_y, offset / 2))
         ]
-        s = 25 if self.n_modes > 2 else 20
+        max_large_len = 2
+        s = 25 if self.n_modes > max_large_len else 20
         s = 35 if len(spec.label) == 1 else s
-        r = 270 if len(spec.label) > 2 else 0
+        r = 270 if len(spec.label) > max_large_len else 0
         self.draw_spec += [
             (
                 "text",
@@ -437,8 +429,6 @@ class DrawCircuitSVG:
             if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length)
             self.x_locations[i] = xloc + con_length
-
-        return
 
     @_add.register
     def _add_loss(self, spec: Loss) -> None:
@@ -501,8 +491,6 @@ class DrawCircuitSVG:
             if loc < max_loc:
                 self._add_wg(loc, self.y_locations[m], max_loc - loc)
             self.x_locations[m] = max_loc
-
-        return
 
     @_add.register
     def _add_mode_swaps(self, spec: ModeSwaps) -> None:
@@ -584,9 +572,10 @@ class DrawCircuitSVG:
         xloc += con_length + extra_length
         # Add unitary shape and U label
         self.draw_spec += [("group", (xloc, yloc, size_x, size_y, offset / 2))]
-        s = 25 if self.n_modes > 2 else 20
+        max_large_len = 2
+        s = 25 if self.n_modes > max_large_len else 20
         s = 35 if len(spec.name) == 1 else s
-        r = 270 if len(spec.name) > 2 else 0
+        r = 270 if len(spec.name) > max_large_len else 0
         self.draw_spec += [
             (
                 "text",
@@ -620,8 +609,6 @@ class DrawCircuitSVG:
         self._add_heralds(
             shifted_heralds, xloc - size_x - con_length, xloc + con_length
         )
-
-        return
 
     def _add_heralds(
         self,

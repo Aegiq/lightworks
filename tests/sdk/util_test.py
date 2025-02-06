@@ -24,10 +24,12 @@ from lightworks import (
     db_loss_to_decimal,
     decimal_to_db_loss,
     dual_rail_to_qubit,
+    parity_mapping,
     qubit_to_dual_rail,
     random_permutation,
     random_unitary,
     settings,
+    threshold_mapping,
 )
 from lightworks.sdk.utils import (
     add_heralds_to_state,
@@ -274,6 +276,38 @@ class TestUtils:
         conv_state = qubit_to_dual_rail(original_state)
         recovered_state = dual_rail_to_qubit(conv_state)
         assert original_state == recovered_state
+
+    def test_threshold_mapping(self):
+        """
+        Checks threshold mapping produces the correct output.
+        """
+        original_state = State([1, 0, 2, 3, 0, 0, 1])
+        conv_state = threshold_mapping(original_state)
+        assert conv_state == State([1, 0, 1, 1, 0, 0, 1])
+
+    def test_threshold_mapping_invert(self):
+        """
+        Checks threshold mapping produces the correct output when inverting.
+        """
+        original_state = State([1, 0, 2, 3, 0, 0, 1])
+        conv_state = threshold_mapping(original_state, invert=True)
+        assert conv_state == State([0, 1, 0, 0, 1, 1, 0])
+
+    def test_parity_mapping(self):
+        """
+        Checks parity mapping produces the correct output.
+        """
+        original_state = State([1, 0, 2, 3, 0, 0, 1])
+        conv_state = parity_mapping(original_state)
+        assert conv_state == State([1, 0, 0, 1, 0, 0, 1])
+
+    def test_parity_mapping_invert(self):
+        """
+        Checks parity mapping produces the correct output when inverting.
+        """
+        original_state = State([1, 0, 2, 3, 0, 0, 1])
+        conv_state = parity_mapping(original_state, invert=True)
+        assert conv_state == State([0, 1, 1, 0, 1, 1, 0])
 
 
 class TestPostSelection:
@@ -531,3 +565,10 @@ class TestSettings:
         """
         with pytest.raises(AttributeError):
             settings.test_setting  # noqa: B018
+
+    def test_setting_in_str_repr(self):
+        """
+        Checks setting names when using str and repr on settings
+        """
+        assert "sampler_probability_threshold" in str(settings)
+        assert "sampler_probability_threshold" in repr(settings)

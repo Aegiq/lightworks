@@ -14,9 +14,14 @@
 
 from collections.abc import Callable
 
-from ..circuit import PhotonicCircuit
-from ..state import State
-from ..utils import PostSelectionType, process_post_selection, validate_states
+from lightworks.sdk.circuit import PhotonicCircuit
+from lightworks.sdk.state import State
+from lightworks.sdk.utils import (
+    PostSelectionType,
+    process_post_selection,
+    validate_states,
+)
+
 from .data import AnalyzerTask
 from .task import Task
 
@@ -64,8 +69,6 @@ class Analyzer(Task):
         self.post_selection = post_selection  # type: ignore[assignment]
         self.inputs = inputs  # type: ignore[assignment]
         self.expected = expected
-
-        return
 
     @property
     def circuit(self) -> PhotonicCircuit:

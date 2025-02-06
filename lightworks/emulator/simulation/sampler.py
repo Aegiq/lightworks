@@ -17,11 +17,12 @@ from collections.abc import Callable
 
 import numpy as np
 
-from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
-from ...sdk.results import SamplingResult
-from ...sdk.state import State
-from ...sdk.tasks import SamplerTask
-from ...sdk.utils import (
+from lightworks.emulator.components import Detector, Source
+from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
+from lightworks.sdk.results import SamplingResult
+from lightworks.sdk.state import State
+from lightworks.sdk.tasks import SamplerTask
+from lightworks.sdk.utils import (
     DefaultPostSelection,
     PostSelectionType,
     SamplerError,
@@ -29,7 +30,7 @@ from ...sdk.utils import (
     process_random_seed,
     remove_heralds_from_state,
 )
-from ..components import Detector, Source
+
 from .probability_distribution import pdist_calc
 from .runner import RunnerABC
 
@@ -330,8 +331,8 @@ class SamplerRunner(RunnerABC):
                 "min-detection criteria."
             )
         # Re-normalise distribution probabilities
-        probs = np.array(list(pdist.values()))
-        probs = probs / sum(probs)
+        probs = np.array(list(pdist.values()), dtype=float)
+        probs /= sum(probs)
         # Put all possible states into array
         vals = np.zeros(len(pdist), dtype=object)
         for i, k in enumerate(pdist.keys()):

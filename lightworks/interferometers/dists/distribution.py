@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 
 
-class Distribution(metaclass=ABCMeta):
+class Distribution(ABC):
     """
     Base class for all distributions. Enforces that any created distributions
     have the required value method, which returns a singular value on request.

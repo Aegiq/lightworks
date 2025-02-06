@@ -21,8 +21,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from ..state import State
-from ..utils import ResultCreationError
+from lightworks.sdk.state import State
+from lightworks.sdk.utils import ResultCreationError
 
 
 class SamplingResult(dict[State, int]):
@@ -49,9 +49,8 @@ class SamplingResult(dict[State, int]):
         self.__input = input
         self.__outputs = list(results.keys())
         # Store any additional provided data from kwargs as attributes
-        for k in kwargs:
-            setattr(self, k, kwargs[k])
-        return
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
     @property
     def input(self) -> State:
@@ -158,8 +157,6 @@ class SamplingResult(dict[State, int]):
             to_print += str(ostate) + " : " + str(p) + ", "
         to_print = to_print[:-2]
         print(to_print)  # noqa: T201
-
-        return
 
     def display_as_dataframe(self, threshold: float = 1e-12) -> pd.DataFrame:
         """

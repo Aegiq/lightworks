@@ -16,8 +16,9 @@ from collections.abc import Callable
 from types import FunctionType, MethodType
 from typing import Any
 
-from ..sdk.circuit import PhotonicCircuit
-from ..sdk.state import State
+from lightworks.sdk.circuit import PhotonicCircuit
+from lightworks.sdk.state import State
+
 from .mappings import INPUT_MAPPING, MEASUREMENT_MAPPING
 from .utils import (
     _get_required_tomo_measurements,

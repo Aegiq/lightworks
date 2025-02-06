@@ -21,7 +21,8 @@ from collections.abc import Iterator
 from copy import copy
 from typing import Any, Union, overload
 
-from ..utils.exceptions import StateError
+from lightworks.sdk.utils.exceptions import StateError
+
 from .state_utils import state_to_string
 
 
@@ -46,7 +47,6 @@ class State:
         # Otherwise try to convert
         else:
             self.__s = list(state)
-        return
 
     @property
     def n_photons(self) -> int:

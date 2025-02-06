@@ -13,15 +13,15 @@
 # limitations under the License.
 
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from types import FunctionType
 
-from ..state import State
+from lightworks.sdk.state import State
 
 
-class PostSelectionType(metaclass=ABCMeta):
+class PostSelectionType(ABC):
     """
     Base class for post-selection object.
     """

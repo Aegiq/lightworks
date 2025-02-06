@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 from random import choice, randint, random, sample
 
 import pytest
@@ -53,7 +54,7 @@ class TestQiskitConversion:
         Checks all expected rotation qubit gates can be converted.
         """
         circ = QuantumCircuit(1)
-        getattr(circ, gate)(6.28 * random(), 0)
+        getattr(circ, gate)(math.tau * random(), 0)
         qiskit_converter(circ)
 
     @pytest.mark.parametrize("gate", list(TWO_QUBIT_GATES_MAP.keys()))

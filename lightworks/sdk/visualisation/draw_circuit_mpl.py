@@ -15,12 +15,12 @@
 from typing import TYPE_CHECKING, Any
 
 import matplotlib.figure
-import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import patches
 from multimethod import multimethod
 
-from ..circuit.photonic_components import (
+from lightworks.sdk.circuit.photonic_components import (
     Barrier,
     BeamSplitter,
     Group,
@@ -29,11 +29,12 @@ from ..circuit.photonic_components import (
     PhaseShifter,
     UnitaryMatrix,
 )
-from ..utils import DisplayError
+from lightworks.sdk.utils import DisplayError
+
 from .display_utils import process_parameter_value
 
 if TYPE_CHECKING:
-    from ..circuit import PhotonicCircuit
+    from lightworks.sdk.circuit import PhotonicCircuit
 
 
 class DrawCircuitMPL:
@@ -174,8 +175,6 @@ class DrawCircuitMPL:
         )
         self.ax.add_patch(rect)
 
-        return
-
     @multimethod
     def _add(self, spec: Any) -> None:  # noqa: ARG002
         """
@@ -255,8 +254,6 @@ class DrawCircuitMPL:
         # Update mode locations list
         self.x_locations[spec.mode] = xloc + con_length
 
-        return
-
     @_add.register
     def _add_bs(self, spec: BeamSplitter) -> None:
         """
@@ -330,8 +327,6 @@ class DrawCircuitMPL:
                 self._add_wg(xloc, self.y_locations[i], con_length)
             self.x_locations[i] = xloc + con_length
 
-        return
-
     @_add.register
     def _add_loss(self, spec: Loss) -> None:
         """
@@ -404,8 +399,6 @@ class DrawCircuitMPL:
             if loc < max_loc:
                 self._add_wg(loc, self.y_locations[m], max_loc - loc)
             self.x_locations[m] = max_loc
-
-        return
 
     @_add.register
     def _add_mode_swaps(self, spec: ModeSwaps) -> None:
@@ -522,8 +515,6 @@ class DrawCircuitMPL:
                 self._add_wg(xloc, self.y_locations[i], con_length)
             self.x_locations[i] = xloc + con_length
 
-        return
-
     @_add.register
     def _add_grouped_circuit(self, spec: Group) -> None:
         """
@@ -600,8 +591,6 @@ class DrawCircuitMPL:
         self._add_heralds(
             shifted_heralds, xloc - size_x - con_length, xloc + con_length
         )
-
-        return
 
     def _add_heralds(
         self,

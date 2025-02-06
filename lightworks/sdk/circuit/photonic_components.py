@@ -12,21 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
 from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
 
-from ..utils import check_unitary, permutation_mat_from_swaps_dict
+from lightworks.sdk.utils import check_unitary, permutation_mat_from_swaps_dict
+
 from .parameters import Parameter
 
 # ruff: noqa: D102
 
 
 @dataclass(slots=True)
-class Component(metaclass=ABCMeta):
+class Component(ABC):
     """
     Generic baseclass for all components. Implements a number of useful methods.
     """
@@ -243,7 +244,6 @@ class Group(Component):
         raise RuntimeError(
             "Groups must be unpacked before attempting to serialize"
         )
-        return
 
 
 @dataclass(slots=True)

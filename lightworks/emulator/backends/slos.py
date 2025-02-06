@@ -18,9 +18,10 @@ from typing import Any
 import numpy as np
 from numpy.typing import NDArray
 
-from ...__settings import settings
-from ...sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
-from ...sdk.state import State
+from lightworks.__settings import settings
+from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
+from lightworks.sdk.state import State
+
 from .fock_backend import FockBackend
 
 
@@ -58,11 +59,6 @@ class SLOSBackend(FockBackend):
 
             dict : The calculated full probability distribution for the input.
 
-        Raises:
-
-            BackendError: Raised if this method is called with an incompatible
-                backend.
-
         """
         # Return empty distribution when 0 photons in input
         if input_state.n_photons == 0:
@@ -71,7 +67,7 @@ class SLOSBackend(FockBackend):
         pdist: dict[State, float] = {}
         # Add extra states for loss modes here when included
         if circuit.loss_modes > 0:
-            input_state = input_state + State([0] * circuit.loss_modes)
+            input_state += State([0] * circuit.loss_modes)
         full_dist = self.calculate(circuit.U_full, input_state)
         # Combine results to remote lossy modes
         for s, p in full_dist.items():

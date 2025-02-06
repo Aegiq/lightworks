@@ -18,7 +18,7 @@ from numbers import Number
 from types import NoneType
 from typing import Any
 
-from ..utils import (
+from lightworks.sdk.utils import (
     ParameterBoundsError,
     ParameterDictError,
     ParameterValueError,
@@ -78,8 +78,6 @@ class Parameter:
             self.min_bound, self.max_bound = bounds[0], bounds[1]
         else:
             self.min_bound, self.max_bound = None, None
-
-        return
 
     @property
     def min_bound(self) -> Number | None:
@@ -149,7 +147,6 @@ class Parameter:
         if self.max_bound is not None and value > self.max_bound:
             raise ParameterValueError("Set value is above maximum bound.")
         self.__value = value
-        return
 
     def get(self) -> Any:
         """Returns the current value of the parameter."""
@@ -233,7 +230,6 @@ class ParameterDict:
         if key not in self.__pdict:
             raise KeyError("Parameter key not found in ParameterDict.")
         del self.__pdict[key]
-        return
 
     def __str__(self) -> str:
         return str(self.__pdict)

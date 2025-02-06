@@ -15,7 +15,8 @@
 from collections.abc import Callable
 from types import FunctionType, NoneType
 
-from ..state import State
+from lightworks.sdk.state import State
+
 from . import PostSelectionFunction
 from .post_selection import PostSelectionType
 

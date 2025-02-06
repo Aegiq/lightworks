@@ -18,12 +18,13 @@ import drawsvg
 import matplotlib.figure
 import matplotlib.pyplot as plt
 
-from ..utils import DisplayError
+from lightworks.sdk.utils import DisplayError
+
 from .draw_circuit_mpl import DrawCircuitMPL
 from .draw_circuit_svg import DrawCircuitSVG
 
 if TYPE_CHECKING:
-    from ..circuit import PhotonicCircuit
+    from lightworks.sdk.circuit import PhotonicCircuit
 
 
 # Display function to interact with relevant classes

@@ -18,10 +18,10 @@ from typing import Any
 
 import numpy as np
 
-from ...__settings import settings
-from ...sdk.tasks import SamplerTask, TaskData
-from ..components import Source
-from ..utils import BackendError
+from lightworks.__settings import settings
+from lightworks.emulator.components import Source
+from lightworks.emulator.utils import BackendError
+from lightworks.sdk.tasks import SamplerTask, TaskData
 
 
 @dataclass
@@ -62,9 +62,8 @@ def check_parameter_updates(values1: list[Any], values2: list[Any]) -> bool:
                 return True
             if v1.probability_threshold != v2.probability_threshold:
                 return True
-        else:
-            if v1 != v2:
-                return True
+        elif v1 != v2:
+            return True
     return False
 
 

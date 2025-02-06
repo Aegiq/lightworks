@@ -19,7 +19,7 @@ emulator.
 
 from math import log10
 
-from ..state import State
+from lightworks.sdk.state import State
 
 
 def db_loss_to_decimal(loss: float) -> float:
@@ -85,7 +85,7 @@ def qubit_to_dual_rail(state: State) -> State:
     """
     new_state = []
     for s in state:
-        if s not in (0, 1):
+        if s not in {0, 1}:
             raise ValueError(
                 "Elements of a qubit state can only take integer values 0 or 1."
             )

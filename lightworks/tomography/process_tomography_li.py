@@ -15,7 +15,8 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from ..sdk.state import State
+from lightworks.sdk.state import State
+
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
 from .utils import (

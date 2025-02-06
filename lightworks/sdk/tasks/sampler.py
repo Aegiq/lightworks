@@ -15,17 +15,18 @@
 from collections.abc import Callable
 from types import NoneType
 
-from ...emulator.components import Detector, Source
-from ..circuit import PhotonicCircuit
-from ..results import ProbabilityDistribution
-from ..state import State
-from ..utils import (
+from lightworks.emulator.components import Detector, Source
+from lightworks.sdk.circuit import PhotonicCircuit
+from lightworks.sdk.results import ProbabilityDistribution
+from lightworks.sdk.state import State
+from lightworks.sdk.utils import (
     ModeMismatchError,
     PostSelectionType,
     SamplerError,
     process_post_selection,
     process_random_seed,
 )
+
 from .data import SamplerTask
 from .task import Task
 
@@ -222,7 +223,7 @@ class Sampler(Task):
 
     @sampling_mode.setter
     def sampling_mode(self, value: str) -> None:
-        if value not in ["input", "output"]:
+        if value not in {"input", "output"}:
             raise ValueError(
                 "Sampling mode must be set to either input or output."
             )

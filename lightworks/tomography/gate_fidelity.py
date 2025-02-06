@@ -12,13 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from numpy.typing import NDArray
 
-from ..sdk.state import State
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
 from .utils import _calculate_density_matrix, _combine_all, _vec
+
+if TYPE_CHECKING:
+    from lightworks.sdk.state import State
 
 TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
