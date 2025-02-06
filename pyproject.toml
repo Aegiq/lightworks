@@ -21,8 +21,13 @@ testpaths = [
 omit = [
     "tests/*",
     "docs/*",
-    "lightworks/sdk/optimisation/*",
     "lightworks/qubit/converter/__init__.py"
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "def __repr__"
 ]
 
 ## mypy config
