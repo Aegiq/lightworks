@@ -57,14 +57,9 @@ from .sdk.tasks import Analyzer, Batch, Sampler, Simulator
 from .sdk.utils import (
     PostSelection,
     PostSelectionFunction,
-    db_loss_to_decimal,
-    decimal_to_db_loss,
-    dual_rail_to_qubit,
-    parity_mapping,
-    qubit_to_dual_rail,
+    convert,
     random_permutation,
     random_unitary,
-    threshold_mapping,
 )
 from .sdk.utils.exceptions import *
 from .sdk.visualisation import Display
@@ -86,17 +81,12 @@ __all__ = [
     "Simulator",
     "State",
     "Unitary",
-    "db_loss_to_decimal",
-    "decimal_to_db_loss",
-    "dual_rail_to_qubit",
+    "convert",
     "emulator",
     "interferometers",
-    "parity_mapping",
     "qubit",
-    "qubit_to_dual_rail",
     "random_permutation",
     "random_unitary",
     "settings",
-    "threshold_mapping",
     "tomography",
 ]
