@@ -106,7 +106,7 @@ class convert:  # noqa: N801
         return State(new_state)
 
     @staticmethod
-    def dual_rail_to_qubit(state: State) -> State:
+    def dual_rail_to_qubit(state: State, allow_invalid: bool = False) -> State:
         """
         Converts from a dual-rail encoded Fock state into the qubit encoded
         equivalent.
@@ -115,6 +115,10 @@ class convert:  # noqa: N801
 
             state (State) : The dual-rail state to convert. This state should
                 contain a single photon between pairs of adjacent modes.
+
+            allow_invalid (bool) : Controls whether or not invalid values are
+                supported for a qubit. In these cases, the numerical value will
+                be replaced by an X.
 
         Returns:
 
@@ -134,11 +138,15 @@ class convert:  # noqa: N801
         for i in range(len(state) // 2):
             sub_s = list_state[2 * i : 2 * i + 2]
             if sub_s not in ([1, 0], [0, 1]):
-                raise ValueError(
-                    "Invalid entry found in state. State should have a single "
-                    "photon between each pair of dual-rail encoded modes."
-                )
-            new_state.append(sub_s[1])
+                if not allow_invalid:
+                    raise ValueError(
+                        "Invalid entry found in state. State should have a "
+                        "single photon between each pair of dual-rail encoded "
+                        "modes. Alternatively, set allow_invalid = True."
+                    )
+                new_state.append("X")
+            else:
+                new_state.append(sub_s[1])
         return State(new_state)
 
     @staticmethod
