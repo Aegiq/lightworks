@@ -21,7 +21,7 @@ from lightworks import (
     PostSelection,
     State,
     Unitary,
-    db_loss_to_decimal,
+    convert,
     random_unitary,
 )
 from lightworks.emulator import Backend
@@ -44,9 +44,13 @@ class TestAnalyzer:
             self.circuit.bs(m)
             self.circuit.ps(m + 1, phi=3 * i)
             # lossy circuit
-            self.lossy_circuit.bs(m, loss=db_loss_to_decimal(1 + 0.2 * i))
+            self.lossy_circuit.bs(
+                m, loss=convert.db_loss_to_decimal(1 + 0.2 * i)
+            )
             self.lossy_circuit.ps(m, phi=i)
-            self.lossy_circuit.bs(m, loss=db_loss_to_decimal(0.6 + 0.1 * i))
+            self.lossy_circuit.bs(
+                m, loss=convert.db_loss_to_decimal(0.6 + 0.1 * i)
+            )
             self.lossy_circuit.ps(m + 1, phi=3 * i)
 
     def test_hom(self):

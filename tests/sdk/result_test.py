@@ -17,12 +17,7 @@ import matplotlib.pyplot as plt
 import pytest
 from numpy import array
 
-from lightworks import (
-    ResultCreationError,
-    State,
-    parity_mapping,
-    threshold_mapping,
-)
+from lightworks import ResultCreationError, State, convert
 from lightworks.sdk.results import (
     SamplingResult,
     SimulationResult,
@@ -79,7 +74,7 @@ class TestSamplingResult:
     def test_threshold_mapping(self, invert):
         """Check threshold mapping returns the correct result."""
         r = SamplingResult(self.test_dict, self.test_input)
-        r2 = r.map(threshold_mapping, invert=invert)
+        r2 = r.map(convert.threshold_mapping, invert=invert)
         # Round results returned from mapping and compare
         out_dict = {s: round(p, 4) for s, p in r2.items()}
         if not invert:
@@ -100,7 +95,7 @@ class TestSamplingResult:
     def test_parity_mapping(self, invert):
         """Check parity mapping returns the correct result."""
         r = SamplingResult(self.test_dict, self.test_input)
-        r2 = r.map(parity_mapping, invert=invert)
+        r2 = r.map(convert.parity_mapping, invert=invert)
         # Round results returned from mapping and compare
         out_dict = {s: round(p, 4) for s, p in r2.items()}
         if not invert:
@@ -413,7 +408,7 @@ class TestSimulationResult:
             inputs=self.test_single_inputs,
             outputs=self.test_single_outputs,
         )
-        new_r = r.map(parity_mapping)
+        new_r = r.map(convert.parity_mapping)
         assert new_r == {
             State([1, 1, 0, 0]): {
                 State([1, 0, 1, 0]): 0.4,
@@ -433,7 +428,7 @@ class TestSimulationResult:
             inputs=self.test_multi_inputs,
             outputs=self.test_multi_outputs,
         )
-        new_r = r.map(parity_mapping, invert=invert)
+        new_r = r.map(convert.parity_mapping, invert=invert)
         if not invert:
             expected = {
                 State([1, 1, 0, 0]): {
@@ -469,7 +464,7 @@ class TestSimulationResult:
             inputs=self.test_single_inputs,
             outputs=self.test_single_outputs,
         )
-        new_r = r.map(threshold_mapping)
+        new_r = r.map(convert.threshold_mapping)
         assert new_r == {
             State([1, 1, 0, 0]): {
                 State([1, 0, 1, 0]): 0.4,
@@ -489,7 +484,7 @@ class TestSimulationResult:
             inputs=self.test_multi_inputs,
             outputs=self.test_multi_outputs,
         )
-        new_r = r.map(threshold_mapping, invert=invert)
+        new_r = r.map(convert.threshold_mapping, invert=invert)
         if not invert:
             expected = {
                 State([1, 1, 0, 0]): {

@@ -22,7 +22,7 @@ from lightworks import (
     Sampler,
     State,
     Unitary,
-    db_loss_to_decimal,
+    convert,
     random_unitary,
 )
 from lightworks.emulator import Backend, Detector, Source
@@ -379,13 +379,13 @@ class TestSamplerCalculationBackends:
         """
         # Build circuit
         circuit = PhotonicCircuit(4)
-        circuit.bs(0, loss=db_loss_to_decimal(1))
-        circuit.bs(2, loss=db_loss_to_decimal(2))
-        circuit.ps(1, 0.3, loss=db_loss_to_decimal(0.5))
-        circuit.ps(3, 0.3, loss=db_loss_to_decimal(0.5))
-        circuit.bs(1, loss=db_loss_to_decimal(1))
-        circuit.bs(2, loss=db_loss_to_decimal(2))
-        circuit.ps(1, 0.3, loss=db_loss_to_decimal(0.5))
+        circuit.bs(0, loss=convert.db_loss_to_decimal(1))
+        circuit.bs(2, loss=convert.db_loss_to_decimal(2))
+        circuit.ps(1, 0.3, loss=convert.db_loss_to_decimal(0.5))
+        circuit.ps(3, 0.3, loss=convert.db_loss_to_decimal(0.5))
+        circuit.bs(1, loss=convert.db_loss_to_decimal(1))
+        circuit.bs(2, loss=convert.db_loss_to_decimal(2))
+        circuit.ps(1, 0.3, loss=convert.db_loss_to_decimal(0.5))
         # Sample from circuit
         sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000)
         backend.run(sampler)
@@ -401,13 +401,13 @@ class TestSamplerCalculationBackends:
         """
         # Build circuit
         circuit = PhotonicCircuit(4)
-        circuit.bs(0, loss=db_loss_to_decimal(1))
-        circuit.bs(2, loss=db_loss_to_decimal(2))
-        circuit.ps(1, 0.3, loss=db_loss_to_decimal(0.5))
-        circuit.ps(3, 0.3, loss=db_loss_to_decimal(0.5))
-        circuit.bs(1, loss=db_loss_to_decimal(1))
-        circuit.bs(2, loss=db_loss_to_decimal(2))
-        circuit.ps(1, 0.3, loss=db_loss_to_decimal(0.5))
+        circuit.bs(0, loss=convert.db_loss_to_decimal(1))
+        circuit.bs(2, loss=convert.db_loss_to_decimal(2))
+        circuit.ps(1, 0.3, loss=convert.db_loss_to_decimal(0.5))
+        circuit.ps(3, 0.3, loss=convert.db_loss_to_decimal(0.5))
+        circuit.bs(1, loss=convert.db_loss_to_decimal(1))
+        circuit.bs(2, loss=convert.db_loss_to_decimal(2))
+        circuit.ps(1, 0.3, loss=convert.db_loss_to_decimal(0.5))
         # Sample from circuit
         source = Source(purity=0.9, brightness=0.9, indistinguishability=0.9)
         sampler = Sampler(circuit, State([1, 0, 1, 0]), 1000, source=source)

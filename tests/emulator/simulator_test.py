@@ -22,7 +22,7 @@ from lightworks import (
     Simulator,
     State,
     Unitary,
-    db_loss_to_decimal,
+    convert,
     random_unitary,
 )
 from lightworks.emulator import Backend
@@ -112,12 +112,12 @@ class TestSimulator:
         one input/output.
         """
         circ = PhotonicCircuit(4)
-        circ.bs(0, loss=db_loss_to_decimal(2))
+        circ.bs(0, loss=convert.db_loss_to_decimal(2))
         circ.ps(1, phi=0.3)
-        circ.bs(1, loss=db_loss_to_decimal(2))
-        circ.bs(2, loss=db_loss_to_decimal(2))
+        circ.bs(1, loss=convert.db_loss_to_decimal(2))
+        circ.bs(2, loss=convert.db_loss_to_decimal(2))
         circ.ps(1, phi=0.5)
-        circ.bs(1, loss=db_loss_to_decimal(2))
+        circ.bs(1, loss=convert.db_loss_to_decimal(2))
         sim = Simulator(circ, State([2, 0, 0, 0]), State([0, 1, 1, 0]))
         results = BACKEND.run(sim)
         x = results.array[0, 0]

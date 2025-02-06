@@ -9,29 +9,10 @@ Utilities
 
 .. autofunction:: lightworks.random_permutation
 
-.. _tr_to_db_loss:
+.. _conversion:
 
-.. autofunction:: lightworks.db_loss_to_decimal
-
-.. _db_loss_to_tr:
-
-.. autofunction:: lightworks.decimal_to_db_loss
-
-.. _qubit_to_dr:
-
-.. autofunction:: lightworks.qubit_to_dual_rail
-
-.. _dr_to_qubit:
-
-.. autofunction:: lightworks.dual_rail_to_qubit
-    
-.. _threshold_map:
-
-.. autofunction:: lightworks.threshold_mapping
-
-.. _parity_map:
-
-.. autofunction:: lightworks.parity_mapping
+.. autoclass:: lightworks.convert
+    :members:
 
 .. _post_selection:
 

@@ -21,15 +21,10 @@ from lightworks import (
     PostSelection,
     PostSelectionFunction,
     State,
-    db_loss_to_decimal,
-    decimal_to_db_loss,
-    dual_rail_to_qubit,
-    parity_mapping,
-    qubit_to_dual_rail,
+    convert,
     random_permutation,
     random_unitary,
     settings,
-    threshold_mapping,
 )
 from lightworks.sdk.utils import (
     add_heralds_to_state,
@@ -99,14 +94,14 @@ class TestUtils:
 
     def test_db_loss_to_decimal_conv(self):
         """Test conversion from db loss to a decimal loss value."""
-        r = 1 - db_loss_to_decimal(0.5)
+        r = 1 - convert.db_loss_to_decimal(0.5)
         assert r == pytest.approx(0.8912509381337456, 1e-8)
 
     def test_decimal_to_db_loss_conv(self):
         """
         Tests conversion between a decimal loss and db loss value.
         """
-        r = decimal_to_db_loss(0.25)
+        r = convert.decimal_to_db_loss(0.25)
         assert r == pytest.approx(1.2493873660829995, 1e-8)
 
     def test_seeded_random(self):
@@ -227,15 +222,27 @@ class TestUtils:
         Checks conversion from dual-rail to qubit states works correctly for
         valid values.
         """
-        conv_state = dual_rail_to_qubit(value)
+        conv_state = convert.dual_rail_to_qubit(value)
         assert conv_state == State([0, 1, 0])
+
+    @pytest.mark.parametrize(
+        "value", [State([1, 0, 3, 1, 1, 0]), [1, 0, 3, 1, 1, 0]]
+    )
+    def test_allow_invalid_dual_rail_to_qubit(self, value):
+        """
+        Checks conversion from dual-rail to qubit states works correctly for
+        valid values.
+        """
+        conv_state = convert.dual_rail_to_qubit(value, allow_invalid=True)
+        assert conv_state == State([0, "X", 0])
 
     @pytest.mark.parametrize(
         "value",
         [
             State([1, 0, 0, 1, 1]),
-            [1, 1, 0, 1, 1, 0],
-            [0, 0, 0, 1, 1, 0],
+            State([1, 1, 0, 1, 1, 0]),
+            State([0, 0, 0, 1, 1, 0]),
+            State([0, 2, 0, 1, 1, 0]),
             [0, 2, 0, 1, 1, 0],
         ],
     )
@@ -245,19 +252,19 @@ class TestUtils:
         incorrect values.
         """
         with pytest.raises(ValueError):
-            dual_rail_to_qubit(value)
+            convert.dual_rail_to_qubit(value)
 
-    @pytest.mark.parametrize("value", [State([0, 1, 0]), [0, 1, 0]])
+    @pytest.mark.parametrize("value", [State([0, 1, 0]), [0, 1, 0], "010"])
     def test_valid_qubit_to_dual_rail(self, value):
         """
         Checks conversion from qubit to dual-rail states works correctly for
         valid values.
         """
-        conv_state = qubit_to_dual_rail(value)
+        conv_state = convert.qubit_to_dual_rail(value)
         assert conv_state == State([1, 0, 0, 1, 1, 0])
 
     @pytest.mark.parametrize(
-        "value", [State([0, 1, 2]), [-1, 1, 0], [0, 1.5, 1]]
+        "value", [State([0, 1, 2]), [-1, 1, 0], [0, 1.5, 1], "020"]
     )
     def test_invalid_qubit_to_dual_rail(self, value):
         """
@@ -265,7 +272,7 @@ class TestUtils:
         ValueError for incorrect values.
         """
         with pytest.raises(ValueError):
-            qubit_to_dual_rail(value)
+            convert.qubit_to_dual_rail(value)
 
     def test_state_preservation(self):
         """
@@ -273,8 +280,8 @@ class TestUtils:
         state is always preserved
         """
         original_state = State([randint(0, 1) for _ in range(10)])
-        conv_state = qubit_to_dual_rail(original_state)
-        recovered_state = dual_rail_to_qubit(conv_state)
+        conv_state = convert.qubit_to_dual_rail(original_state)
+        recovered_state = convert.dual_rail_to_qubit(conv_state)
         assert original_state == recovered_state
 
     def test_threshold_mapping(self):
@@ -282,7 +289,7 @@ class TestUtils:
         Checks threshold mapping produces the correct output.
         """
         original_state = State([1, 0, 2, 3, 0, 0, 1])
-        conv_state = threshold_mapping(original_state)
+        conv_state = convert.threshold_mapping(original_state)
         assert conv_state == State([1, 0, 1, 1, 0, 0, 1])
 
     def test_threshold_mapping_invert(self):
@@ -290,7 +297,7 @@ class TestUtils:
         Checks threshold mapping produces the correct output when inverting.
         """
         original_state = State([1, 0, 2, 3, 0, 0, 1])
-        conv_state = threshold_mapping(original_state, invert=True)
+        conv_state = convert.threshold_mapping(original_state, invert=True)
         assert conv_state == State([0, 1, 0, 0, 1, 1, 0])
 
     def test_parity_mapping(self):
@@ -298,7 +305,7 @@ class TestUtils:
         Checks parity mapping produces the correct output.
         """
         original_state = State([1, 0, 2, 3, 0, 0, 1])
-        conv_state = parity_mapping(original_state)
+        conv_state = convert.parity_mapping(original_state)
         assert conv_state == State([1, 0, 0, 1, 0, 0, 1])
 
     def test_parity_mapping_invert(self):
@@ -306,7 +313,7 @@ class TestUtils:
         Checks parity mapping produces the correct output when inverting.
         """
         original_state = State([1, 0, 2, 3, 0, 0, 1])
-        conv_state = parity_mapping(original_state, invert=True)
+        conv_state = convert.parity_mapping(original_state, invert=True)
         assert conv_state == State([0, 1, 1, 0, 1, 1, 0])
 
 
