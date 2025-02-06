@@ -331,7 +331,7 @@ class SamplerRunner(RunnerABC):
                 "min-detection criteria."
             )
         # Re-normalise distribution probabilities
-        probs = np.array(list(pdist.values()))
+        probs = np.array(list(pdist.values()), dtype=float)
         probs /= sum(probs)
         # Put all possible states into array
         vals = np.zeros(len(pdist), dtype=object)
