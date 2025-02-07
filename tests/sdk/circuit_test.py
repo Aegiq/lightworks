@@ -15,6 +15,7 @@
 from random import randint, random, seed
 
 import pytest
+import sympy as sp
 
 from lightworks import (
     CircuitCompilationError,
@@ -26,6 +27,7 @@ from lightworks import (
     random_unitary,
 )
 from lightworks.qubit import CNOT
+from lightworks.sdk.circuit import SympyUnitary
 from lightworks.sdk.circuit.photonic_components import (
     BeamSplitter,
     Component,
@@ -1028,3 +1030,41 @@ class TestUnitary:
         """
         u = Unitary(random_unitary(4))
         assert u.n_modes == 4
+
+    def test_unitary_parameters(self):
+        """
+        Checks parameters can be used to set and update a unitary.
+        """
+        th = sp.Symbol("theta")
+        unitary_mat = sp.Matrix(
+            [
+                [sp.cos(th / 2), -1j * sp.sin(th / 2)],
+                [-1j * sp.sin(th / 2), sp.cos(th / 2)],
+            ]
+        )
+        theta = Parameter(0.1)
+        # Create component
+        unitary = SympyUnitary(unitary_mat, {"theta": theta})
+        component = Unitary(unitary)
+        # Get unitary
+        u1 = component.U
+        # Update parameter and get new unitary
+        theta.set(0.6)
+        u2 = component.U
+        # Check not equivalent
+        assert (u1 != u2).all()
+
+    def test_invalid_unitary(self):
+        """
+        Checks an error is raised when an initially valid unitary is updated via
+        parameters to be invalid.
+        """
+        th = sp.Symbol("theta")
+        unitary_mat = sp.Matrix([[th, 0], [0, th]])
+        theta = Parameter(1)
+        # Create component
+        unitary = SympyUnitary(unitary_mat, {"theta": theta})
+        component = Unitary(unitary)
+        theta.set(2)
+        with pytest.raises(CircuitCompilationError):
+            unitary = component.U

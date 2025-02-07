@@ -80,7 +80,7 @@ class TestSingleQubitGates:
     def test_Rx(self, theta):
         """Checks that the output from the Rx gate is correct."""
         gate = Rx(theta)
-        gate.ps(0, math.pi / 2)
+        gate.ps(0, math.pi / 2)  # Make equivalent to X gate
         gate.ps(1, math.pi / 2)
         sim = Simulator(gate, State([1, 0]))
         # Input |1,0>
@@ -110,7 +110,7 @@ class TestSingleQubitGates:
     def test_Ry(self, theta):
         """Checks that the output from the Ry gate is correct."""
         gate = Ry(theta)
-        gate.ps(0, math.pi / 2)
+        gate.ps(0, math.pi / 2)  # Make equivalent to Y gate
         gate.ps(1, math.pi / 2)
         sim = Simulator(gate, State([1, 0]))
         # Input |1,0>
@@ -140,7 +140,7 @@ class TestSingleQubitGates:
     def test_Rz(self, theta):
         """Checks that the output from the Rz gate is correct."""
         gate = Rz(theta)
-        gate.ps(0, math.pi / 2)
+        gate.ps(0, math.pi / 2)  # Make equivalent to Z gate
         gate.ps(1, math.pi / 2)
         sim = Simulator(gate, State([1, 0]))
         # Input |1,0>
