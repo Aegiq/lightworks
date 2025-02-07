@@ -26,9 +26,9 @@ from lightworks import (
     random_unitary,
     settings,
 )
+from lightworks.sdk.circuit.circuit_utils import add_mode_to_unitary
 from lightworks.sdk.utils import (
     add_heralds_to_state,
-    add_mode_to_unitary,
     check_unitary,
     permutation_mat_from_swaps_dict,
     process_random_seed,
