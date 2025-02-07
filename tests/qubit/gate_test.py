@@ -18,13 +18,13 @@ import numpy as np
 import pytest
 from random import random
 
-from lightworks import State, Simulator
+from lightworks import State, Simulator, Parameter
 from lightworks.emulator import Backend
 
 # fmt: off
 from lightworks.qubit import (
     CCNOT, CCZ, CNOT, CZ, SWAP, CNOT_Heralded, CZ_Heralded, I, H, S, T, X, Y, Z,
-    SX, Sadj, Tadj, P
+    SX, Sadj, Tadj, P, Rx, Ry, Rz
 )
 import math
 # fmt: on
@@ -76,6 +76,23 @@ class TestSingleQubitGates:
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
 
+    @pytest.mark.parametrize("theta", [math.pi, Parameter(math.pi)])
+    def test_Rx(self, theta):
+        """Checks that the output from the Rx gate is correct."""
+        gate = Rx(theta)
+        gate.ps(0, math.pi / 2)
+        gate.ps(1, math.pi / 2)
+        sim = Simulator(gate, State([1, 0]))
+        # Input |1,0>
+        results = BACKEND.run(sim)[State([1, 0])]
+        assert pytest.approx(results[State([1, 0])], 1e-6) == 0
+        assert pytest.approx(results[State([0, 1])], 1e-6) == 1
+        # Input |0,1>
+        sim.inputs = State([0, 1])
+        results = BACKEND.run(sim)[State([0, 1])]
+        assert pytest.approx(results[State([1, 0])], 1e-6) == 1
+        assert pytest.approx(results[State([0, 1])], 1e-6) == 0
+
     def test_Y(self):
         """Checks that the output from the Y gate is correct."""
         sim = Simulator(Y(), State([1, 0]))
@@ -89,9 +106,43 @@ class TestSingleQubitGates:
         assert pytest.approx(results[State([1, 0])], 1e-6) == -1j
         assert pytest.approx(results[State([0, 1])], 1e-6) == 0
 
+    @pytest.mark.parametrize("theta", [math.pi, Parameter(math.pi)])
+    def test_Ry(self, theta):
+        """Checks that the output from the Ry gate is correct."""
+        gate = Ry(theta)
+        gate.ps(0, math.pi / 2)
+        gate.ps(1, math.pi / 2)
+        sim = Simulator(gate, State([1, 0]))
+        # Input |1,0>
+        results = BACKEND.run(sim)[State([1, 0])]
+        assert pytest.approx(results[State([1, 0])], 1e-6) == 0
+        assert pytest.approx(results[State([0, 1])], 1e-6) == 1j
+        # Input |0,1>
+        sim.inputs = State([0, 1])
+        results = BACKEND.run(sim)[State([0, 1])]
+        assert pytest.approx(results[State([1, 0])], 1e-6) == -1j
+        assert pytest.approx(results[State([0, 1])], 1e-6) == 0
+
     def test_Z(self):
         """Checks that the output from the Z gate is correct."""
         sim = Simulator(Z(), State([1, 0]))
+        # Input |1,0>
+        results = BACKEND.run(sim)[State([1, 0])]
+        assert pytest.approx(results[State([1, 0])], 1e-6) == 1
+        assert pytest.approx(results[State([0, 1])], 1e-6) == 0
+        # Input |0,1>
+        sim.inputs = State([0, 1])
+        results = BACKEND.run(sim)[State([0, 1])]
+        assert pytest.approx(results[State([1, 0])], 1e-6) == 0
+        assert pytest.approx(results[State([0, 1])], 1e-6) == -1
+
+    @pytest.mark.parametrize("theta", [math.pi, Parameter(math.pi)])
+    def test_Rz(self, theta):
+        """Checks that the output from the Rz gate is correct."""
+        gate = Rz(theta)
+        gate.ps(0, math.pi / 2)
+        gate.ps(1, math.pi / 2)
+        sim = Simulator(gate, State([1, 0]))
         # Input |1,0>
         results = BACKEND.run(sim)[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
@@ -151,10 +202,14 @@ class TestSingleQubitGates:
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1 / 2 * (1 - 1j)
         assert pytest.approx(results[State([0, 1])], 1e-6) == 1 / 2 * (1 + 1j)
 
-    def test_P(self):
+    @pytest.mark.parametrize("phase", [None, Parameter(math.tau * random())])
+    def test_P(self, phase):
         """Checks that the output from the phase gate is correct."""
-        phase = math.tau * random()
+        if phase is None:
+            phase = math.tau * random()
         sim = Simulator(P(phase), State([1, 0]))
+        if isinstance(phase, Parameter):
+            phase = phase.get()
         # Input |1,0>
         results = BACKEND.run(sim)[State([1, 0])]
         assert pytest.approx(results[State([1, 0])], 1e-6) == 1
