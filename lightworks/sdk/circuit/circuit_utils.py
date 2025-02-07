@@ -20,8 +20,11 @@ Contains a number of different utility functions for modifying circuits.
 
 from copy import copy
 from numbers import Number
+from typing import overload
 
-from lightworks.sdk.utils import add_mode_to_unitary
+import numpy as np
+import sympy as sp
+from numpy.typing import NDArray
 
 from .parameters import Parameter
 from .photonic_components import (
@@ -34,6 +37,7 @@ from .photonic_components import (
     PhaseShifter,
     UnitaryMatrix,
 )
+from .sympy_unitary import SympyUnitary
 
 
 def unpack_circuit_spec(circuit_spec: list[Component]) -> list[Component]:
@@ -335,3 +339,52 @@ def check_loss(loss: float | Parameter) -> None:
         raise TypeError("Loss value should be numerical or a Parameter.")
     if not 0 <= loss <= 1:  # type: ignore[operator]
         raise ValueError("Provided loss values should be in the range [0,1].")
+
+
+@overload
+def add_mode_to_unitary(
+    unitary: NDArray[np.complex128], add_mode: int
+) -> NDArray[np.complex128]: ...
+
+
+@overload
+def add_mode_to_unitary(
+    unitary: SympyUnitary, add_mode: int
+) -> SympyUnitary: ...
+
+
+def add_mode_to_unitary(
+    unitary: NDArray[np.complex128] | SympyUnitary, add_mode: int
+) -> NDArray[np.complex128] | SympyUnitary:
+    """
+    Adds a new mode (through inclusion of an extra row/column) to the provided
+    unitary at the selected location.
+
+    Args:
+
+        unitary (np.ndarray | SympyUnitary) : The unitary to add a mode to.
+
+        add_mode (int) : The location at which a new mode should be added to
+            the circuit.
+
+    Returns:
+
+        np.ndarray | SympyUnitary : The converted unitary matrix.
+
+    """
+    dim = unitary.shape[0] + 1
+    new_u = np.identity(dim, dtype=complex)
+    if isinstance(unitary, SympyUnitary):
+        new_u = sp.Matrix(new_u)
+        to_add = unitary._unitary
+    else:
+        to_add = unitary
+    # Diagonals
+    new_u[:add_mode, :add_mode] = to_add[:add_mode, :add_mode]
+    new_u[add_mode + 1 :, add_mode + 1 :] = to_add[add_mode:, add_mode:]
+    # Off-diagonals
+    new_u[:add_mode, add_mode + 1 :] = to_add[:add_mode, add_mode:]
+    new_u[add_mode + 1 :, :add_mode] = to_add[add_mode:, :add_mode]
+    if isinstance(unitary, SympyUnitary):
+        return SympyUnitary(new_u, unitary._params)
+    return new_u

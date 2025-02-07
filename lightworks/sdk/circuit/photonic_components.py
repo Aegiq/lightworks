@@ -22,6 +22,7 @@ from numpy.typing import NDArray
 from lightworks.sdk.utils import check_unitary, permutation_mat_from_swaps_dict
 
 from .parameters import Parameter
+from .sympy_unitary import SympyUnitary
 
 # ruff: noqa: D102
 
@@ -253,37 +254,50 @@ class UnitaryMatrix(Component):
     """
 
     mode: int
-    unitary: NDArray[np.complex128]
+    unitary: NDArray[np.complex128] | SympyUnitary
     label: str
 
     def __post_init__(self) -> None:
         # Check type of supplied unitary
-        if not isinstance(self.unitary, np.ndarray | list):
-            raise TypeError("Unitary should be a numpy array or list.")
-        self.unitary = np.array(self.unitary)
+        if isinstance(self.unitary, np.ndarray | list):
+            self.unitary = np.array(self.unitary)
 
-        # Ensure unitary is valid
-        if not check_unitary(self.unitary):
-            raise ValueError("Provided matrix is not unitary.")
+            # Ensure unitary is valid
+            if not check_unitary(self.unitary):
+                raise ValueError("Provided matrix is not unitary.")
+        elif not isinstance(self.unitary, SympyUnitary):
+            raise TypeError("Unitary should be a numpy array or list.")
 
         # Also check label is a string
         if not isinstance(self.label, str):
             raise TypeError("Label for unitary should be a string.")
 
     def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:
+        if isinstance(self.unitary, SympyUnitary):
+            sub_unitary = self.unitary.unitary
+            if not check_unitary(sub_unitary):
+                raise ValueError("Provided matrix is not unitary.")
+        else:
+            sub_unitary = self.unitary
         unitary = np.identity(n_modes, dtype=complex)
         nm = self.unitary.shape[0]
         unitary[self.mode : self.mode + nm, self.mode : self.mode + nm] = (
-            self.unitary[:, :]
+            sub_unitary[:, :]
         )
         return unitary
 
     def serialize(self) -> tuple[str, dict[str, Any]]:
+        if isinstance(self.unitary, SympyUnitary):
+            unitary = self.unitary.unitary
+            if not check_unitary(unitary):
+                raise ValueError("Provided matrix is not unitary.")
+        else:
+            unitary = self.unitary
         return (
             "UnitaryMatrix",
             {
                 "mode": self.mode,
-                "unitary": self.unitary.astype(str).tolist(),
+                "unitary": unitary.astype(str).tolist(),
                 "label": self.label,
             },
         )

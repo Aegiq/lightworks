@@ -14,4 +14,5 @@
 
 from .parameters import Parameter, ParameterDict
 from .photonic_circuit import PhotonicCircuit
+from .sympy_unitary import SympyUnitary
 from .unitary import Unitary

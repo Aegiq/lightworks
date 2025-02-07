@@ -21,6 +21,7 @@ from numpy.typing import NDArray
 
 from .photonic_circuit import PhotonicCircuit
 from .photonic_components import UnitaryMatrix
+from .sympy_unitary import SympyUnitary
 
 
 class Unitary(PhotonicCircuit):
@@ -36,8 +37,9 @@ class Unitary(PhotonicCircuit):
     """
 
     def __init__(
-        self, unitary: NDArray[np.complex128], label: str = "U"
+        self, unitary: NDArray[np.complex128] | SympyUnitary, label: str = "U"
     ) -> None:
-        unitary = np.array(unitary)
+        if not isinstance(unitary, SympyUnitary):
+            unitary = np.array(unitary)
         super().__init__(int(unitary.shape[0]))
         self._PhotonicCircuit__circuit_spec = [UnitaryMatrix(0, unitary, label)]
