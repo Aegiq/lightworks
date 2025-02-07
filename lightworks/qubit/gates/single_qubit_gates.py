@@ -262,5 +262,5 @@ def get_name(param: Any) -> str:
     return (
         param.label
         if isinstance(param, Parameter) and param.label is not None
-        else "theta"
+        else "\u03b8"
     )
