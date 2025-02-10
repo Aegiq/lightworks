@@ -117,8 +117,17 @@ class TestSamplingResult:
         Confirm plotting is able to work without errors for single input case.
         """
         r = SamplingResult(self.test_dict, self.test_input)
+        # NOTE: There is a non intermittent issue that occurs during testing
+        # with the subplots method in mpl. This can be fixed by altering the
+        # backend to Agg for these tests. Issue noted here:
+        # https://stackoverflow.com/questions/71443540/intermittent-pytest-failures-complaining-about-missing-tcl-files-even-though-the
+        original_backend = mpl.get_backend()
+        mpl.use("Agg")
+        # Check plotting
         r.plot(show=False)
         plt.close()
+        # Reset backend after test
+        mpl.use(original_backend)
 
     def test_extra_attribute_assignment(self):
         """
