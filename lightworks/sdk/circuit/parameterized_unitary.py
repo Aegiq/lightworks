@@ -47,7 +47,10 @@ class ParameterizedUnitary:
         return str(self._unitary)
 
     def __repr__(self) -> str:
-        return str(self._unitary)
+        return (
+            f"ParameterizedUnitary(matrix={self._unitary}, "
+            f"params={self._params})"
+        )
 
     @property
     def unitary(self) -> NDArray[np.complex128]:

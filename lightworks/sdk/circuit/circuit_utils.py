@@ -20,10 +20,11 @@ Contains a number of different utility functions for modifying circuits.
 
 from copy import copy
 from numbers import Number
-from typing import overload
+from typing import Any
 
 import numpy as np
 import sympy as sp
+from multimethod import multimethod
 from numpy.typing import NDArray
 
 from .parameterized_unitary import ParameterizedUnitary
@@ -341,21 +342,10 @@ def check_loss(loss: float | Parameter) -> None:
         raise ValueError("Provided loss values should be in the range [0,1].")
 
 
-@overload
+@multimethod
 def add_mode_to_unitary(
-    unitary: NDArray[np.complex128], add_mode: int
-) -> NDArray[np.complex128]: ...
-
-
-@overload
-def add_mode_to_unitary(
-    unitary: ParameterizedUnitary, add_mode: int
-) -> ParameterizedUnitary: ...
-
-
-def add_mode_to_unitary(
-    unitary: NDArray[np.complex128] | ParameterizedUnitary, add_mode: int
-) -> NDArray[np.complex128] | ParameterizedUnitary:
+    unitary: NDArray[Any], add_mode: int
+) -> NDArray[np.complex128]:
     """
     Adds a new mode (through inclusion of an extra row/column) to the provided
     unitary at the selected location.
@@ -375,17 +365,28 @@ def add_mode_to_unitary(
     """
     dim = unitary.shape[0] + 1
     new_u = np.identity(dim, dtype=complex)
-    if isinstance(unitary, ParameterizedUnitary):
-        new_u = sp.Matrix(new_u)
-        to_add = unitary._unitary
-    else:
-        to_add = unitary
     # Diagonals
-    new_u[:add_mode, :add_mode] = to_add[:add_mode, :add_mode]
-    new_u[add_mode + 1 :, add_mode + 1 :] = to_add[add_mode:, add_mode:]
+    new_u[:add_mode, :add_mode] = unitary[:add_mode, :add_mode]
+    new_u[add_mode + 1 :, add_mode + 1 :] = unitary[add_mode:, add_mode:]
     # Off-diagonals
-    new_u[:add_mode, add_mode + 1 :] = to_add[:add_mode, add_mode:]
-    new_u[add_mode + 1 :, :add_mode] = to_add[add_mode:, :add_mode]
-    if isinstance(unitary, ParameterizedUnitary):
-        return ParameterizedUnitary(new_u, unitary._params)
+    new_u[:add_mode, add_mode + 1 :] = unitary[:add_mode, add_mode:]
+    new_u[add_mode + 1 :, :add_mode] = unitary[add_mode:, :add_mode]
     return new_u
+
+
+@add_mode_to_unitary.register
+def _add_mode_to_parameterized_unitary(
+    unitary: ParameterizedUnitary, add_mode: int
+) -> ParameterizedUnitary:
+    """Adds mode at selected location for ParameterizedUnitary."""
+    dim = unitary.shape[0] + 1
+    new_u = sp.Matrix([[int(i == j) for j in range(dim)] for i in range(dim)])
+    # Diagonals
+    new_u[:add_mode, :add_mode] = unitary._unitary[:add_mode, :add_mode]
+    new_u[add_mode + 1 :, add_mode + 1 :] = unitary._unitary[
+        add_mode:, add_mode:
+    ]
+    # Off-diagonals
+    new_u[:add_mode, add_mode + 1 :] = unitary._unitary[:add_mode, add_mode:]
+    new_u[add_mode + 1 :, :add_mode] = unitary._unitary[add_mode:, :add_mode]
+    return ParameterizedUnitary(new_u, unitary._params)

@@ -15,6 +15,7 @@
 from random import randint, random, seed
 
 import pytest
+import sympy as sp
 from numpy import identity
 
 from lightworks import (
@@ -26,6 +27,7 @@ from lightworks import (
     random_unitary,
     settings,
 )
+from lightworks.sdk.circuit import ParameterizedUnitary
 from lightworks.sdk.circuit.circuit_utils import add_mode_to_unitary
 from lightworks.sdk.utils import (
     add_heralds_to_state,
@@ -151,6 +153,71 @@ class TestUtils:
         # Confirm preservation on unitary off diagonal
         assert (new_unitary[mode + 1 :, :mode] == unitary[mode:, :mode]).all()
         assert (new_unitary[:mode, mode + 1 :] == unitary[:mode, mode:]).all()
+
+    def test_add_mode_to_parameterized_unitary_return(self):
+        """
+        Checks that add_mode_to_unitary function returns a Parameterized unitary
+        when one is supplied.
+        """
+        unitary = ParameterizedUnitary(
+            sp.Matrix([[6 * i + j for j in range(6)] for i in range(6)]), {}
+        )
+        new_unitary = add_mode_to_unitary(unitary, 2)
+        assert isinstance(new_unitary, ParameterizedUnitary)
+
+    @pytest.mark.parametrize("mode", [0, 3, 5, 6])
+    def test_add_mode_to_parameterized_unitary_value(self, mode):
+        """
+        Checks that add_mode_to_unitary function works correctly for a variety
+        of positions, producing a value of 1 in the expected position.
+        """
+        unitary = ParameterizedUnitary(
+            sp.Matrix([[6 * i + j for j in range(6)] for i in range(6)]), {}
+        )
+        new_unitary = add_mode_to_unitary(unitary, mode)
+        # Check diagonal value on new mode
+        assert new_unitary._unitary[mode, mode] == 1.0
+        # Also confirm one off-diagonal value
+        assert new_unitary._unitary[mode, mode - 1] == 0.0
+
+    @pytest.mark.parametrize("mode", [0, 3, 5, 6])
+    def test_add_mode_to_parameterized_unitary_diagonal(self, mode):
+        """
+        Checks that add_mode_to_unitary function works correctly for a variety
+        of positions.
+        """
+        unitary = ParameterizedUnitary(
+            sp.Matrix([[6 * i + j for j in range(6)] for i in range(6)]), {}
+        )
+        new_unitary = add_mode_to_unitary(unitary, mode)
+        # Confirm preservation of unitary on diagonal
+        assert (
+            new_unitary._unitary[:mode, :mode] == unitary._unitary[:mode, :mode]
+        )
+        assert (
+            new_unitary._unitary[mode + 1 :, mode + 1 :]
+            == unitary._unitary[mode:, mode:]
+        )
+
+    @pytest.mark.parametrize("mode", [0, 3, 5, 6])
+    def test_add_mode_to_parameterized_unitary_off_diagonal(self, mode):
+        """
+        Checks that add_mode_to_unitary function works correctly for a variety
+        of positions.
+        """
+        unitary = ParameterizedUnitary(
+            sp.Matrix([[6 * i + j for j in range(6)] for i in range(6)]), {}
+        )
+        new_unitary = add_mode_to_unitary(unitary, mode)
+        # Confirm preservation on unitary off diagonal
+        assert (
+            new_unitary._unitary[mode + 1 :, :mode]
+            == unitary._unitary[mode:, :mode]
+        )
+        assert (
+            new_unitary._unitary[:mode, mode + 1 :]
+            == unitary._unitary[:mode, mode:]
+        )
 
     def test_add_heralds_to_state(self):
         """
