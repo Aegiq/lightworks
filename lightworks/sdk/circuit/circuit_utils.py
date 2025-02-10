@@ -330,16 +330,21 @@ def combine_mode_swap_dicts(
     return {m1: m2 for m1, m2 in new_swaps.items() if m1 != m2}
 
 
-def check_loss(loss: float | Parameter) -> None:
+@multimethod
+def check_loss(loss: float) -> None:
     """
     Check that loss is assigned to a positive value.
     """
-    if isinstance(loss, Parameter):
-        loss = loss.get()
     if not isinstance(loss, Number) or isinstance(loss, bool):
         raise TypeError("Loss value should be numerical or a Parameter.")
-    if not 0 <= loss <= 1:  # type: ignore[operator]
+    if not 0 <= loss <= 1:
         raise ValueError("Provided loss values should be in the range [0,1].")
+
+
+@check_loss.register
+def check_loss_param(loss: Parameter) -> None:
+    """Check that loss value is valid when it is assigned to a parameter."""
+    return check_loss(loss.get())
 
 
 @multimethod
