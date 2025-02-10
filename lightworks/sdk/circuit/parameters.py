@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections.abc import Iterable
 from math import inf
 from numbers import Number
 from types import NoneType
@@ -87,11 +86,11 @@ class Parameter:
     @min_bound.setter
     def min_bound(self, value: Any) -> None:
         if value is not None:
-            if not isnumeric(self.__value):
+            if not is_numeric(self.__value):
                 raise ParameterBoundsError(
                     "Bounds cannot be set for non-numeric parameters."
                 )
-            if not isnumeric(value):
+            if not is_numeric(value):
                 raise ParameterBoundsError("Bound should be numeric or None.")
             if self.__value < value:
                 raise ParameterBoundsError(
@@ -107,11 +106,11 @@ class Parameter:
     @max_bound.setter
     def max_bound(self, value: Any) -> None:
         if value is not None:
-            if not isnumeric(self.__value):
+            if not is_numeric(self.__value):
                 raise ParameterBoundsError(
                     "Bounds cannot be set for non-numeric parameters."
                 )
-            if not isnumeric(value):
+            if not is_numeric(value):
                 raise ParameterBoundsError("Bound should be numeric or None.")
             if self.__value > value:
                 raise ParameterBoundsError(
@@ -136,12 +135,11 @@ class Parameter:
     def set(self, value: Any) -> None:
         """Update the current value of the parameter."""
         # Don't allow parameter to be set to non-numeric value if bounds set
-        if self.has_bounds():  # noqa: SIM102
-            if not isinstance(value, Number) or isinstance(value, bool):
-                raise ParameterValueError(
-                    "Parameter cannot be set to non-numeric value when "
-                    "bounds are assigned to parameter."
-                )
+        if self.has_bounds() and not is_numeric(value):
+            raise ParameterValueError(
+                "Parameter cannot be set to non-numeric value when "
+                "bounds are assigned to parameter."
+            )
         if self.min_bound is not None and value < self.min_bound:
             raise ParameterValueError("Set value is below minimum bound.")
         if self.max_bound is not None and value > self.max_bound:
@@ -157,12 +155,12 @@ class Parameter:
         return bool(self.min_bound is not None or self.max_bound is not None)
 
 
-def isnumeric(value: Any) -> bool:
+def is_numeric(value: Any) -> bool:
     """General function for checking if a value is numeric."""
     return isinstance(value, Number) and not isinstance(value, bool)
 
 
-class ParameterDict:
+class ParameterDict(dict[str, Parameter]):
     """
     Stores a number of Parameters, using assigned keys to reference each
     Parameter object. This has custom get and set item which allows for the
@@ -173,12 +171,12 @@ class ParameterDict:
     """
 
     def __init__(self, **kwargs: Parameter) -> None:
-        self.__pdict = {}
+        super().__init__({})
         for k, v in kwargs.items():
             if not isinstance(v, Parameter):
-                self.__pdict[k] = Parameter(v)
+                self[k] = Parameter(v)
             else:
-                self.__pdict[k] = v
+                self[k] = v
 
     @property
     def params(self) -> list[str]:
@@ -193,7 +191,7 @@ class ParameterDict:
         set then the bounds will be set to +- inf.
         """
         bounds_dict = {}
-        for k, v in self.__pdict.items():
+        for k, v in super().items():
             minb = v.min_bound if v.min_bound is not None else -inf
             maxb = v.max_bound if v.max_bound is not None else inf
             bounds_dict[k] = (minb, maxb)
@@ -206,15 +204,11 @@ class ParameterDict:
         and/or maximum bounds associated with it.
         """
         # If any parameters has bounds return True, else return False
-        return any(v.has_bounds() for v in self.__pdict.values())
+        return any(v.has_bounds() for v in self.values())
 
-    def keys(self) -> Iterable[str]:
-        """Returns all keys associated with the Parameters as an iterable."""
-        return self.__pdict.keys()
-
-    def items(self) -> list[tuple[str, Any]]:
+    def items(self) -> list[tuple[str, Any]]:  # type: ignore[override]
         """Returns pairs of keys and parameter values in a list."""
-        return [(k, v.get()) for k, v in self.__pdict.items()]
+        return [(k, v.get()) for k, v in super().items()]
 
     def remove(self, key: Any) -> None:
         """
@@ -227,50 +221,36 @@ class ParameterDict:
                 the ParameterDict.
 
         """
-        if key not in self.__pdict:
+        if key not in self:
             raise KeyError("Parameter key not found in ParameterDict.")
-        del self.__pdict[key]
-
-    def __str__(self) -> str:
-        return str(self.__pdict)
-
-    def __repr__(self) -> str:
-        return "lightworks.ParameterDict" + str(self.__pdict)
-
-    def __len__(self) -> int:
-        return len(self.__pdict)
-
-    def __iter__(self) -> Any:
-        """Iterable to allow to do 'for param in ParameterDict'."""
-        yield from self.params
+        del self[key]
 
     def __setitem__(self, key: Any, value: Any) -> None:
         """
-        Custom set item behaviors to allow for parameter values to be updated in
-        __pdict attribute.
+        Custom set item behaviors to allow for parameter values to be updated
+        without overwriting the actual Parameter objects.
         """
-        if key in self.__pdict:
+        if key in self:
             if isinstance(value, Parameter):
                 raise ParameterDictError(
                     "Cannot overwrite existing Parameter with new Parameter "
                     "object."
                 )
-            self.__pdict[key].set(value)
+            super().__getitem__(key).set(value)
         else:
             if not isinstance(value, Parameter):
                 raise ParameterDictError(
                     "Values being assigned to new keys should be Parameter "
                     "objects."
                 )
-            self.__pdict[key] = value
+            super().__setitem__(key, value)
 
     def __getitem__(self, key: str) -> Parameter:
-        """Custom get item to return values from __pdict attribute"""
-        if key not in self.__pdict:
+        """
+        Implements custom error message for when a parameter key cannot be
+        found in the dictionary.
+        """
+        if key not in self:
             msg = f"Parameter '{key}' not found in ParameterDict."
             raise KeyError(msg)
-        return self.__pdict[key]
-
-    def __contains__(self, key: Any) -> bool:
-        """Custom behaviors for in operator in python."""
-        return key in self.__pdict
+        return super().__getitem__(key)

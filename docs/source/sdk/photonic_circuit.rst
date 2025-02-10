@@ -386,8 +386,8 @@ Other Functionality
 
 Also included within the circuit, is a number of additional methods which enable a circuit to be modified as required. In the following, the functionality of each is briefly discussed:
 
-get_all_params
-^^^^^^^^^^^^^^
+:func:`lightworks.PhotonicCircuit.get_all_params`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This method will collect and return a list of all parameters used as part of a circuit.
 
@@ -395,8 +395,8 @@ This method will collect and return a list of all parameters used as part of a c
 
     circuit.get_all_params()
 
-copy
-^^^^
+:func:`lightworks.PhotonicCircuit.copy`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Used to create an identical copy of a particular circuit. The ``freeze_parameters`` option can be used to decided whether any variables should remain assigned to parameters, or if they should just be assigned to the parameter value.
 
@@ -408,8 +408,8 @@ Used to create an identical copy of a particular circuit. The ``freeze_parameter
 .. warning::
     If you decide not to freeze the parameters of a circuit before copying then both the original and copy of the circuit will be affected by any parameter changes.
 
-unpack_groups
-^^^^^^^^^^^^^
+:func:`lightworks.PhotonicCircuit.unpack_groups`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Can be used to unpack any groups of components that have been added to a circuit into individual elements.
 
@@ -417,8 +417,8 @@ Can be used to unpack any groups of components that have been added to a circuit
 
     circuit.unpack_groups()
 
-compress_mode_swaps
-^^^^^^^^^^^^^^^^^^^
+:func:`lightworks.PhotonicCircuit.compress_mode_swaps`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When this method is called it will look at any adjacent mode swaps in a circuit and compress them into a single element. This can be useful for reducing the footprint of a circuit.
 
@@ -426,8 +426,8 @@ When this method is called it will look at any adjacent mode swaps in a circuit 
 
     circuit.compress_mode_swaps()
 
-remove_non_adjacent_bs
-^^^^^^^^^^^^^^^^^^^^^^
+:func:`lightworks.PhotonicCircuit.remove_non_adjacent_bs`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This method can be used to convert any beam splitters that act across non-adjacent modes into a beam splitter on adjacent modes and a set of mode swaps across the circuit. This is useful as in photonic integrated circuit realizations of an interferometer the direct interaction between non-adjacent modes is not possible.
 
