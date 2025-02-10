@@ -227,8 +227,8 @@ class ParameterDict(dict[str, Parameter]):
 
     def __setitem__(self, key: Any, value: Any) -> None:
         """
-        Custom set item behaviors to allow for parameter values to be updated in
-        __pdict attribute.
+        Custom set item behaviors to allow for parameter values to be updated
+        without overwriting the actual Parameter objects.
         """
         if key in self:
             if isinstance(value, Parameter):
@@ -246,7 +246,10 @@ class ParameterDict(dict[str, Parameter]):
             super().__setitem__(key, value)
 
     def __getitem__(self, key: str) -> Parameter:
-        """Custom get item to return values from __pdict attribute"""
+        """
+        Implements custom error message for when a parameter key cannot be
+        found in the dictionary.
+        """
         if key not in self:
             msg = f"Parameter '{key}' not found in ParameterDict."
             raise KeyError(msg)
