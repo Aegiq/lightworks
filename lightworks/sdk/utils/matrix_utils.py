@@ -59,33 +59,3 @@ def check_unitary(
     return np.allclose(
         hc @ U, np.identity(U.shape[0], dtype=complex), rtol=0, atol=precision
     )
-
-
-def add_mode_to_unitary(
-    unitary: NDArray[np.complex128], add_mode: int
-) -> NDArray[np.complex128]:
-    """
-    Adds a new mode (through inclusion of an extra row/column) to the provided
-    unitary at the selected location.
-
-    Args:
-
-        unitary (np.ndarray) : The unitary to add a mode to.
-
-        add_mode (int) : The location at which a new mode should be added to
-            the circuit.
-
-    Returns:
-
-        np.ndarray : The converted unitary matrix.
-
-    """
-    dim = unitary.shape[0] + 1
-    new_u = np.identity(dim, dtype=complex)
-    # Diagonals
-    new_u[:add_mode, :add_mode] = unitary[:add_mode, :add_mode]
-    new_u[add_mode + 1 :, add_mode + 1 :] = unitary[add_mode:, add_mode:]
-    # Off-diagonals
-    new_u[:add_mode, add_mode + 1 :] = unitary[:add_mode, add_mode:]
-    new_u[add_mode + 1 :, :add_mode] = unitary[add_mode:, :add_mode]
-    return new_u

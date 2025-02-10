@@ -18,9 +18,12 @@ adjacent dual-rail encoded modes, assuming 0 is the first mode and 1 is the
 second mode.
 """
 
-import numpy as np
+from typing import Any
 
-from lightworks.sdk.circuit import Unitary
+import numpy as np
+import sympy as sp
+
+from lightworks.sdk.circuit import Parameter, ParameterizedUnitary, Unitary
 
 
 class I(Unitary):  # noqa: E742
@@ -142,18 +145,28 @@ class P(Unitary):
 
     Args:
 
-        theta (float) : The phase angle implemented on the qubit.
+        theta (float | Parameter) : The phase angle implemented on the qubit.
 
     """
 
-    def __init__(self, theta: float) -> None:
-        unitary = np.array(
+    def __init__(self, theta: float | Parameter) -> None:
+        name = get_name(theta)
+        th = sp.Symbol(name)
+        unitary = sp.Matrix(
             [
                 [1, 0],
-                [0, np.exp(1j * theta)],
+                [0, sp.exp(1j * th)],
             ]
         )
-        super().__init__(unitary, f"P({round(theta, 3)})")
+        if isinstance(theta, Parameter):
+            super().__init__(
+                ParameterizedUnitary(unitary, {name: theta}), f"P({name})"
+            )
+        else:
+            super().__init__(
+                np.array(unitary.evalf(subs={name: theta}), dtype=complex),
+                f"P({round(theta, 3)})",
+            )
 
 
 class Rx(Unitary):
@@ -163,18 +176,28 @@ class Rx(Unitary):
 
     Args:
 
-        theta (float) : The rotation angle of the gate.
+        theta (float | Parameter) : The rotation angle of the gate.
 
     """
 
-    def __init__(self, theta: float) -> None:
-        unitary = np.array(
+    def __init__(self, theta: float | Parameter) -> None:
+        name = get_name(theta)
+        th = sp.Symbol(name)
+        unitary = sp.Matrix(
             [
-                [np.cos(theta / 2), -1j * np.sin(theta / 2)],
-                [-1j * np.sin(theta / 2), np.cos(theta / 2)],
+                [sp.cos(th / 2), -1j * sp.sin(th / 2)],
+                [-1j * sp.sin(th / 2), sp.cos(th / 2)],
             ]
         )
-        super().__init__(unitary, f"Rx({round(theta, 3)})")
+        if isinstance(theta, Parameter):
+            super().__init__(
+                ParameterizedUnitary(unitary, {name: theta}), f"Rx({name})"
+            )
+        else:
+            super().__init__(
+                np.array(unitary.evalf(subs={name: theta}), dtype=complex),
+                f"Rx({round(theta, 3)})",
+            )
 
 
 class Ry(Unitary):
@@ -184,18 +207,28 @@ class Ry(Unitary):
 
     Args:
 
-        theta (float) : The rotation angle of the gate.
+        theta (float | Parameter) : The rotation angle of the gate.
 
     """
 
-    def __init__(self, theta: float) -> None:
-        unitary = np.array(
+    def __init__(self, theta: float | Parameter) -> None:
+        name = get_name(theta)
+        th = sp.Symbol(name)
+        unitary = sp.Matrix(
             [
-                [np.cos(theta / 2), -np.sin(theta / 2)],
-                [np.sin(theta / 2), np.cos(theta / 2)],
+                [sp.cos(th / 2), -sp.sin(th / 2)],
+                [sp.sin(th / 2), sp.cos(th / 2)],
             ]
         )
-        super().__init__(unitary, f"Ry({round(theta, 3)})")
+        if isinstance(theta, Parameter):
+            super().__init__(
+                ParameterizedUnitary(unitary, {name: theta}), f"Ry({name})"
+            )
+        else:
+            super().__init__(
+                np.array(unitary.evalf(subs={name: theta}), dtype=complex),
+                f"Ry({round(theta, 3)})",
+            )
 
 
 class Rz(Unitary):
@@ -205,15 +238,37 @@ class Rz(Unitary):
 
     Args:
 
-        theta (float) : The rotation angle of the gate.
+        theta (float | Parameter) : The rotation angle of the gate.
 
     """
 
-    def __init__(self, theta: float) -> None:
-        unitary = np.array(
+    def __init__(self, theta: float | Parameter) -> None:
+        name = get_name(theta)
+        th = sp.Symbol(name)
+        unitary = sp.Matrix(
             [
-                [np.exp(-1j * theta / 2), 0],
-                [0, np.exp(1j * theta / 2)],
+                [sp.exp(-1j * th / 2), 0],
+                [0, sp.exp(1j * th / 2)],
             ]
         )
-        super().__init__(unitary, f"Rz({round(theta, 3)})")
+        if isinstance(theta, Parameter):
+            super().__init__(
+                ParameterizedUnitary(unitary, {name: theta}), f"Rz({name})"
+            )
+        else:
+            super().__init__(
+                np.array(unitary.evalf(subs={name: theta}), dtype=complex),
+                f"Rz({round(theta, 3)})",
+            )
+
+
+def get_name(param: Any) -> str:
+    """
+    Returns the name of the parameter if it has a label, otherwise returns
+    default theta.
+    """
+    return (
+        param.label
+        if isinstance(param, Parameter) and param.label is not None
+        else "\u03b8"
+    )

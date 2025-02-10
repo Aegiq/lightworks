@@ -14,10 +14,12 @@
 
 from random import randint, random, seed
 
+import numpy as np
 import pytest
-from numpy import identity
+import sympy as sp
 
 from lightworks import (
+    Parameter,
     PostSelection,
     PostSelectionFunction,
     State,
@@ -26,9 +28,10 @@ from lightworks import (
     random_unitary,
     settings,
 )
+from lightworks.sdk.circuit import ParameterizedUnitary
+from lightworks.sdk.circuit.circuit_utils import add_mode_to_unitary, check_loss
 from lightworks.sdk.utils import (
     add_heralds_to_state,
-    add_mode_to_unitary,
     check_unitary,
     permutation_mat_from_swaps_dict,
     process_random_seed,
@@ -78,8 +81,8 @@ class TestUtils:
         """Confirm that the check unitary function behaves as expected."""
         # Check both random unitary and identity matrix
         assert check_unitary(random_unitary(8))
-        assert check_unitary(identity(8))
-        assert check_unitary(identity(8, dtype=complex))
+        assert check_unitary(np.identity(8))
+        assert check_unitary(np.identity(8, dtype=complex))
 
     def test_swaps_to_permutations(self):
         """
@@ -151,6 +154,71 @@ class TestUtils:
         # Confirm preservation on unitary off diagonal
         assert (new_unitary[mode + 1 :, :mode] == unitary[mode:, :mode]).all()
         assert (new_unitary[:mode, mode + 1 :] == unitary[:mode, mode:]).all()
+
+    def test_add_mode_to_parameterized_unitary_return(self):
+        """
+        Checks that add_mode_to_unitary function returns a Parameterized unitary
+        when one is supplied.
+        """
+        unitary = ParameterizedUnitary(
+            sp.Matrix([[6 * i + j for j in range(6)] for i in range(6)]), {}
+        )
+        new_unitary = add_mode_to_unitary(unitary, 2)
+        assert isinstance(new_unitary, ParameterizedUnitary)
+
+    @pytest.mark.parametrize("mode", [0, 3, 5, 6])
+    def test_add_mode_to_parameterized_unitary_value(self, mode):
+        """
+        Checks that add_mode_to_unitary function works correctly for a variety
+        of positions, producing a value of 1 in the expected position.
+        """
+        unitary = ParameterizedUnitary(
+            sp.Matrix([[6 * i + j for j in range(6)] for i in range(6)]), {}
+        )
+        new_unitary = add_mode_to_unitary(unitary, mode)
+        # Check diagonal value on new mode
+        assert new_unitary._unitary[mode, mode] == 1.0
+        # Also confirm one off-diagonal value
+        assert new_unitary._unitary[mode, mode - 1] == 0.0
+
+    @pytest.mark.parametrize("mode", [0, 3, 5, 6])
+    def test_add_mode_to_parameterized_unitary_diagonal(self, mode):
+        """
+        Checks that add_mode_to_unitary function works correctly for a variety
+        of positions.
+        """
+        unitary = ParameterizedUnitary(
+            sp.Matrix([[6 * i + j for j in range(6)] for i in range(6)]), {}
+        )
+        new_unitary = add_mode_to_unitary(unitary, mode)
+        # Confirm preservation of unitary on diagonal
+        assert (
+            new_unitary._unitary[:mode, :mode] == unitary._unitary[:mode, :mode]
+        )
+        assert (
+            new_unitary._unitary[mode + 1 :, mode + 1 :]
+            == unitary._unitary[mode:, mode:]
+        )
+
+    @pytest.mark.parametrize("mode", [0, 3, 5, 6])
+    def test_add_mode_to_parameterized_unitary_off_diagonal(self, mode):
+        """
+        Checks that add_mode_to_unitary function works correctly for a variety
+        of positions.
+        """
+        unitary = ParameterizedUnitary(
+            sp.Matrix([[6 * i + j for j in range(6)] for i in range(6)]), {}
+        )
+        new_unitary = add_mode_to_unitary(unitary, mode)
+        # Confirm preservation on unitary off diagonal
+        assert (
+            new_unitary._unitary[mode + 1 :, :mode]
+            == unitary._unitary[mode:, :mode]
+        )
+        assert (
+            new_unitary._unitary[:mode, mode + 1 :]
+            == unitary._unitary[:mode, mode:]
+        )
 
     def test_add_heralds_to_state(self):
         """
@@ -315,6 +383,23 @@ class TestUtils:
         original_state = State([1, 0, 2, 3, 0, 0, 1])
         conv_state = convert.parity_mapping(original_state, invert=True)
         assert conv_state == State([0, 1, 1, 0, 1, 1, 0])
+
+    @pytest.mark.parametrize(
+        "value", [0, 0.0, 0.5, 1, 1.0, Parameter(1), np.float64(0.67)]
+    )
+    def test_check_loss_valid(self, value):
+        """
+        Checks an error isn't raised when valid loss are values are provided.
+        """
+        check_loss(value)
+
+    @pytest.mark.parametrize("value", [True, 0.6j, 1.5, 2, Parameter(2), "1"])
+    def test_check_loss_invalid(self, value):
+        """
+        Checks an error is raised when invalid loss are values are provided.
+        """
+        with pytest.raises((TypeError, ValueError)):
+            check_loss(value)
 
 
 class TestPostSelection:

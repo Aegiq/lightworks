@@ -15,6 +15,7 @@
 from random import randint, random, seed
 
 import pytest
+import sympy as sp
 
 from lightworks import (
     CircuitCompilationError,
@@ -25,7 +26,8 @@ from lightworks import (
     convert,
     random_unitary,
 )
-from lightworks.qubit import CNOT
+from lightworks.qubit import CNOT, Rx
+from lightworks.sdk.circuit import ParameterizedUnitary
 from lightworks.sdk.circuit.photonic_components import (
     BeamSplitter,
     Component,
@@ -259,6 +261,22 @@ class TestCircuit:
         u_1 = copied_circ.U_full
         # Modify parameter and get new unitary from copied circuit
         self.parameters["bs_0_0"] = 4
+        u_2 = copied_circ.U_full
+        # Unitary should not be modified
+        assert (u_1 == u_2).all()
+
+    def test_parameterized_unitary_copy_parameter_freeze(self):
+        """
+        Checks copy method of the circuit can be used with the freeze parameter
+        argument to create a new circuit without the Parameter objects, when a
+        parameterized unitary is used.
+        """
+        param = Parameter(1)
+        circ = Rx(theta=param)
+        copied_circ = circ.copy(freeze_parameters=True)
+        u_1 = copied_circ.U_full
+        # Modify parameter and get new unitary from copied circuit
+        param.set(2)
         u_2 = copied_circ.U_full
         # Unitary should not be modified
         assert (u_1 == u_2).all()
@@ -1028,3 +1046,41 @@ class TestUnitary:
         """
         u = Unitary(random_unitary(4))
         assert u.n_modes == 4
+
+    def test_unitary_parameters(self):
+        """
+        Checks parameters can be used to set and update a unitary.
+        """
+        th = sp.Symbol("theta")
+        unitary_mat = sp.Matrix(
+            [
+                [sp.cos(th / 2), -1j * sp.sin(th / 2)],
+                [-1j * sp.sin(th / 2), sp.cos(th / 2)],
+            ]
+        )
+        theta = Parameter(0.1)
+        # Create component
+        unitary = ParameterizedUnitary(unitary_mat, {"theta": theta})
+        component = Unitary(unitary)
+        # Get unitary
+        u1 = component.U
+        # Update parameter and get new unitary
+        theta.set(0.6)
+        u2 = component.U
+        # Check not equivalent
+        assert (u1 != u2).all()
+
+    def test_invalid_unitary(self):
+        """
+        Checks an error is raised when an initially valid unitary is updated via
+        parameters to be invalid.
+        """
+        th = sp.Symbol("theta")
+        unitary_mat = sp.Matrix([[th, 0], [0, th]])
+        theta = Parameter(1)
+        # Create component
+        unitary = ParameterizedUnitary(unitary_mat, {"theta": theta})
+        component = Unitary(unitary)
+        theta.set(2)
+        with pytest.raises(CircuitCompilationError):
+            unitary = component.U

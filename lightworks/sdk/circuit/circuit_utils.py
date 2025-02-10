@@ -19,10 +19,15 @@ Contains a number of different utility functions for modifying circuits.
 """
 
 from copy import copy
-from numbers import Number
+from numbers import Real
+from typing import Any
 
-from lightworks.sdk.utils import add_mode_to_unitary
+import numpy as np
+import sympy as sp
+from multimethod import multimethod
+from numpy.typing import NDArray
 
+from .parameterized_unitary import ParameterizedUnitary
 from .parameters import Parameter
 from .photonic_components import (
     Barrier,
@@ -325,13 +330,80 @@ def combine_mode_swap_dicts(
     return {m1: m2 for m1, m2 in new_swaps.items() if m1 != m2}
 
 
-def check_loss(loss: float | Parameter) -> None:
+@multimethod
+def check_loss(loss: Any) -> None:  # noqa: ARG001
     """
-    Check that loss is assigned to a positive value.
+    Performs validation that a provided loss value is valid.
     """
-    if isinstance(loss, Parameter):
-        loss = loss.get()
-    if not isinstance(loss, Number) or isinstance(loss, bool):
-        raise TypeError("Loss value should be numerical or a Parameter.")
-    if not 0 <= loss <= 1:  # type: ignore[operator]
+    # Generic case to catch when an incorrect type is provided.
+    raise TypeError(
+        "Loss value should be a real numerical value or a Parameter. If set as "
+        "a parameter then ensure the parameter value is a real number."
+    )
+
+
+@check_loss.register
+def _check_loss_real(loss: Real) -> None:
+    """
+    Check that loss is assigned to a numerical value in the correct range.
+    """
+    if isinstance(loss, bool):
+        raise TypeError("Loss value cannot be a boolean.")
+    if not 0.0 <= float(loss) <= 1.0:
         raise ValueError("Provided loss values should be in the range [0,1].")
+
+
+@check_loss.register
+def _check_loss_param(loss: Parameter) -> None:
+    """Check that loss value is valid when it is assigned to a parameter."""
+    return check_loss(loss.get())
+
+
+@multimethod
+def add_mode_to_unitary(
+    unitary: NDArray[Any], add_mode: int
+) -> NDArray[np.complex128]:
+    """
+    Adds a new mode (through inclusion of an extra row/column) to the provided
+    unitary at the selected location.
+
+    Args:
+
+        unitary (np.ndarray | ParameterizedUnitary) : The unitary to add a mode
+            to.
+
+        add_mode (int) : The location at which a new mode should be added to
+            the circuit.
+
+    Returns:
+
+        np.ndarray | ParameterizedUnitary : The converted unitary matrix.
+
+    """
+    dim = unitary.shape[0] + 1
+    new_u = np.identity(dim, dtype=complex)
+    # Diagonals
+    new_u[:add_mode, :add_mode] = unitary[:add_mode, :add_mode]
+    new_u[add_mode + 1 :, add_mode + 1 :] = unitary[add_mode:, add_mode:]
+    # Off-diagonals
+    new_u[:add_mode, add_mode + 1 :] = unitary[:add_mode, add_mode:]
+    new_u[add_mode + 1 :, :add_mode] = unitary[add_mode:, :add_mode]
+    return new_u
+
+
+@add_mode_to_unitary.register
+def _add_mode_to_parameterized_unitary(
+    unitary: ParameterizedUnitary, add_mode: int
+) -> ParameterizedUnitary:
+    """Adds mode at selected location for ParameterizedUnitary."""
+    dim = unitary.shape[0] + 1
+    new_u = sp.Matrix([[float(i == j) for j in range(dim)] for i in range(dim)])
+    # Diagonals
+    new_u[:add_mode, :add_mode] = unitary._unitary[:add_mode, :add_mode]
+    new_u[add_mode + 1 :, add_mode + 1 :] = unitary._unitary[
+        add_mode:, add_mode:
+    ]
+    # Off-diagonals
+    new_u[:add_mode, add_mode + 1 :] = unitary._unitary[:add_mode, add_mode:]
+    new_u[add_mode + 1 :, :add_mode] = unitary._unitary[add_mode:, :add_mode]
+    return ParameterizedUnitary(new_u, unitary._params)
