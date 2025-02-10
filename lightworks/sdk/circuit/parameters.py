@@ -206,7 +206,7 @@ class ParameterDict(dict[str, Parameter]):
         # If any parameters has bounds return True, else return False
         return any(v.has_bounds() for v in self.values())
 
-    def items(self) -> list[tuple[str, Any]]:
+    def items(self) -> list[tuple[str, Any]]:  # type: ignore[override]
         """Returns pairs of keys and parameter values in a list."""
         return [(k, v.get()) for k, v in super().items()]
 
