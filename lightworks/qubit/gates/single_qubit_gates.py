@@ -191,7 +191,7 @@ class Rx(Unitary):
         )
         if isinstance(theta, Parameter):
             super().__init__(
-                ParameterizedUnitary(unitary, {name: theta}), f"P({name})"
+                ParameterizedUnitary(unitary, {name: theta}), f"Rx({name})"
             )
         else:
             super().__init__(
@@ -222,7 +222,7 @@ class Ry(Unitary):
         )
         if isinstance(theta, Parameter):
             super().__init__(
-                ParameterizedUnitary(unitary, {name: theta}), f"P({name})"
+                ParameterizedUnitary(unitary, {name: theta}), f"Ry({name})"
             )
         else:
             super().__init__(
@@ -253,7 +253,7 @@ class Rz(Unitary):
         )
         if isinstance(theta, Parameter):
             super().__init__(
-                ParameterizedUnitary(unitary, {name: theta}), f"P({name})"
+                ParameterizedUnitary(unitary, {name: theta}), f"Rz({name})"
             )
         else:
             super().__init__(
