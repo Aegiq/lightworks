@@ -86,11 +86,11 @@ class Parameter:
     @min_bound.setter
     def min_bound(self, value: Any) -> None:
         if value is not None:
-            if not isnumeric(self.__value):
+            if not is_numeric(self.__value):
                 raise ParameterBoundsError(
                     "Bounds cannot be set for non-numeric parameters."
                 )
-            if not isnumeric(value):
+            if not is_numeric(value):
                 raise ParameterBoundsError("Bound should be numeric or None.")
             if self.__value < value:
                 raise ParameterBoundsError(
@@ -106,11 +106,11 @@ class Parameter:
     @max_bound.setter
     def max_bound(self, value: Any) -> None:
         if value is not None:
-            if not isnumeric(self.__value):
+            if not is_numeric(self.__value):
                 raise ParameterBoundsError(
                     "Bounds cannot be set for non-numeric parameters."
                 )
-            if not isnumeric(value):
+            if not is_numeric(value):
                 raise ParameterBoundsError("Bound should be numeric or None.")
             if self.__value > value:
                 raise ParameterBoundsError(
@@ -135,7 +135,7 @@ class Parameter:
     def set(self, value: Any) -> None:
         """Update the current value of the parameter."""
         # Don't allow parameter to be set to non-numeric value if bounds set
-        if self.has_bounds() and not isnumeric(value):
+        if self.has_bounds() and not is_numeric(value):
             raise ParameterValueError(
                 "Parameter cannot be set to non-numeric value when "
                 "bounds are assigned to parameter."
@@ -155,7 +155,7 @@ class Parameter:
         return bool(self.min_bound is not None or self.max_bound is not None)
 
 
-def isnumeric(value: Any) -> bool:
+def is_numeric(value: Any) -> bool:
     """General function for checking if a value is numeric."""
     return isinstance(value, Number) and not isinstance(value, bool)
 
