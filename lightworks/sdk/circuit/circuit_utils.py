@@ -342,7 +342,7 @@ def check_loss(loss: float) -> None:
 
 
 @check_loss.register
-def check_loss_param(loss: Parameter) -> None:
+def _check_loss_param(loss: Parameter) -> None:
     """Check that loss value is valid when it is assigned to a parameter."""
     return check_loss(loss.get())
 
@@ -385,7 +385,7 @@ def _add_mode_to_parameterized_unitary(
 ) -> ParameterizedUnitary:
     """Adds mode at selected location for ParameterizedUnitary."""
     dim = unitary.shape[0] + 1
-    new_u = sp.Matrix([[int(i == j) for j in range(dim)] for i in range(dim)])
+    new_u = sp.Matrix([[float(i == j) for j in range(dim)] for i in range(dim)])
     # Diagonals
     new_u[:add_mode, :add_mode] = unitary._unitary[:add_mode, :add_mode]
     new_u[add_mode + 1 :, add_mode + 1 :] = unitary._unitary[
