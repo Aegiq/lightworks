@@ -26,7 +26,7 @@ from lightworks import (
     convert,
     random_unitary,
 )
-from lightworks.qubit import CNOT
+from lightworks.qubit import CNOT, Rx
 from lightworks.sdk.circuit import ParameterizedUnitary
 from lightworks.sdk.circuit.photonic_components import (
     BeamSplitter,
@@ -261,6 +261,22 @@ class TestCircuit:
         u_1 = copied_circ.U_full
         # Modify parameter and get new unitary from copied circuit
         self.parameters["bs_0_0"] = 4
+        u_2 = copied_circ.U_full
+        # Unitary should not be modified
+        assert (u_1 == u_2).all()
+
+    def test_parameterized_unitary_copy_parameter_freeze(self):
+        """
+        Checks copy method of the circuit can be used with the freeze parameter
+        argument to create a new circuit without the Parameter objects, when a
+        parameterized unitary is used.
+        """
+        param = Parameter(1)
+        circ = Rx(theta=param)
+        copied_circ = circ.copy(freeze_parameters=True)
+        u_1 = copied_circ.U_full
+        # Modify parameter and get new unitary from copied circuit
+        param.set(2)
         u_2 = copied_circ.U_full
         # Unitary should not be modified
         assert (u_1 == u_2).all()

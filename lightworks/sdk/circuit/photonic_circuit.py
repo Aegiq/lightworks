@@ -36,6 +36,7 @@ from .circuit_utils import (
     convert_non_adj_beamsplitters,
     unpack_circuit_spec,
 )
+from .parameterized_unitary import ParameterizedUnitary
 from .parameters import Parameter
 from .photonic_compiler import CompiledPhotonicCircuit
 from .photonic_components import (
@@ -675,6 +676,8 @@ class PhotonicCircuit:
                 ):
                     if isinstance(value, Parameter):
                         setattr(spec, name, value.get())
+                    if isinstance(value, ParameterizedUnitary):
+                        setattr(spec, name, value.unitary)
                 new_spec.append(spec)
         return new_spec
 
