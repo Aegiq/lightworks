@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .parameterized_unitary import ParameterizedUnitary
 from .parameters import Parameter, ParameterDict
 from .photonic_circuit import PhotonicCircuit
-from .sympy_unitary import SympyUnitary
 from .unitary import Unitary

@@ -26,6 +26,7 @@ import numpy as np
 import sympy as sp
 from numpy.typing import NDArray
 
+from .parameterized_unitary import ParameterizedUnitary
 from .parameters import Parameter
 from .photonic_components import (
     Barrier,
@@ -37,7 +38,6 @@ from .photonic_components import (
     PhaseShifter,
     UnitaryMatrix,
 )
-from .sympy_unitary import SympyUnitary
 
 
 def unpack_circuit_spec(circuit_spec: list[Component]) -> list[Component]:
@@ -349,32 +349,33 @@ def add_mode_to_unitary(
 
 @overload
 def add_mode_to_unitary(
-    unitary: SympyUnitary, add_mode: int
-) -> SympyUnitary: ...
+    unitary: ParameterizedUnitary, add_mode: int
+) -> ParameterizedUnitary: ...
 
 
 def add_mode_to_unitary(
-    unitary: NDArray[np.complex128] | SympyUnitary, add_mode: int
-) -> NDArray[np.complex128] | SympyUnitary:
+    unitary: NDArray[np.complex128] | ParameterizedUnitary, add_mode: int
+) -> NDArray[np.complex128] | ParameterizedUnitary:
     """
     Adds a new mode (through inclusion of an extra row/column) to the provided
     unitary at the selected location.
 
     Args:
 
-        unitary (np.ndarray | SympyUnitary) : The unitary to add a mode to.
+        unitary (np.ndarray | ParameterizedUnitary) : The unitary to add a mode
+            to.
 
         add_mode (int) : The location at which a new mode should be added to
             the circuit.
 
     Returns:
 
-        np.ndarray | SympyUnitary : The converted unitary matrix.
+        np.ndarray | ParameterizedUnitary : The converted unitary matrix.
 
     """
     dim = unitary.shape[0] + 1
     new_u = np.identity(dim, dtype=complex)
-    if isinstance(unitary, SympyUnitary):
+    if isinstance(unitary, ParameterizedUnitary):
         new_u = sp.Matrix(new_u)
         to_add = unitary._unitary
     else:
@@ -385,6 +386,6 @@ def add_mode_to_unitary(
     # Off-diagonals
     new_u[:add_mode, add_mode + 1 :] = to_add[:add_mode, add_mode:]
     new_u[add_mode + 1 :, :add_mode] = to_add[add_mode:, :add_mode]
-    if isinstance(unitary, SympyUnitary):
-        return SympyUnitary(new_u, unitary._params)
+    if isinstance(unitary, ParameterizedUnitary):
+        return ParameterizedUnitary(new_u, unitary._params)
     return new_u

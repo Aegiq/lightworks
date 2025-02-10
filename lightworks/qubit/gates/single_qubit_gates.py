@@ -23,7 +23,7 @@ from typing import Any
 import numpy as np
 import sympy as sp
 
-from lightworks.sdk.circuit import Parameter, SympyUnitary, Unitary
+from lightworks.sdk.circuit import Parameter, ParameterizedUnitary, Unitary
 
 
 class I(Unitary):  # noqa: E742
@@ -159,7 +159,9 @@ class P(Unitary):
             ]
         )
         if isinstance(theta, Parameter):
-            super().__init__(SympyUnitary(unitary, {name: theta}), f"P({name})")
+            super().__init__(
+                ParameterizedUnitary(unitary, {name: theta}), f"P({name})"
+            )
         else:
             super().__init__(
                 np.array(unitary.evalf(subs={name: theta}), dtype=complex),
@@ -188,7 +190,9 @@ class Rx(Unitary):
             ]
         )
         if isinstance(theta, Parameter):
-            super().__init__(SympyUnitary(unitary, {name: theta}), f"P({name})")
+            super().__init__(
+                ParameterizedUnitary(unitary, {name: theta}), f"P({name})"
+            )
         else:
             super().__init__(
                 np.array(unitary.evalf(subs={name: theta}), dtype=complex),
@@ -217,7 +221,9 @@ class Ry(Unitary):
             ]
         )
         if isinstance(theta, Parameter):
-            super().__init__(SympyUnitary(unitary, {name: theta}), f"P({name})")
+            super().__init__(
+                ParameterizedUnitary(unitary, {name: theta}), f"P({name})"
+            )
         else:
             super().__init__(
                 np.array(unitary.evalf(subs={name: theta}), dtype=complex),
@@ -246,7 +252,9 @@ class Rz(Unitary):
             ]
         )
         if isinstance(theta, Parameter):
-            super().__init__(SympyUnitary(unitary, {name: theta}), f"P({name})")
+            super().__init__(
+                ParameterizedUnitary(unitary, {name: theta}), f"P({name})"
+            )
         else:
             super().__init__(
                 np.array(unitary.evalf(subs={name: theta}), dtype=complex),

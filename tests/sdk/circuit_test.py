@@ -27,7 +27,7 @@ from lightworks import (
     random_unitary,
 )
 from lightworks.qubit import CNOT
-from lightworks.sdk.circuit import SympyUnitary
+from lightworks.sdk.circuit import ParameterizedUnitary
 from lightworks.sdk.circuit.photonic_components import (
     BeamSplitter,
     Component,
@@ -1044,7 +1044,7 @@ class TestUnitary:
         )
         theta = Parameter(0.1)
         # Create component
-        unitary = SympyUnitary(unitary_mat, {"theta": theta})
+        unitary = ParameterizedUnitary(unitary_mat, {"theta": theta})
         component = Unitary(unitary)
         # Get unitary
         u1 = component.U
@@ -1063,7 +1063,7 @@ class TestUnitary:
         unitary_mat = sp.Matrix([[th, 0], [0, th]])
         theta = Parameter(1)
         # Create component
-        unitary = SympyUnitary(unitary_mat, {"theta": theta})
+        unitary = ParameterizedUnitary(unitary_mat, {"theta": theta})
         component = Unitary(unitary)
         theta.set(2)
         with pytest.raises(CircuitCompilationError):

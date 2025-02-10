@@ -21,8 +21,8 @@ from numpy.typing import NDArray
 
 from lightworks.sdk.utils import check_unitary, permutation_mat_from_swaps_dict
 
+from .parameterized_unitary import ParameterizedUnitary
 from .parameters import Parameter
-from .sympy_unitary import SympyUnitary
 
 # ruff: noqa: D102
 
@@ -254,7 +254,7 @@ class UnitaryMatrix(Component):
     """
 
     mode: int
-    unitary: NDArray[np.complex128] | SympyUnitary
+    unitary: NDArray[np.complex128] | ParameterizedUnitary
     label: str
 
     def __post_init__(self) -> None:
@@ -265,7 +265,7 @@ class UnitaryMatrix(Component):
             # Ensure unitary is valid
             if not check_unitary(self.unitary):
                 raise ValueError("Provided matrix is not unitary.")
-        elif not isinstance(self.unitary, SympyUnitary):
+        elif not isinstance(self.unitary, ParameterizedUnitary):
             raise TypeError("Unitary should be a numpy array or list.")
 
         # Also check label is a string
@@ -273,7 +273,7 @@ class UnitaryMatrix(Component):
             raise TypeError("Label for unitary should be a string.")
 
     def get_unitary(self, n_modes: int) -> NDArray[np.complex128]:
-        if isinstance(self.unitary, SympyUnitary):
+        if isinstance(self.unitary, ParameterizedUnitary):
             sub_unitary = self.unitary.unitary
             if not check_unitary(sub_unitary):
                 raise ValueError("Provided matrix is not unitary.")
@@ -287,7 +287,7 @@ class UnitaryMatrix(Component):
         return unitary
 
     def serialize(self) -> tuple[str, dict[str, Any]]:
-        if isinstance(self.unitary, SympyUnitary):
+        if isinstance(self.unitary, ParameterizedUnitary):
             unitary = self.unitary.unitary
             if not check_unitary(unitary):
                 raise ValueError("Provided matrix is not unitary.")

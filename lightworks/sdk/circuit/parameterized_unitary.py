@@ -19,7 +19,7 @@ from numpy.typing import NDArray
 from lightworks.sdk.circuit.parameters import Parameter
 
 
-class SympyUnitary:
+class ParameterizedUnitary:
     """
     Adds support for parametrisation of unitaries for delayed computation with
     sympy.
