@@ -14,11 +14,12 @@
 
 from random import randint, random, seed
 
+import numpy as np
 import pytest
 import sympy as sp
-from numpy import identity
 
 from lightworks import (
+    Parameter,
     PostSelection,
     PostSelectionFunction,
     State,
@@ -28,7 +29,7 @@ from lightworks import (
     settings,
 )
 from lightworks.sdk.circuit import ParameterizedUnitary
-from lightworks.sdk.circuit.circuit_utils import add_mode_to_unitary
+from lightworks.sdk.circuit.circuit_utils import add_mode_to_unitary, check_loss
 from lightworks.sdk.utils import (
     add_heralds_to_state,
     check_unitary,
@@ -80,8 +81,8 @@ class TestUtils:
         """Confirm that the check unitary function behaves as expected."""
         # Check both random unitary and identity matrix
         assert check_unitary(random_unitary(8))
-        assert check_unitary(identity(8))
-        assert check_unitary(identity(8, dtype=complex))
+        assert check_unitary(np.identity(8))
+        assert check_unitary(np.identity(8, dtype=complex))
 
     def test_swaps_to_permutations(self):
         """
@@ -382,6 +383,23 @@ class TestUtils:
         original_state = State([1, 0, 2, 3, 0, 0, 1])
         conv_state = convert.parity_mapping(original_state, invert=True)
         assert conv_state == State([0, 1, 1, 0, 1, 1, 0])
+
+    @pytest.mark.parametrize(
+        "value", [0, 0.0, 0.5, 1, 1.0, Parameter(1), np.float64(0.67)]
+    )
+    def test_check_loss_valid(self, value):
+        """
+        Checks an error isn't raised when valid loss are values are provided.
+        """
+        check_loss(value)
+
+    @pytest.mark.parametrize("value", [True, 0.6j, 1.5, 2, Parameter(2), "1"])
+    def test_check_loss_invalid(self, value):
+        """
+        Checks an error is raised when invalid loss are values are provided.
+        """
+        with pytest.raises((TypeError, ValueError)):
+            check_loss(value)
 
 
 class TestPostSelection:

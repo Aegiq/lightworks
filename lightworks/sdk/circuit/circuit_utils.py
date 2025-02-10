@@ -19,7 +19,7 @@ Contains a number of different utility functions for modifying circuits.
 """
 
 from copy import copy
-from numbers import Number
+from numbers import Real
 from typing import Any
 
 import numpy as np
@@ -331,13 +331,25 @@ def combine_mode_swap_dicts(
 
 
 @multimethod
-def check_loss(loss: float) -> None:
+def check_loss(loss: Any) -> None:  # noqa: ARG001
     """
-    Check that loss is assigned to a positive value.
+    Performs validation that a provided loss value is valid.
     """
-    if not isinstance(loss, Number) or isinstance(loss, bool):
-        raise TypeError("Loss value should be numerical or a Parameter.")
-    if not 0 <= loss <= 1:
+    # Generic case to catch when an incorrect type is provided.
+    raise TypeError(
+        "Loss value should be a real numerical value or a Parameter. If set as "
+        "a parameter then ensure the parameter value is a real number."
+    )
+
+
+@check_loss.register
+def _check_loss_real(loss: Real) -> None:
+    """
+    Check that loss is assigned to a numerical value in the correct range.
+    """
+    if isinstance(loss, bool):
+        raise TypeError("Loss value cannot be a boolean.")
+    if not 0.0 <= float(loss) <= 1.0:
         raise ValueError("Provided loss values should be in the range [0,1].")
 
 
