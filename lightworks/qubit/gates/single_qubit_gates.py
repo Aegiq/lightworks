@@ -145,7 +145,7 @@ class P(Unitary):
 
     Args:
 
-        theta (float) : The phase angle implemented on the qubit.
+        theta (float | Parameter) : The phase angle implemented on the qubit.
 
     """
 
@@ -176,7 +176,7 @@ class Rx(Unitary):
 
     Args:
 
-        theta (float) : The rotation angle of the gate.
+        theta (float | Parameter) : The rotation angle of the gate.
 
     """
 
@@ -207,7 +207,7 @@ class Ry(Unitary):
 
     Args:
 
-        theta (float) : The rotation angle of the gate.
+        theta (float | Parameter) : The rotation angle of the gate.
 
     """
 
@@ -238,7 +238,7 @@ class Rz(Unitary):
 
     Args:
 
-        theta (float) : The rotation angle of the gate.
+        theta (float | Parameter) : The rotation angle of the gate.
 
     """
 
