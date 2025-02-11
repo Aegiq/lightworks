@@ -29,7 +29,10 @@ from lightworks import (
     settings,
 )
 from lightworks.sdk.circuit import ParameterizedUnitary
-from lightworks.sdk.circuit.circuit_utils import add_mode_to_unitary, check_loss
+from lightworks.sdk.circuit.photonic_circuit_utils import (
+    add_mode_to_unitary,
+    check_loss,
+)
 from lightworks.sdk.utils import (
     add_heralds_to_state,
     check_unitary,

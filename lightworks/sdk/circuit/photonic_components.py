@@ -21,11 +21,11 @@ import numpy as np
 from numpy.typing import NDArray
 
 from lightworks.sdk.utils.matrix import check_unitary
+from lightworks.sdk.utils.parameterized_unitary import ParameterizedUnitary
 from lightworks.sdk.utils.permutation_conversion import (
     permutation_mat_from_swaps_dict,
 )
 
-from .parameterized_unitary import ParameterizedUnitary
 from .parameters import Parameter
 
 # ruff: noqa: D102

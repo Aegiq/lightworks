@@ -23,7 +23,8 @@ from typing import Any
 import numpy as np
 import sympy as sp
 
-from lightworks.sdk.circuit import Parameter, ParameterizedUnitary, Unitary
+from lightworks.sdk.circuit import Parameter, Unitary
+from lightworks.sdk.utils.parameterized_unitary import ParameterizedUnitary
 
 
 class I(Unitary):  # noqa: E742
