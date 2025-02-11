@@ -24,7 +24,7 @@ import numpy as np
 import sympy as sp
 
 from lightworks.sdk.circuit import Parameter, Unitary
-from lightworks.sdk.utils.parameterized_unitary import ParameterizedUnitary
+from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
 
 
 class I(Unitary):  # noqa: E742

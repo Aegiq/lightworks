@@ -29,7 +29,7 @@ from lightworks.sdk.utils.exceptions import (
     CircuitCompilationError,
     ModeRangeError,
 )
-from lightworks.sdk.utils.parameterized_unitary import ParameterizedUnitary
+from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
 from lightworks.sdk.visualisation import Display
 
 from .parameters import Parameter

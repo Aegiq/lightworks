@@ -33,7 +33,7 @@ from lightworks.sdk.circuit.photonic_components import (
     Group,
     ModeSwaps,
 )
-from lightworks.sdk.utils.parameterized_unitary import ParameterizedUnitary
+from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
 
 
 class TestCircuit:

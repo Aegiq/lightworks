@@ -34,10 +34,8 @@ from lightworks.sdk.circuit.photonic_circuit_utils import (
 )
 from lightworks.sdk.utils.heralding import add_heralds_to_state
 from lightworks.sdk.utils.matrix import check_unitary
-from lightworks.sdk.utils.parameterized_unitary import ParameterizedUnitary
-from lightworks.sdk.utils.permutation_conversion import (
-    permutation_mat_from_swaps_dict,
-)
+from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
+from lightworks.sdk.utils.permutation import permutation_mat_from_swaps_dict
 from lightworks.sdk.utils.post_selection import (
     DefaultPostSelection,
     PostSelectionType,
