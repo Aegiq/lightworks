@@ -21,11 +21,9 @@ from lightworks.emulator.utils import check_photon_numbers, fock_basis
 from lightworks.sdk.results import SimulationResult
 from lightworks.sdk.state import State
 from lightworks.sdk.tasks import AnalyzerTask
-from lightworks.sdk.utils import (
-    DefaultPostSelection,
-    PhotonNumberError,
-    add_heralds_to_state,
-)
+from lightworks.sdk.utils.exceptions import PhotonNumberError
+from lightworks.sdk.utils.heralding import add_heralds_to_state
+from lightworks.sdk.utils.post_selection import DefaultPostSelection
 
 from .runner import RunnerABC
 

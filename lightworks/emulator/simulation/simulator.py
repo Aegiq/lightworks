@@ -21,7 +21,7 @@ from lightworks.emulator.utils import check_photon_numbers, fock_basis
 from lightworks.sdk.results import SimulationResult
 from lightworks.sdk.state import State
 from lightworks.sdk.tasks import SimulatorTask
-from lightworks.sdk.utils import add_heralds_to_state
+from lightworks.sdk.utils.heralding import add_heralds_to_state
 
 from .runner import RunnerABC
 

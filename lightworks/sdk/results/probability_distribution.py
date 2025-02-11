@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from lightworks.sdk.state import State
-from lightworks.sdk.utils import ProbabilityDistributionError
+from lightworks.sdk.utils.exceptions import ProbabilityDistributionError
 
 
 class ProbabilityDistribution(dict[State, float]):

@@ -22,14 +22,16 @@ from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from lightworks.sdk.results import SamplingResult
 from lightworks.sdk.state import State
 from lightworks.sdk.tasks import SamplerTask
-from lightworks.sdk.utils import (
-    DefaultPostSelection,
-    PostSelectionType,
-    SamplerError,
+from lightworks.sdk.utils.exceptions import SamplerError
+from lightworks.sdk.utils.heralding import (
     add_heralds_to_state,
-    process_random_seed,
     remove_heralds_from_state,
 )
+from lightworks.sdk.utils.post_selection import (
+    DefaultPostSelection,
+    PostSelectionType,
+)
+from lightworks.sdk.utils.random import process_random_seed
 
 from .probability_distribution import pdist_calc
 from .runner import RunnerABC

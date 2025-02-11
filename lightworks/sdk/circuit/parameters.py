@@ -17,7 +17,7 @@ from numbers import Number
 from types import NoneType
 from typing import Any
 
-from lightworks.sdk.utils import (
+from lightworks.sdk.utils.exceptions import (
     ParameterBoundsError,
     ParameterDictError,
     ParameterValueError,

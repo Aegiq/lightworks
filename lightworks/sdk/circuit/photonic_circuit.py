@@ -25,7 +25,10 @@ import numpy as np
 from IPython import display
 from numpy.typing import NDArray
 
-from lightworks.sdk.utils import CircuitCompilationError, ModeRangeError
+from lightworks.sdk.utils.exceptions import (
+    CircuitCompilationError,
+    ModeRangeError,
+)
 from lightworks.sdk.visualisation import Display
 
 from .circuit_utils import (

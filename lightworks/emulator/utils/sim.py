@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from lightworks.sdk.state import State
-from lightworks.sdk.utils import PhotonNumberError
+from lightworks.sdk.utils.exceptions import PhotonNumberError
 
 
 def check_photon_numbers(states: list[State]) -> None:

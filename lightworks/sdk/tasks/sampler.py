@@ -19,13 +19,12 @@ from lightworks.emulator.components import Detector, Source
 from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.results import ProbabilityDistribution
 from lightworks.sdk.state import State
-from lightworks.sdk.utils import (
-    ModeMismatchError,
+from lightworks.sdk.utils.exceptions import ModeMismatchError, SamplerError
+from lightworks.sdk.utils.post_selection import (
     PostSelectionType,
-    SamplerError,
     process_post_selection,
-    process_random_seed,
 )
+from lightworks.sdk.utils.random import process_random_seed
 
 from .data import SamplerTask
 from .task import Task

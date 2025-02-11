@@ -35,7 +35,8 @@ from lightworks.qubit.gates import (
     Z,
 )
 from lightworks.sdk.circuit import PhotonicCircuit
-from lightworks.sdk.utils import LightworksError, PostSelection
+from lightworks.sdk.utils.exceptions import LightworksError
+from lightworks.sdk.utils.post_selection import PostSelection
 
 from . import QISKIT_INSTALLED
 

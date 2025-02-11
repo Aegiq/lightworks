@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from lightworks.emulator.components import Detector, Source
 from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from lightworks.sdk.state import State
-from lightworks.sdk.utils import PostSelectionType
+from lightworks.sdk.utils.post_selection import PostSelectionType
 
 
 @dataclass(slots=True)

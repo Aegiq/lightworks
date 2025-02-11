@@ -14,7 +14,7 @@
 
 from lightworks.sdk.state import State
 
-from . import ModeMismatchError
+from .exceptions import ModeMismatchError
 
 
 def validate_states(states: State | list[State], n_modes: int) -> list[State]:

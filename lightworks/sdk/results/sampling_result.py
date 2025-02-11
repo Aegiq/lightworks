@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 
 from lightworks.sdk.state import State
-from lightworks.sdk.utils import ResultCreationError
+from lightworks.sdk.utils.exceptions import ResultCreationError
 
 
 class SamplingResult(dict[State, int]):
