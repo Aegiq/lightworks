@@ -14,6 +14,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
+from numbers import Real
 from typing import Any
 
 import numpy as np
@@ -76,6 +77,12 @@ class BeamSplitter(Component):
         are valid.
         """
         # Validate reflectivity
+        if not is_real(self.reflectivity) and not isinstance(
+            self.reflectivity, Parameter
+        ):
+            raise TypeError(
+                "Beam splitter reflectivity should a real number or Parameter."
+            )
         if (
             not isinstance(self.reflectivity, Parameter)
             and not 0 <= self.reflectivity <= 1
@@ -132,6 +139,16 @@ class PhaseShifter(Component):
 
     mode: int
     phi: float | Parameter
+
+    def __post_init__(self) -> None:
+        self.validate()
+
+    def validate(self) -> None:
+        """Performs validation of all properties of the phase shifters."""
+        if not is_real(self.phi) and not isinstance(self.phi, Parameter):
+            raise TypeError(
+                "Phase shifter value should a real number or Parameter."
+            )
 
     @property
     def _phi(self) -> float:
@@ -301,3 +318,8 @@ class UnitaryMatrix(Component):
                 "label": self.label,
             },
         )
+
+
+def is_real(value: Any) -> bool:
+    """General function for checking if a value is a real number."""
+    return isinstance(value, Real) and not isinstance(value, bool)
