@@ -227,6 +227,10 @@ class ModeSwaps(Component):
     swaps: dict[int, int]
 
     def __post_init__(self) -> None:
+        self.validate()
+
+    def validate(self) -> None:
+        """Performs validation of all properties of the mode swaps."""
         # Check swaps are valid
         in_modes = sorted(self.swaps.keys())
         out_modes = sorted(self.swaps.values())
@@ -275,6 +279,10 @@ class UnitaryMatrix(Component):
     label: str
 
     def __post_init__(self) -> None:
+        self.validate()
+
+    def validate(self) -> None:
+        """Performs validation of all properties of the unitary matrix."""
         # Check type of supplied unitary
         if isinstance(self.unitary, np.ndarray | list):
             self.unitary = np.array(self.unitary)
