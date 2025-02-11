@@ -14,6 +14,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, fields
+from numbers import Real
 from typing import Any
 
 import numpy as np
@@ -76,6 +77,12 @@ class BeamSplitter(Component):
         are valid.
         """
         # Validate reflectivity
+        if not is_real(self.reflectivity) and not isinstance(
+            self.reflectivity, Parameter
+        ):
+            raise TypeError(
+                "Beam splitter reflectivity should a real number or Parameter."
+            )
         if (
             not isinstance(self.reflectivity, Parameter)
             and not 0 <= self.reflectivity <= 1
@@ -132,6 +139,16 @@ class PhaseShifter(Component):
 
     mode: int
     phi: float | Parameter
+
+    def __post_init__(self) -> None:
+        self.validate()
+
+    def validate(self) -> None:
+        """Performs validation of all properties of the phase shifters."""
+        if not is_real(self.phi) and not isinstance(self.phi, Parameter):
+            raise TypeError(
+                "Phase shifter value should a real number or Parameter."
+            )
 
     @property
     def _phi(self) -> float:
@@ -210,6 +227,10 @@ class ModeSwaps(Component):
     swaps: dict[int, int]
 
     def __post_init__(self) -> None:
+        self.validate()
+
+    def validate(self) -> None:
+        """Performs validation of all properties of the mode swaps."""
         # Check swaps are valid
         in_modes = sorted(self.swaps.keys())
         out_modes = sorted(self.swaps.values())
@@ -258,6 +279,10 @@ class UnitaryMatrix(Component):
     label: str
 
     def __post_init__(self) -> None:
+        self.validate()
+
+    def validate(self) -> None:
+        """Performs validation of all properties of the unitary matrix."""
         # Check type of supplied unitary
         if isinstance(self.unitary, np.ndarray | list):
             self.unitary = np.array(self.unitary)
@@ -301,3 +326,8 @@ class UnitaryMatrix(Component):
                 "label": self.label,
             },
         )
+
+
+def is_real(value: Any) -> bool:
+    """General function for checking if a value is a real number."""
+    return isinstance(value, Real) and not isinstance(value, bool)

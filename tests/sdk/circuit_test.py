@@ -885,15 +885,33 @@ class TestCircuit:
         with pytest.raises(ValueError):
             circuit.bs(0, convention="Not valid")
 
-    @pytest.mark.parametrize("value", [-0.5, 1.4])
+    @pytest.mark.parametrize("value", [-0.5, 1.4, "0.5", True])
     def test_bs_invalid_reflectivity(self, value):
         """
-        Checks a ValueError is raised if an invalid beam splitter reflectivity
-        is set.
+        Checks a ValueError or TypeError is raised if an invalid beam splitter
+        reflectivity is set.
         """
         circuit = PhotonicCircuit(3)
-        with pytest.raises(ValueError):
+        with pytest.raises((ValueError, TypeError)):
             circuit.bs(0, reflectivity=value)
+
+    @pytest.mark.parametrize("value", [0.1, 1, Parameter(1)])
+    def test_ps_valid_phi(self, value):
+        """
+        Checks valid phase shift values are accepted by the phase shifter
+        component.
+        """
+        circuit = PhotonicCircuit(3)
+        circuit.ps(1, value)
+
+    @pytest.mark.parametrize("value", [True, None, "test", "1"])
+    def test_ps_invalid_phi(self, value):
+        """
+        Checks invalid phase shift values raise an exception.
+        """
+        circuit = PhotonicCircuit(3)
+        with pytest.raises((ValueError, TypeError)):
+            circuit.ps(1, value)
 
     def test_mode_swaps_invalid(self):
         """
