@@ -20,7 +20,7 @@ import numpy as np
 
 from lightworks.__settings import settings
 from lightworks.emulator.components import Source
-from lightworks.emulator.utils import BackendError
+from lightworks.emulator.utils.exceptions import BackendError
 from lightworks.sdk.tasks import SamplerTask, TaskData
 
 

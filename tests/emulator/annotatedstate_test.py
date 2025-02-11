@@ -17,7 +17,7 @@ import pytest
 from lightworks import State
 from lightworks.emulator import AnnotatedStateError
 from lightworks.emulator.state import AnnotatedState
-from lightworks.emulator.utils import annotated_state_to_string
+from lightworks.emulator.utils.state import annotated_state_to_string
 
 
 class TestAnnotatedState:

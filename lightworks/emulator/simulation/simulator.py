@@ -17,7 +17,8 @@ from collections.abc import Callable
 import numpy as np
 from numpy.typing import NDArray
 
-from lightworks.emulator.utils import check_photon_numbers, fock_basis
+from lightworks.emulator.utils.sim import check_photon_numbers
+from lightworks.emulator.utils.state import fock_basis
 from lightworks.sdk.results import SimulationResult
 from lightworks.sdk.state import State
 from lightworks.sdk.tasks import SimulatorTask

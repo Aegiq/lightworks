@@ -20,10 +20,8 @@ It is not intended that this class will be ordinarily accessible to users.
 from collections.abc import Iterator
 from typing import Any, Union, overload
 
-from lightworks.emulator.utils import (
-    AnnotatedStateError,
-    annotated_state_to_string,
-)
+from lightworks.emulator.utils.exceptions import AnnotatedStateError
+from lightworks.emulator.utils.state import annotated_state_to_string
 
 
 class AnnotatedState:
