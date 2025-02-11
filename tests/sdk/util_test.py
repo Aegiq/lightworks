@@ -28,22 +28,22 @@ from lightworks import (
     random_unitary,
     settings,
 )
-from lightworks.sdk.circuit import ParameterizedUnitary
 from lightworks.sdk.circuit.photonic_circuit_utils import (
     add_mode_to_unitary,
     check_loss,
 )
-from lightworks.sdk.utils import (
-    add_heralds_to_state,
-    check_unitary,
+from lightworks.sdk.utils.heralding import add_heralds_to_state
+from lightworks.sdk.utils.matrix import check_unitary
+from lightworks.sdk.utils.parameterized_unitary import ParameterizedUnitary
+from lightworks.sdk.utils.permutation_conversion import (
     permutation_mat_from_swaps_dict,
-    process_random_seed,
 )
 from lightworks.sdk.utils.post_selection import (
     DefaultPostSelection,
     PostSelectionType,
     Rule,
 )
+from lightworks.sdk.utils.random import process_random_seed
 
 
 class TestUtils:

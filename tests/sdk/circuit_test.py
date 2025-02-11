@@ -27,13 +27,13 @@ from lightworks import (
     random_unitary,
 )
 from lightworks.qubit import CNOT, Rx
-from lightworks.sdk.circuit import ParameterizedUnitary
 from lightworks.sdk.circuit.photonic_components import (
     BeamSplitter,
     Component,
     Group,
     ModeSwaps,
 )
+from lightworks.sdk.utils.parameterized_unitary import ParameterizedUnitary
 
 
 class TestCircuit:

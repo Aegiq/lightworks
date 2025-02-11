@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from lightworks import Parameter, random_unitary
+from lightworks import ModeRangeError, Parameter, random_unitary
 from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from lightworks.sdk.circuit.photonic_components import (
     Barrier,
@@ -26,7 +26,6 @@ from lightworks.sdk.circuit.photonic_components import (
     PhaseShifter,
     UnitaryMatrix,
 )
-from lightworks.sdk.utils import ModeRangeError
 
 
 class TestCompiledCircuit:

@@ -14,8 +14,7 @@
 
 import pytest
 
-from lightworks import State
-from lightworks.sdk.utils import StateError
+from lightworks import State, StateError
 
 
 class TestState:
