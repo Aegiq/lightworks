@@ -15,7 +15,8 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from lightworks.sdk.utils import DecompositionUnsuccessful, check_unitary
+from lightworks.sdk.utils.exceptions import DecompositionUnsuccessful
+from lightworks.sdk.utils.matrix import check_unitary
 
 
 def reck_decomposition(

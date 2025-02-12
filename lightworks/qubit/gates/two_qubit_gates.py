@@ -21,7 +21,7 @@ lightworks.
 import numpy as np
 
 from lightworks.sdk.circuit import PhotonicCircuit, Unitary
-from lightworks.sdk.utils import permutation_mat_from_swaps_dict
+from lightworks.sdk.utils.permutation import permutation_mat_from_swaps_dict
 
 from .single_qubit_gates import H
 

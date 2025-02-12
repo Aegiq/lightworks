@@ -17,7 +17,7 @@ from typing import Any
 import drawsvg as draw
 import numpy as np
 
-from lightworks.sdk.utils import DisplayError
+from lightworks.sdk.utils.exceptions import DisplayError
 
 
 class DrawSVGComponents:

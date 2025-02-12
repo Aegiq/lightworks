@@ -29,7 +29,7 @@ from lightworks.sdk.circuit.photonic_components import (
     PhaseShifter,
     UnitaryMatrix,
 )
-from lightworks.sdk.utils import DisplayError
+from lightworks.sdk.utils.exceptions import DisplayError
 
 from .display_utils import process_parameter_value
 

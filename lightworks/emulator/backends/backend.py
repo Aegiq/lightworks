@@ -17,7 +17,7 @@ from typing import Any
 
 from multimethod import multimethod
 
-from lightworks.emulator.utils import BackendError
+from lightworks.emulator.utils.exceptions import BackendError
 from lightworks.sdk.tasks import Batch, Task
 
 from .permanent import PermanentBackend

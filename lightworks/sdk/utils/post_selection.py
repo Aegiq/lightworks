@@ -16,7 +16,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from types import FunctionType
+from types import FunctionType, NoneType
 
 from lightworks.sdk.state import State
 
@@ -205,3 +205,33 @@ def check_int(value: int) -> int:
                 "Provided value should be a tuple of integers or an integer."
             )
     return value
+
+
+def process_post_selection(
+    post_selection: PostSelectionType | Callable[[State], bool] | None,
+) -> PostSelectionType | None:
+    """
+    Takes a provided post-selection value and converts this into one of the
+    PostSelection objects with a validate method.
+
+    Args:
+
+        post_selection (PostSelectionType | Callable | None) : The
+            post-selection value to be processed. If a callable this will be
+            converted into the PostSelectionFunction object, otherwise if None
+            then the DefaultPostSelection object will be used.
+
+    Returns:
+
+        PostSelectionType | None : The created PostSelection object or None, if
+            the original value wasn't one of these types.
+
+    """
+    if isinstance(post_selection, FunctionType):
+        post_selection = PostSelectionFunction(post_selection)
+    elif not isinstance(post_selection, PostSelectionType | NoneType):
+        raise TypeError(
+            "Provided post_select value should be a PostSelection object, "
+            "function or None."
+        )
+    return post_selection

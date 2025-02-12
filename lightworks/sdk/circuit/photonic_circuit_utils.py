@@ -27,7 +27,8 @@ import sympy as sp
 from multimethod import multimethod
 from numpy.typing import NDArray
 
-from .parameterized_unitary import ParameterizedUnitary
+from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
+
 from .parameters import Parameter
 from .photonic_components import (
     Barrier,

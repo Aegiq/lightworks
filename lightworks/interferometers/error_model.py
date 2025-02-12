@@ -14,7 +14,7 @@
 
 from numpy import random
 
-from lightworks.sdk.utils import process_random_seed
+from lightworks.sdk.utils.random import process_random_seed
 
 from .dists import Constant, Distribution
 

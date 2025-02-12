@@ -19,7 +19,8 @@ Dedicated unitary component for implementing unitary matrices on a circuit.
 import numpy as np
 from numpy.typing import NDArray
 
-from .parameterized_unitary import ParameterizedUnitary
+from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
+
 from .photonic_circuit import PhotonicCircuit
 from .photonic_components import UnitaryMatrix
 

@@ -15,7 +15,7 @@
 
 from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.state import State
-from lightworks.sdk.utils import validate_states
+from lightworks.sdk.utils.state import validate_states
 
 from .data import SimulatorTask
 from .task import Task

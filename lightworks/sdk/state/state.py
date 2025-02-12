@@ -23,8 +23,6 @@ from typing import Any, Union, overload
 
 from lightworks.sdk.utils.exceptions import StateError
 
-from .state_utils import state_to_string
-
 
 class State:
     """
@@ -132,3 +130,11 @@ class State:
         if isinstance(indices, int):
             return self.__s[indices]
         raise TypeError("Subscript should either be int or slice.")
+
+
+def state_to_string(state: list[int]) -> str:
+    """Converts the provided state to a string with ket notation."""
+    string = "|"
+    for s in state:
+        string += str(s) + ","
+    return string[:-1] + ">"

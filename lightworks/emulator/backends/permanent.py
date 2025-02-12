@@ -20,7 +20,7 @@ from numpy.typing import NDArray
 from thewalrus import perm
 
 from lightworks.__settings import settings
-from lightworks.emulator.utils import fock_basis
+from lightworks.emulator.utils.state import fock_basis
 from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from lightworks.sdk.state import State
 

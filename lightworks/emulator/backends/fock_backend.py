@@ -22,7 +22,7 @@ from lightworks.emulator.simulation import (
     SamplerRunner,
     SimulatorRunner,
 )
-from lightworks.emulator.utils import BackendError
+from lightworks.emulator.utils.exceptions import BackendError
 from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from lightworks.sdk.results import (
     ProbabilityDistribution,

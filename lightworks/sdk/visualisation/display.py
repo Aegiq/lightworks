@@ -18,7 +18,7 @@ import drawsvg
 import matplotlib.figure
 import matplotlib.pyplot as plt
 
-from lightworks.sdk.utils import DisplayError
+from lightworks.sdk.utils.exceptions import DisplayError
 
 from .draw_circuit_mpl import DrawCircuitMPL
 from .draw_circuit_svg import DrawCircuitSVG

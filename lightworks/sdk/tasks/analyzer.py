@@ -16,11 +16,11 @@ from collections.abc import Callable
 
 from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.state import State
-from lightworks.sdk.utils import (
+from lightworks.sdk.utils.post_selection import (
     PostSelectionType,
     process_post_selection,
-    validate_states,
 )
+from lightworks.sdk.utils.state import validate_states
 
 from .data import AnalyzerTask
 from .task import Task

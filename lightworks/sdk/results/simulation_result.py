@@ -23,7 +23,7 @@ import pandas as pd
 from numpy.typing import NDArray
 
 from lightworks.sdk.state import State
-from lightworks.sdk.utils import ResultCreationError
+from lightworks.sdk.utils.exceptions import ResultCreationError
 
 
 class SimulationResult(dict[State, dict[State, float | complex]]):

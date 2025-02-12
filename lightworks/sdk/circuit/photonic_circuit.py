@@ -25,10 +25,15 @@ import numpy as np
 from IPython import display
 from numpy.typing import NDArray
 
-from lightworks.sdk.utils import CircuitCompilationError, ModeRangeError
+from lightworks.sdk.utils.exceptions import (
+    CircuitCompilationError,
+    ModeRangeError,
+)
+from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
 from lightworks.sdk.visualisation import Display
 
-from .circuit_utils import (
+from .parameters import Parameter
+from .photonic_circuit_utils import (
     add_empty_mode_to_circuit_spec,
     add_modes_to_circuit_spec,
     check_loss,
@@ -36,8 +41,6 @@ from .circuit_utils import (
     convert_non_adj_beamsplitters,
     unpack_circuit_spec,
 )
-from .parameterized_unitary import ParameterizedUnitary
-from .parameters import Parameter
 from .photonic_compiler import CompiledPhotonicCircuit
 from .photonic_components import (
     Barrier,
