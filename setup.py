@@ -18,6 +18,7 @@ setup(
     },
     license="Apache 2.0",
     packages=find_packages(where=".", exclude=["tests"]),
+    package_data={"lightworks": ["py.typed"]},
     python_requires=">=3.10",
     install_requires=[
         "thewalrus==0.20.0",
