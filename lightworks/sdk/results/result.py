@@ -12,13 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TypeVar
+from abc import ABC, abstractmethod
+from collections.abc import Callable
+from typing import Any, TypeVar
+
+from lightworks.sdk.state import State
 
 _KT = TypeVar("_KT")
 _VT = TypeVar("_VT")
 
+RT = TypeVar("RT")
 
-class Result(dict[_KT, _VT]):
+
+class Result(dict[_KT, _VT], ABC):
     """
     Base class for all Lightworks result objects.
     """
+
+    @abstractmethod
+    def map(
+        self: RT,
+        mapping: Callable[[State, Any], State],
+        *args: Any,
+        **kwargs: Any,
+    ) -> RT:
+        """
+        Requires ability to apply a state mapping on a particular result.
+        """
