@@ -12,7 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .probability_distribution import ProbabilityDistribution
-from .result import Result
-from .sampling_result import SamplingResult
-from .simulation_result import SimulationResult
+from typing import TypeVar
+
+_KT = TypeVar("_KT")
+_VT = TypeVar("_VT")
+
+
+class Result(dict[_KT, _VT]):
+    """
+    Base class for all Lightworks result objects.
+    """

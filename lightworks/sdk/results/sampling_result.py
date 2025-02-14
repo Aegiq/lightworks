@@ -24,8 +24,10 @@ import pandas as pd
 from lightworks.sdk.state import State
 from lightworks.sdk.utils.exceptions import ResultCreationError
 
+from .result import Result
 
-class SamplingResult(dict[State, int]):
+
+class SamplingResult(Result[State, int]):
     """
     Stores results data from a sampling experiment in the emulator. There is
     then a range of options for displaying the data, or alternatively the data

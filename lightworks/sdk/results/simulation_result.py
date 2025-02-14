@@ -25,8 +25,10 @@ from numpy.typing import NDArray
 from lightworks.sdk.state import State
 from lightworks.sdk.utils.exceptions import ResultCreationError
 
+from .result import Result
 
-class SimulationResult(dict[State, dict[State, float | complex]]):
+
+class SimulationResult(Result[State, dict[State, float | complex]]):
     """
     Stores results data from a given simulation in the emulator. There is then
     a range of options for displaying the data, or alternatively the data can

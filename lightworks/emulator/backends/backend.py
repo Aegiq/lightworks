@@ -13,11 +13,12 @@
 # limitations under the License.
 
 
-from typing import Any
+from typing import Any, overload
 
 from multimethod import multimethod
 
 from lightworks.emulator.utils.exceptions import BackendError
+from lightworks.sdk.results import Result
 from lightworks.sdk.tasks import Batch, Task
 
 from .permanent import PermanentBackend
@@ -38,7 +39,15 @@ class Backend:
     def __init__(self, backend: str) -> None:
         self.backend = backend
 
-    def run(self, task: Task | Batch) -> dict[Any, Any] | list[dict[Any, Any]]:
+    @overload
+    def run(self, task: Task) -> Result[Any, Any]: ...
+
+    @overload
+    def run(self, task: Batch) -> list[Result[Any, Any]]: ...
+
+    def run(
+        self, task: Task | Batch
+    ) -> Result[Any, Any] | list[Result[Any, Any]]:
         """
         Runs the provided task on the current backend.
 
@@ -48,10 +57,10 @@ class Backend:
 
         Returns:
 
-            dict: A dictionary like results object containing details of the
-                calculated values from a task. If a batch is run then this will
-                be a list of results in the same order the task were added to
-                the batch.
+            Result|list[Result]: A dictionary like results object containing
+                details of the calculated values from a task. If a batch is run
+                then this will be a list of results in the same order the task
+                were added to the batch.
 
         """
         if not isinstance(task, Task | Batch):
