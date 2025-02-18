@@ -506,7 +506,7 @@ class PhotonicCircuit:
         elif display_type == "svg":
             display.display(return_)
 
-    def get_all_params(self) -> list[Parameter]:
+    def get_all_params(self) -> list[Parameter[Any]]:
         """
         Returns all the Parameter objects used as part of creating the circuit.
         """

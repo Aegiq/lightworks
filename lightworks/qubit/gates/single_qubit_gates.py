@@ -150,7 +150,7 @@ class P(Unitary):
 
     """
 
-    def __init__(self, theta: float | Parameter) -> None:
+    def __init__(self, theta: float | Parameter[float]) -> None:
         name = get_name(theta)
         th = sp.Symbol(name)
         unitary = sp.Matrix(
@@ -181,7 +181,7 @@ class Rx(Unitary):
 
     """
 
-    def __init__(self, theta: float | Parameter) -> None:
+    def __init__(self, theta: float | Parameter[float]) -> None:
         name = get_name(theta)
         th = sp.Symbol(name)
         unitary = sp.Matrix(
@@ -212,7 +212,7 @@ class Ry(Unitary):
 
     """
 
-    def __init__(self, theta: float | Parameter) -> None:
+    def __init__(self, theta: float | Parameter[float]) -> None:
         name = get_name(theta)
         th = sp.Symbol(name)
         unitary = sp.Matrix(
@@ -243,7 +243,7 @@ class Rz(Unitary):
 
     """
 
-    def __init__(self, theta: float | Parameter) -> None:
+    def __init__(self, theta: float | Parameter[float]) -> None:
         name = get_name(theta)
         th = sp.Symbol(name)
         unitary = sp.Matrix(

@@ -15,7 +15,7 @@
 from math import inf
 from numbers import Number
 from types import NoneType
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from lightworks.sdk.utils.exceptions import (
     ParameterBoundsError,
@@ -23,8 +23,10 @@ from lightworks.sdk.utils.exceptions import (
     ParameterValueError,
 )
 
+T = TypeVar("T")
 
-class Parameter:
+
+class Parameter(Generic[T]):
     """
     Enables the definition a modifiable parameter that can be used as part of a
     Circuit. It allows for the parameter to be modified after utilisation in a
@@ -51,7 +53,7 @@ class Parameter:
 
     def __init__(
         self,
-        value: Any,
+        value: T,
         bounds: list[Number] | None = None,
         label: str | None = None,
     ) -> None:
@@ -146,7 +148,7 @@ class Parameter:
             raise ParameterValueError("Set value is above maximum bound.")
         self.__value = value
 
-    def get(self) -> Any:
+    def get(self) -> T:
         """Returns the current value of the parameter."""
         return self.__value
 
@@ -160,7 +162,7 @@ def is_numeric(value: Any) -> bool:
     return isinstance(value, Number) and not isinstance(value, bool)
 
 
-class ParameterDict(dict[str, Parameter]):
+class ParameterDict(dict[str, Parameter[Any]]):
     """
     Stores a number of Parameters, using assigned keys to reference each
     Parameter object. This has custom get and set item which allows for the
@@ -170,7 +172,7 @@ class ParameterDict(dict[str, Parameter]):
     associated with the 'a' key to 1.
     """
 
-    def __init__(self, **kwargs: Parameter) -> None:
+    def __init__(self, **kwargs: Parameter[Any]) -> None:
         super().__init__({})
         for k, v in kwargs.items():
             if not isinstance(v, Parameter):
@@ -245,7 +247,7 @@ class ParameterDict(dict[str, Parameter]):
                 )
             super().__setitem__(key, value)
 
-    def __getitem__(self, key: str) -> Parameter:
+    def __getitem__(self, key: str) -> Parameter[Any]:
         """
         Implements custom error message for when a parameter key cannot be
         found in the dictionary.
