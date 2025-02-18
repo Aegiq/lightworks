@@ -33,9 +33,9 @@ class Constant(Distribution):
     def __str__(self) -> str:
         return f"Constant({self._value})"
 
-    def __repr__(self) -> str:
-        return "lightworks.interferometers.dists." + str(self)
-
     def value(self) -> float:
         """Returns set constant value."""
         return self._value
+
+    def set_random_seed(self, seed: int | None) -> None:
+        """Used for setting the random seed for the model."""

@@ -79,9 +79,6 @@ class Gaussian(Distribution):
             )
         return f"Gaussian({contents})"
 
-    def __repr__(self) -> str:
-        return "lightworks.interferometers.dists." + str(self)
-
     def value(self) -> float:
         """Returns random value from the Gaussian distribution."""
         val = self._rng.normal(self._center, self._deviation)

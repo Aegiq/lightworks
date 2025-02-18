@@ -103,9 +103,6 @@ class ErrorModel:
         rng = random.default_rng(seed)
         # Set random seed in each property if present
         for prop in [self._bs_reflectivity, self._loss, self._phase_offset]:
-            if hasattr(prop, "set_random_seed") and callable(
-                prop.set_random_seed
-            ):
-                if seed is not None:
-                    seed = rng.integers(2**31 - 1)
-                prop.set_random_seed(seed)
+            if seed is not None:
+                seed = rng.integers(2**31 - 1)
+            prop.set_random_seed(seed)
