@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import numpy as np
 import pytest
 
 from lightworks import (
@@ -218,3 +219,24 @@ class TestAnalyzer:
         analyzer = Analyzer(circuit, State([1, 0, 1, 0]))
         with pytest.raises(TypeError):
             analyzer.circuit = random_unitary(5)
+
+    def test_ns_gate(self):
+        """
+        Checks case of NS gate which was previously found to cause a bug.
+        """
+        u_ns = np.array(
+            [
+                [1 - 2**0.5, 2**-0.25, (3 / (2**0.5) - 2) ** 0.5],
+                [2**-0.25, 0.5, 0.5 - 2**-0.5],
+                [(3 / (2**0.5) - 2) ** 0.5, 0.5 - 2**-0.5, 2**0.5 - 0.5],
+            ]
+        )
+        ns_gate = Unitary(u_ns)
+        ns_gate.herald(1, 1)
+        ns_gate.herald(0, 2)
+        in_state = State([1])
+        # Run simulation
+        analyzer = Analyzer(ns_gate, in_state)
+        results = BACKEND.run(analyzer)
+        # Validate success probability is 0.25
+        assert results[in_state, in_state] == pytest.approx(0.25)
