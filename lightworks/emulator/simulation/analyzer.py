@@ -82,7 +82,7 @@ class AnalyzerRunner(RunnerABC):
             + [0] * self.data.circuit.loss_modes
             for i in inputs
         ]
-        n_photons = sum(full_inputs[0])
+        n_photons = sum(inputs[0])
         # Generate lists of possible outputs with and without heralded modes
         full_outputs, filtered_outputs = self._generate_outputs(
             n_modes, n_photons
