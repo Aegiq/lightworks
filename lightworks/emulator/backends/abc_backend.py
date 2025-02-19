@@ -15,7 +15,9 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from lightworks.sdk.tasks import TaskData
+from lightworks.sdk.results import Result
+from lightworks.sdk.state import State
+from lightworks.sdk.tasks import Task, TaskData
 
 from .caching import CacheData, check_parameter_updates, get_calculation_values
 
@@ -35,6 +37,9 @@ class EmulatorBackend(ABC):
     @property
     @abstractmethod
     def compatible_tasks(self) -> tuple[str, ...]: ...
+
+    @abstractmethod
+    def run(self, task: Task) -> Result[State, Any]: ...
 
     def _check_cache(self, data: TaskData) -> dict[str, Any] | None:
         name = data.__class__.__name__
