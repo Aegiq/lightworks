@@ -355,7 +355,7 @@ def _check_loss_real(loss: Real) -> None:
 
 
 @check_loss.register
-def _check_loss_param(loss: Parameter) -> None:
+def _check_loss_param(loss: Parameter[Any]) -> None:
     """Check that loss value is valid when it is assigned to a parameter."""
     return check_loss(loss.get())
 

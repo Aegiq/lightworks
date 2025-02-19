@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+from typing import Any
+
 import numpy as np
 from multimethod import multimethod
 from numpy.typing import NDArray
@@ -26,6 +28,7 @@ from lightworks.emulator.utils.exceptions import BackendError
 from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
 from lightworks.sdk.results import (
     ProbabilityDistribution,
+    Result,
     SamplingResult,
     SimulationResult,
 )
@@ -44,7 +47,7 @@ class FockBackend(EmulatorBackend):
     """
 
     @multimethod
-    def run(self, task: Task) -> None:
+    def run(self, task: Task) -> Result[State, Any]:
         raise BackendError("Task not supported on current backend.")
 
     @run.register

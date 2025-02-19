@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any
+from typing import Any, TypeVar
 
 import numpy as np
 from multimethod import multimethod
@@ -25,6 +25,8 @@ from .mappings import MEASUREMENT_MAPPING, PAULI_MAPPING
 
 # NOTE: This file is auto-documented, so any functions not intended to be public
 # should begin with _
+
+T = TypeVar("T", bound=np.generic)
 
 
 def state_fidelity(
@@ -124,14 +126,14 @@ def choi_from_unitary(
     return np.outer(unitary.flatten(), np.conj(unitary.flatten()))
 
 
-def _vec(mat: NDArray[Any]) -> NDArray[Any]:
+def _vec(mat: NDArray[T]) -> NDArray[T]:
     """
     Applies flatten operation to a provided matrix to convert it into a vector.
     """
     return mat.flatten()
 
 
-def _unvec(mat: NDArray[Any]) -> NDArray[Any]:
+def _unvec(mat: NDArray[T]) -> NDArray[T]:
     """
     Takes a provided vector and converts it into a square matrix.
     """

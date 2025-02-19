@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from typing import Any, overload
+from typing import TYPE_CHECKING, Any, overload
 
 from multimethod import multimethod
 
@@ -23,6 +23,9 @@ from lightworks.sdk.tasks import Batch, Task
 
 from .permanent import PermanentBackend
 from .slos import SLOSBackend
+
+if TYPE_CHECKING:
+    from .abc_backend import EmulatorBackend
 
 
 class Backend:
@@ -68,7 +71,7 @@ class Backend:
         return self._run(task)
 
     @multimethod
-    def _run(self, task: Task) -> dict[Any, Any]:
+    def _run(self, task: Task) -> Result[Any, Any]:
         if task.__class__.__name__ not in self.__backend.compatible_tasks:
             msg = (
                 "Selected backend not compatible with task, supported tasks for"
@@ -79,7 +82,7 @@ class Backend:
         return self.__backend.run(task)
 
     @_run.register
-    def _run_batch(self, task: Batch) -> list[dict[Any, Any]]:
+    def _run_batch(self, task: Batch) -> list[Result[Any, Any]]:
         return [self._run(t) for t in task]
 
     @property
@@ -91,14 +94,18 @@ class Backend:
 
     @backend.setter
     def backend(self, value: str) -> None:
-        backends = {"permanent": PermanentBackend, "slos": SLOSBackend}
+        backends = {
+            "permanent": PermanentBackend,
+            "slos": SLOSBackend,
+        }
         if value not in backends:
             msg = (
                 "Backend name not recognised, valid options are: "
                 f"{', '.join(backends.keys())}."
             )
             raise ValueError(msg)
-        self.__backend = backends[value]()  # initialise backend
+        # Initialise selected backend
+        self.__backend: EmulatorBackend = backends[value]()
 
     def __str__(self) -> str:
         return self.backend

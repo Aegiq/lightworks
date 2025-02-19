@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 import numpy as np
 import sympy as sp
 from numpy.typing import NDArray
@@ -36,7 +38,7 @@ class ParameterizedUnitary:
     """
 
     def __init__(
-        self, unitary: sp.Matrix, params: dict[str, Parameter]
+        self, unitary: sp.Matrix, params: dict[str, Parameter[Any]]
     ) -> None:
         if not isinstance(unitary, sp.Matrix):
             raise TypeError("Supplied unitary must be a sympy matrix.")

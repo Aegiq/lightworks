@@ -29,7 +29,7 @@ class Batch:
         task: Task | None = None,
         task_args: list[list[Any]] | None = None,
         task_kwargs: dict[str, list[Any]] | None = None,
-        parameters: dict[Parameter, list[Any]] | None = None,
+        parameters: dict[Parameter[Any], list[Any]] | None = None,
     ) -> None:
         # Define list to store tasks
         self.__tasks: list[Task] = []
@@ -90,11 +90,11 @@ def copy_circuit(arg: Any) -> Any:
 def process_values(
     task_args: list[list[Any]] | None,
     task_kwargs: dict[str, list[Any]] | None,
-    parameters: dict[Parameter, list[Any]] | None,
+    parameters: dict[Parameter[Any], list[Any]] | None,
 ) -> tuple[
     list[Any] | None,
     dict[str, list[Any]] | None,
-    dict[Parameter, list[Any]] | None,
+    dict[Parameter[Any], list[Any]] | None,
     int,
 ]:
     """

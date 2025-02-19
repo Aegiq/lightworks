@@ -27,3 +27,13 @@ class Distribution(ABC):
     @abstractmethod
     def value(self) -> float:
         """Returns a value from the distribution on request."""
+
+    @abstractmethod
+    def set_random_seed(self, seed: int | None) -> None:
+        """
+        Used for setting the random seed for the model. Can just pass in cases
+        where a distribution does not feature a random component.
+        """
+
+    def __repr__(self) -> str:
+        return "lightworks.interferometers.dists." + str(self)

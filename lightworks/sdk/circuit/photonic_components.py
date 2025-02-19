@@ -66,7 +66,7 @@ class BeamSplitter(Component):
 
     mode_1: int
     mode_2: int
-    reflectivity: float | Parameter
+    reflectivity: float | Parameter[float]
     convention: str
 
     def __post_init__(self) -> None:
@@ -139,7 +139,7 @@ class PhaseShifter(Component):
     """
 
     mode: int
-    phi: float | Parameter
+    phi: float | Parameter[float]
 
     def __post_init__(self) -> None:
         self.validate()
@@ -174,7 +174,7 @@ class Loss(Component):
     """
 
     mode: int
-    loss: float | Parameter
+    loss: float | Parameter[float]
 
     def validate(self) -> None:
         """Validates loss value is within allowed range."""
