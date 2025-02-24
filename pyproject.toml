@@ -106,6 +106,7 @@ line-ending = "auto"
 "docs/*" = ["ANN", "B905", "CPY001", "D", "E731", "T201"]
 "docs/source/conf.py" = ["INP001"]
 "docs/source/tutorials/qubit.ipynb" = ["E402"]
+".github/workflows/*" = ["CPY001", "INP001", "PTH123"]
 
 [tool.ruff.lint.flake8-pytest-style]
 parametrize-names-type = "tuple"
