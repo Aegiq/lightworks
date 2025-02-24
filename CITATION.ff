@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+title: Lightworks
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Harry
+    family-names: Bromley
+    email: harry.bromley@aegiq.com
+    affiliation: Aegiq Ltd.
+    orcid: 'https://orcid.org/0009-0008-5805-4390'
+  - name: Aegiq Ltd.
+    address: 'Cooper Buildings, Arundel Street'
+    city: Sheffield
+    post-code: S1 2NS
+    country: GB
+    website: 'https://aegiq.com'
+repository-code: 'https://github.com/Aegiq/lightworks'
+url: 'https://aegiq.github.io/lightworks/'
+repository-artifact: 'https://pypi.org/project/lightworks/'
+abstract: >-
+  Lightworks is an open-source Python SDK for photonic
+  quantum computing.
+license: Apache-2.0
+version: v2.1.3
+date-released: '2025-02-19'
