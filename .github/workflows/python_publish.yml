@@ -58,7 +58,7 @@ jobs:
 
     - name: Update citation file
       run: |
-          python update_citation.py
+          python .github/workflows/update_citation.py
 
     - uses: stefanzweifel/git-auto-commit-action@v5
       with:
