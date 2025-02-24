@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import UserDict
 from math import inf
 from numbers import Number
 from types import NoneType
@@ -162,7 +163,7 @@ def is_numeric(value: Any) -> bool:
     return isinstance(value, Number) and not isinstance(value, bool)
 
 
-class ParameterDict(dict[str, Parameter[Any]]):
+class ParameterDict(UserDict[str, Parameter[Any]]):
     """
     Stores a number of Parameters, using assigned keys to reference each
     Parameter object. This has custom get and set item which allows for the

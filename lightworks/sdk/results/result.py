@@ -17,6 +17,7 @@ from collections.abc import Callable
 from typing import Any, TypeVar
 
 from lightworks.sdk.state import State
+from lightworks.sdk.utils.exceptions import ResultError
 
 _KT = TypeVar("_KT")
 _VT = TypeVar("_VT")
@@ -39,3 +40,9 @@ class Result(dict[_KT, _VT], ABC):
         """
         Requires ability to apply a state mapping on a particular result.
         """
+
+    def __setitem__(self, key: _KT, value: _VT) -> None:
+        raise ResultError(
+            "Result objects should not be modified directly. To get a copy of "
+            "the data which can be modified use dict(Result)."
+        )
