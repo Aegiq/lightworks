@@ -75,9 +75,15 @@ class DecompositionUnsuccessful(LightworksError):  # noqa: N818
     """
 
 
-class ResultCreationError(LightworksError):
+class ResultError(LightworksError):
     """
-    For specific errors which occur when using creating a Result object.
+    For specific errors which occur when using a Result object.
+    """
+
+
+class ResultCreationError(ResultError):
+    """
+    For specific errors which occur when creating a Result object.
     """
 
 
