@@ -16,6 +16,9 @@ authors:
     post-code: S1 2NS
     country: GB
     website: 'https://aegiq.com'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.14925692
 repository-code: 'https://github.com/Aegiq/lightworks'
 url: 'https://aegiq.github.io/lightworks/'
 repository-artifact: 'https://pypi.org/project/lightworks/'
