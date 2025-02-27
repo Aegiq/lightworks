@@ -1,6 +1,7 @@
 [![Tests](https://github.com/Aegiq/lightworks/actions/workflows/tests.yml/badge.svg?event=push)](https://github.com/Aegiq/lightworks/actions/workflows/tests.yml)
 [![Docs](https://github.com/Aegiq/lightworks/actions/workflows/sphinx_deploy.yml/badge.svg?event=push)](https://github.com/Aegiq/lightworks/actions/workflows/sphinx_deploy.yml)
 [![Pyversions](https://img.shields.io/pypi/pyversions/lightworks.svg?style=plastic)](https://pypi.org/project/lightworks/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14925692.svg)](https://doi.org/10.5281/zenodo.14925692)
 
 
 # Lightworks
