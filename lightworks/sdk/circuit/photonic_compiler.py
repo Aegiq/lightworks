@@ -98,11 +98,7 @@ class CompiledPhotonicCircuit:
             self._circuit_spec.append(spec.serialize())
 
     def add_herald(
-        self,
-        in_photon: int,
-        out_photon: int,
-        input_mode: int,
-        output_mode: int | None = None,
+        self, input_mode: int, output_mode: int, in_photon: int, out_photon: int
     ) -> None:
         """
         Add a herald across a selected input/output of the circuit. If only one

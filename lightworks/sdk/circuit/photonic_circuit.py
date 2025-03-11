@@ -613,7 +613,7 @@ class PhotonicCircuit:
 
         heralds = self.heralds
         for i, o in zip(heralds["input"], heralds["output"], strict=True):
-            circuit.add_herald(heralds["input"][i], heralds["output"][o], i, o)
+            circuit.add_herald(i, o, heralds["input"][i], heralds["output"][o])
 
         return circuit
 

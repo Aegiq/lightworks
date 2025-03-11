@@ -122,27 +122,13 @@ class TestCompiledCircuit:
         is reflected in the heralds attribute.
         """
         circuit = CompiledPhotonicCircuit(4)
-        circuit.add_herald(1, 0, 2)
+        circuit.add_herald(0, 2, 1, 3)
         # Check heralds added
         assert 0 in circuit.heralds["input"]
         assert 2 in circuit.heralds["output"]
         # Check photon number is correct
         assert circuit.heralds["input"][0] == 1
-        assert circuit.heralds["output"][2] == 1
-
-    def test_herald_single_value(self):
-        """
-        Confirms that heralding being added to a circuit works as expected and
-        is reflected in the heralds attribute, when only a single mode is set
-        """
-        circuit = CompiledPhotonicCircuit(4)
-        circuit.add_herald(2, 1)
-        # Check heralds added
-        assert 1 in circuit.heralds["input"]
-        assert 1 in circuit.heralds["output"]
-        # Check photon number is correct
-        assert circuit.heralds["input"][1] == 2
-        assert circuit.heralds["output"][1] == 2
+        assert circuit.heralds["output"][2] == 3
 
     @pytest.mark.parametrize("value", [2.5, "2", True])
     def test_herald_invalid_photon_number(self, value):
@@ -152,7 +138,7 @@ class TestCompiledCircuit:
         """
         circuit = CompiledPhotonicCircuit(4)
         with pytest.raises(TypeError):
-            circuit.add_herald(value, 0)
+            circuit.add_herald(0, 0, value, 0)
 
     @pytest.mark.parametrize("value", [2.5, 6, True])
     def test_herald_invalid_mode_number(self, value):
@@ -162,7 +148,7 @@ class TestCompiledCircuit:
         """
         circuit = CompiledPhotonicCircuit(4)
         with pytest.raises((TypeError, ModeRangeError)):
-            circuit.add_herald(0, value)
+            circuit.add_herald(value, 0, 0, 0)
 
     @pytest.mark.parametrize("value", [2.5, 6, True])
     def test_herald_invalid_mode_number_output(self, value):
@@ -172,16 +158,16 @@ class TestCompiledCircuit:
         """
         circuit = CompiledPhotonicCircuit(4)
         with pytest.raises((TypeError, ModeRangeError)):
-            circuit.add_herald(0, 0, value)
+            circuit.add_herald(0, value, 0, 0)
 
     def test_herald_duplicate_value(self):
         """
         Checks error is raised if a duplicate mode is provided to the herald.
         """
         circuit = CompiledPhotonicCircuit(4)
-        circuit.add_herald(0, 0)
+        circuit.add_herald(0, 0, 0, 0)
         with pytest.raises(ValueError):
-            circuit.add_herald(0, 0)
+            circuit.add_herald(0, 0, 0, 0)
 
     def test_herald_duplicate_value_output(self):
         """
@@ -189,6 +175,6 @@ class TestCompiledCircuit:
         herald.
         """
         circuit = CompiledPhotonicCircuit(4)
-        circuit.add_herald(0, 0, 1)
+        circuit.add_herald(0, 1, 0, 0)
         with pytest.raises(ValueError):
-            circuit.add_herald(0, 1, 1)
+            circuit.add_herald(1, 1, 0, 0)
