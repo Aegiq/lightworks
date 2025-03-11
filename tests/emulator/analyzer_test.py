@@ -96,7 +96,7 @@ class TestAnalyzer:
     def test_analyzer_complex(self):
         """Check analyzer result when using post-selection and heralding."""
         # Add heralding mode
-        self.circuit.herald(0, 3)
+        self.circuit.herald(3, 0)
         analyzer = Analyzer(self.circuit, State([1, 0, 1]))
         # Just heralding
         results = BACKEND.run(analyzer)
@@ -116,7 +116,7 @@ class TestAnalyzer:
         lossy circuit.
         """
         # Add heralding mode
-        self.lossy_circuit.herald(0, 3)
+        self.lossy_circuit.herald(3, 0)
         analyzer = Analyzer(self.lossy_circuit, State([1, 0, 1]))
         # Just heralding
         results = BACKEND.run(analyzer)
@@ -138,7 +138,7 @@ class TestAnalyzer:
         lossy circuit which has been added to another circuit.
         """
         # Add heralding mode
-        self.lossy_circuit.herald(0, 3)
+        self.lossy_circuit.herald(3, 0)
         new_circ = PhotonicCircuit(
             self.lossy_circuit.n_modes
             - len(self.lossy_circuit.heralds["input"])
@@ -233,10 +233,94 @@ class TestAnalyzer:
         )
         ns_gate = Unitary(u_ns)
         ns_gate.herald(1, 1)
-        ns_gate.herald(0, 2)
+        ns_gate.herald(2, 0)
         in_state = State([1])
         # Run simulation
         analyzer = Analyzer(ns_gate, in_state)
         results = BACKEND.run(analyzer)
         # Validate success probability is 0.25
         assert results[in_state, in_state] == pytest.approx(0.25)
+
+    @pytest.mark.parametrize("n_output", [0, 1, 2])
+    def test_herald_equivalance(self, n_output):
+        """
+        Checks that heralded and non-heralded circuits produce the same results.
+        """
+        # Create heralded and versions of same circuit
+        unitary = random_unitary(6)
+        circuit = Unitary(unitary)
+        circuit_herald = Unitary(unitary)
+        circuit_herald.herald((2, 2), 0)
+        circuit_herald.herald((1, 3), (1, n_output))
+        # Simulate both with equivalent inputs
+        sim = Analyzer(circuit, State([0, 1, 0, 1, 1, 0]))
+        results = BACKEND.run(sim)
+        sim_h = Analyzer(circuit_herald, State([0, 1, 1, 0]))
+        results_h = BACKEND.run(sim_h)
+        # Then check equivalence of results for all outputs
+        for output in results_h.outputs:
+            full_state = output[0:2] + State([0, n_output]) + output[2:]
+            assert (
+                pytest.approx(results_h[State([0, 1, 1, 0]), output])
+                == results[State([0, 1, 0, 1, 1, 0]), full_state]
+            )
+
+    @pytest.mark.parametrize("n_output", [0, 1, 2])
+    def test_herald_equivalance_lossy(self, n_output):
+        """
+        Checks that heralded and non-heralded circuits produce the same results
+        when a lossy circuit is used.
+        """
+        # Create heralded and versions of same circuit
+        unitary = random_unitary(6)
+        circuit = Unitary(unitary)
+        for i in range(6):
+            circuit.loss(i, (i + 1) / 10)
+        circuit_herald = Unitary(unitary)
+        for i in range(6):
+            circuit_herald.loss(i, (i + 1) / 10)
+        circuit_herald.herald((2, 2), 0)
+        circuit_herald.herald((1, 3), (1, n_output))
+        # Simulate both with equivalent inputs
+        sim = Analyzer(circuit, State([0, 1, 0, 1, 1, 0]))
+        results = BACKEND.run(sim)
+        sim_h = Analyzer(circuit_herald, State([0, 1, 1, 0]))
+        results_h = BACKEND.run(sim_h)
+        # Then check equivalence of results for all outputs
+        for output in results_h.outputs:
+            full_state = output[0:2] + State([0, n_output]) + output[2:]
+            assert (
+                pytest.approx(results_h[State([0, 1, 1, 0]), output])
+                == results[State([0, 1, 0, 1, 1, 0]), full_state]
+            )
+
+    @pytest.mark.parametrize("n_output", [0, 1, 2])
+    def test_herald_equivalance_grouped(self, n_output):
+        """
+        Checks that heralded and non-heralded circuits produce the same results
+        when a grouped circuit is used.
+        """
+        # Create heralded and versions of same circuit
+        unitary = random_unitary(6)
+        circuit = Unitary(unitary)
+        for i in range(6):
+            circuit.loss(i, (i + 1) / 10)
+        sub_circuit = Unitary(unitary)
+        for i in range(6):
+            sub_circuit.loss(i, (i + 1) / 10)
+        sub_circuit.herald((2, 2), 0)
+        sub_circuit.herald((1, 3), (1, n_output))
+        circuit_herald = PhotonicCircuit(4)
+        circuit_herald.add(sub_circuit)
+        # Simulate both with equivalent inputs
+        sim = Analyzer(circuit, State([0, 1, 0, 1, 1, 0]))
+        results = BACKEND.run(sim)
+        sim_h = Analyzer(circuit_herald, State([0, 1, 1, 0]))
+        results_h = BACKEND.run(sim_h)
+        # Then check equivalence of results for all outputs
+        for output in results_h.outputs:
+            full_state = output[0:2] + State([0, n_output]) + output[2:]
+            assert (
+                pytest.approx(results_h[State([0, 1, 1, 0]), output])
+                == results[State([0, 1, 0, 1, 1, 0]), full_state]
+            )
