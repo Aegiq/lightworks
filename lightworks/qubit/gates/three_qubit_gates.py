@@ -55,9 +55,9 @@ class CCZ(PhotonicCircuit):
         # Create unitary component and add heralds on required modes
         unitary = Unitary(u_a)
         unitary.herald(0, 0)
-        unitary.herald(0, 1)
-        unitary.herald(0, 8)
-        unitary.herald(0, 9)
+        unitary.herald(1, 0)
+        unitary.herald(8, 0)
+        unitary.herald(9, 0)
 
         super().__init__(6)
         self.add(unitary, 0, group=True, name="CCZ")
