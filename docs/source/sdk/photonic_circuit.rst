@@ -336,7 +336,7 @@ Heralding Integration
 
 In photonic quantum computing, ancillary photons/modes are often used to realize particular entangled states, particularly in qubit paradigms. The Lightworks PhotonicCircuit supports the addition of these ancillary photons with the ``herald`` method, enabling heralding to be completed on a circuit without having to factor these modes being factored into the inputs and outputs of a circuit. This is supported for all simulation objects in the emulator.
 
-As an example of this, in the following a herald is added on mode 2 of the circuit, requiring that 1 photon is input and output on this mode of the circuit. When the input and output mode are the same, only the input needs to be specified, but when they differ these both need to be specified. For example, ``herald(1, 2)`` and ``herald(1, 2, 2)`` are equivalent.
+As an example of this, in the following a herald is added on mode 2 of the circuit, requiring that 1 photon is input and output on this mode of the circuit. When the input and output mode are the same, only the input needs to be specified, but when they differ these both need to be specified. This is also the same for the number of photons. For example, ``herald(2, 1)``, ``herald((2, 2), 1)``, ``herald(2, (1, 1))`` and ``herald((2, 2), (1, 1))`` are equivalent.
 
 .. code-block:: Python
 
@@ -345,7 +345,7 @@ As an example of this, in the following a herald is added on mode 2 of the circu
     circuit.bs(1)
     circuit.bs(2)
 
-    circuit.herald(1, 2)
+    circuit.herald(2, 1)
 
     circuit.display()
 
