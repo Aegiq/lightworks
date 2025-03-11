@@ -106,13 +106,15 @@ class CompiledPhotonicCircuit:
 
         Args:
 
-            n_photons (int) : The number of photons to use for the heralding.
-
             input_mode (int) : The input mode to use for the herald.
 
-            output_mode (int | None, optional) : The output mode for the
-                herald, if this is not specified it will be set to the value of
-                the input mode.
+            output_mode (int) : The output mode to use for the herald.
+
+            in_photon (int) : The number of photons to use on the heralding
+                input.
+
+            out_photon (int) : The number of photons to use on the heralding
+                output.
 
         """
         for n in [in_photon, out_photon]:

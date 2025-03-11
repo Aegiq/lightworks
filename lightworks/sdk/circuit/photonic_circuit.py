@@ -437,13 +437,15 @@ class PhotonicCircuit:
 
         Args:
 
-            n_photons (int) : The number of photons to use for the heralding.
+            modes (int | tuple) : The mode(s) to use for heralding. If supplied
+                as a single value then the same mode will be used for both input
+                and output, otherwise a pair of values can be specified to use
+                a different input and output.
 
-            input_mode (int) : The input mode to use for the herald.
-
-            output_mode (int | None, optional) : The output mode for the
-                herald, if this is not specified it will be set to the value of
-                the input mode.
+            photons (int | tuple) : The photon(s) to use for heralding. If
+                supplied as a single value then the same number of photons will
+                be heralded on the input and output, otherwise a pair of values
+                can be specified to use a different number of photons.
 
         """
         if isinstance(photons, Iterable) and not isinstance(photons, str):
