@@ -124,11 +124,11 @@ class TestCompiledCircuit:
         circuit = CompiledPhotonicCircuit(4)
         circuit.add_herald(0, 2, 1, 3)
         # Check heralds added
-        assert 0 in circuit.heralds["input"]
-        assert 2 in circuit.heralds["output"]
+        assert 0 in circuit.heralds.input
+        assert 2 in circuit.heralds.output
         # Check photon number is correct
-        assert circuit.heralds["input"][0] == 1
-        assert circuit.heralds["output"][2] == 3
+        assert circuit.heralds.input[0] == 1
+        assert circuit.heralds.output[2] == 3
 
     @pytest.mark.parametrize("value", [2.5, "2", True])
     def test_herald_invalid_photon_number(self, value):

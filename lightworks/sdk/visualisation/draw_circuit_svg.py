@@ -26,6 +26,7 @@ from lightworks.sdk.circuit.photonic_components import (
     ModeSwaps,
     PhaseShifter,
     UnitaryMatrix,
+    HeraldData,
 )
 from lightworks.sdk.utils.exceptions import DisplayError
 
@@ -133,7 +134,7 @@ class DrawCircuitSVG:
         # Create list of locations for each mode
         self.x_locations = [init_length + 50] * self.n_modes
         # Add extra waveguides when using heralds
-        if self.circuit._external_heralds["input"]:
+        if self.circuit._external_heralds.input:
             for m in range(self.n_modes):
                 if m not in self.herald_modes:
                     self._add_wg(self.x_locations[m], self.y_locations[m], 50)
@@ -144,7 +145,7 @@ class DrawCircuitSVG:
 
         maxloc = max(self.x_locations)
         # Extend final waveguide if herald included
-        if self.circuit._external_heralds["output"]:
+        if self.circuit._external_heralds.output:
             maxloc += 50
         for i, loc in enumerate(self.x_locations):
             if loc < maxloc and i not in self.herald_modes:
@@ -602,17 +603,17 @@ class DrawCircuitSVG:
             self.x_locations[i] = xloc + con_length + extra_length
 
         # Modify provided heralds by mode offset and then add at locations
-        shifted_heralds = {
-            "input": {m + mode1: n for m, n in spec.heralds["input"].items()},
-            "output": {m + mode1: n for m, n in spec.heralds["output"].items()},
-        }
+        shifted_heralds = HeraldData(
+            input={m + mode1: n for m, n in spec.heralds["input"].items()},
+            output={m + mode1: n for m, n in spec.heralds["output"].items()},
+        )
         self._add_heralds(
             shifted_heralds, xloc - size_x - con_length, xloc + con_length
         )
 
     def _add_heralds(
         self,
-        heralds: dict[str, dict[int, int]],
+        heralds: HeraldData,
         start_loc: float,
         end_loc: float,
     ) -> None:
@@ -621,7 +622,7 @@ class DrawCircuitSVG:
         """
         size = 25
         # Input heralds
-        for mode, num in heralds["input"].items():
+        for mode, num in heralds.input.items():
             xloc = start_loc
             yloc = self.y_locations[mode]
             self.draw_spec += [("herald", (xloc, yloc, size))]
@@ -632,7 +633,7 @@ class DrawCircuitSVG:
                 )
             ]
         # Output heralds
-        for mode, num in heralds["output"].items():
+        for mode, num in heralds.output.items():
             xloc = end_loc
             yloc = self.y_locations[mode]
             self.draw_spec += [("herald", (xloc, yloc, size))]

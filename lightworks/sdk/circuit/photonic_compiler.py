@@ -20,7 +20,7 @@ from numpy.typing import NDArray
 
 from lightworks.sdk.utils.exceptions import ModeRangeError
 
-from .photonic_components import Barrier, Component, Group, Loss
+from .photonic_components import Barrier, Component, Group, HeraldData, Loss
 
 
 class CompiledPhotonicCircuit:
@@ -64,12 +64,12 @@ class CompiledPhotonicCircuit:
         return self._unitary
 
     @property
-    def heralds(self) -> dict[str, dict[int, int]]:
+    def heralds(self) -> HeraldData:
         """Returns details of heralds on the input and output."""
-        return {
-            "input": copy(self._in_heralds),
-            "output": copy(self._out_heralds),
-        }
+        return HeraldData(
+            input=copy(self._in_heralds),
+            output=copy(self._out_heralds),
+        )
 
     @property
     def input_modes(self) -> int:
@@ -77,7 +77,7 @@ class CompiledPhotonicCircuit:
         The number of input modes that should be specified, accounting for the
         heralds used in the circuit.
         """
-        return self.n_modes - len(self.heralds["input"])
+        return self.n_modes - len(self.heralds.input)
 
     def add(self, spec: Component) -> None:
         """Adds elements to the spec."""

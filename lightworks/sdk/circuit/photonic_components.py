@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from numbers import Real
 from typing import Any
 
@@ -327,6 +327,14 @@ class UnitaryMatrix(Component):
                 "label": self.label,
             },
         )
+
+
+@dataclass(slots=True, frozen=True)
+class HeraldData:
+    """Stores the heralding data on a circuit"""
+
+    input: dict[int, int] = field(default_factory=dict)
+    output: dict[int, int] = field(default_factory=dict)
 
 
 def is_real(value: Any) -> bool:

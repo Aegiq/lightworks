@@ -48,6 +48,7 @@ from .photonic_components import (
     BeamSplitter,
     Component,
     Group,
+    HeraldData,
     Loss,
     ModeSwaps,
     PhaseShifter,
@@ -93,7 +94,7 @@ class PhotonicCircuit:
             raise ModeRangeError(
                 "Two circuits to add must have the same number of modes."
             )
-        if self.heralds["input"] or value.heralds["input"]:
+        if self.heralds.input or value.heralds.input:
             raise NotImplementedError(
                 "Support for heralds when combining circuits not yet "
                 "implemented."
@@ -145,33 +146,32 @@ class PhotonicCircuit:
         The number of input modes that should be specified, accounting for the
         heralds used in the circuit.
         """
-        return self.n_modes - len(self.heralds["input"])
+        return self.n_modes - len(self.heralds.input)
 
     @property
-    def heralds(self) -> dict[str, dict[int, int]]:
+    def heralds(self) -> HeraldData:
         """
         A dictionary which details the set heralds on the inputs and outputs of
         the circuit.
         """
-        return {
-            "input": copy(self.__in_heralds),
-            "output": copy(self.__out_heralds),
-        }
+        return HeraldData(
+            input=copy(self.__in_heralds), output=copy(self.__out_heralds)
+        )
 
     @property
     def _internal_modes(self) -> list[int]:
         return self.__internal_modes
 
     @property
-    def _external_heralds(self) -> dict[str, dict[int, int]]:
+    def _external_heralds(self) -> HeraldData:
         """
         Stores details of heralds which are on the outside of a circuit (i.e.
         were not added as part of a group).
         """
-        return {
-            "input": copy(self.__external_in_heralds),
-            "output": copy(self.__external_out_heralds),
-        }
+        return HeraldData(
+            input=copy(self.__external_in_heralds),
+            output=copy(self.__external_out_heralds),
+        )
 
     def add(
         self,
@@ -217,7 +217,7 @@ class PhotonicCircuit:
         # Use unpack groups and check if heralds are used
         circuit_copy.unpack_groups()
         # Force grouping if heralding included
-        group = True if circuit_copy.heralds["input"] else group
+        group = True if circuit_copy.heralds.input else group
         # When name not provided set this
         if name is None:
             spec = circuit.__circuit_spec
@@ -231,8 +231,9 @@ class PhotonicCircuit:
         if group:
             circuit = circuit_copy
         spec = circuit.__circuit_spec
+        circuit_heralds = circuit.heralds
         # Check circuit size is valid
-        n_heralds = len(circuit.heralds["input"])
+        n_heralds = len(circuit.heralds.input)
         if mode + circuit.n_modes - n_heralds > self.n_modes:
             raise ModeRangeError("Circuit to add is outside of mode range")
 
@@ -240,7 +241,7 @@ class PhotonicCircuit:
         for i in sorted(self.__internal_modes):
             # Need to account for shifts when adding new heralds
             target_mode = i - mode
-            for m in circuit.heralds["input"]:
+            for m in circuit.heralds.input:
                 if target_mode > m:
                     target_mode += 1
             if 0 <= target_mode < circuit.n_modes:
@@ -248,15 +249,16 @@ class PhotonicCircuit:
         # Then add new modes for heralds from circuit and also add swaps to
         # enforce that the input and output herald are on the same mode
         provisional_swaps = {}
-        for m in sorted(circuit.heralds["input"]):
+        circuit_heralds = circuit.heralds
+        for m in sorted(circuit_heralds.input):
             self.__circuit_spec = self._add_empty_mode(
                 self.__circuit_spec, mode + m
             )
             self.__internal_modes.append(mode + m)
             # Current limitation is that heralding should be on the same mode
             # when adding, so use a mode swap to compensate for this.
-            herald_loc = list(circuit.heralds["input"].keys()).index(m)
-            out_herald = list(circuit.heralds["output"].keys())[herald_loc]
+            herald_loc = list(circuit_heralds.input.keys()).index(m)
+            out_herald = list(circuit_heralds.output.keys())[herald_loc]
             provisional_swaps[out_herald] = m
         # Convert provisional swaps into full list and add to circuit
         current_mode = 0
@@ -278,10 +280,8 @@ class PhotonicCircuit:
             spec.append(ModeSwaps(swaps))
         # Update heralds to enforce input and output are on the same mode
         new_heralds = {
-            "input": circuit.heralds["input"],
-            "output": {
-                swaps[m]: n for m, n in circuit.heralds["output"].items()
-            },
+            "input": circuit.heralds.input,
+            "output": {swaps[m]: n for m, n in circuit.heralds.output.items()},
         }
         # Also add all included heralds to the heralds dict
         for m in new_heralds["input"]:
@@ -613,8 +613,8 @@ class PhotonicCircuit:
             circuit.add(spec)
 
         heralds = self.heralds
-        for i, o in zip(heralds["input"], heralds["output"], strict=True):
-            circuit.add_herald(i, o, heralds["input"][i], heralds["output"][o])
+        for i, o in zip(heralds.input, heralds.output, strict=True):
+            circuit.add_herald(i, o, heralds.input[i], heralds.output[o])
 
         return circuit
 
