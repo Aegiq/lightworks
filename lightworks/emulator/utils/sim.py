@@ -16,13 +16,13 @@ from lightworks.sdk.state import State
 from lightworks.sdk.utils.exceptions import PhotonNumberError
 
 
-def check_photon_numbers(states: list[State]) -> None:
+def check_photon_numbers(states: list[State], target_n: int) -> None:
     """
     Raises an exception if photon numbers are mixed when running a
     simulation.
     """
     ns = [s.n_photons for s in states]
-    if min(ns) != max(ns):
+    if min(ns) != target_n or max(ns) != target_n:
         raise PhotonNumberError(
             "Mismatch in photon numbers between some inputs/outputs, "
             "this is not currently supported in the Simulator."

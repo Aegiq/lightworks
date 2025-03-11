@@ -286,7 +286,7 @@ class PhotonicCircuit:
         # Also add all included heralds to the heralds dict
         for m in new_heralds["input"]:
             self.__in_heralds[m + mode] = new_heralds["input"][m]
-            self.__out_heralds[m + mode] = new_heralds["input"][m]
+            self.__out_heralds[m + mode] = new_heralds["output"][m]
         # And shift all components in circuit by required amount
         add_cs = add_modes_to_circuit_spec(spec, mode)
 

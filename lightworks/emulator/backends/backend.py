@@ -75,8 +75,8 @@ class Backend:
         if task.__class__.__name__ not in self.__backend.compatible_tasks:
             msg = (
                 "Selected backend not compatible with task, supported tasks for"
-                f"the backend are: {', '.join(self.__backend.compatible_tasks)}"
-                "."
+                " the backend are: "
+                f"{', '.join(self.__backend.compatible_tasks)}."
             )
             raise BackendError(msg)
         return self.__backend.run(task)

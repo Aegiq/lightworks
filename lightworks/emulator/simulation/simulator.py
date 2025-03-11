@@ -63,19 +63,23 @@ class SimulatorRunner(RunnerABC):
                 state used to create the array.
 
         """
+        in_heralds = self.data.circuit.heralds["input"]
+        out_heralds = self.data.circuit.heralds["output"]
+        in_heralds_n = sum(in_heralds.values())
+        out_heralds_n = sum(out_heralds.values())
+        target_n = self.data.inputs[0].n_photons + in_heralds_n
         if self.data.outputs is None:
-            check_photon_numbers(self.data.inputs)
+            check_photon_numbers(self.data.inputs, target_n - in_heralds_n)
             outputs = [
                 State(s)
                 for s in fock_basis(
-                    self.data.circuit.input_modes, self.data.inputs[0].n_photons
+                    self.data.circuit.input_modes, target_n - out_heralds_n
                 )
             ]
         else:
-            check_photon_numbers(self.data.inputs + self.data.outputs)
+            check_photon_numbers(self.data.inputs, target_n - in_heralds_n)
+            check_photon_numbers(self.data.outputs, target_n - out_heralds_n)
             outputs = self.data.outputs
-        in_heralds = self.data.circuit.heralds["input"]
-        out_heralds = self.data.circuit.heralds["output"]
         # Pre-add output values to avoid doing this many times
         full_outputs = [
             add_heralds_to_state(outs, out_heralds)
