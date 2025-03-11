@@ -446,11 +446,10 @@ class PhotonicCircuit:
                 the input mode.
 
         """
-        if isinstance(photons, Iterable):
-            in_photon, out_photon = int(photons[0]), int(photons[1])
+        if isinstance(photons, Iterable) and not isinstance(photons, str):
+            in_photon, out_photon = photons[0], photons[1]
         else:
-            in_photon = int(photons)
-            out_photon = int(photons)
+            in_photon = out_photon = photons
         for n in [in_photon, out_photon]:
             if not isinstance(n, int) or isinstance(n, bool):
                 raise TypeError(
