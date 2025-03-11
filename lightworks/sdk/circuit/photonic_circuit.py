@@ -17,6 +17,7 @@ PhotonicCircuit class for creating circuits with Parameters object that can be
 modified after creation.
 """
 
+from collections.abc import Iterable
 from copy import copy, deepcopy
 from typing import TYPE_CHECKING, Any, Union
 
@@ -278,7 +279,9 @@ class PhotonicCircuit:
         # Update heralds to enforce input and output are on the same mode
         new_heralds = {
             "input": circuit.heralds["input"],
-            "output": circuit.heralds["input"],
+            "output": {
+                swaps[m]: n for m, n in circuit.heralds["output"].items()
+            },
         }
         # Also add all included heralds to the heralds dict
         for m in new_heralds["input"]:
@@ -426,7 +429,7 @@ class PhotonicCircuit:
         self.__circuit_spec.append(ModeSwaps(swaps))
 
     def herald(
-        self, n_photons: int, input_mode: int, output_mode: int | None = None
+        self, modes: int | tuple[int, int], photons: int | tuple[int, int]
     ) -> None:
         """
         Add a herald across a selected input/output of the circuit. If only one
@@ -443,13 +446,22 @@ class PhotonicCircuit:
                 the input mode.
 
         """
-        if not isinstance(n_photons, int) or isinstance(n_photons, bool):
-            raise TypeError(
-                "Number of photons for herald should be an integer."
-            )
-        n_photons = int(n_photons)
-        if output_mode is None:
-            output_mode = input_mode
+        if isinstance(photons, Iterable):
+            in_photon, out_photon = int(photons[0]), int(photons[1])
+        else:
+            in_photon = int(photons)
+            out_photon = int(photons)
+        for n in [in_photon, out_photon]:
+            if not isinstance(n, int) or isinstance(n, bool):
+                raise TypeError(
+                    "Number of photons for herald should be a tuple of two "
+                    "integers."
+                )
+        if isinstance(modes, Iterable):
+            input_mode, output_mode = modes
+        else:
+            input_mode = modes
+            output_mode = modes
         input_mode = self._map_mode(input_mode)
         output_mode = self._map_mode(output_mode)
         self._mode_in_range(input_mode)
@@ -460,10 +472,10 @@ class PhotonicCircuit:
         if output_mode in self.__out_heralds:
             raise ValueError("Heralding already set for chosen output mode.")
         # If not then update dictionaries
-        self.__in_heralds[input_mode] = n_photons
-        self.__out_heralds[output_mode] = n_photons
-        self.__external_in_heralds[input_mode] = n_photons
-        self.__external_out_heralds[output_mode] = n_photons
+        self.__in_heralds[input_mode] = in_photon
+        self.__out_heralds[output_mode] = out_photon
+        self.__external_in_heralds[input_mode] = in_photon
+        self.__external_out_heralds[output_mode] = out_photon
 
     def display(
         self,
@@ -601,7 +613,7 @@ class PhotonicCircuit:
 
         heralds = self.heralds
         for i, o in zip(heralds["input"], heralds["output"], strict=True):
-            circuit.add_herald(heralds["input"][i], i, o)
+            circuit.add_herald(heralds["input"][i], heralds["output"][o], i, o)
 
         return circuit
 

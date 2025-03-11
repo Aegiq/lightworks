@@ -98,7 +98,11 @@ class CompiledPhotonicCircuit:
             self._circuit_spec.append(spec.serialize())
 
     def add_herald(
-        self, n_photons: int, input_mode: int, output_mode: int | None = None
+        self,
+        in_photon: int,
+        out_photon: int,
+        input_mode: int,
+        output_mode: int | None = None,
     ) -> None:
         """
         Add a herald across a selected input/output of the circuit. If only one
@@ -115,11 +119,13 @@ class CompiledPhotonicCircuit:
                 the input mode.
 
         """
-        if not isinstance(n_photons, int) or isinstance(n_photons, bool):
-            raise TypeError(
-                "Number of photons for herald should be an integer."
-            )
-        n_photons = int(n_photons)
+        for n in [in_photon, out_photon]:
+            if not isinstance(n, int) or isinstance(n, bool):
+                raise TypeError(
+                    "Number of photons for herald should be an integer."
+                )
+        in_photon = int(in_photon)
+        out_photon = int(out_photon)
         if output_mode is None:
             output_mode = input_mode
         self._mode_in_range(input_mode)
@@ -130,8 +136,8 @@ class CompiledPhotonicCircuit:
         if output_mode in self._out_heralds:
             raise ValueError("Heralding already set for chosen output mode.")
         # If not then update dictionaries
-        self._in_heralds[input_mode] = n_photons
-        self._out_heralds[output_mode] = n_photons
+        self._in_heralds[input_mode] = in_photon
+        self._out_heralds[output_mode] = out_photon
 
     def _mode_in_range(self, mode: int) -> None:
         """
