@@ -43,8 +43,8 @@ class CZ(PhotonicCircuit):
             u_a[i : i + 2, i : i + 2] = u_bs[:, :]
         u_a[3, :] = -u_a[3, :]
         unitary = Unitary(u_a, label="CZ")
-        unitary.herald(0, 0, 0)
-        unitary.herald(0, 5, 5)
+        unitary.herald((0, 0), 0)
+        unitary.herald((5, 5), 0)
 
         super().__init__(4)
         self.add(unitary, 0, group=True, name="CZ")
@@ -127,10 +127,10 @@ class CZ_Heralded(PhotonicCircuit):  # noqa: N801
         u_a = u_perm2 @ u_bs @ u_a @ u_bs @ u_perm1
 
         unitary = Unitary(u_a)
-        unitary.herald(0, 0, 0)
-        unitary.herald(1, 1, 1)
-        unitary.herald(1, 6, 6)
-        unitary.herald(0, 7, 7)
+        unitary.herald((0, 0), 0)
+        unitary.herald((1, 1), 1)
+        unitary.herald((6, 6), 1)
+        unitary.herald((7, 7), 0)
 
         super().__init__(4)
         self.add(unitary, 0, group=True, name="CZ Heralded")

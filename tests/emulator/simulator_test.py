@@ -234,7 +234,7 @@ class TestSimulator:
         """
         # Create circuit and simulator object
         circuit = Unitary(random_unitary(4))
-        circuit.herald(1, 0, 2)
+        circuit.herald((0, 2), 1)
         # Attempt to simulate with input which is too short
         with pytest.raises(ModeMismatchError):
             Simulator(circuit, State([1, 0]))
@@ -251,7 +251,7 @@ class TestSimulator:
         # Create circuit and simulator object
         circuit = Unitary(random_unitary(4))
         sub_circuit = Unitary(random_unitary(4))
-        sub_circuit.herald(1, 0, 2)
+        sub_circuit.herald((0, 2), 1)
         circuit.add(sub_circuit, 1)
         # Attempt to simulate with input which is too short
         with pytest.raises(ModeMismatchError):
@@ -260,7 +260,8 @@ class TestSimulator:
         with pytest.raises(ModeMismatchError):
             Simulator(circuit, State([1, 0, 1, 0, 0]))
 
-    def test_herald_not_herald_equivalance(self):
+    @pytest.mark.parametrize("n_output", [0, 1, 2])
+    def test_herald_not_herald_equivalance(self, n_output):
         """
         Checks that the results from the Simulator are equivalent when using a
         heralded circuit and getting the same outputs from a non-heralded
@@ -270,8 +271,8 @@ class TestSimulator:
         unitary = random_unitary(6)
         circuit = Unitary(unitary)
         circuit_herald = Unitary(unitary)
-        circuit_herald.herald(0, 2, 2)
-        circuit_herald.herald(1, 1, 3)
+        circuit_herald.herald((2, 2), 0)
+        circuit_herald.herald((1, 3), (1, n_output))
         # Simulate both with equivalent inputs
         sim = Simulator(circuit, State([0, 1, 0, 1, 1, 0]))
         results = BACKEND.run(sim)
@@ -279,13 +280,14 @@ class TestSimulator:
         results_h = BACKEND.run(sim_h)
         # Then check equivalence of results for all outputs
         for output in results_h.outputs:
-            full_state = output[0:2] + State([0, 1]) + output[2:]
+            full_state = output[0:2] + State([0, n_output]) + output[2:]
             assert (
                 pytest.approx(results_h[State([0, 1, 1, 0]), output])
                 == results[State([0, 1, 0, 1, 1, 0]), full_state]
             )
 
-    def test_herald_not_herald_equivalance_lossy(self):
+    @pytest.mark.parametrize("n_output", [0, 1, 2])
+    def test_herald_not_herald_equivalance_lossy(self, n_output):
         """
         Checks that the results from the Simulator are equivalent when using a
         heralded circuit and getting the same outputs from a non-heralded
@@ -299,8 +301,8 @@ class TestSimulator:
         circuit_herald = Unitary(unitary)
         for i in range(6):
             circuit_herald.loss(i, (i + 1) / 10)
-        circuit_herald.herald(0, 2, 2)
-        circuit_herald.herald(1, 1, 3)
+        circuit_herald.herald((2, 2), 0)
+        circuit_herald.herald((1, 3), (1, n_output))
         # Simulate both with equivalent inputs
         sim = Simulator(circuit, State([0, 1, 0, 1, 1, 0]))
         results = BACKEND.run(sim)
@@ -308,13 +310,14 @@ class TestSimulator:
         results_h = BACKEND.run(sim_h)
         # Then check equivalence of results for all outputs
         for output in results_h.outputs:
-            full_state = output[0:2] + State([0, 1]) + output[2:]
+            full_state = output[0:2] + State([0, n_output]) + output[2:]
             assert (
                 pytest.approx(results_h[State([0, 1, 1, 0]), output])
                 == results[State([0, 1, 0, 1, 1, 0]), full_state]
             )
 
-    def test_herald_not_herald_equivalance_grouped(self):
+    @pytest.mark.parametrize("n_output", [0, 1, 2])
+    def test_herald_not_herald_equivalance_grouped(self, n_output):
         """
         Checks that the results from the Simulator are equivalent when using a
         heralded circuit and getting the same outputs from a non-heralded
@@ -329,8 +332,8 @@ class TestSimulator:
         sub_circuit = Unitary(unitary)
         for i in range(6):
             sub_circuit.loss(i, (i + 1) / 10)
-        sub_circuit.herald(0, 2, 2)
-        sub_circuit.herald(1, 1, 3)
+        sub_circuit.herald((2, 2), 0)
+        sub_circuit.herald((1, 3), (1, n_output))
         circuit_herald = PhotonicCircuit(4)
         circuit_herald.add(sub_circuit)
         # Simulate both with equivalent inputs
@@ -340,7 +343,7 @@ class TestSimulator:
         results_h = BACKEND.run(sim_h)
         # Then check equivalence of results for all outputs
         for output in results_h.outputs:
-            full_state = output[0:2] + State([0, 1]) + output[2:]
+            full_state = output[0:2] + State([0, n_output]) + output[2:]
             assert (
                 pytest.approx(results_h[State([0, 1, 1, 0]), output])
                 == results[State([0, 1, 0, 1, 1, 0]), full_state]

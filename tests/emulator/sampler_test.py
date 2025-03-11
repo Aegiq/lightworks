@@ -504,8 +504,9 @@ class TestSamplerCalculationBackends:
                 break
         assert sub_2_photon_states
 
+    @pytest.mark.parametrize("n_output", [0, 1])
     @pytest.mark.flaky(reruns=3)
-    def test_herald_equivalent(self, backend):
+    def test_herald_equivalent(self, backend, n_output):
         """
         Checks that results are equivalent if a herald is used vs
         post-selection on a non-heralded circuit.
@@ -516,18 +517,52 @@ class TestSamplerCalculationBackends:
             circuit,
             State([1, 1, 0, 1, 0, 0]),
             50000,
-            post_selection=lambda s: s[1] == 1 and s[3] == 0,
+            post_selection=lambda s: s[1] == 1 and s[3] == n_output,
         )
         results = backend.run(sampler)
         # Then add and re-sample
-        circuit.herald(1, 0, 1)
-        circuit.herald(0, 2, 3)
+        circuit.herald((0, 1), 1)
+        circuit.herald((2, 3), (0, n_output))
         sampler = Sampler(circuit, State([1, 1, 0, 0]), 50000)
         results2 = backend.run(sampler)
         # Check all results with outputs greater than 2000
         for s, c in results2.items():
             if c > 2000:
-                full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
+                full_s = (
+                    s[0:1] + State([1]) + s[1:2] + State([n_output]) + s[2:]
+                )
+                # Check results are within 10%
+                assert pytest.approx(results[full_s], 0.1) == c
+
+    @pytest.mark.parametrize("n_output", [0, 1])
+    @pytest.mark.flaky(reruns=3)
+    def test_herald_equivalent_grouped(self, backend, n_output):
+        """
+        Checks that results are equivalent if a herald is used vs
+        post-selection on a non-heralded circuit when a grouped circuit is used.
+        """
+        circuit = Unitary(random_unitary(6))
+        # Sampler without built-in heralds
+        sampler = Sampler(
+            circuit,
+            State([1, 1, 0, 1, 0, 0]),
+            50000,
+            post_selection=lambda s: s[1] == 1 and s[3] == n_output,
+        )
+        results = backend.run(sampler)
+        # Then add and re-sample
+        circuit.herald((0, 1), 1)
+        circuit.herald((2, 3), (0, n_output))
+        full_circ = PhotonicCircuit(4)
+        full_circ.add(circuit)
+        sampler = Sampler(full_circ, State([1, 1, 0, 0]), 50000)
+        results2 = backend.run(sampler)
+        # Check all results with outputs greater than 2000
+        for s, c in results2.items():
+            if c > 2000:
+                full_s = (
+                    s[0:1] + State([1]) + s[1:2] + State([n_output]) + s[2:]
+                )
                 # Check results are within 10%
                 assert pytest.approx(results[full_s], 0.1) == c
 
@@ -551,8 +586,8 @@ class TestSamplerCalculationBackends:
         )
         results = backend.run(sampler)
         # Then add and re-sample
-        circuit.herald(1, 0, 1)
-        circuit.herald(0, 2, 3)
+        circuit.herald((0, 1), 1)
+        circuit.herald((2, 3), 0)
         sampler = Sampler(circuit, State([1, 1, 0, 0]), 50000, source=source)
         results2 = backend.run(sampler)
         # Check all results with outputs greater than 2000
@@ -580,8 +615,8 @@ class TestSamplerCalculationBackends:
         )
         results = backend.run(sampler)
         # Then add and re-sample
-        circuit.herald(1, 0, 1)
-        circuit.herald(0, 2, 3)
+        circuit.herald((0, 1), 1)
+        circuit.herald((2, 3), 0)
         sampler = Sampler(circuit, State([1, 1, 0, 0]), 50000)
         results2 = backend.run(sampler)
         # Check all results with outputs greater than 2000
@@ -591,8 +626,9 @@ class TestSamplerCalculationBackends:
                 # Check results are within 10%
                 assert pytest.approx(results[full_s], 0.1) == c
 
+    @pytest.mark.parametrize("n_output", [0, 1])
     @pytest.mark.flaky(reruns=3)
-    def test_herald_equivalent_lossy_imperfect_source(self, backend):
+    def test_herald_equivalent_lossy_imperfect_source(self, backend, n_output):
         """
         Checks that results are equivalent if a herald is used vs
         post-selection on a non-heralded lossy circuit, while also including an
@@ -606,7 +642,7 @@ class TestSamplerCalculationBackends:
         # Sampler without built-in heralds
         post_select = PostSelection()
         post_select.add(1, 1)
-        post_select.add(3, 0)
+        post_select.add(3, n_output)
         sampler = Sampler(
             circuit,
             State([1, 1, 0, 1, 0, 0]),
@@ -616,14 +652,16 @@ class TestSamplerCalculationBackends:
         )
         results = backend.run(sampler)
         # Then add and re-sample
-        circuit.herald(1, 0, 1)
-        circuit.herald(0, 2, 3)
+        circuit.herald((0, 1), 1)
+        circuit.herald((2, 3), (0, n_output))
         sampler = Sampler(circuit, State([1, 1, 0, 0]), 50000, source=source)
         results2 = backend.run(sampler)
         # Check all results with outputs greater than 2000
         for s, c in results2.items():
             if c > 2000:
-                full_s = s[0:1] + State([1]) + s[1:2] + State([0]) + s[2:]
+                full_s = (
+                    s[0:1] + State([1]) + s[1:2] + State([n_output]) + s[2:]
+                )
                 # Check results are within 10%
                 assert pytest.approx(results[full_s], 0.1) == c
 

@@ -63,29 +63,21 @@ class AnalyzerRunner(RunnerABC):
                 values between the provided inputs/outputs.
 
         """
-        n_modes = self.data.circuit.input_modes
-        if (
-            self.data.circuit.heralds["input"]
-            != self.data.circuit.heralds["output"]
-        ):
-            raise RuntimeError(
-                "Mismatch in number of heralds on the input/output modes, it "
-                "is likely this results from a herald being added twice or "
-                "modified."
-            )
         # Process inputs, adding heralds and loss modes
         inputs = list(self.data.inputs)  # Copy input list
-        check_photon_numbers(inputs)
+        check_photon_numbers(inputs, inputs[0].n_photons)
         in_heralds = self.data.circuit.heralds["input"]
         full_inputs = [
             add_heralds_to_state(i, in_heralds)
             + [0] * self.data.circuit.loss_modes
             for i in inputs
         ]
-        n_photons = sum(inputs[0])
+        n_photons = sum(full_inputs[0]) - sum(
+            self.data.circuit.heralds["output"].values()
+        )
         # Generate lists of possible outputs with and without heralded modes
         full_outputs, filtered_outputs = self._generate_outputs(
-            n_modes, n_photons
+            self.data.circuit.input_modes, n_photons
         )
         # Calculate permanent for the given inputs and outputs and return
         # values

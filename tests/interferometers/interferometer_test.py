@@ -85,3 +85,15 @@ class TestReck:
         """
         with pytest.raises(TypeError):
             Reck(error_model=value)
+
+    def test_heralds(self):
+        """
+        Checks map functionality correctly moves heralds to new circuit.
+        """
+        # Create test circuit
+        test_circ = Unitary(random_unitary(8))
+        test_circ.herald((5, 5), 0)
+        test_circ.herald((0, 3), (2, 1))
+        # Check circuit can be mapped
+        mapped_circ = Reck().map(test_circ)
+        assert test_circ.heralds == mapped_circ.heralds

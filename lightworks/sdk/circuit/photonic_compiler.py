@@ -98,7 +98,7 @@ class CompiledPhotonicCircuit:
             self._circuit_spec.append(spec.serialize())
 
     def add_herald(
-        self, n_photons: int, input_mode: int, output_mode: int | None = None
+        self, input_mode: int, output_mode: int, in_photon: int, out_photon: int
     ) -> None:
         """
         Add a herald across a selected input/output of the circuit. If only one
@@ -106,20 +106,24 @@ class CompiledPhotonicCircuit:
 
         Args:
 
-            n_photons (int) : The number of photons to use for the heralding.
-
             input_mode (int) : The input mode to use for the herald.
 
-            output_mode (int | None, optional) : The output mode for the
-                herald, if this is not specified it will be set to the value of
-                the input mode.
+            output_mode (int) : The output mode to use for the herald.
+
+            in_photon (int) : The number of photons to use on the heralding
+                input.
+
+            out_photon (int) : The number of photons to use on the heralding
+                output.
 
         """
-        if not isinstance(n_photons, int) or isinstance(n_photons, bool):
-            raise TypeError(
-                "Number of photons for herald should be an integer."
-            )
-        n_photons = int(n_photons)
+        for n in [in_photon, out_photon]:
+            if not isinstance(n, int) or isinstance(n, bool):
+                raise TypeError(
+                    "Number of photons for herald should be an integer."
+                )
+        in_photon = int(in_photon)
+        out_photon = int(out_photon)
         if output_mode is None:
             output_mode = input_mode
         self._mode_in_range(input_mode)
@@ -130,8 +134,8 @@ class CompiledPhotonicCircuit:
         if output_mode in self._out_heralds:
             raise ValueError("Heralding already set for chosen output mode.")
         # If not then update dictionaries
-        self._in_heralds[input_mode] = n_photons
-        self._out_heralds[output_mode] = n_photons
+        self._in_heralds[input_mode] = in_photon
+        self._out_heralds[output_mode] = out_photon
 
     def _mode_in_range(self, mode: int) -> None:
         """

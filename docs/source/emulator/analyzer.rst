@@ -25,7 +25,7 @@ To begin, the circuit is first defined:
 
     # Then add required heralds
     cnot_circuit.herald(0, 0)
-    cnot_circuit.herald(0, 5)
+    cnot_circuit.herald(5, 0)
 
     cnot_circuit.display(mode_labels = ["a0", "c0", "c1", "t0", "t1", "a1"])
 

@@ -593,13 +593,13 @@ class TestCircuit:
         is reflected in the heralds attribute.
         """
         circuit = PhotonicCircuit(4)
-        circuit.herald(1, 0, 2)
+        circuit.herald((0, 2), (1, 3))
         # Check heralds added
         assert 0 in circuit.heralds["input"]
         assert 2 in circuit.heralds["output"]
         # Check photon number is correct
         assert circuit.heralds["input"][0] == 1
-        assert circuit.heralds["output"][2] == 1
+        assert circuit.heralds["output"][2] == 3
 
     def test_herald_single_value(self):
         """
@@ -607,7 +607,7 @@ class TestCircuit:
         is reflected in the heralds attribute, when only a single mode is set
         """
         circuit = PhotonicCircuit(4)
-        circuit.herald(2, 1)
+        circuit.herald(1, 2)
         # Check heralds added
         assert 1 in circuit.heralds["input"]
         assert 1 in circuit.heralds["output"]
@@ -623,17 +623,17 @@ class TestCircuit:
         """
         circuit = PhotonicCircuit(4)
         with pytest.raises(TypeError):
-            circuit.herald(value, 0)
+            circuit.herald(0, value)
 
-    @pytest.mark.parametrize("modes", [[1], [2], [1, 2]])
+    @pytest.mark.parametrize("modes", [1, 2, (1, 2)])
     def test_herald_duplicate(self, modes):
         """
         Checks error is raised when duplicate mode is added to herald.
         """
         circuit = PhotonicCircuit(4)
-        circuit.herald(1, 1, 2)
+        circuit.herald((1, 2), 1)
         with pytest.raises(ValueError):
-            circuit.herald(1, *modes)
+            circuit.herald(modes, 1)
 
     def test_heralded_circuit_addition(self):
         """
@@ -643,8 +643,8 @@ class TestCircuit:
         circuit = PhotonicCircuit(4)
         # Create heralded sub-circuit to add
         sub_circ = PhotonicCircuit(4)
-        sub_circ.herald(1, 0, 0)
-        sub_circ.herald(1, 3, 3)
+        sub_circ.herald((0, 0), 1)
+        sub_circ.herald((3, 3), 1)
         # Then add to larger circuit
         circuit.add(sub_circ, 1)
         # Check circuit size is increased
@@ -662,12 +662,12 @@ class TestCircuit:
         """
         # Place beam splitters across 0 & 1 and 2 & 3
         circuit = PhotonicCircuit(4)
-        circuit.herald(0, 0, 1)
-        circuit.herald(2, 2, 3)
+        circuit.herald((0, 1), 0)
+        circuit.herald((2, 3), 2)
         # Create heralded sub-circuit and add
         sub_circ = PhotonicCircuit(4)
-        sub_circ.herald(1, 0, 0)
-        sub_circ.herald(1, 3, 3)
+        sub_circ.herald((0, 0), 1)
+        sub_circ.herald((3, 3), 1)
         circuit.add(sub_circ, 1)
         # Check heralds are in correct locations
         assert 0 in circuit._external_heralds["input"]
@@ -686,8 +686,8 @@ class TestCircuit:
         circuit.bs(2)
         # Create heralded sub-circuit and add
         sub_circ = PhotonicCircuit(4)
-        sub_circ.herald(1, 0, 0)
-        sub_circ.herald(1, 3, 3)
+        sub_circ.herald((0, 0), 1)
+        sub_circ.herald((3, 3), 1)
         circuit.add(sub_circ, 1)
         # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
         spec = circuit._get_circuit_spec()
@@ -708,8 +708,8 @@ class TestCircuit:
         circuit.bs(2)
         # Create heralded sub-circuit and add
         sub_circ = PhotonicCircuit(4)
-        sub_circ.herald(1, 0, 0)
-        sub_circ.herald(1, 3, 3)
+        sub_circ.herald((0, 0), 1)
+        sub_circ.herald((3, 3), 1)
         circuit.add(sub_circ, 0)
         # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
         spec = circuit._get_circuit_spec()
@@ -730,8 +730,8 @@ class TestCircuit:
         circuit.bs(2)
         # Create heralded sub-circuit and add
         sub_circ = PhotonicCircuit(4)
-        sub_circ.herald(1, 0, 1)
-        sub_circ.herald(1, 1, 0)
+        sub_circ.herald((0, 1), 1)
+        sub_circ.herald((1, 0), 1)
         circuit.add(sub_circ, 1)
         # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
         spec = circuit._get_circuit_spec()
@@ -752,10 +752,10 @@ class TestCircuit:
         circuit.bs(2)
         # Create heralded sub-circuit and add
         sub_circ = PhotonicCircuit(4)
-        sub_circ.herald(1, 0, 0)
-        sub_circ.herald(1, 1, 1)
-        sub_circ.herald(1, 2, 2)
-        sub_circ.herald(1, 3, 3)
+        sub_circ.herald((0, 0), 1)
+        sub_circ.herald((1, 1), 1)
+        sub_circ.herald((2, 2), 1)
+        sub_circ.herald((3, 3), 1)
         circuit.add(sub_circ, 1)
         # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
         spec = circuit._get_circuit_spec()
@@ -776,8 +776,8 @@ class TestCircuit:
         circuit.bs(2)
         # Create heralded sub-circuit and add
         sub_circ = PhotonicCircuit(4)
-        sub_circ.herald(1, 0, 1)
-        sub_circ.herald(1, 2, 0)
+        sub_circ.herald((0, 1), 1)
+        sub_circ.herald((2, 0), 1)
         circuit.add(sub_circ, 2)
         circuit.add(sub_circ, 1)
         # Confirm beam splitters now act on modes 0 & 2 and 3 & 5
@@ -787,6 +787,18 @@ class TestCircuit:
         assert spec[0].mode_2 == 2
         assert spec[1].mode_1 == 5
         assert spec[1].mode_2 == 7
+
+    def test_herald_varied_on_sub_circuit(self):
+        """
+        Checks that heralds are correctly replicated when the input and output
+        of a herald are on different modes.
+        """
+        circ = PhotonicCircuit(4)
+        sub_circ = PhotonicCircuit(3)
+        sub_circ.herald((0, 2), (1, 2))
+        circ.add(sub_circ)
+        assert circ.heralds["input"][0] == 1
+        assert circ.heralds["output"][0] == 2
 
     def test_input_modes(self):
         """
@@ -803,8 +815,8 @@ class TestCircuit:
         """
         n = randint(6, 10)
         circuit = PhotonicCircuit(n)
-        circuit.herald(1, 1, 4)
-        circuit.herald(2, 3, 3)
+        circuit.herald((1, 4), 1)
+        circuit.herald((3, 3), 2)
         assert circuit.input_modes == n - 2
 
     def test_input_modes_heralds_sub_circuit(self):
@@ -816,8 +828,8 @@ class TestCircuit:
         n = randint(9, 10)
         circuit = PhotonicCircuit(n)
         sub_circuit = PhotonicCircuit(4)
-        sub_circuit.herald(1, 0, 0)
-        sub_circuit.herald(0, 3, 1)
+        sub_circuit.herald((0, 0), 1)
+        sub_circuit.herald((3, 1), 0)
         circuit.add(sub_circuit, 2)
         assert circuit.input_modes == n
 
@@ -829,11 +841,11 @@ class TestCircuit:
         """
         n = randint(9, 10)
         circuit = PhotonicCircuit(n)
-        circuit.herald(1, 1, 4)
-        circuit.herald(2, 3, 3)
+        circuit.herald((1, 4), 1)
+        circuit.herald((3, 3), 2)
         sub_circuit = PhotonicCircuit(4)
-        sub_circuit.herald(1, 0, 0)
-        sub_circuit.herald(0, 3, 1)
+        sub_circuit.herald((0, 0), 1)
+        sub_circuit.herald((3, 1), 0)
         circuit.add(sub_circuit, 2)
         assert circuit.input_modes == n - 2
 
