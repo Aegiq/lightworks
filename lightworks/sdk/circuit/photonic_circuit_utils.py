@@ -35,6 +35,7 @@ from .photonic_components import (
     BeamSplitter,
     Component,
     Group,
+    HeraldData,
     Loss,
     ModeSwaps,
     PhaseShifter,
@@ -148,21 +149,19 @@ def add_empty_mode_to_circuit_spec(
             spec.mode_1 += 1 if spec.mode_1 >= mode else 0
             spec.mode_2 += 1 if spec.mode_2 >= mode else 0
             # Update herald values
-            in_heralds, out_heralds = (
-                spec.heralds["input"],
-                spec.heralds["output"],
-            )
             new_in_heralds = {}
-            for m, n in in_heralds.items():
+            for m, n in spec.heralds.input.items():
                 if m >= (mode - spec.mode_1) and mode - spec.mode_1 >= 0:
                     m += 1
                 new_in_heralds[m] = n
             new_out_heralds = {}
-            for m, n in out_heralds.items():
+            for m, n in spec.heralds.output.items():
                 if m >= (mode - spec.mode_1) and mode - spec.mode_1 >= 0:
                     m += 1
                 new_out_heralds[m] = n
-            spec.heralds = {"input": new_in_heralds, "output": new_out_heralds}
+            spec.heralds = HeraldData(
+                input=new_in_heralds, output=new_out_heralds
+            )
         elif isinstance(spec, UnitaryMatrix):
             spec.mode += 1 if spec.mode >= mode else 0
             # Expand unitary if required

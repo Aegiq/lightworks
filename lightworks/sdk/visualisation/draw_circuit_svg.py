@@ -547,9 +547,7 @@ class DrawCircuitSVG:
             mode1, mode2 = mode2, mode1
         size_x = 100  # Drawing x size
         con_length = 50  # Input/output waveguide lengths
-        extra_length = (
-            50 if spec.heralds["input"] or spec.heralds["output"] else 0
-        )
+        extra_length = 50 if spec.heralds.input or spec.heralds.output else 0
         offset = 50  # Offset of square from modes
         size_y = offset + self.y_locations[mode2] - self.y_locations[mode1]
         # Get x and y positions
@@ -566,7 +564,7 @@ class DrawCircuitSVG:
                 self._add_wg(
                     xloc, self.y_locations[i], con_length + extra_length
                 )
-            elif i - mode1 in spec.heralds["input"]:
+            elif i - mode1 in spec.heralds.input:
                 self._add_wg(
                     xloc + extra_length, self.y_locations[i], con_length
                 )
@@ -598,14 +596,14 @@ class DrawCircuitSVG:
                 self._add_wg(
                     xloc, self.y_locations[i], con_length + extra_length
                 )
-            elif i - mode1 in spec.heralds["output"]:
+            elif i - mode1 in spec.heralds.output:
                 self._add_wg(xloc, self.y_locations[i], con_length)
             self.x_locations[i] = xloc + con_length + extra_length
 
         # Modify provided heralds by mode offset and then add at locations
         shifted_heralds = HeraldData(
-            input={m + mode1: n for m, n in spec.heralds["input"].items()},
-            output={m + mode1: n for m, n in spec.heralds["output"].items()},
+            input={m + mode1: n for m, n in spec.heralds.input.items()},
+            output={m + mode1: n for m, n in spec.heralds.output.items()},
         )
         self._add_heralds(
             shifted_heralds, xloc - size_x - con_length, xloc + con_length

@@ -258,7 +258,7 @@ class Group(Component):
     name: str
     mode_1: int
     mode_2: int
-    heralds: dict[str, dict[int, int]]
+    heralds: "HeraldData"
 
     def get_unitary(self, n_modes: int) -> None:  # type: ignore[override] # noqa: ARG002
         return None
