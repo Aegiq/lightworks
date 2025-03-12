@@ -214,11 +214,9 @@ class PhotonicCircuit:
         mode = self._map_mode(mode)
         self._mode_in_range(mode)
         # Make copy of circuit to avoid modification
-        circuit_copy = circuit.copy()
-        # Use unpack groups and check if heralds are used
-        circuit_copy.unpack_groups()
+        circuit = circuit.copy()
         # Force grouping if heralding included
-        group = True if circuit_copy.heralds.input else group
+        group = True if circuit.heralds.input else group
         # When name not provided set this
         if name is None:
             spec = circuit.__circuit_spec
@@ -230,7 +228,7 @@ class PhotonicCircuit:
             )
         # When grouping use unpacked circuit
         if group:
-            circuit = circuit_copy
+            circuit.unpack_groups()
         # Check circuit size is valid
         n_heralds = len(circuit.heralds.input)
         if mode + circuit.n_modes - n_heralds > self.n_modes:
@@ -245,6 +243,7 @@ class PhotonicCircuit:
                     target_mode += 1
             if 0 <= target_mode < circuit.n_modes:
                 circuit._add_empty_mode(target_mode)
+
         # Then add new modes for heralds from circuit and also add swaps to
         # enforce that the input and output herald are on the same mode
         provisional_swaps = {}
@@ -259,6 +258,7 @@ class PhotonicCircuit:
             herald_loc = in_herald_modes.index(m)
             out_herald = out_herald_modes[herald_loc]
             provisional_swaps[out_herald] = m
+
         # Convert provisional swaps into full list and add to circuit
         swaps = find_optimal_mode_swapping(provisional_swaps, circuit.n_modes)
         spec = circuit.__circuit_spec
@@ -436,7 +436,7 @@ class PhotonicCircuit:
 
         """
         if isinstance(photons, Iterable) and not isinstance(photons, str):
-            in_photon, out_photon = photons[0], photons[1]
+            in_photon, out_photon = photons
         else:
             in_photon = out_photon = photons
         for n in [in_photon, out_photon]:
@@ -445,11 +445,10 @@ class PhotonicCircuit:
                     "Number of photons for herald should be a tuple of two "
                     "integers."
                 )
-        if isinstance(modes, Iterable):
+        if isinstance(modes, Iterable) and not isinstance(photons, str):
             input_mode, output_mode = modes
         else:
-            input_mode = modes
-            output_mode = modes
+            input_mode = output_mode = modes
         input_mode = self._map_mode(input_mode)
         output_mode = self._map_mode(output_mode)
         self._mode_in_range(input_mode)

@@ -414,7 +414,20 @@ def find_optimal_mode_swapping(
     required_swaps: dict[int, int], n_modes: int
 ) -> dict[int, int]:
     """
-    Desc
+    Finds the optimal mode swapping (i.e. minimising swaps) for a particular set
+    of required swaps by mapping to the first available mode.
+
+    Args:
+
+        required_swaps (dict) : The swaps that need to be realised by the
+            operation.
+
+        n_modes (int) : The number of modes across which swapping occurs.
+
+    Returns:
+
+        dict : The calculated swap dictionary.
+
     """
     current_mode = 0
     swaps = {}

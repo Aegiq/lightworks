@@ -24,11 +24,11 @@ from lightworks.sdk.circuit.photonic_components import (
     Barrier,
     BeamSplitter,
     Group,
+    HeraldData,
     Loss,
     ModeSwaps,
     PhaseShifter,
     UnitaryMatrix,
-    HeraldData,
 )
 from lightworks.sdk.utils.exceptions import DisplayError
 
