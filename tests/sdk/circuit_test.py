@@ -182,6 +182,51 @@ class TestCircuit:
         u_2 = c1.U_full.round(8)
         assert (u_1 == u_2).all()
 
+    @pytest.mark.parametrize("herald", [True, False])
+    def test_circuit_add_doesnt_modify(self, herald):
+        """
+        Checks that the circuit add doesn't modify the circuit being added.
+        """
+        c1 = PhotonicCircuit(6)
+        # Create heralded circuit and add
+        c2 = PhotonicCircuit(3)
+        c2.herald(1, 1)
+        c1.add(c2)
+        # Then add non-heralded circuit to that.
+        c3 = PhotonicCircuit(4)
+        c3.bs(0)
+        c3.bs(1)
+        c3.bs(2)
+        if herald:
+            c3.herald(1, 1)
+        before_u = c3.U_full  # Save unitary
+        c1.add(c3)
+        # Check unitary preserved
+        assert c3.n_modes == 4
+        assert (before_u == c3.U_full).all()
+
+    def test_circuit_add_doesnt_modify_group(self):
+        """
+        Checks that the circuit add doesn't modify the circuit being added when
+        a circuit is grouped manuallys.
+        """
+        c1 = PhotonicCircuit(6)
+        # Create heralded circuit and add
+        c2 = PhotonicCircuit(3)
+        c2.herald(1, 1)
+        c1.add(c2)
+        # Then add non-heralded circuit to that.
+        c3 = PhotonicCircuit(4)
+        c3.bs(0)
+        c3.bs(1)
+        c3.herald(1, 1)
+        c3.bs(2)
+        before_u = c3.U_full  # Save unitary
+        c1.add(c3, 0, group=True)
+        # Check unitary preserved
+        assert c3.n_modes == 4
+        assert (before_u == c3.U_full).all()
+
     def test_barrier_inclusion(self):
         """
         Checks that barrier component can be added across all and a selected
@@ -595,11 +640,11 @@ class TestCircuit:
         circuit = PhotonicCircuit(4)
         circuit.herald((0, 2), (1, 3))
         # Check heralds added
-        assert 0 in circuit.heralds["input"]
-        assert 2 in circuit.heralds["output"]
+        assert 0 in circuit.heralds.input
+        assert 2 in circuit.heralds.output
         # Check photon number is correct
-        assert circuit.heralds["input"][0] == 1
-        assert circuit.heralds["output"][2] == 3
+        assert circuit.heralds.input[0] == 1
+        assert circuit.heralds.output[2] == 3
 
     def test_herald_single_value(self):
         """
@@ -609,11 +654,11 @@ class TestCircuit:
         circuit = PhotonicCircuit(4)
         circuit.herald(1, 2)
         # Check heralds added
-        assert 1 in circuit.heralds["input"]
-        assert 1 in circuit.heralds["output"]
+        assert 1 in circuit.heralds.input
+        assert 1 in circuit.heralds.output
         # Check photon number is correct
-        assert circuit.heralds["input"][1] == 2
-        assert circuit.heralds["output"][1] == 2
+        assert circuit.heralds.input[1] == 2
+        assert circuit.heralds.output[1] == 2
 
     @pytest.mark.parametrize("value", [2.5, "2", True])
     def test_herald_invalid_photon_number(self, value):
@@ -650,10 +695,10 @@ class TestCircuit:
         # Check circuit size is increased
         assert circuit.n_modes == 6
         # Confirm heralds are on modes 1 and 4
-        assert 1 in circuit.heralds["input"]
-        assert 1 in circuit.heralds["output"]
-        assert 4 in circuit.heralds["input"]
-        assert 4 in circuit.heralds["output"]
+        assert 1 in circuit.heralds.input
+        assert 1 in circuit.heralds.output
+        assert 4 in circuit.heralds.input
+        assert 4 in circuit.heralds.output
 
     def test_heralded_circuit_addition_herald_modification(self):
         """
@@ -670,10 +715,10 @@ class TestCircuit:
         sub_circ.herald((3, 3), 1)
         circuit.add(sub_circ, 1)
         # Check heralds are in correct locations
-        assert 0 in circuit._external_heralds["input"]
-        assert 2 in circuit._external_heralds["output"]
-        assert 3 in circuit._external_heralds["input"]
-        assert 5 in circuit._external_heralds["output"]
+        assert 0 in circuit._external_heralds.input
+        assert 2 in circuit._external_heralds.output
+        assert 3 in circuit._external_heralds.input
+        assert 5 in circuit._external_heralds.output
 
     def test_heralded_circuit_addition_circ_modification(self):
         """
@@ -797,8 +842,8 @@ class TestCircuit:
         sub_circ = PhotonicCircuit(3)
         sub_circ.herald((0, 2), (1, 2))
         circ.add(sub_circ)
-        assert circ.heralds["input"][0] == 1
-        assert circ.heralds["output"][0] == 2
+        assert circ.heralds.input[0] == 1
+        assert circ.heralds.output[0] == 2
 
     def test_input_modes(self):
         """

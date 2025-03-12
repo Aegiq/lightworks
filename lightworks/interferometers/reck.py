@@ -110,9 +110,9 @@ class Reck:
 
         # Add any heralds from the original circuit
         heralds = circuit.heralds
-        for m1, m2 in zip(heralds["input"], heralds["output"], strict=True):
+        for m1, m2 in zip(heralds.input, heralds.output, strict=True):
             mapped_circuit.herald(
-                (m1, m2), (heralds["input"][m1], heralds["output"][m2])
+                (m1, m2), (heralds.input[m1], heralds.output[m2])
             )
 
         return mapped_circuit

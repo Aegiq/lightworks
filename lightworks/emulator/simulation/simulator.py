@@ -63,8 +63,8 @@ class SimulatorRunner(RunnerABC):
                 state used to create the array.
 
         """
-        in_heralds = self.data.circuit.heralds["input"]
-        out_heralds = self.data.circuit.heralds["output"]
+        in_heralds = self.data.circuit.heralds.input
+        out_heralds = self.data.circuit.heralds.output
         in_heralds_n = sum(in_heralds.values())
         out_heralds_n = sum(out_heralds.values())
         target_n = self.data.inputs[0].n_photons + in_heralds_n

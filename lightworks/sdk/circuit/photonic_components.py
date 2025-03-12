@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from numbers import Real
 from typing import Any
 
@@ -258,7 +258,7 @@ class Group(Component):
     name: str
     mode_1: int
     mode_2: int
-    heralds: dict[str, dict[int, int]]
+    heralds: "HeraldData"
 
     def get_unitary(self, n_modes: int) -> None:  # type: ignore[override] # noqa: ARG002
         return None
@@ -327,6 +327,14 @@ class UnitaryMatrix(Component):
                 "label": self.label,
             },
         )
+
+
+@dataclass(slots=True, frozen=True)
+class HeraldData:
+    """Stores the heralding data on a circuit"""
+
+    input: dict[int, int] = field(default_factory=dict)
+    output: dict[int, int] = field(default_factory=dict)
 
 
 def is_real(value: Any) -> bool:

@@ -66,14 +66,14 @@ class AnalyzerRunner(RunnerABC):
         # Process inputs, adding heralds and loss modes
         inputs = list(self.data.inputs)  # Copy input list
         check_photon_numbers(inputs, inputs[0].n_photons)
-        in_heralds = self.data.circuit.heralds["input"]
+        in_heralds = self.data.circuit.heralds.input
         full_inputs = [
             add_heralds_to_state(i, in_heralds)
             + [0] * self.data.circuit.loss_modes
             for i in inputs
         ]
         n_photons = sum(full_inputs[0]) - sum(
-            self.data.circuit.heralds["output"].values()
+            self.data.circuit.heralds.output.values()
         )
         # Generate lists of possible outputs with and without heralded modes
         full_outputs, filtered_outputs = self._generate_outputs(
@@ -201,7 +201,7 @@ class AnalyzerRunner(RunnerABC):
         # Filter outputs according to post selection and add heralded photons
         filtered_outputs = []
         full_outputs = []
-        out_heralds = self.data.circuit.heralds["output"]
+        out_heralds = self.data.circuit.heralds.output
         post_selection = (
             DefaultPostSelection()
             if self.data.post_selection is None

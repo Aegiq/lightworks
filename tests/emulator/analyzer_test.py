@@ -140,8 +140,7 @@ class TestAnalyzer:
         # Add heralding mode
         self.lossy_circuit.herald(3, 0)
         new_circ = PhotonicCircuit(
-            self.lossy_circuit.n_modes
-            - len(self.lossy_circuit.heralds["input"])
+            self.lossy_circuit.n_modes - len(self.lossy_circuit.heralds.input)
         )
         new_circ.add(self.lossy_circuit)
         analyzer = Analyzer(new_circ, State([1, 0, 1]))

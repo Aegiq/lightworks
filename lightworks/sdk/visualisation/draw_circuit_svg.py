@@ -22,6 +22,7 @@ from lightworks.sdk.circuit.photonic_components import (
     Barrier,
     BeamSplitter,
     Group,
+    HeraldData,
     Loss,
     ModeSwaps,
     PhaseShifter,
@@ -133,7 +134,7 @@ class DrawCircuitSVG:
         # Create list of locations for each mode
         self.x_locations = [init_length + 50] * self.n_modes
         # Add extra waveguides when using heralds
-        if self.circuit._external_heralds["input"]:
+        if self.circuit._external_heralds.input:
             for m in range(self.n_modes):
                 if m not in self.herald_modes:
                     self._add_wg(self.x_locations[m], self.y_locations[m], 50)
@@ -144,7 +145,7 @@ class DrawCircuitSVG:
 
         maxloc = max(self.x_locations)
         # Extend final waveguide if herald included
-        if self.circuit._external_heralds["output"]:
+        if self.circuit._external_heralds.output:
             maxloc += 50
         for i, loc in enumerate(self.x_locations):
             if loc < maxloc and i not in self.herald_modes:
@@ -546,9 +547,7 @@ class DrawCircuitSVG:
             mode1, mode2 = mode2, mode1
         size_x = 100  # Drawing x size
         con_length = 50  # Input/output waveguide lengths
-        extra_length = (
-            50 if spec.heralds["input"] or spec.heralds["output"] else 0
-        )
+        extra_length = 50 if spec.heralds.input or spec.heralds.output else 0
         offset = 50  # Offset of square from modes
         size_y = offset + self.y_locations[mode2] - self.y_locations[mode1]
         # Get x and y positions
@@ -565,7 +564,7 @@ class DrawCircuitSVG:
                 self._add_wg(
                     xloc, self.y_locations[i], con_length + extra_length
                 )
-            elif i - mode1 in spec.heralds["input"]:
+            elif i - mode1 in spec.heralds.input:
                 self._add_wg(
                     xloc + extra_length, self.y_locations[i], con_length
                 )
@@ -597,22 +596,22 @@ class DrawCircuitSVG:
                 self._add_wg(
                     xloc, self.y_locations[i], con_length + extra_length
                 )
-            elif i - mode1 in spec.heralds["output"]:
+            elif i - mode1 in spec.heralds.output:
                 self._add_wg(xloc, self.y_locations[i], con_length)
             self.x_locations[i] = xloc + con_length + extra_length
 
         # Modify provided heralds by mode offset and then add at locations
-        shifted_heralds = {
-            "input": {m + mode1: n for m, n in spec.heralds["input"].items()},
-            "output": {m + mode1: n for m, n in spec.heralds["output"].items()},
-        }
+        shifted_heralds = HeraldData(
+            input={m + mode1: n for m, n in spec.heralds.input.items()},
+            output={m + mode1: n for m, n in spec.heralds.output.items()},
+        )
         self._add_heralds(
             shifted_heralds, xloc - size_x - con_length, xloc + con_length
         )
 
     def _add_heralds(
         self,
-        heralds: dict[str, dict[int, int]],
+        heralds: HeraldData,
         start_loc: float,
         end_loc: float,
     ) -> None:
@@ -621,7 +620,7 @@ class DrawCircuitSVG:
         """
         size = 25
         # Input heralds
-        for mode, num in heralds["input"].items():
+        for mode, num in heralds.input.items():
             xloc = start_loc
             yloc = self.y_locations[mode]
             self.draw_spec += [("herald", (xloc, yloc, size))]
@@ -632,7 +631,7 @@ class DrawCircuitSVG:
                 )
             ]
         # Output heralds
-        for mode, num in heralds["output"].items():
+        for mode, num in heralds.output.items():
             xloc = end_loc
             yloc = self.y_locations[mode]
             self.draw_spec += [("herald", (xloc, yloc, size))]

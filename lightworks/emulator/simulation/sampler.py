@@ -87,7 +87,7 @@ class SamplerRunner(RunnerABC):
             )
         # Add heralds to the included input
         modified_state = add_heralds_to_state(
-            self.data.input_state, self.data.circuit.heralds["input"]
+            self.data.input_state, self.data.circuit.heralds.input
         )
         input_state = State(modified_state)
         # Then build with source
@@ -99,7 +99,7 @@ class SamplerRunner(RunnerABC):
             pdist = {State([0] * self.data.circuit.n_modes): 1}
         # Assign calculated distribution to attribute
         self.probability_distribution = pdist
-        herald_modes = list(self.data.circuit.heralds["output"].keys())
+        herald_modes = list(self.data.circuit.heralds.output.keys())
         self.full_to_heralded = {
             s: State(remove_heralds_from_state(s, herald_modes)) for s in pdist
         }
@@ -206,7 +206,7 @@ class SamplerRunner(RunnerABC):
             }
         filtered_samples = []
         # Get heralds and pre-calculate items
-        heralds = self.data.circuit.heralds["output"]
+        heralds = self.data.circuit.heralds.output
         if (
             heralds
             and max(heralds.values()) > 1
@@ -284,7 +284,7 @@ class SamplerRunner(RunnerABC):
                 "the sampling mode must be set to 'input'."
             )
         # Get heralds and pre-calculate items
-        heralds = self.data.circuit.heralds["output"]
+        heralds = self.data.circuit.heralds.output
         if (
             heralds
             and max(heralds.values()) > 1

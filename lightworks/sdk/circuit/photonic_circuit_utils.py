@@ -35,6 +35,7 @@ from .photonic_components import (
     BeamSplitter,
     Component,
     Group,
+    HeraldData,
     Loss,
     ModeSwaps,
     PhaseShifter,
@@ -148,21 +149,19 @@ def add_empty_mode_to_circuit_spec(
             spec.mode_1 += 1 if spec.mode_1 >= mode else 0
             spec.mode_2 += 1 if spec.mode_2 >= mode else 0
             # Update herald values
-            in_heralds, out_heralds = (
-                spec.heralds["input"],
-                spec.heralds["output"],
-            )
             new_in_heralds = {}
-            for m, n in in_heralds.items():
+            for m, n in spec.heralds.input.items():
                 if m >= (mode - spec.mode_1) and mode - spec.mode_1 >= 0:
                     m += 1
                 new_in_heralds[m] = n
             new_out_heralds = {}
-            for m, n in out_heralds.items():
+            for m, n in spec.heralds.output.items():
                 if m >= (mode - spec.mode_1) and mode - spec.mode_1 >= 0:
                     m += 1
                 new_out_heralds[m] = n
-            spec.heralds = {"input": new_in_heralds, "output": new_out_heralds}
+            spec.heralds = HeraldData(
+                input=new_in_heralds, output=new_out_heralds
+            )
         elif isinstance(spec, UnitaryMatrix):
             spec.mode += 1 if spec.mode >= mode else 0
             # Expand unitary if required
@@ -408,3 +407,39 @@ def _add_mode_to_parameterized_unitary(
     new_u[:add_mode, add_mode + 1 :] = unitary._unitary[:add_mode, add_mode:]
     new_u[add_mode + 1 :, :add_mode] = unitary._unitary[add_mode:, :add_mode]
     return ParameterizedUnitary(new_u, unitary._params)
+
+
+def find_optimal_mode_swapping(
+    required_swaps: dict[int, int], n_modes: int
+) -> dict[int, int]:
+    """
+    Finds the optimal mode swapping (i.e. minimising swaps) for a particular set
+    of required swaps by mapping to the first available mode.
+
+    Args:
+
+        required_swaps (dict) : The swaps that need to be realised by the
+            operation.
+
+        n_modes (int) : The number of modes across which swapping occurs.
+
+    Returns:
+
+        dict : The calculated swap dictionary.
+
+    """
+    current_mode = 0
+    swaps = {}
+    # Loop over all modes in circuit to find swaps
+    for i in range(n_modes):
+        # If used as a key then take value from provisional swaps
+        if i in required_swaps:
+            swaps[i] = required_swaps[i]
+        # Otherwise then map mode to lowest mode possible
+        else:
+            while current_mode in required_swaps.values():
+                current_mode += 1
+            if i != current_mode:
+                swaps[i] = current_mode
+            current_mode += 1
+    return swaps
