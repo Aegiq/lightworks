@@ -408,3 +408,26 @@ def _add_mode_to_parameterized_unitary(
     new_u[:add_mode, add_mode + 1 :] = unitary._unitary[:add_mode, add_mode:]
     new_u[add_mode + 1 :, :add_mode] = unitary._unitary[add_mode:, :add_mode]
     return ParameterizedUnitary(new_u, unitary._params)
+
+
+def find_optimal_mode_swapping(
+    required_swaps: dict[int, int], n_modes: int
+) -> dict[int, int]:
+    """
+    Desc
+    """
+    current_mode = 0
+    swaps = {}
+    # Loop over all modes in circuit to find swaps
+    for i in range(n_modes):
+        # If used as a key then take value from provisional swaps
+        if i in required_swaps:
+            swaps[i] = required_swaps[i]
+        # Otherwise then map mode to lowest mode possible
+        else:
+            while current_mode in required_swaps.values():
+                current_mode += 1
+            if i != current_mode:
+                swaps[i] = current_mode
+            current_mode += 1
+    return swaps

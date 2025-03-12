@@ -40,6 +40,7 @@ from .photonic_circuit_utils import (
     check_loss,
     compress_mode_swaps,
     convert_non_adj_beamsplitters,
+    find_optimal_mode_swapping,
     unpack_circuit_spec,
 )
 from .photonic_compiler import CompiledPhotonicCircuit
@@ -230,8 +231,6 @@ class PhotonicCircuit:
         # When grouping use unpacked circuit
         if group:
             circuit = circuit_copy
-        spec = circuit.__circuit_spec
-        circuit_heralds = circuit.heralds
         # Check circuit size is valid
         n_heralds = len(circuit.heralds.input)
         if mode + circuit.n_modes - n_heralds > self.n_modes:
@@ -245,36 +244,24 @@ class PhotonicCircuit:
                 if target_mode > m:
                     target_mode += 1
             if 0 <= target_mode < circuit.n_modes:
-                spec = circuit._add_empty_mode(spec, target_mode)
+                circuit._add_empty_mode(target_mode)
         # Then add new modes for heralds from circuit and also add swaps to
         # enforce that the input and output herald are on the same mode
         provisional_swaps = {}
         circuit_heralds = circuit.heralds
-        for m in sorted(circuit_heralds.input):
-            self.__circuit_spec = self._add_empty_mode(
-                self.__circuit_spec, mode + m
-            )
+        in_herald_modes = list(circuit_heralds.input.keys())
+        out_herald_modes = list(circuit_heralds.output.keys())
+        for m in sorted(in_herald_modes):
+            self._add_empty_mode(mode + m)
             self.__internal_modes.append(mode + m)
             # Current limitation is that heralding should be on the same mode
             # when adding, so use a mode swap to compensate for this.
-            herald_loc = list(circuit_heralds.input.keys()).index(m)
-            out_herald = list(circuit_heralds.output.keys())[herald_loc]
+            herald_loc = in_herald_modes.index(m)
+            out_herald = out_herald_modes[herald_loc]
             provisional_swaps[out_herald] = m
         # Convert provisional swaps into full list and add to circuit
-        current_mode = 0
-        swaps = {}
-        # Loop over all modes in circuit to find swaps
-        for i in range(circuit.n_modes):
-            # If used as a key then take value from provisional swaps
-            if i in provisional_swaps:
-                swaps[i] = provisional_swaps[i]
-            # Otherwise then map mode to lowest mode possible
-            else:
-                while current_mode in provisional_swaps.values():
-                    current_mode += 1
-                if i != current_mode:
-                    swaps[i] = current_mode
-                current_mode += 1
+        swaps = find_optimal_mode_swapping(provisional_swaps, circuit.n_modes)
+        spec = circuit.__circuit_spec
         # Skip for cases where swaps do not alter mode structure
         if list(swaps.keys()) != list(swaps.values()):
             spec.append(ModeSwaps(swaps))
@@ -646,14 +633,14 @@ class PhotonicCircuit:
                 mode += 1
         return mode
 
-    def _add_empty_mode(
-        self, circuit_spec: list[Component], mode: int
-    ) -> list[Component]:
+    def _add_empty_mode(self, mode: int) -> None:
         """
         Adds an empty mode at the selected location to a provided circuit spec.
         """
         self.__n_modes += 1
-        new_circuit_spec = add_empty_mode_to_circuit_spec(circuit_spec, mode)
+        self.__circuit_spec = add_empty_mode_to_circuit_spec(
+            self.__circuit_spec, mode
+        )
         # Also modify heralds as required
         to_modify = [
             "__in_heralds",
@@ -671,7 +658,6 @@ class PhotonicCircuit:
         self.__internal_modes = [
             m + 1 if m >= mode else m for m in self.__internal_modes
         ]
-        return new_circuit_spec
 
     def _freeze_params(self, circuit_spec: list[Component]) -> list[Component]:
         """
