@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="446.4"
+   height="310.0"
+   viewBox="0 0 900 625"
+   version="1.1"
+   id="svg37"
+   sodipodi:docname="single_qubit_gate_demo.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview37"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="3.0451613"
+     inkscape:cx="131.19174"
+     inkscape:cy="132.5053"
+     inkscape:window-width="3072"
+     inkscape:window-height="1622"
+     inkscape:window-x="2696"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg37" />
+  <defs
+     id="defs1" />
+  <rect
+     style="fill:#ffffff;stroke-width:6.86962;stroke-opacity:0.42"
+     id="rect38"
+     width="900"
+     height="625"
+     x="0"
+     y="0" />
+  <rect
+     x="100"
+     y="25"
+     width="700"
+     height="575"
+     fill="none"
+     stroke="black"
+     id="rect1" />
+  <rect
+     x="92"
+     y="124.5"
+     width="8"
+     height="1"
+     fill="black"
+     id="rect2" />
+  <rect
+     x="92"
+     y="249.5"
+     width="8"
+     height="1"
+     fill="black"
+     id="rect3" />
+  <rect
+     x="92"
+     y="374.5"
+     width="8"
+     height="1"
+     fill="black"
+     id="rect4" />
+  <rect
+     x="92"
+     y="499.5"
+     width="8"
+     height="1"
+     fill="black"
+     id="rect5" />
+  <text
+     x="80"
+     y="127"
+     font-size="25"
+     fill="black"
+     text-anchor="end"
+     dominant-baseline="middle"
+     transform="rotate(0, 80, 127)"
+     id="text5">a0</text>
+  <text
+     x="80"
+     y="252"
+     font-size="25"
+     fill="black"
+     text-anchor="end"
+     dominant-baseline="middle"
+     transform="rotate(0, 80, 252)"
+     id="text6">a1</text>
+  <text
+     x="80"
+     y="377"
+     font-size="25"
+     fill="black"
+     text-anchor="end"
+     dominant-baseline="middle"
+     transform="rotate(0, 80, 377)"
+     id="text7">b0</text>
+  <text
+     x="80"
+     y="502"
+     font-size="25"
+     fill="black"
+     text-anchor="end"
+     dominant-baseline="middle"
+     transform="rotate(0, 80, 502)"
+     id="text8">b1</text>
+  <rect
+     x="149.95"
+     y="121.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect8" />
+  <rect
+     x="149.95"
+     y="246.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect9" />
+  <rect
+     x="200"
+     y="100.0"
+     width="100"
+     height="175"
+     fill="#1a0f36"
+     stroke="black"
+     rx="5"
+     ry="5"
+     id="rect10" />
+  <text
+     x="250.0"
+     y="187.5"
+     font-size="35"
+     fill="white"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 250.0, 187.5)"
+     id="text10">X</text>
+  <rect
+     x="299.95"
+     y="121.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect11" />
+  <rect
+     x="299.95"
+     y="246.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect12" />
+  <rect
+     x="349.95"
+     y="121.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect13" />
+  <rect
+     x="349.95"
+     y="246.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect14" />
+  <rect
+     x="400"
+     y="100.0"
+     width="100"
+     height="175"
+     fill="#1a0f36"
+     stroke="black"
+     rx="5"
+     ry="5"
+     id="rect15" />
+  <text
+     x="450.0"
+     y="187.5"
+     font-size="35"
+     fill="white"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 450.0, 187.5)"
+     id="text15">Y</text>
+  <rect
+     x="499.95"
+     y="121.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect16" />
+  <rect
+     x="499.95"
+     y="246.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect17" />
+  <rect
+     x="549.95"
+     y="121.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect18" />
+  <rect
+     x="549.95"
+     y="246.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect19" />
+  <rect
+     x="600"
+     y="100.0"
+     width="100"
+     height="175"
+     fill="#1a0f36"
+     stroke="black"
+     rx="5"
+     ry="5"
+     id="rect20" />
+  <text
+     x="650.0"
+     y="187.5"
+     font-size="35"
+     fill="white"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 650.0, 187.5)"
+     id="text20">Z</text>
+  <rect
+     x="699.95"
+     y="121.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect21" />
+  <rect
+     x="699.95"
+     y="246.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect22" />
+  <rect
+     x="149.95"
+     y="371.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect23" />
+  <rect
+     x="149.95"
+     y="496.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect24" />
+  <rect
+     x="200"
+     y="350.0"
+     width="100"
+     height="175"
+     fill="#1a0f36"
+     stroke="black"
+     rx="5"
+     ry="5"
+     id="rect25" />
+  <text
+     x="250.0"
+     y="437.5"
+     font-size="35"
+     fill="white"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 250.0, 437.5)"
+     id="text25">H</text>
+  <rect
+     x="299.95"
+     y="371.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect26" />
+  <rect
+     x="299.95"
+     y="496.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect27" />
+  <rect
+     x="349.95"
+     y="371.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect28" />
+  <rect
+     x="349.95"
+     y="496.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect29" />
+  <rect
+     x="400"
+     y="350.0"
+     width="100"
+     height="175"
+     fill="#1a0f36"
+     stroke="black"
+     rx="5"
+     ry="5"
+     id="rect30" />
+  <text
+     x="450.0"
+     y="437.5"
+     font-size="35"
+     fill="white"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 450.0, 437.5)"
+     id="text30">S</text>
+  <rect
+     x="499.95"
+     y="371.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect31" />
+  <rect
+     x="499.95"
+     y="496.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect32" />
+  <rect
+     x="549.95"
+     y="371.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect33" />
+  <rect
+     x="549.95"
+     y="496.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect34" />
+  <rect
+     x="600"
+     y="350.0"
+     width="100"
+     height="175"
+     fill="#1a0f36"
+     stroke="black"
+     rx="5"
+     ry="5"
+     id="rect35" />
+  <text
+     x="650.0"
+     y="437.5"
+     font-size="35"
+     fill="white"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 650.0, 437.5)"
+     id="text35">T</text>
+  <rect
+     x="699.95"
+     y="371.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect36" />
+  <rect
+     x="699.95"
+     y="496.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect37" />
+</svg>
