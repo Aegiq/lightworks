@@ -103,7 +103,7 @@ def density_from_state(
 
     """
     state = np.array(state)
-    return np.outer(state, np.conj(state.T))
+    return np.outer(state, np.conj(state.T)).astype(complex)
 
 
 def choi_from_unitary(
@@ -123,7 +123,9 @@ def choi_from_unitary(
 
     """
     unitary = np.array(unitary)
-    return np.outer(unitary.flatten(), np.conj(unitary.flatten()))
+    return np.outer(unitary.flatten(), np.conj(unitary.flatten())).astype(
+        complex
+    )
 
 
 def _vec(mat: NDArray[T]) -> NDArray[T]:
@@ -318,7 +320,7 @@ def _calculate_density_matrix(
         ops = measurement.split(",")
         mat = PAULI_MAPPING[ops[0]]
         for g in ops[1:]:
-            mat = np.kron(mat, PAULI_MAPPING[g])
+            mat = np.kron(mat, PAULI_MAPPING[g]).astype(complex)
         # Updated density matrix
         rho += expectation * mat
     return rho
