@@ -19,13 +19,7 @@ from numpy.typing import NDArray
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
-from .utils import (
-    _calculate_density_matrix,
-    _combine_all_dict_mat,
-    _combine_all_list,
-    _combine_all_list_array,
-    _vec,
-)
+from .utils import _calculate_density_matrix, _combine_all, _vec
 
 if TYPE_CHECKING:
     from lightworks.sdk.state import State
@@ -84,7 +78,7 @@ class GateFidelity(ProcessTomography):
         """
         target_process = np.array(target_process)
         # Run all required tomography experiments
-        all_inputs = _combine_all_list(TOMO_INPUTS, self.n_qubits)
+        all_inputs = _combine_all(TOMO_INPUTS, self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         # Sorted results per input
         remapped_results: dict[str, dict[str, dict[State, int]]] = {
@@ -124,10 +118,10 @@ class GateFidelity(ProcessTomography):
         """
         # Unitary basis
         u_basis = list(
-            _combine_all_dict_mat(dict(PAULI_MAPPING), self.n_qubits).values()
+            _combine_all(dict(PAULI_MAPPING), self.n_qubits).values()
         )
         # Input density matrices
-        rho_basis = _combine_all_list_array(
+        rho_basis = _combine_all(
             [RHO_MAPPING[i] for i in TOMO_INPUTS], self.n_qubits
         )
         # Then find alpha matrix

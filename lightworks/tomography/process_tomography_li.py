@@ -21,8 +21,7 @@ from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
 from .utils import (
     _calculate_expectation_value,
-    _combine_all_dict_mat,
-    _combine_all_list,
+    _combine_all,
     _unvec,
     _vec,
     process_fidelity,
@@ -75,13 +74,13 @@ class LIProcessTomography(ProcessTomography):
             np.ndarray : The calculated choi matrix for the process.
 
         """
-        all_inputs = _combine_all_list(TOMO_INPUTS, self.n_qubits)
+        all_inputs = _combine_all(TOMO_INPUTS, self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         # Get expectation values using results
         lambdas = self._calculate_expectation_values(results)
         # Find all pauli and density matrices for multi-qubit states
-        full_paulis = _combine_all_dict_mat(PAULI_MAPPING, self.n_qubits)
-        full_rhos = _combine_all_dict_mat(RHO_MAPPING, self.n_qubits)
+        full_paulis = _combine_all(PAULI_MAPPING, self.n_qubits)
+        full_rhos = _combine_all(RHO_MAPPING, self.n_qubits)
         # Determine the transformation matrix to perform linear inversion
         dim = 2**self.n_qubits
         transform_matrix = np.zeros((dim**4, dim**4), dtype=complex)
