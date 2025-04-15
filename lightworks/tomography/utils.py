@@ -15,7 +15,6 @@
 from typing import Any, TypeVar
 
 import numpy as np
-from multimethod import multimethod
 from numpy.typing import NDArray
 from scipy.linalg import sqrtm
 
@@ -143,15 +142,6 @@ def _unvec(mat: NDArray[T]) -> NDArray[T]:
     return mat.reshape(dim, dim)
 
 
-@multimethod
-def _combine_all(value: Any, n: int) -> None:  # noqa: ARG001
-    """
-    Combines all elements of provided value with itself n number of times.
-    """
-    raise TypeError("combine_all method not implemented for provided type.")
-
-
-@_combine_all.register
 def _combine_all_list(value: list[str], n: int) -> list[str]:
     """
     Sums string values within list.
@@ -162,7 +152,6 @@ def _combine_all_list(value: list[str], n: int) -> list[str]:
     return result
 
 
-@_combine_all.register
 def _combine_all_list_array(
     value: list[NDArray[Any]], n: int
 ) -> list[NDArray[Any]]:
@@ -175,7 +164,6 @@ def _combine_all_list_array(
     return result
 
 
-@_combine_all.register
 def _combine_all_dict_mat(
     value: dict[str, NDArray[Any]], n: int
 ) -> dict[str, NDArray[Any]]:
@@ -211,7 +199,7 @@ def _get_tomo_measurements(
         list : A list of the measurement combinations for tomography.
 
     """
-    all_meas = _combine_all(list(MEASUREMENT_MAPPING.keys()), n_qubits)
+    all_meas = _combine_all_list(list(MEASUREMENT_MAPPING.keys()), n_qubits)
     if remove_trivial:
         all_meas.pop(all_meas.index(",".join("I" * n_qubits)))
     return all_meas

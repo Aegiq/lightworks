@@ -21,7 +21,8 @@ from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
 from .utils import (
     _calculate_expectation_value,
-    _combine_all,
+    _combine_all_dict_mat,
+    _combine_all_list,
     _get_tomo_measurements,
     _unvec,
     _vec,
@@ -75,7 +76,7 @@ class MLEProcessTomography(ProcessTomography):
             np.ndarray : The calculated choi matrix for the process.
 
         """
-        all_inputs = _combine_all(TOMO_INPUTS, self.n_qubits)
+        all_inputs = _combine_all_list(TOMO_INPUTS, self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         nij = {}
         # Convert counts to an expectation value
@@ -114,9 +115,9 @@ class MLETomographyAlgorithm:
 
         # Pre-calculate all required n_qubit pauli & density matrices + the
         # inputs and measurement basis for the tomography
-        self._all_rhos = _combine_all(RHO_MAPPING, self.n_qubits)
-        self._all_pauli = _combine_all(PAULI_MAPPING, self.n_qubits)
-        self._input_basis = _combine_all(TOMO_INPUTS, self.n_qubits)
+        self._all_rhos = _combine_all_dict_mat(RHO_MAPPING, self.n_qubits)
+        self._all_pauli = _combine_all_dict_mat(PAULI_MAPPING, self.n_qubits)
+        self._input_basis = _combine_all_list(TOMO_INPUTS, self.n_qubits)
         self._meas_basis = _get_tomo_measurements(n_qubits, remove_trivial=True)
 
         self._a_matrix = self._a_mat()
