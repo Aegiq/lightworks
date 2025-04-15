@@ -360,7 +360,9 @@ def _check_loss_param(loss: Parameter[Any]) -> None:
 
 
 @multimethod
-def add_mode_to_unitary(unitary: Any, add_mode: int) -> NDArray[np.complex128]:
+def add_mode_to_unitary(
+    unitary: NDArray[Any], add_mode: int
+) -> NDArray[np.complex128]:
     """
     Adds a new mode (through inclusion of an extra row/column) to the provided
     unitary at the selected location.
