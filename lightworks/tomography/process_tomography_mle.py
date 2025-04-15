@@ -302,8 +302,10 @@ class MLETomographyAlgorithm:
         # Compute partial trace
         dim = int(choi.shape[0] ** 0.5)
         partial_trace = choi.reshape(np.tile([dim, dim], 2))
-        partial_trace = np.einsum(partial_trace, np.array([0, 1, 2, 1]))  # type: ignore[arg-type]
-        partial_trace = partial_trace.reshape(dim, dim)
+        partial_trace = np.einsum(partial_trace, np.array([0, 1, 2, 1])).astype(  # type: ignore[arg-type]
+            complex
+        )
+        partial_trace = partial_trace.reshape(dim, dim)  # type: ignore[assignment]
         # Then find the variation and subtract this from the choi matrix
         variation = partial_trace - np.identity(dim)
         return choi - np.kron(variation / dim, np.identity(dim))

@@ -291,8 +291,8 @@ class PhotonicCircuit:
         self,
         mode_1: int,
         mode_2: int | None = None,
-        reflectivity: float = 0.5,
-        loss: float = 0,
+        reflectivity: float | Parameter[float] = 0.5,
+        loss: float | Parameter[float] = 0,
         convention: str = "Rx",
     ) -> None:
         """
@@ -307,11 +307,11 @@ class PhotonicCircuit:
                 splitter acts on. This can also be left as the default value of
                 None to automatically use mode_2 as mode_1 + 1.
 
-            reflectivity (float, optional) : The reflectivity value of the
-                beam splitter. Defaults to 0.5.
+            reflectivity (float | Parameter, optional) : The reflectivity value
+                of the beam splitter. Defaults to 0.5.
 
-            loss (float, optional) : The loss of the beam splitter, this should
-                be provided as a decimal value in the range [0,1].
+            loss (float | Parameter, optional) : The loss of the beam splitter,
+                this should be provided as a decimal value in the range [0,1].
 
             convention (str, optional) : The convention to use for the beam
                 splitter, should be either "Rx" (the default value) or "H".
@@ -337,7 +337,12 @@ class PhotonicCircuit:
             self.loss(mode_1, loss)
             self.loss(mode_2, loss)
 
-    def ps(self, mode: int, phi: float, loss: float = 0) -> None:
+    def ps(
+        self,
+        mode: int,
+        phi: float | Parameter[float],
+        loss: float | Parameter[float] = 0,
+    ) -> None:
         """
         Applies a phase shift to a given mode in the circuit.
 
@@ -345,10 +350,10 @@ class PhotonicCircuit:
 
             mode (int) : The mode on which the phase shift acts.
 
-            phi (float) : The angular phase shift to apply.
+            phi (float | Parameter) : The angular phase shift to apply.
 
-            loss (float, optional) : The loss of the phase shifter, this should
-                be provided as a decimal value in the range [0,1].
+            loss (float | Parameter, optional) : The loss of the phase shifter,
+                this should be provided as a decimal value in the range [0,1].
 
         """
         mode = self._map_mode(mode)
@@ -358,7 +363,7 @@ class PhotonicCircuit:
         if isinstance(loss, Parameter) or loss > 0:
             self.loss(mode, loss)
 
-    def loss(self, mode: int, loss: float = 0) -> None:
+    def loss(self, mode: int, loss: float | Parameter[float] = 0) -> None:
         """
         Adds a loss channel to the specified mode of the circuit.
 
@@ -366,8 +371,9 @@ class PhotonicCircuit:
 
             mode (int) : The mode on which the loss channel acts.
 
-            loss (float, optional) : The loss applied to the selected mode,
-                this should be provided as a decimal value in the range [0,1].
+            loss (float | Parameter, optional) : The loss applied to the
+                selected mode, this should be provided as a decimal value in the
+                range [0,1].
 
         """
         mode = self._map_mode(mode)
