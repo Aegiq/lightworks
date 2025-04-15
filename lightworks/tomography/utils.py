@@ -164,7 +164,7 @@ def _combine_all_list(value: list[str], n: int) -> list[str]:
 
 @_combine_all.register
 def _combine_all_list_array(
-    value: list[NDArray[Any]], n: int
+    value: list[np.ndarray[Any, Any]], n: int
 ) -> list[NDArray[Any]]:
     """
     Performs tensor product of all combinations of arrays within list.
@@ -177,7 +177,7 @@ def _combine_all_list_array(
 
 @_combine_all.register
 def _combine_all_dict_mat(
-    value: dict[str, NDArray[Any]], n: int
+    value: dict[str, np.ndarray[Any, Any]], n: int
 ) -> dict[str, NDArray[Any]]:
     """
     Sums keys of dictionary and performs tensor products of the dictionary
