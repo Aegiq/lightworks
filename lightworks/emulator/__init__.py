@@ -32,9 +32,6 @@ Simulators:
         circuit, and enables sampling from it. Imperfect sources and detectors
         can also be utilised here.
 
-    QuickSampler : A faster sampler, which can be used in cases where photon
-        number should be preserved and source is perfect.
-
     Analyzer : Finds all possible outputs of a circuit with a given set of
         inputs, conditional on them meeting a set of post-selection and
         heralding criteria. This means it can be used to analyze how well a
