@@ -165,3 +165,12 @@ class TestUtils:
         3^n_qubits.
         """
         assert len(_get_required_tomo_measurements(n_qubits)[0]) == 3**n_qubits
+
+    @pytest.mark.parametrize("n_qubits", [1, 3])
+    def test_required_measurements_order(self, n_qubits):
+        """
+        Checks that the required measurements function always returns a sorted
+        list for consistency between runs.
+        """
+        req_meas = _get_required_tomo_measurements(n_qubits)[0]
+        assert req_meas == sorted(req_meas)

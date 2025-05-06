@@ -247,6 +247,7 @@ def _get_required_tomo_measurements(
         for c in _get_tomo_measurements(n_qubits, remove_trivial=remove_trivial)
     }
     req_measurements = list(set(mapping.values()))
+    req_measurements.sort()
     return req_measurements, mapping
 
 
