@@ -26,6 +26,10 @@ from lightworks import (
 )
 from lightworks.emulator import Backend
 from lightworks.tomography import StateTomography
+from lightworks.tomography.experiments import (
+    StateTomographyExperiment,
+    StateTomographyList,
+)
 from lightworks.tomography.state_tomography import MEASUREMENT_MAPPING
 
 
@@ -189,3 +193,50 @@ class TestStateTomography:
         tomo = StateTomography(2, PhotonicCircuit(4))
         with pytest.raises(ValueError):
             tomo._create_circuit("XYZ")
+
+    def test_experiments_length(self):
+        """
+        Checks number of elements returned by StateTomography is the correct
+        length.
+        """
+        tomo = StateTomography(2, qubit.CNOT())
+        experiments = tomo.get_experiments()
+        assert len(experiments) == 9
+
+    def test_experiments_list(self):
+        """
+        Checks that data returned by StateTomography get_experiments is a
+        StateTomographyList.
+        """
+        tomo = StateTomography(2, qubit.CNOT())
+        experiments = tomo.get_experiments()
+        assert isinstance(experiments, StateTomographyList)
+
+    def test_experiments_in_list_are_experiments(self):
+        """
+        Checks that data returned by StateTomography get_experiments in a list
+        of experiments.
+        """
+        tomo = StateTomography(2, qubit.CNOT())
+        experiments = tomo.get_experiments()
+        for exp in experiments:
+            assert isinstance(exp, StateTomographyExperiment)
+
+    @pytest.mark.parametrize(
+        ("n1", "n2"),
+        [
+            ("all_circuits", "circuit"),
+            ("all_measurement_basis", "measurement_basis"),
+        ],
+    )
+    def test_all_methods(self, n1, n2):
+        """
+        Checks that the all methods from StateTomographyList correctly returns
+        the expected list of values in the correct order.
+        """
+        tomo = StateTomography(2, qubit.CNOT())
+        experiments = tomo.get_experiments()
+        for exp, quantity in zip(
+            experiments, getattr(experiments, n1), strict=True
+        ):
+            assert getattr(exp, n2) == quantity
