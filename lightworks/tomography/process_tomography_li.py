@@ -43,13 +43,6 @@ class LIProcessTomography(ProcessTomography):
             It is required that the number of circuit input modes equals 2 * the
             number of qubits.
 
-        experiment (Callable) : A function for performing the required
-            tomography experiments. This should accept a list of circuits and a
-            list of inputs and then return a list of results to process.
-
-        experiment_args (list | None) : Optionally provide additional arguments
-            which will be passed directly to the experiment function.
-
     """
 
     @property
