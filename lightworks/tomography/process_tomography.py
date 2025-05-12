@@ -16,10 +16,9 @@
 from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.state import State
 
+from .experiments import TomographyExperiment, TomographyList
 from .mappings import INPUT_MAPPING, MEASUREMENT_MAPPING
 from .utils import (
-    TomographyExperiment,
-    TomographyList,
     _combine_all,
     _get_required_tomo_measurements,
     _get_tomo_measurements,
