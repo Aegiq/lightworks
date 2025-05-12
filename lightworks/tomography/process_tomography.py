@@ -19,6 +19,7 @@ from lightworks.sdk.state import State
 from .experiments import ProcessTomographyExperiment, ProcessTomographyList
 from .mappings import INPUT_MAPPING, MEASUREMENT_MAPPING
 from .utils import (
+    TomographyDataError,
     _combine_all,
     _get_required_tomo_measurements,
     _get_tomo_measurements,
@@ -140,6 +141,13 @@ class ProcessTomography:
             self.n_qubits
         )
         if not isinstance(results, dict):
+            if len(results) != len(inputs) * len(req_measurements):
+                msg = (
+                    f"Number of results ({len(results)}) did not match the "
+                    f"expected number ({len(inputs) * len(req_measurements)}) "
+                    "for the target tomography algorithm."
+                )
+                raise TomographyDataError(msg)
             # Sort results into each input/measurement combination
             num_per_in = len(req_measurements)
             sorted_results = {
@@ -153,7 +161,21 @@ class ProcessTomography:
                 for i, in_state in enumerate(inputs)
             }
         else:
-            sorted_results = dict(results)  # type: ignore [arg-type]
+            sorted_results = {}
+            missing = []
+            for in_state in inputs:
+                sorted_results[in_state] = {}
+                for meas in req_measurements:
+                    if (in_state, meas) in results:
+                        sorted_results[in_state][meas] = results[in_state, meas]
+                    else:
+                        missing.append((in_state, meas))
+            if missing:
+                msg = (
+                    "One or more expected keys were detected to be missing "
+                    f"from the results dictionary. Missing keys were {missing}."
+                )
+                raise TomographyDataError(msg)
         # Expand results to include all of the required measurements
         full_results = {}
         for in_state, res in sorted_results.items():

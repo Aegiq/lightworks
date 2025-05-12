@@ -21,6 +21,7 @@ from lightworks.sdk.state import State
 from .experiments import StateTomographyExperiment, StateTomographyList
 from .mappings import MEASUREMENT_MAPPING
 from .utils import (
+    TomographyDataError,
     _calculate_density_matrix,
     _get_required_tomo_measurements,
     _get_tomo_measurements,
@@ -118,7 +119,7 @@ class StateTomography:
 
     def process(
         self,
-        data: list[dict[State, int]] | dict[tuple[str, str], dict[State, int]],
+        data: list[dict[State, int]] | dict[str, dict[State, int]],
     ) -> NDArray[np.complex128]:
         """
         Performs the state tomography process with the configured elements to
@@ -136,9 +137,23 @@ class StateTomography:
         # Convert results into dictionary and then mapping to full set of
         # measurements
         if not isinstance(data, dict):
+            if len(data) != len(req_measurements):
+                msg = (
+                    f"Number of results ({len(data)}) did not match the "
+                    f"expected number ({len(req_measurements)}) for the target "
+                    "tomography algorithm."
+                )
+                raise TomographyDataError(msg)
             results_dict = dict(zip(req_measurements, data, strict=True))
         else:
-            results_dict = dict(data)  # type: ignore[arg-type]
+            missing = [meas for meas in req_measurements if meas not in data]
+            if missing:
+                msg = (
+                    "One or more expected keys were detected to be missing "
+                    f"from the results dictionary. Missing keys were {missing}."
+                )
+                raise TomographyDataError(msg)
+            results_dict = dict(data)
         results_dict = {
             c: results_dict[result_mapping[c]]
             for c in _get_tomo_measurements(self.n_qubits)

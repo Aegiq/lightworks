@@ -59,40 +59,58 @@ class TestMLEProcessTomography:
         # Hadamard tomography
         n_qubits = 1
         circ = qubit.H()
-        self.h_tomo = MLEProcessTomography(n_qubits, circ)
-        experiments = self.h_tomo.get_experiments()
-        data = run_experiments(experiments, n_qubits)
-        self.h_tomo.process(data)
+        experiments = MLEProcessTomography(n_qubits, circ).get_experiments()
+        self.h_data = run_experiments(experiments, n_qubits)
         # CNOT tomography
         n_qubits = 2
         circ = qubit.CNOT()
-        self.cnot_tomo = MLEProcessTomography(n_qubits, circ)
-        experiments = self.cnot_tomo.get_experiments()
-        data = run_experiments(experiments, n_qubits)
-        self.cnot_tomo.process(data)
+        experiments = MLEProcessTomography(n_qubits, circ).get_experiments()
+        self.cnot_data = run_experiments(experiments, n_qubits)
+        self.cnot_data_dict = {
+            (exp.input_basis, exp.measurement_basis): d
+            for exp, d in zip(experiments, self.cnot_data, strict=True)
+        }
 
     def test_hadamard_choi(self):
         """
         Checks process tomography of the Hadamard gate produces the expected
         choi matrix.
         """
-        assert self.h_tomo.choi == pytest.approx(h_exp, abs=5e-2)
+        tomo = MLEProcessTomography(1, qubit.H())
+        tomo.process(self.h_data)
+        assert tomo.choi == pytest.approx(h_exp, abs=5e-2)
 
     def test_hadamard_fidelity(self):
         """
         Checks fidelity of hadamard gate process matrix is close to 1.
         """
-        assert self.h_tomo.fidelity(h_exp) == pytest.approx(1, 1e-2)
+        tomo = MLEProcessTomography(1, qubit.H())
+        tomo.process(self.h_data)
+        assert tomo.fidelity(h_exp) == pytest.approx(1, 1e-2)
 
     def test_cnot_choi(self):
         """
         Checks process tomography of the CNOT gate produces the expected choi
         matrix and the fidelity is calculated to be 1.
         """
-        assert self.cnot_tomo.choi == pytest.approx(cnot_exp, abs=5e-2)
+        tomo = MLEProcessTomography(2, qubit.CNOT())
+        tomo.process(self.cnot_data)
+        assert tomo.choi == pytest.approx(cnot_exp, abs=5e-2)
 
     def test_cnot_fidelity(self):
         """
         Checks fidelity of CNOT gate process matrix is close to 1.
         """
-        assert self.cnot_tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
+        tomo = MLEProcessTomography(2, qubit.CNOT())
+        tomo.process(self.cnot_data)
+        assert tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
+
+    def test_dict_processing(self):
+        """
+        Checks process tomography is successful when the data is provided as a
+        dictionary.
+        """
+        tomo = MLEProcessTomography(2, qubit.CNOT())
+        tomo.process(self.cnot_data_dict)
+        assert tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
+        assert tomo.choi == pytest.approx(cnot_exp, abs=5e-2)

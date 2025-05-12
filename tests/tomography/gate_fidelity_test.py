@@ -52,28 +52,31 @@ class TestGateFidelity:
         # Hadamard fidelity
         n_qubits = 1
         circ = qubit.H()
-        self.h_tomo = GateFidelity(n_qubits, circ)
-        experiments = self.h_tomo.get_experiments()
-        data = run_experiments(experiments, n_qubits)
-        self.h_tomo.process(data, [[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]])
+        experiments = GateFidelity(n_qubits, circ).get_experiments()
+        self.h_data = run_experiments(experiments, n_qubits)
         # CNOT fidelity
         n_qubits = 2
         circ = qubit.CNOT()
-        self.cnot_tomo = GateFidelity(n_qubits, circ)
-        experiments = self.cnot_tomo.get_experiments()
-        data = run_experiments(experiments, n_qubits)
-        self.cnot_tomo.process(
-            data, [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]
-        )
+        experiments = GateFidelity(n_qubits, circ).get_experiments()
+        self.cnot_data = run_experiments(experiments, n_qubits)
 
     def test_hadamard_fidelity(self):
         """
         Checks fidelity of hadamard gate process is close to 1.
         """
-        assert self.h_tomo.fidelity == pytest.approx(1, 1e-2)
+        tomo = GateFidelity(1, qubit.H())
+        f = tomo.process(
+            self.h_data, [[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]]
+        )
+        assert f == pytest.approx(1, 1e-2)
 
     def test_cnot_fidelity(self):
         """
         Checks fidelity of CNOT gate process is close to 1.
         """
-        assert self.cnot_tomo.fidelity == pytest.approx(1, 1e-2)
+        tomo = GateFidelity(2, qubit.CNOT())
+        f = tomo.process(
+            self.cnot_data,
+            [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]],
+        )
+        assert f == pytest.approx(1, 1e-2)
