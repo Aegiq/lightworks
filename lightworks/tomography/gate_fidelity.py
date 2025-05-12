@@ -12,17 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING
-
 import numpy as np
 from numpy.typing import NDArray
+
+from lightworks.sdk.state import State
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
 from .utils import _calculate_density_matrix, _combine_all, _vec
-
-if TYPE_CHECKING:
-    from lightworks.sdk.state import State
 
 
 class GateFidelity(ProcessTomography):
@@ -60,11 +57,20 @@ class GateFidelity(ProcessTomography):
             )
         return self._fidelity
 
-    def process(self, target_process: NDArray[np.complex128]) -> float:
+    def process(
+        self,
+        data: list[dict[State, int]] | dict[tuple[str, str], dict[State, int]],
+        target_process: NDArray[np.complex128],
+    ) -> float:
         """
         Calculates gate fidelity for an expected target process
 
         Args:
+
+            data (list | dict) : The collected measurement data. If a list then
+                this should match the order the experiments were provided, and
+                if a dictionary, then each key should be tuple of the input and
+                measurement basis.
 
             target_process (np.ndarray) : The unitary matrix corresponding to
                 the target process. The dimension of this should be 2^n_qubits.
@@ -76,8 +82,7 @@ class GateFidelity(ProcessTomography):
         """
         target_process = np.array(target_process)
         # Run all required tomography experiments
-        all_inputs = _combine_all(list(self._tomo_inputs), self.n_qubits)
-        results = self._run_required_experiments(all_inputs)
+        results = self._convert_tomography_data(data)
         # Sorted results per input
         remapped_results: dict[str, dict[str, dict[State, int]]] = {
             k[0]: {} for k in results
@@ -87,7 +92,7 @@ class GateFidelity(ProcessTomography):
         # Calculate density matrices
         rho_vec = [
             _calculate_density_matrix(remapped_results[i], self.n_qubits)
-            for i in all_inputs
+            for i in self._full_input_basis()
         ]
         # Get pauli matrix basis and coefficients relating to unitary
         alpha_mat, u_basis = self._calculate_alpha_and_u_basis()

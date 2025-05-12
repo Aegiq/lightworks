@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections.abc import Callable
-from types import FunctionType, MethodType
-from typing import Any
 
 from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.state import State
 
 from .mappings import INPUT_MAPPING, MEASUREMENT_MAPPING
 from .utils import (
+    TomographyExperiment,
+    TomographyList,
+    _combine_all,
     _get_required_tomo_measurements,
     _get_tomo_measurements,
 )
@@ -56,10 +56,6 @@ class ProcessTomography:
         self,
         n_qubits: int,
         base_circuit: PhotonicCircuit,
-        experiment: Callable[
-            [list[PhotonicCircuit], list[State]], list[dict[State, int]]
-        ],
-        experiment_args: list[Any] | None = None,
     ) -> None:
         # Type check inputs
         if not isinstance(n_qubits, int) or isinstance(n_qubits, bool):
@@ -77,8 +73,6 @@ class ProcessTomography:
 
         self._n_qubits = n_qubits
         self._base_circuit = base_circuit
-        self.experiment = experiment
-        self.experiment_args = experiment_args
 
     @property
     def base_circuit(self) -> PhotonicCircuit:
@@ -95,32 +89,28 @@ class ProcessTomography:
         """
         return self._n_qubits
 
-    @property
-    def experiment(
-        self,
-    ) -> Callable[[list[PhotonicCircuit], list[State]], list[dict[State, int]]]:
+    def get_experiments(self) -> TomographyList:
         """
-        A function to call which runs the required experiments. This should
-        accept a list of circuits as a single argument and then return a list
-        of the corresponding results, with each result being a dictionary or
-        Results object containing output states and counts.
+        Generates all required tomography experiments for performing a process
+        tomography algorithm.
         """
-        return self._experiment
+        inputs = self._full_input_basis()
+        req_measurements, _ = _get_required_tomo_measurements(self.n_qubits)
+        # Determine required input states and circuits
+        experiments = TomographyList()
+        for in_basis in inputs:
+            for meas_basis in req_measurements:
+                circ, state = self._create_circuit_and_input(
+                    in_basis, meas_basis
+                )
+                experiments.append(
+                    TomographyExperiment(circ, state, in_basis, meas_basis)
+                )
 
-    @experiment.setter
-    def experiment(
-        self,
-        value: Callable[
-            [list[PhotonicCircuit], list[State]], list[dict[State, int]]
-        ],
-    ) -> None:
-        if not isinstance(value, FunctionType | MethodType):
-            raise TypeError(
-                "Provided experiment should be a function which accepts a list "
-                "of circuits and returns a list of results containing only the "
-                "qubit modes."
-            )
-        self._experiment = value
+        return experiments
+
+    def _full_input_basis(self) -> list[str]:
+        return _combine_all(list(self._tomo_inputs), self.n_qubits)
 
     def _create_circuit_and_input(
         self, input_op: str, output_op: str
@@ -142,42 +132,31 @@ class ProcessTomography:
             circ.add(MEASUREMENT_MAPPING[op], 2 * i)
         return circ, in_state
 
-    def _run_required_experiments(
-        self, inputs: list[str]
+    def _convert_tomography_data(
+        self,
+        results: list[dict[State, int]]
+        | dict[tuple[str, str], dict[State, int]],
     ) -> dict[tuple[str, str], dict[State, int]]:
-        """
-        Runs all required experiments to find density matrices for a provided
-        set of inputs.
-        """
+        # Re-generate all tomography data
+        inputs = _combine_all(list(self._tomo_inputs), self.n_qubits)
         req_measurements, result_mapping = _get_required_tomo_measurements(
             self.n_qubits
         )
-        # Determine required input states and circuits
-        all_circuits = []
-        all_input_states = []
-        for in_state in inputs:
-            for meas in req_measurements:
-                circ, state = self._create_circuit_and_input(in_state, meas)
-                all_circuits.append(circ)
-                all_input_states.append(state)
-        # Run all required experiments
-        results = self.experiment(
-            all_circuits,
-            all_input_states,
-            *(self.experiment_args if self.experiment_args is not None else []),
-        )
-        # Sort results into each input/measurement combination
-        num_per_in = len(req_measurements)
-        sorted_results = {
-            in_state: dict(
-                zip(
-                    req_measurements,
-                    results[num_per_in * i : num_per_in * (i + 1)],
-                    strict=True,
+        if not isinstance(results, dict):
+            # Sort results into each input/measurement combination
+            num_per_in = len(req_measurements)
+            sorted_results = {
+                in_state: dict(
+                    zip(
+                        req_measurements,
+                        results[num_per_in * i : num_per_in * (i + 1)],
+                        strict=True,
+                    )
                 )
-            )
-            for i, in_state in enumerate(inputs)
-        }
+                for i, in_state in enumerate(inputs)
+            }
+        else:
+            sorted_results = dict(results)  # type: ignore [arg-type]
         # Expand results to include all of the required measurements
         full_results = {}
         for in_state, res in sorted_results.items():

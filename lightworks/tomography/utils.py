@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import UserList
+from dataclasses import dataclass
 from typing import Any, TypeVar
 
 import numpy as np
@@ -19,6 +21,7 @@ from multimethod import multimethod
 from numpy.typing import NDArray
 from scipy.linalg import sqrtm
 
+from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.state import State
 
 from .mappings import MEASUREMENT_MAPPING, PAULI_MAPPING
@@ -27,6 +30,55 @@ from .mappings import MEASUREMENT_MAPPING, PAULI_MAPPING
 # should begin with _
 
 T = TypeVar("T", bound=np.generic)
+
+
+@dataclass(slots=True)
+class TomographyExperiment:
+    """
+    Contains the data for running a required tomography experiment.
+    """
+
+    circuit: PhotonicCircuit
+    input_state: State
+    input_basis: str
+    measurement_basis: str
+
+
+class TomographyList(UserList[TomographyExperiment]):
+    """
+    Stores a list of tomography experiments.
+    """
+
+    @property
+    def all_circuits(self) -> list[PhotonicCircuit]:
+        """
+        Returns a list of circuits corresponding to each of the tomography
+        experiments in the list.
+        """
+        return [exp.circuit for exp in self]
+
+    @property
+    def all_inputs(self) -> list[State]:
+        """
+        Returns a list of inputs corresponding to each of the tomography
+        experiments in the list.
+        """
+        return [exp.input_state for exp in self]
+
+    @property
+    def all_input_basis(self) -> list[str]:
+        """
+        Returns a list of the input basis used for each tomography experiment.
+        """
+        return [exp.input_basis for exp in self]
+
+    @property
+    def all_measurement_basis(self) -> list[str]:
+        """
+        Returns a list of the measurement basis used for each tomography
+        experiment.
+        """
+        return [exp.measurement_basis for exp in self]
 
 
 def state_fidelity(

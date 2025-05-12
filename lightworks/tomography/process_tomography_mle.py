@@ -17,6 +17,8 @@ import warnings
 import numpy as np
 from numpy.typing import NDArray
 
+from lightworks.sdk.state import State
+
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import ProcessTomography
 from .utils import (
@@ -65,18 +67,27 @@ class MLEProcessTomography(ProcessTomography):
             )
         return self._choi
 
-    def process(self) -> NDArray[np.complex128]:
+    def process(
+        self,
+        data: list[dict[State, int]] | dict[tuple[str, str], dict[State, int]],
+    ) -> NDArray[np.complex128]:
         """
         Performs process tomography with the configured elements and calculates
         the choi matrix using maximum likelihood estimation.
+
+        Args:
+
+            data (list | dict) : The collected measurement data. If a list then
+                this should match the order the experiments were provided, and
+                if a dictionary, then each key should be tuple of the input and
+                measurement basis.
 
         Returns:
 
             np.ndarray : The calculated choi matrix for the process.
 
         """
-        all_inputs = _combine_all(list(self._tomo_inputs), self.n_qubits)
-        results = self._run_required_experiments(all_inputs)
+        results = self._convert_tomography_data(data)
         nij = {}
         # Convert counts to an expectation value
         for (in_state, meas), result in results.items():
@@ -85,7 +96,7 @@ class MLEProcessTomography(ProcessTomography):
                 continue
             nij[in_state, meas] = _calculate_expectation_value(meas, result)
         # Run MLE algorithm and get choi
-        mle = MLETomographyAlgorithm(self.n_qubits, all_inputs)
+        mle = MLETomographyAlgorithm(self.n_qubits, self._full_input_basis())
         self._choi = mle.pgdb(nij)
         return self.choi
 

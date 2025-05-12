@@ -62,18 +62,27 @@ class LIProcessTomography(ProcessTomography):
             )
         return self._choi
 
-    def process(self) -> NDArray[np.complex128]:
+    def process(
+        self,
+        data: list[dict[State, int]] | dict[tuple[str, str], dict[State, int]],
+    ) -> NDArray[np.complex128]:
         """
         Performs process tomography with the configured elements and calculates
         the choi matrix using linear inversion.
+
+        Args:
+
+            data (list | dict) : The collected measurement data. If a list then
+                this should match the order the experiments were provided, and
+                if a dictionary, then each key should be tuple of the input and
+                measurement basis.
 
         Returns:
 
             np.ndarray : The calculated choi matrix for the process.
 
         """
-        all_inputs = _combine_all(list(self._tomo_inputs), self.n_qubits)
-        results = self._run_required_experiments(all_inputs)
+        results = self._convert_tomography_data(data)
         # Get expectation values using results
         lambdas = self._calculate_expectation_values(results)
         # Find all pauli and density matrices for multi-qubit states
