@@ -27,8 +27,6 @@ from .utils import (
     process_fidelity,
 )
 
-TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
-
 
 class LIProcessTomography(ProcessTomography):
     """
@@ -74,7 +72,7 @@ class LIProcessTomography(ProcessTomography):
             np.ndarray : The calculated choi matrix for the process.
 
         """
-        all_inputs = _combine_all(TOMO_INPUTS, self.n_qubits)
+        all_inputs = _combine_all(list(self._tomo_inputs), self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         # Get expectation values using results
         lambdas = self._calculate_expectation_values(results)

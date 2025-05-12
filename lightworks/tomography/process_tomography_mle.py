@@ -28,8 +28,6 @@ from .utils import (
     process_fidelity,
 )
 
-TOMO_INPUTS = ["X+", "X-", "Y+", "Y-", "Z+", "Z-"]
-
 
 class MLEProcessTomography(ProcessTomography):
     """
@@ -55,6 +53,8 @@ class MLEProcessTomography(ProcessTomography):
 
     """
 
+    _tomo_inputs = ("Z+", "Z-", "X+", "X-", "Y+", "Y-")
+
     @property
     def choi(self) -> NDArray[np.complex128]:
         """Returns the calculate choi matrix for a circuit."""
@@ -75,7 +75,7 @@ class MLEProcessTomography(ProcessTomography):
             np.ndarray : The calculated choi matrix for the process.
 
         """
-        all_inputs = _combine_all(TOMO_INPUTS, self.n_qubits)
+        all_inputs = _combine_all(list(self._tomo_inputs), self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         nij = {}
         # Convert counts to an expectation value
@@ -85,7 +85,7 @@ class MLEProcessTomography(ProcessTomography):
                 continue
             nij[in_state, meas] = _calculate_expectation_value(meas, result)
         # Run MLE algorithm and get choi
-        mle = MLETomographyAlgorithm(self.n_qubits)
+        mle = MLETomographyAlgorithm(self.n_qubits, all_inputs)
         self._choi = mle.pgdb(nij)
         return self.choi
 
@@ -109,14 +109,14 @@ class MLETomographyAlgorithm:
 
     """
 
-    def __init__(self, n_qubits: int) -> None:
+    def __init__(self, n_qubits: int, input_basis: list[str]) -> None:
         self.n_qubits = n_qubits
 
         # Pre-calculate all required n_qubit pauli & density matrices + the
         # inputs and measurement basis for the tomography
         self._all_rhos = _combine_all(RHO_MAPPING, self.n_qubits)
         self._all_pauli = _combine_all(PAULI_MAPPING, self.n_qubits)
-        self._input_basis = _combine_all(TOMO_INPUTS, self.n_qubits)
+        self._input_basis = list(input_basis)
         self._meas_basis = _get_tomo_measurements(n_qubits, remove_trivial=True)
 
         self._a_matrix = self._a_mat()

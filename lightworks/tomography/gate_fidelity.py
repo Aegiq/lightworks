@@ -24,8 +24,6 @@ from .utils import _calculate_density_matrix, _combine_all, _vec
 if TYPE_CHECKING:
     from lightworks.sdk.state import State
 
-TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
-
 
 class GateFidelity(ProcessTomography):
     """
@@ -78,7 +76,7 @@ class GateFidelity(ProcessTomography):
         """
         target_process = np.array(target_process)
         # Run all required tomography experiments
-        all_inputs = _combine_all(TOMO_INPUTS, self.n_qubits)
+        all_inputs = _combine_all(list(self._tomo_inputs), self.n_qubits)
         results = self._run_required_experiments(all_inputs)
         # Sorted results per input
         remapped_results: dict[str, dict[str, dict[State, int]]] = {
@@ -122,7 +120,7 @@ class GateFidelity(ProcessTomography):
         )
         # Input density matrices
         rho_basis = _combine_all(
-            [RHO_MAPPING[i] for i in TOMO_INPUTS], self.n_qubits
+            [RHO_MAPPING[i] for i in list(self._tomo_inputs)], self.n_qubits
         )
         # Then find alpha matrix
         alpha = np.zeros(

@@ -25,8 +25,6 @@ from .utils import (
     _get_tomo_measurements,
 )
 
-TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
-
 
 class ProcessTomography:
     """
@@ -51,6 +49,8 @@ class ProcessTomography:
             which will be passed directly to the experiment function.
 
     """
+
+    _tomo_inputs: tuple[str, ...] = ("Z+", "Z-", "X+", "Y+")
 
     def __init__(
         self,
