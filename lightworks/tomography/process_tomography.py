@@ -16,7 +16,7 @@
 from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.state import State
 
-from .experiments import TomographyExperiment, TomographyList
+from .experiments import ProcessTomographyExperiment, ProcessTomographyList
 from .mappings import INPUT_MAPPING, MEASUREMENT_MAPPING
 from .utils import (
     _combine_all,
@@ -81,7 +81,7 @@ class ProcessTomography:
         """
         return self._n_qubits
 
-    def get_experiments(self) -> TomographyList:
+    def get_experiments(self) -> ProcessTomographyList:
         """
         Generates all required tomography experiments for performing a process
         tomography algorithm.
@@ -89,14 +89,19 @@ class ProcessTomography:
         inputs = self._full_input_basis()
         req_measurements, _ = _get_required_tomo_measurements(self.n_qubits)
         # Determine required input states and circuits
-        experiments = TomographyList()
+        experiments = ProcessTomographyList()
         for in_basis in inputs:
             for meas_basis in req_measurements:
                 circ, state = self._create_circuit_and_input(
                     in_basis, meas_basis
                 )
                 experiments.append(
-                    TomographyExperiment(circ, state, in_basis, meas_basis)
+                    ProcessTomographyExperiment(
+                        circuit=circ,
+                        input_state=state,
+                        input_basis=in_basis,
+                        measurement_basis=meas_basis,
+                    )
                 )
 
         return experiments

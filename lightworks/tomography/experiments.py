@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import typing
 from collections import UserList
 from dataclasses import dataclass
 
@@ -19,8 +20,25 @@ from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.state import State
 
 
-@dataclass(slots=True)
-class TomographyExperiment:
+@dataclass(slots=True, kw_only=True)
+class _TomographyExperiment:
+    """
+    Contains the data for running a required state tomography experiment.
+    """
+
+
+@dataclass(slots=True, kw_only=True)
+class StateTomographyExperiment(_TomographyExperiment):
+    """
+    Contains the data for running a required state tomography experiment.
+    """
+
+    circuit: PhotonicCircuit
+    measurement_basis: str
+
+
+@dataclass(slots=True, kw_only=True)
+class ProcessTomographyExperiment(_TomographyExperiment):
     """
     Contains the data for running a required tomography experiment.
     """
@@ -31,9 +49,14 @@ class TomographyExperiment:
     measurement_basis: str
 
 
-class TomographyList(UserList[TomographyExperiment]):
+TE = typing.TypeVar(
+    "TE", StateTomographyExperiment, ProcessTomographyExperiment
+)
+
+
+class _TomographyList(UserList[TE]):
     """
-    Stores a list of tomography experiments.
+    Base class for all list of tomography experiments.
     """
 
     @property
@@ -43,6 +66,26 @@ class TomographyList(UserList[TomographyExperiment]):
         experiments in the list.
         """
         return [exp.circuit for exp in self]
+
+    @property
+    def all_measurement_basis(self) -> list[str]:
+        """
+        Returns a list of the measurement basis used for each tomography
+        experiment.
+        """
+        return [exp.measurement_basis for exp in self]
+
+
+class StateTomographyList(_TomographyList[StateTomographyExperiment]):
+    """
+    Stores a list of state tomography experiments.
+    """
+
+
+class ProcessTomographyList(_TomographyList[ProcessTomographyExperiment]):
+    """
+    Stores a list of tomography experiments.
+    """
 
     @property
     def all_inputs(self) -> list[State]:
@@ -58,43 +101,3 @@ class TomographyList(UserList[TomographyExperiment]):
         Returns a list of the input basis used for each tomography experiment.
         """
         return [exp.input_basis for exp in self]
-
-    @property
-    def all_measurement_basis(self) -> list[str]:
-        """
-        Returns a list of the measurement basis used for each tomography
-        experiment.
-        """
-        return [exp.measurement_basis for exp in self]
-
-
-@dataclass(slots=True)
-class StateTomographyExperiment:
-    """
-    Contains the data for running a required state tomography experiment.
-    """
-
-    circuit: PhotonicCircuit
-    measurement_basis: str
-
-
-class StateTomographyList(UserList[StateTomographyExperiment]):
-    """
-    Stores a list of state tomography experiments.
-    """
-
-    @property
-    def all_circuits(self) -> list[PhotonicCircuit]:
-        """
-        Returns a list of circuits corresponding to each of the tomography
-        experiments in the list.
-        """
-        return [exp.circuit for exp in self]
-
-    @property
-    def all_measurement_basis(self) -> list[str]:
-        """
-        Returns a list of the measurement basis used for each tomography
-        experiment.
-        """
-        return [exp.measurement_basis for exp in self]

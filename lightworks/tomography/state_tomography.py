@@ -107,10 +107,10 @@ class StateTomography:
         for gates in req_measurements:
             experiments.append(
                 StateTomographyExperiment(
-                    self._create_circuit(
+                    circuit=self._create_circuit(
                         [MEASUREMENT_MAPPING[g] for g in gates.split(",")]
                     ),
-                    gates,
+                    measurement_basis=gates,
                 )
             )
 
