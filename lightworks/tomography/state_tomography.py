@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections.abc import Callable
-from types import FunctionType, MethodType
-from typing import Any
-
 import numpy as np
 from numpy.typing import NDArray
 
 from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.state import State
 
+from .experiments import StateTomographyExperiment, StateTomographyList
 from .mappings import MEASUREMENT_MAPPING
+from .tomography import _Tomography
 from .utils import (
+    TomographyDataError,
     _calculate_density_matrix,
     _get_required_tomo_measurements,
     _get_tomo_measurements,
@@ -31,7 +30,7 @@ from .utils import (
 )
 
 
-class StateTomography:
+class StateTomography(_Tomography):
     """
     Generates the required circuit and performs data processing for the
     calculation of the density matrix of a state.
@@ -46,80 +45,7 @@ class StateTomography:
             It is required that the number of circuit input modes equals 2 * the
             number of qubits.
 
-        experiment (Callable) : A function for performing the required
-            tomography experiments. This should accept a list of circuits and
-            return a list of results to process.
-
-        experiment_args (list | None) : Optionally provide additional arguments
-            which will be passed directly to the experiment function.
-
     """
-
-    def __init__(
-        self,
-        n_qubits: int,
-        base_circuit: PhotonicCircuit,
-        experiment: Callable[[list[PhotonicCircuit]], list[dict[State, int]]],
-        experiment_args: list[Any] | None = None,
-    ) -> None:
-        # Type check inputs
-        if not isinstance(n_qubits, int) or isinstance(n_qubits, bool):
-            raise TypeError("Number of qubits should be an integer.")
-        if not isinstance(base_circuit, PhotonicCircuit):
-            raise TypeError("Base circuit should be a circuit object.")
-
-        if 2 * n_qubits != base_circuit.input_modes:
-            msg = (
-                "Number of circuit input modes does not match the amount "
-                "required for the specified number of qubits, expected "
-                f"{2 * n_qubits}."
-            )
-            raise ValueError(msg)
-
-        self._n_qubits = n_qubits
-        self._base_circuit = base_circuit
-        self.experiment = experiment
-        self.experiment_args = experiment_args
-        self._rho: NDArray[np.complex128]
-
-    @property
-    def base_circuit(self) -> PhotonicCircuit:
-        """
-        The base circuit which is to be modified as part of the tomography
-        calculations.
-        """
-        return self._base_circuit
-
-    @property
-    def n_qubits(self) -> int:
-        """
-        The number of qubits within the system.
-        """
-        return self._n_qubits
-
-    @property
-    def experiment(
-        self,
-    ) -> Callable[[list[PhotonicCircuit]], list[dict[State, int]]]:
-        """
-        A function to call which runs the required experiments. This should
-        accept a list of circuits as a single argument and then return a list
-        of the corresponding results, with each result being a dictionary or
-        Results object containing output states and counts.
-        """
-        return self._experiment
-
-    @experiment.setter
-    def experiment(
-        self, value: Callable[[list[PhotonicCircuit]], list[dict[State, int]]]
-    ) -> None:
-        if not isinstance(value, FunctionType | MethodType):
-            raise TypeError(
-                "Provided experiment should be a function which accepts a list "
-                "of circuits and returns a list of results containing only the "
-                "qubit modes."
-            )
-        self._experiment = value
 
     @property
     def rho(self) -> NDArray[np.complex128]:
@@ -133,7 +59,31 @@ class StateTomography:
             )
         return self._rho
 
-    def process(self) -> NDArray[np.complex128]:
+    def get_experiments(self) -> StateTomographyList:
+        """
+        Generates all required tomography experiments for performing a process
+        tomography algorithm.
+        """
+        req_measurements, _ = _get_required_tomo_measurements(self.n_qubits)
+
+        # Generate all circuits and run experiment
+        experiments = StateTomographyList()
+        for gates in req_measurements:
+            experiments.append(
+                StateTomographyExperiment(
+                    circuit=self._create_circuit(
+                        [MEASUREMENT_MAPPING[g] for g in gates.split(",")]
+                    ),
+                    measurement_basis=gates,
+                )
+            )
+
+        return experiments
+
+    def process(
+        self,
+        data: list[dict[State, int]] | dict[str, dict[State, int]],
+    ) -> NDArray[np.complex128]:
         """
         Performs the state tomography process with the configured elements to
         calculate the density matrix of the output state.
@@ -147,22 +97,26 @@ class StateTomography:
         req_measurements, result_mapping = _get_required_tomo_measurements(
             self.n_qubits
         )
-
-        # Generate all circuits and run experiment
-        circuits = [
-            self._create_circuit(
-                [MEASUREMENT_MAPPING[g] for g in gates.split(",")]
-            )
-            for gates in req_measurements
-        ]
-        all_results = self.experiment(
-            circuits,
-            *(self.experiment_args if self.experiment_args is not None else []),
-        )
-
         # Convert results into dictionary and then mapping to full set of
         # measurements
-        results_dict = dict(zip(req_measurements, all_results, strict=True))
+        if not isinstance(data, dict):
+            if len(data) != len(req_measurements):
+                msg = (
+                    f"Number of results ({len(data)}) did not match the "
+                    f"expected number ({len(req_measurements)}) for the target "
+                    "tomography algorithm."
+                )
+                raise TomographyDataError(msg)
+            results_dict = dict(zip(req_measurements, data, strict=True))
+        else:
+            missing = [meas for meas in req_measurements if meas not in data]
+            if missing:
+                msg = (
+                    "One or more expected keys were detected to be missing "
+                    f"from the results dictionary. Missing keys were {missing}."
+                )
+                raise TomographyDataError(msg)
+            results_dict = dict(data)
         results_dict = {
             c: results_dict[result_mapping[c]]
             for c in _get_tomo_measurements(self.n_qubits)

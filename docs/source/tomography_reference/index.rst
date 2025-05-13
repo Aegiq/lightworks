@@ -7,4 +7,5 @@ Tomography Reference
     state_tomography
     process_tomography
     gate_fidelity
+    experiments
     utils

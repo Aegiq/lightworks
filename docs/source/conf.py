@@ -79,3 +79,6 @@ napoleon_google_docstring = True
 
 # Bibtex
 bibtex_bibfiles = ["refs.bib"]
+
+# Autodoc
+autodoc_default_options = {"show-inheritance": True}

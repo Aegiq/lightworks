@@ -29,6 +29,12 @@ from .mappings import MEASUREMENT_MAPPING, PAULI_MAPPING
 T = TypeVar("T", bound=np.generic)
 
 
+class TomographyDataError(Exception):
+    """
+    Raised when required data is missing for performing a tomography algorithm.
+    """
+
+
 def state_fidelity(
     rho: NDArray[np.complex128], rho_exp: NDArray[np.complex128]
 ) -> float:

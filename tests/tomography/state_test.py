@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from random import shuffle
+
 import numpy as np
 import pytest
 
@@ -26,39 +28,35 @@ from lightworks import (
 )
 from lightworks.emulator import Backend
 from lightworks.tomography import StateTomography
+from lightworks.tomography.experiments import (
+    StateTomographyExperiment,
+    StateTomographyList,
+)
 from lightworks.tomography.state_tomography import MEASUREMENT_MAPPING
 
 
-def experiment_args(circuits, input_state):
+def run_experiments(experiments):
     """
     Experiment function with ability to specify the input state used.
     """
     # Find number of qubits using available input modes.
-    n_qubits = int(circuits[0].input_modes / 2)
+    n_qubits = int(experiments[0].circuit.input_modes / 2)
     n_samples = 25000
     post_selection = PostSelection()
     for i in range(n_qubits):
         post_selection.add((2 * i, 2 * i + 1), 1)
     results = []
     backend = Backend("slos")
-    for circ in circuits:
+    for exp in experiments:
         sampler = Sampler(
-            circ,
-            input_state,
+            exp.circuit,
+            State([1, 0] * n_qubits),
             n_samples,
             post_selection=post_selection,
             random_seed=29,
         )
         results.append(backend.run(sampler))
     return results
-
-
-def experiment(circuits):
-    """
-    Experiment function for testing state tomography functionality is correct.
-    """
-    n_qubits = int(circuits[0].input_modes / 2)
-    return experiment_args(circuits, State([1, 0] * n_qubits))
 
 
 class TestStateTomography:
@@ -73,8 +71,10 @@ class TestStateTomography:
         the |0> X n_qubits state.
         """
         base_circ = PhotonicCircuit(n_qubits * 2)
-        tomo = StateTomography(n_qubits, base_circ, experiment)
-        rho = tomo.process()
+        tomo = StateTomography(n_qubits, base_circ)
+        experiments = tomo.get_experiments()
+        data = run_experiments(experiments)
+        rho = tomo.process(data)
         rho_exp = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
         rho_exp[0, 0] = 1
         assert rho == pytest.approx(rho_exp, abs=1e-2)
@@ -90,8 +90,41 @@ class TestStateTomography:
         base_circ.add(qubit.H())
         for i in range(n_qubits - 1):
             base_circ.add(qubit.CNOT(), 2 * i)
-        tomo = StateTomography(n_qubits, base_circ, experiment)
-        rho = tomo.process()
+        tomo = StateTomography(n_qubits, base_circ)
+        experiments = tomo.get_experiments()
+        data = run_experiments(experiments)
+        rho = tomo.process(data)
+        rho_exp = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
+        rho_exp[0, 0] = 0.5
+        rho_exp[0, -1] = 0.5
+        rho_exp[-1, 0] = 0.5
+        rho_exp[-1, -1] = 0.5
+        assert rho == pytest.approx(rho_exp, abs=1e-2)
+        assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-3)
+
+    @pytest.mark.parametrize("to_shuffle", [True, False])
+    def test_ghz_state_dict(self, to_shuffle):
+        """
+        Checks correct density matrix is produced when performing tomography on
+        the n_qubit GHZ state and returning results as a dictionary.
+        """
+        n_qubits = 2
+        base_circ = PhotonicCircuit(n_qubits * 2)
+        base_circ.add(qubit.H())
+        for i in range(n_qubits - 1):
+            base_circ.add(qubit.CNOT(), 2 * i)
+        tomo = StateTomography(n_qubits, base_circ)
+        experiments = tomo.get_experiments()
+        data = run_experiments(experiments)
+        # Convert data to dict
+        data_dict = dict(
+            zip(experiments.all_measurement_basis, data, strict=True)
+        )
+        if to_shuffle:
+            keys = list(data_dict.keys())
+            shuffle(keys)
+            data_dict = {k: data_dict[k] for k in keys}
+        rho = tomo.process(data_dict)
         rho_exp = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
         rho_exp[0, 0] = 0.5
         rho_exp[0, -1] = 0.5
@@ -107,7 +140,7 @@ class TestStateTomography:
         corresponding to dual rail encoding.
         """
         with pytest.raises(ValueError):
-            StateTomography(2, PhotonicCircuit(n_modes), experiment)
+            StateTomography(2, PhotonicCircuit(n_modes))
 
     @pytest.mark.parametrize("value", [1.5, "2", None, True])
     def test_n_qubits_must_be_integer(self, value):
@@ -115,7 +148,7 @@ class TestStateTomography:
         Checks value of n_qubits must be an integer.
         """
         with pytest.raises(TypeError, match="qubits"):
-            StateTomography(value, PhotonicCircuit(4), experiment)
+            StateTomography(value, PhotonicCircuit(4))
 
     @pytest.mark.parametrize(
         "value", [PhotonicCircuit(4).U, [1, 2, 3], None, True]
@@ -125,22 +158,14 @@ class TestStateTomography:
         Checks value of base_circuit must be a PhotonicCircuit object.
         """
         with pytest.raises(TypeError, match="circuit"):
-            StateTomography(2, value, experiment)
-
-    @pytest.mark.parametrize("value", [PhotonicCircuit(4), 4, None])
-    def test_experiment_must_be_function(self, value):
-        """
-        Checks value of experiment must be a function.
-        """
-        with pytest.raises(TypeError, match="experiment"):
-            StateTomography(2, PhotonicCircuit(4), value)
+            StateTomography(2, value)
 
     def test_density_mat_before_calc(self):
         """
         Checks an error is raised if the rho attribute is called before
         tomography is performed.
         """
-        tomo = StateTomography(2, PhotonicCircuit(4), experiment)
+        tomo = StateTomography(2, PhotonicCircuit(4))
         with pytest.raises(AttributeError):
             tomo.rho  # noqa: B018
 
@@ -149,7 +174,7 @@ class TestStateTomography:
         Checks an error is raised if a user attempts to calculate fidelity
         before performing tomography.
         """
-        tomo = StateTomography(2, PhotonicCircuit(4), experiment)
+        tomo = StateTomography(2, PhotonicCircuit(4))
         with pytest.raises(AttributeError):
             tomo.fidelity(np.identity(2))
 
@@ -160,7 +185,10 @@ class TestStateTomography:
         """
         base_circ = PhotonicCircuit(2)
         original_unitary = base_circ.U_full
-        StateTomography(1, base_circ, experiment).process()
+        tomo = StateTomography(1, base_circ)
+        experiments = tomo.get_experiments()
+        data = run_experiments(experiments)
+        tomo.process(data)
         assert pytest.approx(original_unitary) == base_circ.U
 
     def test_density_matrix_matches(self):
@@ -168,8 +196,10 @@ class TestStateTomography:
         Confirms density matrix property returns correct value.
         """
         base_circ = PhotonicCircuit(2)
-        tomo = StateTomography(1, base_circ, experiment)
-        rho1 = tomo.process()
+        tomo = StateTomography(1, base_circ)
+        experiments = tomo.get_experiments()
+        data = run_experiments(experiments)
+        rho1 = tomo.process(data)
         rho2 = tomo.rho
         assert (rho1 == rho2).all()
 
@@ -181,7 +211,7 @@ class TestStateTomography:
         base_circ = Unitary(random_unitary(4))
         op = MEASUREMENT_MAPPING[operator]
         # Get tomography circuit
-        tomo = StateTomography(2, base_circ, experiment)
+        tomo = StateTomography(2, base_circ)
         tomo_circ = tomo._create_circuit([MEASUREMENT_MAPPING["I"], op])
         # Modify base circuit and compare
         base_circ.add(MEASUREMENT_MAPPING[operator], 2)
@@ -193,22 +223,53 @@ class TestStateTomography:
         Checks that create circuit function will raise an error if the
         measurement string is the wrong length.
         """
-        tomo = StateTomography(2, PhotonicCircuit(4), experiment)
+        tomo = StateTomography(2, PhotonicCircuit(4))
         with pytest.raises(ValueError):
             tomo._create_circuit("XYZ")
 
-    def test_experiment_args(self):
+    def test_experiments_length(self):
         """
-        Checks that experiment arguments can be provided to StateTomography.
+        Checks number of elements returned by StateTomography is the correct
+        length.
         """
-        tomo = StateTomography(
-            1,
-            PhotonicCircuit(2),
-            experiment_args,
-            experiment_args=[State([1, 0])],
-        )
-        rho = tomo.process()
-        rho_exp = np.zeros((2, 2), dtype=complex)
-        rho_exp[0, 0] = 1
-        assert rho == pytest.approx(rho_exp, abs=1e-2)
-        assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-3)
+        tomo = StateTomography(2, qubit.CNOT())
+        experiments = tomo.get_experiments()
+        assert len(experiments) == 9
+
+    def test_experiments_list(self):
+        """
+        Checks that data returned by StateTomography get_experiments is a
+        StateTomographyList.
+        """
+        tomo = StateTomography(2, qubit.CNOT())
+        experiments = tomo.get_experiments()
+        assert isinstance(experiments, StateTomographyList)
+
+    def test_experiments_in_list_are_experiments(self):
+        """
+        Checks that data returned by StateTomography get_experiments in a list
+        of experiments.
+        """
+        tomo = StateTomography(2, qubit.CNOT())
+        experiments = tomo.get_experiments()
+        for exp in experiments:
+            assert isinstance(exp, StateTomographyExperiment)
+
+    @pytest.mark.parametrize(
+        ("n1", "n2"),
+        [
+            ("all_circuits", "circuit"),
+            ("all_measurement_basis", "measurement_basis"),
+        ],
+    )
+    def test_all_methods(self, n1, n2):
+        """
+        Checks that the all methods from StateTomographyList correctly returns
+        the expected list of values in the correct order.
+        """
+        tomo = StateTomography(2, qubit.CNOT())
+        experiments = tomo.get_experiments()
+        for exp, quantity in zip(
+            experiments, getattr(experiments, n1), strict=True
+        ):
+            assert getattr(exp, n2) == quantity

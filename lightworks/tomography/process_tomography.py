@@ -12,115 +12,56 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections.abc import Callable
-from types import FunctionType, MethodType
-from typing import Any
 
 from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.state import State
 
+from .experiments import ProcessTomographyExperiment, ProcessTomographyList
 from .mappings import INPUT_MAPPING, MEASUREMENT_MAPPING
+from .tomography import _Tomography
 from .utils import (
+    TomographyDataError,
+    _combine_all,
     _get_required_tomo_measurements,
     _get_tomo_measurements,
 )
 
-TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
-
-class ProcessTomography:
+class _ProcessTomography(_Tomography):
     """
     Process tomography base class, implements some of the common methods
     required across different approaches.
-
-    Args:
-
-        n_qubits (int) : The number of qubits that will be used as part of the
-            tomography.
-
-        base_circuit (PhotonicCircuit) : An initial circuit which produces the
-            required output state and can be modified for performing tomography.
-            It is required that the number of circuit input modes equals 2 * the
-            number of qubits.
-
-        experiment (Callable) : A function for performing the required
-            tomography experiments. This should accept a list of circuits and a
-            list of inputs and then return a list of results to process.
-
-        experiment_args (list | None) : Optionally provide additional arguments
-            which will be passed directly to the experiment function.
-
     """
 
-    def __init__(
-        self,
-        n_qubits: int,
-        base_circuit: PhotonicCircuit,
-        experiment: Callable[
-            [list[PhotonicCircuit], list[State]], list[dict[State, int]]
-        ],
-        experiment_args: list[Any] | None = None,
-    ) -> None:
-        # Type check inputs
-        if not isinstance(n_qubits, int) or isinstance(n_qubits, bool):
-            raise TypeError("Number of qubits should be an integer.")
-        if not isinstance(base_circuit, PhotonicCircuit):
-            raise TypeError("Base circuit should be a circuit object.")
+    _tomo_inputs: tuple[str, ...] = ("Z+", "Z-", "X+", "Y+")
 
-        if 2 * n_qubits != base_circuit.input_modes:
-            msg = (
-                "Number of circuit input modes does not match the amount "
-                "required for the specified number of qubits, expected "
-                f"{2 * n_qubits}."
-            )
-            raise ValueError(msg)
+    def get_experiments(self) -> ProcessTomographyList:
+        """
+        Generates all required tomography experiments for performing a process
+        tomography algorithm.
+        """
+        inputs = self._full_input_basis()
+        req_measurements, _ = _get_required_tomo_measurements(self.n_qubits)
+        # Determine required input states and circuits
+        experiments = ProcessTomographyList()
+        for in_basis in inputs:
+            for meas_basis in req_measurements:
+                circ, state = self._create_circuit_and_input(
+                    in_basis, meas_basis
+                )
+                experiments.append(
+                    ProcessTomographyExperiment(
+                        circuit=circ,
+                        input_state=state,
+                        input_basis=in_basis,
+                        measurement_basis=meas_basis,
+                    )
+                )
 
-        self._n_qubits = n_qubits
-        self._base_circuit = base_circuit
-        self.experiment = experiment
-        self.experiment_args = experiment_args
+        return experiments
 
-    @property
-    def base_circuit(self) -> PhotonicCircuit:
-        """
-        The base circuit which is to be modified as part of the tomography
-        calculations.
-        """
-        return self._base_circuit
-
-    @property
-    def n_qubits(self) -> int:
-        """
-        The number of qubits within the system.
-        """
-        return self._n_qubits
-
-    @property
-    def experiment(
-        self,
-    ) -> Callable[[list[PhotonicCircuit], list[State]], list[dict[State, int]]]:
-        """
-        A function to call which runs the required experiments. This should
-        accept a list of circuits as a single argument and then return a list
-        of the corresponding results, with each result being a dictionary or
-        Results object containing output states and counts.
-        """
-        return self._experiment
-
-    @experiment.setter
-    def experiment(
-        self,
-        value: Callable[
-            [list[PhotonicCircuit], list[State]], list[dict[State, int]]
-        ],
-    ) -> None:
-        if not isinstance(value, FunctionType | MethodType):
-            raise TypeError(
-                "Provided experiment should be a function which accepts a list "
-                "of circuits and returns a list of results containing only the "
-                "qubit modes."
-            )
-        self._experiment = value
+    def _full_input_basis(self) -> list[str]:
+        return _combine_all(list(self._tomo_inputs), self.n_qubits)
 
     def _create_circuit_and_input(
         self, input_op: str, output_op: str
@@ -142,42 +83,52 @@ class ProcessTomography:
             circ.add(MEASUREMENT_MAPPING[op], 2 * i)
         return circ, in_state
 
-    def _run_required_experiments(
-        self, inputs: list[str]
+    def _convert_tomography_data(
+        self,
+        results: list[dict[State, int]]
+        | dict[tuple[str, str], dict[State, int]],
     ) -> dict[tuple[str, str], dict[State, int]]:
-        """
-        Runs all required experiments to find density matrices for a provided
-        set of inputs.
-        """
+        # Re-generate all tomography data
+        inputs = _combine_all(list(self._tomo_inputs), self.n_qubits)
         req_measurements, result_mapping = _get_required_tomo_measurements(
             self.n_qubits
         )
-        # Determine required input states and circuits
-        all_circuits = []
-        all_input_states = []
-        for in_state in inputs:
-            for meas in req_measurements:
-                circ, state = self._create_circuit_and_input(in_state, meas)
-                all_circuits.append(circ)
-                all_input_states.append(state)
-        # Run all required experiments
-        results = self.experiment(
-            all_circuits,
-            all_input_states,
-            *(self.experiment_args if self.experiment_args is not None else []),
-        )
-        # Sort results into each input/measurement combination
-        num_per_in = len(req_measurements)
-        sorted_results = {
-            in_state: dict(
-                zip(
-                    req_measurements,
-                    results[num_per_in * i : num_per_in * (i + 1)],
-                    strict=True,
+        if not isinstance(results, dict):
+            if len(results) != len(inputs) * len(req_measurements):
+                msg = (
+                    f"Number of results ({len(results)}) did not match the "
+                    f"expected number ({len(inputs) * len(req_measurements)}) "
+                    "for the target tomography algorithm."
                 )
-            )
-            for i, in_state in enumerate(inputs)
-        }
+                raise TomographyDataError(msg)
+            # Sort results into each input/measurement combination
+            num_per_in = len(req_measurements)
+            sorted_results = {
+                in_state: dict(
+                    zip(
+                        req_measurements,
+                        results[num_per_in * i : num_per_in * (i + 1)],
+                        strict=True,
+                    )
+                )
+                for i, in_state in enumerate(inputs)
+            }
+        else:
+            sorted_results = {}
+            missing = []
+            for in_state in inputs:
+                sorted_results[in_state] = {}
+                for meas in req_measurements:
+                    if (in_state, meas) in results:
+                        sorted_results[in_state][meas] = results[in_state, meas]
+                    else:
+                        missing.append((in_state, meas))
+            if missing:
+                msg = (
+                    "One or more expected keys were detected to be missing "
+                    f"from the results dictionary. Missing keys were {missing}."
+                )
+                raise TomographyDataError(msg)
         # Expand results to include all of the required measurements
         full_results = {}
         for in_state, res in sorted_results.items():

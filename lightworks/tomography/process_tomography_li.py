@@ -18,7 +18,7 @@ from numpy.typing import NDArray
 from lightworks.sdk.state import State
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
-from .process_tomography import ProcessTomography
+from .process_tomography import _ProcessTomography
 from .utils import (
     _calculate_expectation_value,
     _combine_all,
@@ -27,10 +27,8 @@ from .utils import (
     process_fidelity,
 )
 
-TOMO_INPUTS = ["Z+", "Z-", "X+", "Y+"]
 
-
-class LIProcessTomography(ProcessTomography):
+class LIProcessTomography(_ProcessTomography):
     """
     Runs quantum process tomography using the linear inversion estimation
     method.
@@ -40,17 +38,10 @@ class LIProcessTomography(ProcessTomography):
         n_qubits (int) : The number of qubits that will be used as part of the
             tomography.
 
-        base_circuit (PhotonicCircuit) : An initial circuit which produces the
-            required output state and can be modified for performing tomography.
+        base_circuit (PhotonicCircuit) : An initial circuit which realises the
+            required operation and can be modified for performing tomography.
             It is required that the number of circuit input modes equals 2 * the
             number of qubits.
-
-        experiment (Callable) : A function for performing the required
-            tomography experiments. This should accept a list of circuits and a
-            list of inputs and then return a list of results to process.
-
-        experiment_args (list | None) : Optionally provide additional arguments
-            which will be passed directly to the experiment function.
 
     """
 
@@ -64,18 +55,27 @@ class LIProcessTomography(ProcessTomography):
             )
         return self._choi
 
-    def process(self) -> NDArray[np.complex128]:
+    def process(
+        self,
+        data: list[dict[State, int]] | dict[tuple[str, str], dict[State, int]],
+    ) -> NDArray[np.complex128]:
         """
         Performs process tomography with the configured elements and calculates
         the choi matrix using linear inversion.
+
+        Args:
+
+            data (list | dict) : The collected measurement data. If a list then
+                this should match the order the experiments were provided, and
+                if a dictionary, then each key should be tuple of the input and
+                measurement basis.
 
         Returns:
 
             np.ndarray : The calculated choi matrix for the process.
 
         """
-        all_inputs = _combine_all(TOMO_INPUTS, self.n_qubits)
-        results = self._run_required_experiments(all_inputs)
+        results = self._convert_tomography_data(data)
         # Get expectation values using results
         lambdas = self._calculate_expectation_values(results)
         # Find all pauli and density matrices for multi-qubit states

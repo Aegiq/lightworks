@@ -17,8 +17,10 @@ import warnings
 import numpy as np
 from numpy.typing import NDArray
 
+from lightworks.sdk.state import State
+
 from .mappings import PAULI_MAPPING, RHO_MAPPING
-from .process_tomography import ProcessTomography
+from .process_tomography import _ProcessTomography
 from .utils import (
     _calculate_expectation_value,
     _combine_all,
@@ -28,10 +30,8 @@ from .utils import (
     process_fidelity,
 )
 
-TOMO_INPUTS = ["X+", "X-", "Y+", "Y-", "Z+", "Z-"]
 
-
-class MLEProcessTomography(ProcessTomography):
+class MLEProcessTomography(_ProcessTomography):
     """
     Runs quantum process tomography using the maximum likelihood estimation
     method.
@@ -41,19 +41,14 @@ class MLEProcessTomography(ProcessTomography):
         n_qubits (int) : The number of qubits that will be used as part of the
             tomography.
 
-        base_circuit (PhotonicCircuit) : An initial circuit which produces the
-            required output state and can be modified for performing tomography.
+        base_circuit (PhotonicCircuit) : An initial circuit which realises the
+            required operation and can be modified for performing tomography.
             It is required that the number of circuit input modes equals 2 * the
             number of qubits.
 
-        experiment (Callable) : A function for performing the required
-            tomography experiments. This should accept a list of circuits and a
-            list of inputs and then return a list of results to process.
-
-        experiment_args (list | None) : Optionally provide additional arguments
-            which will be passed directly to the experiment function.
-
     """
+
+    _tomo_inputs = ("Z+", "Z-", "X+", "X-", "Y+", "Y-")
 
     @property
     def choi(self) -> NDArray[np.complex128]:
@@ -65,18 +60,27 @@ class MLEProcessTomography(ProcessTomography):
             )
         return self._choi
 
-    def process(self) -> NDArray[np.complex128]:
+    def process(
+        self,
+        data: list[dict[State, int]] | dict[tuple[str, str], dict[State, int]],
+    ) -> NDArray[np.complex128]:
         """
         Performs process tomography with the configured elements and calculates
         the choi matrix using maximum likelihood estimation.
+
+        Args:
+
+            data (list | dict) : The collected measurement data. If a list then
+                this should match the order the experiments were provided, and
+                if a dictionary, then each key should be tuple of the input and
+                measurement basis.
 
         Returns:
 
             np.ndarray : The calculated choi matrix for the process.
 
         """
-        all_inputs = _combine_all(TOMO_INPUTS, self.n_qubits)
-        results = self._run_required_experiments(all_inputs)
+        results = self._convert_tomography_data(data)
         nij = {}
         # Convert counts to an expectation value
         for (in_state, meas), result in results.items():
@@ -85,7 +89,7 @@ class MLEProcessTomography(ProcessTomography):
                 continue
             nij[in_state, meas] = _calculate_expectation_value(meas, result)
         # Run MLE algorithm and get choi
-        mle = MLETomographyAlgorithm(self.n_qubits)
+        mle = MLETomographyAlgorithm(self.n_qubits, self._full_input_basis())
         self._choi = mle.pgdb(nij)
         return self.choi
 
@@ -109,14 +113,14 @@ class MLETomographyAlgorithm:
 
     """
 
-    def __init__(self, n_qubits: int) -> None:
+    def __init__(self, n_qubits: int, input_basis: list[str]) -> None:
         self.n_qubits = n_qubits
 
         # Pre-calculate all required n_qubit pauli & density matrices + the
         # inputs and measurement basis for the tomography
         self._all_rhos = _combine_all(RHO_MAPPING, self.n_qubits)
         self._all_pauli = _combine_all(PAULI_MAPPING, self.n_qubits)
-        self._input_basis = _combine_all(TOMO_INPUTS, self.n_qubits)
+        self._input_basis = list(input_basis)
         self._meas_basis = _get_tomo_measurements(n_qubits, remove_trivial=True)
 
         self._a_matrix = self._a_mat()
