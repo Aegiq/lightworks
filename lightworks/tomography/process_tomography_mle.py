@@ -20,7 +20,7 @@ from numpy.typing import NDArray
 from lightworks.sdk.state import State
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
-from .process_tomography import ProcessTomography
+from .process_tomography import _ProcessTomography
 from .utils import (
     _calculate_expectation_value,
     _combine_all,
@@ -31,7 +31,7 @@ from .utils import (
 )
 
 
-class MLEProcessTomography(ProcessTomography):
+class MLEProcessTomography(_ProcessTomography):
     """
     Runs quantum process tomography using the maximum likelihood estimation
     method.
@@ -41,8 +41,8 @@ class MLEProcessTomography(ProcessTomography):
         n_qubits (int) : The number of qubits that will be used as part of the
             tomography.
 
-        base_circuit (PhotonicCircuit) : An initial circuit which produces the
-            required output state and can be modified for performing tomography.
+        base_circuit (PhotonicCircuit) : An initial circuit which realises the
+            required operation and can be modified for performing tomography.
             It is required that the number of circuit input modes equals 2 * the
             number of qubits.
 

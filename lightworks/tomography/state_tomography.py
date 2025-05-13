@@ -20,6 +20,7 @@ from lightworks.sdk.state import State
 
 from .experiments import StateTomographyExperiment, StateTomographyList
 from .mappings import MEASUREMENT_MAPPING
+from .tomography import _Tomography
 from .utils import (
     TomographyDataError,
     _calculate_density_matrix,
@@ -29,7 +30,7 @@ from .utils import (
 )
 
 
-class StateTomography:
+class StateTomography(_Tomography):
     """
     Generates the required circuit and performs data processing for the
     calculation of the density matrix of a state.
@@ -45,44 +46,6 @@ class StateTomography:
             number of qubits.
 
     """
-
-    def __init__(
-        self,
-        n_qubits: int,
-        base_circuit: PhotonicCircuit,
-    ) -> None:
-        # Type check inputs
-        if not isinstance(n_qubits, int) or isinstance(n_qubits, bool):
-            raise TypeError("Number of qubits should be an integer.")
-        if not isinstance(base_circuit, PhotonicCircuit):
-            raise TypeError("Base circuit should be a circuit object.")
-
-        if 2 * n_qubits != base_circuit.input_modes:
-            msg = (
-                "Number of circuit input modes does not match the amount "
-                "required for the specified number of qubits, expected "
-                f"{2 * n_qubits}."
-            )
-            raise ValueError(msg)
-
-        self._n_qubits = n_qubits
-        self._base_circuit = base_circuit
-        self._rho: NDArray[np.complex128]
-
-    @property
-    def base_circuit(self) -> PhotonicCircuit:
-        """
-        The base circuit which is to be modified as part of the tomography
-        calculations.
-        """
-        return self._base_circuit
-
-    @property
-    def n_qubits(self) -> int:
-        """
-        The number of qubits within the system.
-        """
-        return self._n_qubits
 
     @property
     def rho(self) -> NDArray[np.complex128]:

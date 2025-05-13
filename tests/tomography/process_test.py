@@ -27,7 +27,7 @@ from lightworks.tomography.experiments import (
     ProcessTomographyExperiment,
     ProcessTomographyList,
 )
-from lightworks.tomography.process_tomography import ProcessTomography
+from lightworks.tomography.process_tomography import _ProcessTomography
 
 
 def run_experiments(experiments, n_qubits):
@@ -315,7 +315,7 @@ class TestGeneralProcessTomography:
         Checks that the all methods from ProcessTomographyList correctly returns
         the expected list of values in the correct order.
         """
-        tomo = ProcessTomography(2, qubit.CNOT())
+        tomo = _ProcessTomography(2, qubit.CNOT())
         experiments = tomo.get_experiments()
         for exp, quantity in zip(
             experiments, getattr(experiments, n1), strict=True
