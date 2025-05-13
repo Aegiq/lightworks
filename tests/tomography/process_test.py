@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from random import shuffle
+
 import pytest
 
 from lightworks import PostSelection, Sampler, emulator, qubit
@@ -122,6 +124,21 @@ class TestLIProcessTomography:
         """
         tomo = LIProcessTomography(2, qubit.CNOT())
         tomo.process(self.cnot_data_dict)
+        assert tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
+        assert tomo.choi == pytest.approx(cnot_exp, abs=5e-2)
+
+    def test_dict_processing_shuffled(self):
+        """
+        Checks process tomography is successful when the data is provided as a
+        dictionary and has been shuffled.
+        """
+        tomo = LIProcessTomography(2, qubit.CNOT())
+        shuffled_data = {}
+        keys = list(self.cnot_data_dict.keys())
+        shuffle(keys)
+        for k in keys:
+            shuffled_data[k] = self.cnot_data_dict[k]
+        tomo.process(shuffled_data)
         assert tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
         assert tomo.choi == pytest.approx(cnot_exp, abs=5e-2)
 
