@@ -100,6 +100,32 @@ class TestStateTomography:
         assert rho == pytest.approx(rho_exp, abs=1e-2)
         assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-3)
 
+    @pytest.mark.parametrize("n_qubits", [1, 2, 3])
+    def test_ghz_state_dict(self, n_qubits):
+        """
+        Checks correct density matrix is produced when performing tomography on
+        the n_qubit GHZ state and returning results as a dictionary.
+        """
+        base_circ = PhotonicCircuit(n_qubits * 2)
+        base_circ.add(qubit.H())
+        for i in range(n_qubits - 1):
+            base_circ.add(qubit.CNOT(), 2 * i)
+        tomo = StateTomography(n_qubits, base_circ)
+        experiments = tomo.get_experiments()
+        data = run_experiments(experiments)
+        # Convert data to dict
+        data_dict = dict(
+            zip(experiments.all_measurement_basis, data, strict=True)
+        )
+        rho = tomo.process(data_dict)
+        rho_exp = np.zeros((2**n_qubits, 2**n_qubits), dtype=complex)
+        rho_exp[0, 0] = 0.5
+        rho_exp[0, -1] = 0.5
+        rho_exp[-1, 0] = 0.5
+        rho_exp[-1, -1] = 0.5
+        assert rho == pytest.approx(rho_exp, abs=1e-2)
+        assert tomo.fidelity(rho_exp) == pytest.approx(1, 1e-3)
+
     @pytest.mark.parametrize("n_modes", [2, 3, 5])
     def test_number_of_input_modes_twice_number_of_qubits(self, n_modes):
         """
