@@ -12,6 +12,10 @@ on:
 
   # Allows workflow to be manually run from the Actions tab
   workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
         
 jobs:
   pytest:

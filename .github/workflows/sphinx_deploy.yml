@@ -12,6 +12,9 @@ on:
   # Allows workflow to be manually run from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 # Define build job
 jobs: 
 
