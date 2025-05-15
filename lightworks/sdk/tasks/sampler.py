@@ -25,6 +25,7 @@ from lightworks.sdk.utils.post_selection import (
     process_post_selection,
 )
 from lightworks.sdk.utils.random import process_random_seed
+from lightworks.sdk.utils.state import check_herald_difference
 
 from .data import SamplerTask
 from .task import Task
@@ -244,6 +245,7 @@ class Sampler(Task):
         return self._probability_distribution
 
     def _generate_task(self) -> SamplerTask:
+        check_herald_difference(self.circuit, self.input_state.n_photons)
         return SamplerTask(
             circuit=self.circuit._build(),
             input_state=self.input_state,

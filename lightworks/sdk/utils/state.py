@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.state import State
 
-from .exceptions import ModeMismatchError
+from .exceptions import ModeMismatchError, PhotonNumberError
 
 
 def validate_states(states: State | list[State], n_modes: int) -> list[State]:
@@ -41,3 +42,22 @@ def validate_states(states: State | list[State], n_modes: int) -> list[State]:
         # Also validate state values
         s._validate()
     return states
+
+
+def check_herald_difference(
+    circuit: PhotonicCircuit, input_photons: int
+) -> None:
+    """
+    Validates that the number of output heralds is not too large based on the
+    number of inputs to the circuit.
+    """
+    photon_diff = sum(circuit.heralds.output.values()) - sum(
+        circuit.heralds.input.values()
+    )
+    if photon_diff > input_photons:
+        msg = (
+            "Number of input photons is smaller than that required based "
+            "on the number of heralds at the output. At least "
+            f"{photon_diff} input photons are required."
+        )
+        raise PhotonNumberError(msg)

@@ -18,6 +18,7 @@ from lightworks import (
     ModeMismatchError,
     Parameter,
     PhotonicCircuit,
+    PhotonNumberError,
     PostSelection,
     Sampler,
     State,
@@ -257,6 +258,17 @@ class TestSamplerGeneral:
         b2 = Backend("slos")
         # Check attribute doesn't exist
         assert not hasattr(b2._Backend__backend, "_cache")
+
+    def test_output_heralds_too_large(self):
+        """
+        Confirms a PhotonNumberError is raised when the number of output heralds
+        is larger than the number of photons input into the system.
+        """
+        circuit = Unitary(random_unitary(4))
+        circuit.herald(3, (0, 2))
+        sampler = Sampler(circuit, State([1, 0, 0]), 1000)
+        with pytest.raises(PhotonNumberError):
+            sampler._generate_task()
 
 
 @pytest.mark.parametrize("backend", [Backend("permanent"), Backend("slos")])

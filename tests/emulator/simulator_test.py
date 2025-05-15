@@ -348,3 +348,14 @@ class TestSimulator:
                 pytest.approx(results_h[State([0, 1, 1, 0]), output])
                 == results[State([0, 1, 0, 1, 1, 0]), full_state]
             )
+
+    def test_output_heralds_too_large(self):
+        """
+        Confirms a PhotonNumberError is raised when the number of output heralds
+        is larger than the number of photons input into the system.
+        """
+        circuit = Unitary(random_unitary(4))
+        circuit.herald(3, (0, 2))
+        sim = Simulator(circuit, State([1, 0, 0]))
+        with pytest.raises(PhotonNumberError):
+            sim._generate_task()
