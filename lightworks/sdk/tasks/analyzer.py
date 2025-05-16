@@ -20,7 +20,7 @@ from lightworks.sdk.utils.post_selection import (
     PostSelectionType,
     process_post_selection,
 )
-from lightworks.sdk.utils.state import validate_states
+from lightworks.sdk.utils.state import check_herald_difference, validate_states
 
 from .data import AnalyzerTask
 from .task import Task
@@ -123,6 +123,7 @@ class Analyzer(Task):
         self.__expected = value
 
     def _generate_task(self) -> AnalyzerTask:
+        check_herald_difference(self.circuit, self.inputs[0].n_photons)
         return AnalyzerTask(
             circuit=self.circuit._build(),
             inputs=self.inputs,

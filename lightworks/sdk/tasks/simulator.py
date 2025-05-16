@@ -15,7 +15,7 @@
 
 from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.state import State
-from lightworks.sdk.utils.state import validate_states
+from lightworks.sdk.utils.state import check_herald_difference, validate_states
 
 from .data import SimulatorTask
 from .task import Task
@@ -92,6 +92,7 @@ class Simulator(Task):
         self.__outputs = value
 
     def _generate_task(self) -> SimulatorTask:
+        check_herald_difference(self.circuit, self.inputs[0].n_photons)
         return SimulatorTask(
             circuit=self.circuit._build(),
             inputs=self.inputs,
