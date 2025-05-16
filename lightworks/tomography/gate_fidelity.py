@@ -19,7 +19,7 @@ from lightworks.sdk.state import State
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import _ProcessTomography
-from .utils import _combine_all, _vec
+from .utils import _check_target_process, _combine_all, _vec
 
 
 class GateFidelity(_ProcessTomography):
@@ -73,7 +73,7 @@ class GateFidelity(_ProcessTomography):
             float : The calculated fidelity.
 
         """
-        target_process = np.array(target_process)
+        target_process = _check_target_process(target_process, self.n_qubits)
         # Get density matrices and convert to vector
         rhos = self.process_density_matrices(data)
         rho_vec = [rhos[i] for i in self._full_input_basis()]

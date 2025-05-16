@@ -23,6 +23,7 @@ from lightworks.tomography import (
     state_fidelity,
 )
 from lightworks.tomography.utils import (
+    _check_target_process,
     _get_required_tomo_measurements,
     _get_tomo_measurements,
 )
@@ -174,3 +175,35 @@ class TestUtils:
         """
         req_meas = _get_required_tomo_measurements(n_qubits)[0]
         assert req_meas == sorted(req_meas)
+
+    def test_check_target_process(self):
+        """
+        Confirm no error is raised when a valid process matrix is provided to
+        _check_target_process.
+        """
+        _check_target_process(random_unitary(4), 2)
+
+    @pytest.mark.parametrize("value", ["Test", {1: 2, 3: 4}, [[1, 2], [3]]])
+    def test_check_target_process_type(self, value):
+        """
+        Confirms an error is raised when an invalid type is provided to
+        _check_target_process.
+        """
+        with pytest.raises(TypeError):
+            _check_target_process(value, 2)
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            random_unitary(4)[:3, :3],
+            random_unitary(4)[:, :3],
+            random_unitary(4)[:3, :],
+        ],
+    )
+    def test_check_target_process_dimension(self, value):
+        """
+        Confirms an error is raised when the target process has incorrect
+        "dimension.
+        """
+        with pytest.raises(ValueError):
+            _check_target_process(value, 2)

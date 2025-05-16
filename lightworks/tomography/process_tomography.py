@@ -25,6 +25,7 @@ from .tomography import _Tomography
 from .utils import (
     TomographyDataError,
     _calculate_density_matrix,
+    _check_target_process,
     _combine_all,
     _get_required_tomo_measurements,
     _get_tomo_measurements,
@@ -89,7 +90,7 @@ class _ProcessTomography(_Tomography):
             float : The calculated fidelity.
 
         """
-        target_process = np.array(target_process)
+        target_process = _check_target_process(target_process, self.n_qubits)
         rhos = self.process_density_matrices(data)
         rho_exp = self.get_expected_density_matrices(target_process)
         return {i: state_fidelity(r, rho_exp[i]) for i, r in rhos.items()}
@@ -146,6 +147,7 @@ class _ProcessTomography(_Tomography):
             dict : The calculated density matrices for each input.
 
         """
+        target_process = _check_target_process(target_process, self.n_qubits)
         input_rhos = _combine_all(
             {k: v for k, v in RHO_MAPPING.items() if k in self._tomo_inputs},
             self.n_qubits,
