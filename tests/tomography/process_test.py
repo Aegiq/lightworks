@@ -14,6 +14,7 @@
 
 from random import shuffle
 
+import numpy as np
 import pytest
 
 from lightworks import PostSelection, Sampler, emulator, qubit
@@ -52,16 +53,17 @@ def run_experiments(experiments, n_qubits):
     return results
 
 
+cnot_mat = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+
 h_exp = choi_from_unitary([[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]])
 
-cnot_exp = choi_from_unitary(
-    [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]]
-)
+cnot_exp = choi_from_unitary(cnot_mat)
 
 
 class TestLIProcessTomography:
     """
-    Unit tests for LIProcessTomography routine.
+    Unit tests for LIProcessTomography routine. This is also used for more
+    general testing in instances where datasets are required.
     """
 
     def setup_class(self):
@@ -116,6 +118,27 @@ class TestLIProcessTomography:
         tomo = LIProcessTomography(2, qubit.CNOT())
         tomo.process(self.cnot_data)
         assert tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
+
+    def test_cnot_state_fidelity(self):
+        """
+        Checks that the fidelity of the density matrices for each input is close
+        to 1.
+        """
+        tomo = LIProcessTomography(2, qubit.CNOT())
+        fidelity = tomo.process_state_fidelities(self.cnot_data, cnot_mat)
+        for f in fidelity.values():
+            assert f == pytest.approx(1, 1e-3)
+
+    def test_cnot_density_matrices(self):
+        """
+        Checks that the calculated density matrices for each input is close to
+        the expected input.
+        """
+        tomo = LIProcessTomography(2, qubit.CNOT())
+        rhos = tomo.process_density_matrices(self.cnot_data)
+        rhos_exp = tomo.get_expected_density_matrices(cnot_mat)
+        for i in rhos:
+            assert rhos[i] == pytest.approx(rhos_exp[i], abs=5e-2)
 
     def test_dict_processing(self):
         """
@@ -211,6 +234,29 @@ class TestMLEProcessTomography:
         assert tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
         assert tomo.choi == pytest.approx(cnot_exp, abs=5e-2)
 
+    def test_cnot_state_fidelity(self):
+        """
+        Checks that the fidelity of the density matrices for each input is close
+        to 1. This is checked for MLE tomography as there is a larger number of
+        input states.
+        """
+        tomo = MLEProcessTomography(2, qubit.CNOT())
+        fidelity = tomo.process_state_fidelities(self.cnot_data, cnot_mat)
+        for f in fidelity.values():
+            assert f == pytest.approx(1, 1e-3)
+
+    def test_cnot_density_matrices(self):
+        """
+        Checks that the calculated density matrices for each input is close to
+        the expected input. This is checked for MLE tomography as there is a
+        larger number of input states.
+        """
+        tomo = MLEProcessTomography(2, qubit.CNOT())
+        rhos = tomo.process_density_matrices(self.cnot_data)
+        rhos_exp = tomo.get_expected_density_matrices(cnot_mat)
+        for i in rhos:
+            assert rhos[i] == pytest.approx(rhos_exp[i], abs=5e-2)
+
 
 class TestGateFidelity:
     """
@@ -249,7 +295,7 @@ class TestGateFidelity:
         tomo = GateFidelity(2, qubit.CNOT())
         f = tomo.process(
             self.cnot_data,
-            [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]],
+            cnot_mat,
         )
         assert f == pytest.approx(1, 1e-2)
 
