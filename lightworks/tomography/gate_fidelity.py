@@ -19,7 +19,7 @@ from lightworks.sdk.state import State
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import _ProcessTomography
-from .utils import _calculate_density_matrix, _combine_all, _vec
+from .utils import _combine_all, _vec
 
 
 class GateFidelity(_ProcessTomography):
@@ -74,19 +74,9 @@ class GateFidelity(_ProcessTomography):
 
         """
         target_process = np.array(target_process)
-        # Run all required tomography experiments
-        results = self._convert_tomography_data(data)
-        # Sorted results per input
-        remapped_results: dict[str, dict[str, dict[State, int]]] = {
-            k[0]: {} for k in results
-        }
-        for (k1, k2), r in results.items():
-            remapped_results[k1][k2] = r
-        # Calculate density matrices
-        rho_vec = [
-            _calculate_density_matrix(remapped_results[i], self.n_qubits)
-            for i in self._full_input_basis()
-        ]
+        # Get density matrices and convert to vector
+        rhos = self.process_density_matrices(data)
+        rho_vec = [rhos[i] for i in self._full_input_basis()]
         # Get pauli matrix basis and coefficients relating to unitary
         alpha_mat, u_basis = self._calculate_alpha_and_u_basis()
         # Find sum from equation
