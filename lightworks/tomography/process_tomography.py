@@ -158,6 +158,10 @@ class _ProcessTomography(_Tomography):
         }
 
     def _full_input_basis(self) -> list[str]:
+        """
+        Calculates and returns the full input basis used in a tomography
+        experiment.
+        """
         return _combine_all(list(self._tomo_inputs), self.n_qubits)
 
     def _create_circuit_and_input(
@@ -185,6 +189,11 @@ class _ProcessTomography(_Tomography):
         results: list[dict[State, int]]
         | dict[tuple[str, str], dict[State, int]],
     ) -> dict[tuple[str, str], dict[State, int]]:
+        """
+        Processes the provided tomography data, validating all expected
+        measurements are present and converting it into a full dataset including
+        previously removed redundant measurements (in the 'I' basis).
+        """
         # Re-generate all tomography data
         inputs = _combine_all(list(self._tomo_inputs), self.n_qubits)
         req_measurements, result_mapping = _get_required_tomo_measurements(
