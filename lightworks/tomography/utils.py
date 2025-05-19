@@ -331,3 +331,25 @@ def _calculate_density_matrix(
         # Updated density matrix
         rho += expectation * mat
     return rho
+
+
+def _check_target_process(
+    process_mat: NDArray[np.complex128], n_qubits: int
+) -> NDArray[np.complex128]:
+    """
+    Confirms the target process matrix is a numpy array of the correct shape.
+    """
+    try:
+        process_mat = np.array(process_mat, dtype=complex)
+    except Exception as e:
+        raise TypeError(
+            "Provided process matrix could not be converted to a complex numpy "
+            "array."
+        ) from e
+    if process_mat.shape != (2**n_qubits, 2**n_qubits):
+        msg = (
+            "Provided process matrix has incorrect shape, expected "
+            f"{(2**n_qubits, 2**n_qubits)}, got {process_mat.shape}."
+        )
+        raise ValueError(msg)
+    return process_mat
