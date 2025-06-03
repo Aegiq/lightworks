@@ -40,7 +40,7 @@ Converts a positive dB loss into a decimal loss value, which can be used with th
 .. code-block:: Python
 
     # Convert 3dB loss into decimal
-    loss = lw.db_loss_to_decimal(3)
+    loss = lw.convert.db_loss_to_decimal(3)
     print(loss)
     # Output: 0.49881276637272776
 
@@ -52,7 +52,7 @@ Converts a decimal loss value into a positive dB loss.
 .. code-block:: Python
 
     # Convert 30% loss into dB value 
-    loss = lw.decimal_to_db_loss(0.3)
+    loss = lw.convert.decimal_to_db_loss(0.3)
     print(loss)
     # Output: 1.5490195998574319
 
@@ -63,7 +63,7 @@ Converts from qubit to dual-rail encoding.
 
 .. code-block:: Python
 
-    dr_state = lw.qubit_to_dual_rail([1, 0, 1])
+    dr_state = lw.convert.qubit_to_dual_rail([1, 0, 1])
     print(dr_state)
     # Output: |0,1,1,0,0,1>
 
@@ -74,7 +74,7 @@ Converts from a dual-rail encoding on pairs of adjacent modes into a qubit state
 
 .. code-block:: Python
 
-    qubit_state = lw.dual_rail_to_qubit([1, 0, 0, 1, 1, 0])
+    qubit_state = lw.convert.dual_rail_to_qubit([1, 0, 0, 1, 1, 0])
     print(qubit_state)
     # Output: |0,1,0>
 
@@ -85,7 +85,7 @@ Applies a threshold mapping to the provided state.
 
 .. code-block:: Python
 
-    qubit_state = lw.threshold_mapping([1, 2, 0, 3, 1, 0])
+    qubit_state = lw.convert.threshold_mapping([1, 2, 0, 3, 1, 0])
     print(qubit_state)
     # Output: |1,1,0,1,1,0>
 
@@ -97,6 +97,6 @@ Applies a parity mapping to the provided state, in which even & odd values are m
 
 .. code-block:: Python
 
-    qubit_state = lw.parity_mapping([1, 2, 0, 3, 1, 0])
+    qubit_state = lw.convert.parity_mapping([1, 2, 0, 3, 1, 0])
     print(qubit_state)
     # Output: |1,0,0,1,1,0>
