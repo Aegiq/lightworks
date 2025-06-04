@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, overload
 
 import drawsvg
 import matplotlib.figure
@@ -27,12 +27,32 @@ if TYPE_CHECKING:
     from lightworks.sdk.circuit import PhotonicCircuit
 
 
+@overload
+def Display(
+    circuit: "PhotonicCircuit",
+    display_loss: bool = ...,
+    mode_labels: list[str] | None = ...,
+    display_type: Literal["svg"] = ...,
+    show_parameter_values: bool = ...,
+) -> drawsvg.Drawing: ...
+
+
+@overload
+def Display(
+    circuit: "PhotonicCircuit",
+    display_loss: bool = ...,
+    mode_labels: list[str] | None = ...,
+    display_type: Literal["mpl"] = ...,
+    show_parameter_values: bool = ...,
+) -> tuple[matplotlib.figure.Figure, plt.Axes]: ...
+
+
 # Display function to interact with relevant classes
 def Display(  # noqa: N802
     circuit: "PhotonicCircuit",
     display_loss: bool = False,
     mode_labels: list[str] | None = None,
-    display_type: str = "svg",
+    display_type: Literal["svg", "mpl"] = "svg",
     show_parameter_values: bool = False,
 ) -> tuple[matplotlib.figure.Figure, plt.Axes] | drawsvg.Drawing:
     """
@@ -71,8 +91,7 @@ def Display(  # noqa: N802
         disp = DrawCircuitMPL(
             circuit, display_loss, mode_labels, show_parameter_values
         )
-        fig, ax = disp.draw()
-        return (fig, ax)
+        return disp.draw()
     if display_type == "svg":
         disp_svg = DrawCircuitSVG(
             circuit, display_loss, mode_labels, show_parameter_values

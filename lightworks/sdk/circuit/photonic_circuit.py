@@ -19,7 +19,7 @@ modified after creation.
 
 from collections.abc import Iterable
 from copy import copy, deepcopy
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, Literal, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -475,7 +475,7 @@ class PhotonicCircuit:
         show_parameter_values: bool = False,
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
-        display_type: str = "svg",
+        display_type: Literal["svg", "mpl"] = "svg",
     ) -> None:
         """
         Displays the current circuit with parameters set using either their
