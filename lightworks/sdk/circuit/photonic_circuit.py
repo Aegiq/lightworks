@@ -514,7 +514,7 @@ class PhotonicCircuit:
 
     def save_figure(
         self,
-        path: str,
+        path: str | Path,
         svg: bool = True,
         show_parameter_values: bool = False,
         display_loss: bool = False,
@@ -523,6 +523,28 @@ class PhotonicCircuit:
         """
         Creates a figure of the current circuit and saves this to the provided
         file name.
+
+        Args:
+
+            path (str|Path) : The path to save the figure to. This can be just a
+                filename or can also include a directory which the circuit
+                should be placed within.
+
+            svg (bool, optional) : Controls whether the figure is saved as an
+                svg (True) or png (False). png requires installing the cairosvg
+                module. Defaults to svg.
+
+            show_parameter_values (bool, optional) : Shows the values of
+                parameters instead of the associated labels if specified.
+
+            display_loss (bool, optional) : Choose whether to display loss
+                components in the figure, defaults to False.
+
+            mode_labels (list|None, optional) : Optionally provided a list of
+                mode labels which will be used to name the mode something other
+                than numerical values. Can be set to None to use default
+                values.
+
         """
         figure = display(
             self,
@@ -539,8 +561,8 @@ class PhotonicCircuit:
         else:
             if not CAIROSVG_INSTALLED:
                 raise ModuleNotFoundError(
-                    "cairosvg module is required to save circuit figures as "
-                    "PNGs. The best way to install this dependency is with 'pip"
+                    "cairosvg module is required to save circuit figures as a "
+                    "png. The best way to install this dependency is with 'pip"
                     " install drawsvg[raster]'."
                 )
             figure.set_pixel_scale(5)
