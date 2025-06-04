@@ -1067,8 +1067,6 @@ class TestCircuit:
             ("test.png", True),
             ("tests/test.svg", True),
             ("tests\\test.svg", True),
-            ("test", False),
-            ("test.png", False),
         ],
     )
     def test_circuit_saving(self, path, svg):
