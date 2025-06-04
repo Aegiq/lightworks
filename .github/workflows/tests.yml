@@ -20,11 +20,18 @@ permissions:
 jobs:
   pytest:
 
-    runs-on: ubuntu-latest
     strategy:
-        matrix:
-            python-version: ["3.10", "3.11", "3.12", "3.13"]
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        os: [ubuntu-latest]
+        include:
+          - python-version: "3.11"
+            os: windows-latest
+          - python-version: "3.11"
+            os: macos-latest
 
+    runs-on: ${{ matrix.os }}
+    
     # Runs for each version
     steps:
       - uses: actions/checkout@v4
