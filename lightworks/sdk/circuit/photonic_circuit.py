@@ -19,6 +19,7 @@ modified after creation.
 
 from collections.abc import Iterable
 from copy import copy, deepcopy
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Union
 
 import matplotlib.pyplot as plt
@@ -31,7 +32,7 @@ from lightworks.sdk.utils.exceptions import (
     ModeRangeError,
 )
 from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
-from lightworks.sdk.visualisation import display
+from lightworks.sdk.visualisation import CAIROSVG_INSTALLED, display
 
 from .parameters import Parameter
 from .photonic_circuit_utils import (
@@ -510,6 +511,40 @@ class PhotonicCircuit:
             plt.show()
         elif display_type == "svg":
             ipy_display.display(return_)
+
+    def save_figure(
+        self,
+        path: str,
+        svg: bool = True,
+        show_parameter_values: bool = False,
+        display_loss: bool = False,
+        mode_labels: list[str] | None = None,
+    ) -> None:
+        """
+        Creates a figure of the current circuit and saves this to the provided
+        file name.
+        """
+        figure = display(
+            self,
+            display_loss=display_loss,
+            mode_labels=mode_labels,
+            display_type="svg",
+            show_parameter_values=show_parameter_values,
+        )
+        p = Path(path)
+        p = p.with_suffix(".svg") if svg else p.with_suffix(".png")
+        p.parent.mkdir(parents=True, exist_ok=True)
+        if svg:
+            figure.save_svg(p)
+        else:
+            if not CAIROSVG_INSTALLED:
+                raise ModuleNotFoundError(
+                    "cairosvg module is required to save circuit figures as "
+                    "PNGs. The best way to install this dependency is with 'pip"
+                    " install drawsvg[raster]'."
+                )
+            figure.set_pixel_scale(5)
+            figure.save_png(str(p))
 
     def get_all_params(self) -> list[Parameter[Any]]:
         """
