@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Any, Literal, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-from IPython import display
+from IPython import display as ipy_display
 from numpy.typing import NDArray
 
 from lightworks.sdk.utils.exceptions import (
@@ -31,7 +31,7 @@ from lightworks.sdk.utils.exceptions import (
     ModeRangeError,
 )
 from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
-from lightworks.sdk.visualisation import Display
+from lightworks.sdk.visualisation import display
 
 from .parameters import Parameter
 from .photonic_circuit_utils import (
@@ -499,7 +499,7 @@ class PhotonicCircuit:
                 Should either be 'svg' or 'mpl', defaults to 'svg'.
 
         """
-        return_ = Display(
+        return_ = display(
             self,
             display_loss=display_loss,
             mode_labels=mode_labels,
@@ -509,7 +509,7 @@ class PhotonicCircuit:
         if display_type == "mpl":
             plt.show()
         elif display_type == "svg":
-            display.display(return_)
+            ipy_display.display(return_)
 
     def get_all_params(self) -> list[Parameter[Any]]:
         """

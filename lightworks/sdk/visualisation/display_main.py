@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 
 @overload
-def Display(
+def display(
     circuit: "PhotonicCircuit",
     display_loss: bool = ...,
     mode_labels: list[str] | None = ...,
@@ -38,7 +38,7 @@ def Display(
 
 
 @overload
-def Display(
+def display(
     circuit: "PhotonicCircuit",
     display_loss: bool = ...,
     mode_labels: list[str] | None = ...,
@@ -47,8 +47,8 @@ def Display(
 ) -> tuple[matplotlib.figure.Figure, plt.Axes]: ...
 
 
-# Display function to interact with relevant classes
-def Display(  # noqa: N802
+# display function to interact with relevant classes
+def display(
     circuit: "PhotonicCircuit",
     display_loss: bool = False,
     mode_labels: list[str] | None = None,
@@ -56,7 +56,7 @@ def Display(  # noqa: N802
     show_parameter_values: bool = False,
 ) -> tuple[matplotlib.figure.Figure, plt.Axes] | drawsvg.Drawing:
     """
-    Used to Display a circuit from lightworks in the chosen format.
+    Used to display a circuit from lightworks in the chosen format.
 
     Args:
 
