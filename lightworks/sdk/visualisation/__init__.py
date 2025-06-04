@@ -13,9 +13,3 @@
 # limitations under the License.
 
 from .display_main import display
-
-CAIROSVG_INSTALLED = True
-try:
-    import cairosvg
-except ModuleNotFoundError:
-    CAIROSVG_INSTALLED = False

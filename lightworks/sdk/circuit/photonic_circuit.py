@@ -32,7 +32,7 @@ from lightworks.sdk.utils.exceptions import (
     ModeRangeError,
 )
 from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
-from lightworks.sdk.visualisation import CAIROSVG_INSTALLED, display
+from lightworks.sdk.visualisation import display
 
 from .parameters import Parameter
 from .photonic_circuit_utils import (
@@ -531,8 +531,7 @@ class PhotonicCircuit:
                 should be placed within.
 
             svg (bool, optional) : Controls whether the figure is saved as an
-                svg (True) or png (False). png requires installing the cairosvg
-                module. Defaults to svg.
+                svg (True) or png (False). Defaults to svg.
 
             show_parameter_values (bool, optional) : Shows the values of
                 parameters instead of the associated labels if specified.
@@ -559,12 +558,6 @@ class PhotonicCircuit:
         if svg:
             figure.save_svg(p)
         else:
-            if not CAIROSVG_INSTALLED:
-                raise ModuleNotFoundError(
-                    "cairosvg module is required to save circuit figures as a "
-                    "png. The best way to install this dependency is with 'pip"
-                    " install drawsvg[raster]'."
-                )
             figure.set_pixel_scale(5)
             figure.save_png(str(p))
 
