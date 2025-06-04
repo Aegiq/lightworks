@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
 from random import randint, random, seed
 
 import pytest
@@ -1057,6 +1058,37 @@ class TestCircuit:
         assert all(
             isinstance(c, Component) for c in circuit._get_circuit_spec()
         )
+
+    @pytest.mark.parametrize(
+        ("path", "svg"),
+        [
+            ("test", True),
+            ("test.svg", True),
+            ("test.png", True),
+            ("tests/test.svg", True),
+            ("tests\\test.svg", True),
+            ("test", False),
+            ("test.png", False),
+        ],
+    )
+    def test_circuit_saving(self, path, svg):
+        """
+        Checks that a figure can be created for a range target paths.
+        """
+        circuit = PhotonicCircuit(6)
+        circuit.add(CNOT())
+        circuit.bs(0)
+        circuit.ps(0, Parameter(3, label="μ"))
+        circuit.loss(2, 0.5)
+        circuit.mode_swaps({0: 2, 2: 0})
+        circuit.barrier()
+        # Save circuit
+        circuit.save_figure(path, svg=svg)
+        # Check it exists
+        path = Path(path)
+        path = path.with_suffix(".svg") if svg else path.with_suffix(".png")
+        assert path.exists()
+        path.unlink()
 
 
 class TestUnitary:
