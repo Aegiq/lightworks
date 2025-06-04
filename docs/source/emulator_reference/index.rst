@@ -7,4 +7,3 @@ Emulator Reference
     backend
     source
     detector
-    utils
