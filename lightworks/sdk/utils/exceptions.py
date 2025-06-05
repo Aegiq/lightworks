@@ -117,3 +117,9 @@ class SamplerError(LightworksError):
     """
     Specific error in the Sampler objects.
     """
+
+
+class LightworksDependencyError(LightworksError):
+    """
+    For errors relating to a dependency of lightworks.
+    """

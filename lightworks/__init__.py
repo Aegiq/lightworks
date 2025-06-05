@@ -62,7 +62,7 @@ from .sdk.utils import (
     random_unitary,
 )
 from .sdk.utils.exceptions import *
-from .sdk.visualisation import Display
+from .sdk.visualisation import display
 
 # If installed then also import the remote module
 with contextlib.suppress(ModuleNotFoundError):
@@ -71,7 +71,6 @@ with contextlib.suppress(ModuleNotFoundError):
 __all__ = [
     "Analyzer",
     "Batch",
-    "Display",
     "Parameter",
     "ParameterDict",
     "PhotonicCircuit",
@@ -82,6 +81,7 @@ __all__ = [
     "State",
     "Unitary",
     "convert",
+    "display",
     "emulator",
     "interferometers",
     "qubit",
