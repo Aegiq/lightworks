@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
 from random import randint, random, seed
 
 import pytest
@@ -19,6 +20,7 @@ import sympy as sp
 
 from lightworks import (
     CircuitCompilationError,
+    LightworksDependencyError,
     Parameter,
     ParameterDict,
     PhotonicCircuit,
@@ -1057,6 +1059,52 @@ class TestCircuit:
         assert all(
             isinstance(c, Component) for c in circuit._get_circuit_spec()
         )
+
+    @pytest.mark.parametrize(
+        "path",
+        ["test", "test.svg", "test.png", "tests/test.svg", "tests\\test.svg"],
+    )
+    def test_circuit_saving_svg(self, path):
+        """
+        Checks that a figure can be created for a range target paths.
+        """
+        circuit = PhotonicCircuit(6)
+        circuit.add(CNOT())
+        circuit.bs(0)
+        circuit.ps(0, Parameter(3, label="μ"))
+        circuit.loss(2, 0.5)
+        circuit.mode_swaps({0: 2, 2: 0})
+        circuit.barrier()
+        # Save circuit
+        circuit.save_figure(path, svg=True)
+        # Check it exists
+        path = Path(path).with_suffix(".svg")
+        assert path.exists()
+        path.unlink()
+
+    def test_circuit_saving_png(self):
+        """
+        Checks that a png figure can either be saved or the appropriate error is
+        raised depending on the installed dependencies.
+        """
+        path = "test.png"
+        circuit = PhotonicCircuit(6)
+        circuit.add(CNOT())
+        circuit.bs(0)
+        circuit.ps(0, Parameter(3, label="μ"))
+        circuit.loss(2, 0.5)
+        circuit.mode_swaps({0: 2, 2: 0})
+        circuit.barrier()
+        # Save circuit
+        try:
+            circuit.save_figure(path, svg=True)
+        except LightworksDependencyError:
+            pass
+        else:
+            # Check it exists
+            path = Path(path).with_suffix(".svg")
+            assert path.exists()
+            path.unlink()
 
 
 class TestUnitary:
