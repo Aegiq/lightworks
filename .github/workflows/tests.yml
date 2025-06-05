@@ -18,7 +18,7 @@ permissions:
   pull-requests: write
      
 env:
-  MAIN_PY_VER: "3.11"
+  COV_PY_VER: "3.11"
 
 jobs:
   pytest:
@@ -28,9 +28,9 @@ jobs:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
         os: [ubuntu-latest]
         include:
-          - python-version: ${{ MAIN_PY_VER }}
+          - python-version: "3.11"
             os: windows-latest
-          - python-version: ${{ MAIN_PY_VER }}
+          - python-version: "3.11"
             os: macos-latest
 
     runs-on: ${{ matrix.os }}
@@ -53,19 +53,18 @@ jobs:
 
       # Run with pytest
       - name: Test with pytest
-        if: ${{ ! (matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request') }}
+        if: ${{ ! (matrix.python-version == env.COV_PY_VER && matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request') }}
         run: |
             pytest
         
       - name: Test with pytest & coverage
-        if: ${{ matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request' }}
+        if: ${{ matrix.python-version == env.COV_PY_VER && matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request' }}
         run: |
             pytest --junitxml=report.xml --cov --cov-report=term-missing:skip-covered --cov-report xml:coverage.xml
 
-
       # Add comment to PR with coverage report
       - name: Pytest coverage comment
-        if: ${{ matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request' }} 
+        if: ${{ matrix.python-version == env.COV_PY_VER && matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request' }} 
         uses: MishaKav/pytest-coverage-comment@main
         with:
           junitxml-path: ./report.xml
