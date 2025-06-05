@@ -38,7 +38,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install uv
           uv pip install -r requirements.txt --system
-          uv pip install ghp-import
+          uv pip install ghp-import --system
 
       # Pandoc install required for sphinx docs
       - name: Install pandoc
