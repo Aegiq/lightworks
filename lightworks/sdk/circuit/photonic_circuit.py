@@ -29,6 +29,7 @@ from numpy.typing import NDArray
 
 from lightworks.sdk.utils.exceptions import (
     CircuitCompilationError,
+    LightworksDependencyError,
     ModeRangeError,
 )
 from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
@@ -559,7 +560,15 @@ class PhotonicCircuit:
             figure.save_svg(p)
         else:
             figure.set_pixel_scale(5)
-            figure.save_png(str(p))
+            try:
+                figure.save_png(str(p))
+            except ImportError as e:
+                raise LightworksDependencyError(
+                    "Unable to save figure as png due to missing dependency."
+                    "Please see original exception for more information or "
+                    "seek support. Alternatively, it will still be possible to "
+                    "save the figure as an svg."
+                ) from e
 
     def get_all_params(self) -> list[Parameter[Any]]:
         """

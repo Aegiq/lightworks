@@ -20,6 +20,7 @@ import sympy as sp
 
 from lightworks import (
     CircuitCompilationError,
+    LightworksDependencyError,
     Parameter,
     ParameterDict,
     PhotonicCircuit,
@@ -1060,18 +1061,10 @@ class TestCircuit:
         )
 
     @pytest.mark.parametrize(
-        ("path", "svg"),
-        [
-            ("test", True),
-            ("test.svg", True),
-            ("test.png", True),
-            ("tests/test.svg", True),
-            ("tests\\test.svg", True),
-            ("test", False),
-            ("test.png", False),
-        ],
+        "path",
+        ["test", "test.svg", "test.png", "tests/test.svg", "tests\\test.svg"],
     )
-    def test_circuit_saving(self, path, svg):
+    def test_circuit_saving_svg(self, path):
         """
         Checks that a figure can be created for a range target paths.
         """
@@ -1083,12 +1076,35 @@ class TestCircuit:
         circuit.mode_swaps({0: 2, 2: 0})
         circuit.barrier()
         # Save circuit
-        circuit.save_figure(path, svg=svg)
+        circuit.save_figure(path, svg=True)
         # Check it exists
-        path = Path(path)
-        path = path.with_suffix(".svg") if svg else path.with_suffix(".png")
+        path = Path(path).with_suffix(".svg")
         assert path.exists()
         path.unlink()
+
+    def test_circuit_saving_png(self):
+        """
+        Checks that a png figure can either be saved or the appropriate error is
+        raised depending on the installed dependencies.
+        """
+        path = "test.png"
+        circuit = PhotonicCircuit(6)
+        circuit.add(CNOT())
+        circuit.bs(0)
+        circuit.ps(0, Parameter(3, label="μ"))
+        circuit.loss(2, 0.5)
+        circuit.mode_swaps({0: 2, 2: 0})
+        circuit.barrier()
+        # Save circuit
+        try:
+            circuit.save_figure(path, svg=True)
+        except LightworksDependencyError:
+            pass
+        else:
+            # Check it exists
+            path = Path(path).with_suffix(".svg")
+            assert path.exists()
+            path.unlink()
 
 
 class TestUnitary:
