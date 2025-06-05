@@ -16,7 +16,10 @@ on:
 permissions:
   contents: read
   pull-requests: write
-        
+     
+env:
+  MAIN_PY_VER: "3.11"
+
 jobs:
   pytest:
 
@@ -25,9 +28,9 @@ jobs:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
         os: [ubuntu-latest]
         include:
-          - python-version: "3.11"
+          - python-version: ${{ MAIN_PY_VER }}
             os: windows-latest
-          - python-version: "3.11"
+          - python-version: ${{ MAIN_PY_VER }}
             os: macos-latest
 
     runs-on: ${{ matrix.os }}
