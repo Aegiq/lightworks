@@ -50,12 +50,19 @@ jobs:
 
       # Run with pytest
       - name: Test with pytest
+        if: ${{ ! (matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request') }}
+        run: |
+            pytest
+        
+      - name: Test with pytest & coverage
+        if: ${{ matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request' }}
         run: |
             pytest --junitxml=report.xml --cov --cov-report=term-missing:skip-covered --cov-report xml:coverage.xml
 
+
       # Add comment to PR with coverage report
       - name: Pytest coverage comment
-        if: ${{ matrix.python-version == '3.11'  && github.event_name == 'pull_request' }} 
+        if: ${{ matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request' }} 
         uses: MishaKav/pytest-coverage-comment@main
         with:
           junitxml-path: ./report.xml
