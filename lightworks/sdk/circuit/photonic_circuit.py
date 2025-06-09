@@ -19,19 +19,21 @@ modified after creation.
 
 from collections.abc import Iterable
 from copy import copy, deepcopy
-from typing import TYPE_CHECKING, Any, Union
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Literal, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
-from IPython import display
+from IPython import display as ipy_display
 from numpy.typing import NDArray
 
 from lightworks.sdk.utils.exceptions import (
     CircuitCompilationError,
+    LightworksDependencyError,
     ModeRangeError,
 )
 from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
-from lightworks.sdk.visualisation import Display
+from lightworks.sdk.visualisation import display
 
 from .parameters import Parameter
 from .photonic_circuit_utils import (
@@ -475,7 +477,7 @@ class PhotonicCircuit:
         show_parameter_values: bool = False,
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
-        display_type: str = "svg",
+        display_type: Literal["svg", "mpl"] = "svg",
     ) -> None:
         """
         Displays the current circuit with parameters set using either their
@@ -499,7 +501,7 @@ class PhotonicCircuit:
                 Should either be 'svg' or 'mpl', defaults to 'svg'.
 
         """
-        return_ = Display(
+        return_ = display(
             self,
             display_loss=display_loss,
             mode_labels=mode_labels,
@@ -509,7 +511,64 @@ class PhotonicCircuit:
         if display_type == "mpl":
             plt.show()
         elif display_type == "svg":
-            display.display(return_)
+            ipy_display.display(return_)
+
+    def save_figure(
+        self,
+        path: str | Path,
+        svg: bool = True,
+        show_parameter_values: bool = False,
+        display_loss: bool = False,
+        mode_labels: list[str] | None = None,
+    ) -> None:
+        """
+        Creates a figure of the current circuit and saves this to the provided
+        file name.
+
+        Args:
+
+            path (str|Path) : The path to save the figure to. This can be just a
+                filename or can also include a directory which the circuit
+                should be placed within.
+
+            svg (bool, optional) : Controls whether the figure is saved as an
+                svg (True) or png (False). Defaults to svg.
+
+            show_parameter_values (bool, optional) : Shows the values of
+                parameters instead of the associated labels if specified.
+
+            display_loss (bool, optional) : Choose whether to display loss
+                components in the figure, defaults to False.
+
+            mode_labels (list|None, optional) : Optionally provided a list of
+                mode labels which will be used to name the mode something other
+                than numerical values. Can be set to None to use default
+                values.
+
+        """
+        figure = display(
+            self,
+            display_loss=display_loss,
+            mode_labels=mode_labels,
+            display_type="svg",
+            show_parameter_values=show_parameter_values,
+        )
+        p = Path(path)
+        p = p.with_suffix(".svg") if svg else p.with_suffix(".png")
+        p.parent.mkdir(parents=True, exist_ok=True)
+        if svg:
+            figure.save_svg(p)
+        else:
+            figure.set_pixel_scale(5)
+            try:
+                figure.save_png(str(p))
+            except ImportError as e:
+                raise LightworksDependencyError(
+                    "Unable to save figure as png due to missing dependency."
+                    "Please see original exception for more information or "
+                    "seek support. Alternatively, it will still be possible to "
+                    "save the figure as an svg."
+                ) from e
 
     def get_all_params(self) -> list[Parameter[Any]]:
         """

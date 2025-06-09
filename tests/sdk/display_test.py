@@ -20,12 +20,12 @@ import numpy as np
 import pytest
 
 from lightworks import (
-    Display,
     DisplayError,
     Parameter,
     PhotonicCircuit,
     Unitary,
     convert,
+    display,
     random_unitary,
 )
 
@@ -122,7 +122,7 @@ class TestDisplay:
         processed without any exceptions arising.
         """
         try:
-            Display(self.circuit, display_loss=True)
+            display(self.circuit, display_loss=True)
         except:
             pytest.fail("Exception occurred during display operation.")
 
@@ -138,7 +138,7 @@ class TestDisplay:
         original_backend = mpl.get_backend()
         mpl.use("Agg")
         try:
-            Display(self.circuit, display_loss=True, display_type="mpl")
+            display(self.circuit, display_loss=True, display_type="mpl")
             plt.close()
         except:
             pytest.fail("Exception occurred during display operation.")
@@ -153,7 +153,7 @@ class TestDisplay:
         with pytest.raises(DisplayError):
             self.circuit.display(display_type="not_valid")
         with pytest.raises(DisplayError):
-            Display(self.circuit, display_type="not_valid")
+            display(self.circuit, display_type="not_valid")
 
     @pytest.mark.flaky(reruns=3)
     @pytest.mark.parametrize("display_type", ["svg", "mpl"])

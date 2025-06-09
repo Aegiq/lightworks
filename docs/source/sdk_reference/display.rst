@@ -1,5 +1,5 @@
 Display
 =======
 
-.. autoclass:: lightworks.Display
+.. autoclass:: lightworks.display
     :members:

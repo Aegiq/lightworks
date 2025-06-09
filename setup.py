@@ -27,6 +27,7 @@ setup(
         "numpy>=1.24.3",
         "multimethod>=1.11.2",
         "drawsvg>=2.3.0",
+        "CairoSVG>=2.8.0",
         "sympy>=1.12.0",
         "pyarrow",
         "ipython",
