@@ -20,7 +20,7 @@ from numpy.typing import NDArray
 
 from lightworks.sdk.utils.exceptions import ModeRangeError
 
-from .photonic_components import Barrier, Component, Group, HeraldData, Loss
+from .photonic_components import Component, Group, HeraldData, Loss
 
 
 class CompiledPhotonicCircuit:
@@ -91,8 +91,6 @@ class CompiledPhotonicCircuit:
         if isinstance(spec, Group):
             for s in spec.circuit_spec:
                 self.add(s)
-        elif isinstance(spec, Barrier):
-            pass
         else:
             self._unitary = spec.get_unitary(self.total_modes) @ self._unitary
             self._circuit_spec.append(spec.serialize())
