@@ -62,7 +62,7 @@ def state_fidelity(
         )
         raise ValueError(msg)
     inner = rho_root @ rho_exp @ rho_root
-    return abs(np.trace(sqrtm(inner)))
+    return np.real(np.trace(sqrtm(inner)) ** 2)
 
 
 def process_fidelity(
