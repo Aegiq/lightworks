@@ -11,22 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from .single_qubit_gates import (
-    SX,
-    H,
-    I,
-    P,
-    Rx,
-    Ry,
-    Rz,
-    S,
-    Sadj,
-    T,
-    Tadj,
-    X,
-    Y,
-    Z,
-)
-from .three_qubit_gates import CCNOT, CCZ
-from .two_qubit_gates import CNOT, CZ, SWAP, CNOT_Heralded, CZ_Heralded

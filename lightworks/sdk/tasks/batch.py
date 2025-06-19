@@ -26,7 +26,7 @@ class Batch:
 
     def __init__(
         self,
-        task: Task | None = None,
+        task: type[Task] | None = None,
         task_args: list[list[Any]] | None = None,
         task_kwargs: dict[str, list[Any]] | None = None,
         parameters: dict[Parameter[Any], list[Any]] | None = None,

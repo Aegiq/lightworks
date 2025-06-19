@@ -43,6 +43,10 @@ Simulators:
 
 from .backends import Backend
 from .components import Detector, Source
-from .utils.exceptions import *
+from .utils.exceptions import *  # noqa: F403
 
-__all__ = ["Backend", "Detector", "Source"]
+__all__ = [
+    "Backend",
+    "Detector",
+    "Source",
+]
