@@ -22,10 +22,25 @@ and multi-qubit, and a set of converters for performing conversion from other
 quantum programming languages.
 """
 
-# ruff: noqa: F405
-
 from .converter.qiskit_convert import qiskit_converter
-from .gates import *
+from .gates.single_qubit_gates import (
+    SX,
+    H,
+    I,
+    P,
+    Rx,
+    Ry,
+    Rz,
+    S,
+    Sadj,
+    T,
+    Tadj,
+    X,
+    Y,
+    Z,
+)
+from .gates.three_qubit_gates import CCNOT, CCZ
+from .gates.two_qubit_gates import CNOT, CZ, SWAP, CNOT_Heralded, CZ_Heralded
 
 __all__ = [
     "CCNOT",

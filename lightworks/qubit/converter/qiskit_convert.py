@@ -12,15 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from lightworks.qubit.gates import (
-    CCNOT,
-    CCZ,
-    CNOT,
-    CZ,
-    SWAP,
+from lightworks.qubit.gates.single_qubit_gates import (
     SX,
-    CNOT_Heralded,
-    CZ_Heralded,
     H,
     P,
     Rx,
@@ -33,6 +26,14 @@ from lightworks.qubit.gates import (
     X,
     Y,
     Z,
+)
+from lightworks.qubit.gates.three_qubit_gates import CCNOT, CCZ
+from lightworks.qubit.gates.two_qubit_gates import (
+    CNOT,
+    CZ,
+    SWAP,
+    CNOT_Heralded,
+    CZ_Heralded,
 )
 from lightworks.sdk.circuit import PhotonicCircuit
 from lightworks.sdk.utils.exceptions import LightworksError

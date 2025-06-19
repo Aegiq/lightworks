@@ -31,6 +31,7 @@ from .utils import (
 )
 
 __all__ = [
+    "GateFidelity",
     "LIProcessTomography",
     "MLEProcessTomography",
     "StateTomography",

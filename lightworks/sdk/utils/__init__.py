@@ -18,3 +18,11 @@ from .random import (
     random_permutation,
     random_unitary,
 )
+
+__all__ = [
+    "PostSelection",
+    "PostSelectionFunction",
+    "convert",
+    "random_permutation",
+    "random_unitary",
+]
