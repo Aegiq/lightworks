@@ -23,7 +23,9 @@ import pandas as pd
 from numpy.typing import NDArray
 
 from lightworks.sdk.state import State
+from lightworks.sdk.utils import PostSelectionFunction
 from lightworks.sdk.utils.exceptions import ResultCreationError
+from lightworks.sdk.utils.post_selection import PostSelectionType
 
 from .result import Result
 
@@ -173,7 +175,7 @@ class SimulationResult(Result[State, dict[State, float | complex]]):
             )
         if self.result_type == "probability_amplitude":
             raise ValueError(
-                "Threshold mapping cannot be applied to probability amplitudes."
+                "Mapping cannot be applied to probability amplitudes."
             )
         mapped_result: dict[State, dict[State, float | complex]] = {}
         for in_state, results in self.items():
@@ -185,6 +187,32 @@ class SimulationResult(Result[State, dict[State, float | complex]]):
                 else:
                     mapped_result[in_state][new_s] = val
         return self._recombine_mapped_result(mapped_result)
+
+    def apply_post_selection(
+        self, post_selection: PostSelectionType | Callable[[State], bool]
+    ) -> "SimulationResult":
+        """
+        Applies an additional post-selection criteria to the stored result and
+        returns this as a new object.
+        """
+        if isinstance(post_selection, FunctionType | MethodType):
+            post_selection = PostSelectionFunction(post_selection)
+        if not isinstance(post_selection, PostSelectionType):
+            raise TypeError(
+                "Provided post_selection should either be a PostSelection "
+                "object or a callable function which accepts a state and "
+                "returns a boolean to indicate whether the state is valid."
+            )
+        return self._recombine_mapped_result(
+            {
+                in_state: {
+                    out_state: val
+                    for out_state, val in results.items()
+                    if post_selection.validate(out_state)
+                }
+                for in_state, results in self.items()
+            }
+        )
 
     def _recombine_mapped_result(
         self, mapped_result: dict[State, dict[State, float | complex]]

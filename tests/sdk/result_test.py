@@ -17,11 +17,23 @@ import matplotlib.pyplot as plt
 import pytest
 from numpy import array
 
-from lightworks import ResultCreationError, State, convert
+from lightworks import (
+    PostSelection,
+    PostSelectionFunction,
+    ResultCreationError,
+    State,
+    convert,
+)
 from lightworks.sdk.results import (
     SamplingResult,
     SimulationResult,
 )
+
+CUSTOM_PS = PostSelection()
+CUSTOM_PS.add(1, (1, 3))
+
+CUSTOM_PS2 = PostSelection()
+CUSTOM_PS2.add(2, (1, 3))
 
 
 class TestSamplingResult:
@@ -112,12 +124,68 @@ class TestSamplingResult:
             }
         assert out_dict == expected
 
+    def test_custom_mapping(self):
+        """
+        Checks custom mapping can be applied correctly to create a new result.
+        """
+
+        def mapping(state: State) -> State:  # noqa: FURB118
+            return state[2:]
+
+        r = SamplingResult(self.test_dict, self.test_input)
+        # Apply mapping
+        r2 = r.map(mapping)
+        # Round results returned from mapping and compare
+        out_dict = {s: round(p, 4) for s, p in r2.items()}
+        assert out_dict == {State([0, 1]): 0.9, State([2, 0]): 0.3}
+
+    def test_custom_mapping_kwargs(self):
+        """
+        Checks that the arguments are correctly passed to a custom mapping by
+        getting it to raise an exception.
+        """
+
+        class CustomTestError(Exception): ...
+
+        def mapping(state: State, test: bool) -> State:
+            if test:
+                raise CustomTestError("Raised!")
+            return state[2:]
+
+        r = SamplingResult(self.test_dict, self.test_input)
+        # Check mapping can be applied normally
+        r.map(mapping, False)
+        # Check exception raised when passed as arg
+        with pytest.raises(CustomTestError):
+            r.map(mapping, True)
+        # And then as kwarg
+        with pytest.raises(CustomTestError):
+            r.map(mapping, test=True)
+
+    @pytest.mark.parametrize(
+        "post_selection",
+        [
+            CUSTOM_PS,
+            PostSelectionFunction(lambda s: s[1] > 0),
+            lambda s: s[1] > 0,
+        ],
+    )
+    def test_custom_post_selection(self, post_selection):
+        """
+        Check that additional post-selection can be applied to a result
+        correctly.
+        """
+        r = SamplingResult(self.test_dict, self.test_input)
+        r2 = r.apply_post_selection(post_selection)
+        # Compare results
+        assert r2 == {State([0, 1, 0, 1]): 0.4, State([0, 3, 0, 1]): 0.2}
+
     def test_single_input_plot(self):
         """
         Confirm plotting is able to work without errors for single input case.
         """
         r = SamplingResult(self.test_dict, self.test_input)
-        # NOTE: There is a non intermittent issue that occurs during testing
+        # NOTE: There is a intermittent issue that occurs during testing
         # with the subplots method in mpl. This can be fixed by altering the
         # backend to Agg for these tests. Issue noted here:
         # https://stackoverflow.com/questions/71443540/intermittent-pytest-failures-complaining-about-missing-tcl-files-even-though-the
@@ -297,7 +365,7 @@ class TestSimulationResult:
         """
         Confirm plotting is able to work without errors for multi input case.
         """
-        # NOTE: There is a non intermittent issue that occurs during testing
+        # NOTE: There is a intermittent issue that occurs during testing
         # with the subplots method in mpl. This can be fixed by altering the
         # backend to Agg for these tests. Issue noted here:
         # https://stackoverflow.com/questions/71443540/intermittent-pytest-failures-complaining-about-missing-tcl-files-even-though-the
@@ -517,3 +585,85 @@ class TestSimulationResult:
                 },
             }
         assert new_r == expected
+
+    def test_custom_mapping(self):
+        """
+        Checks custom mapping can be applied correctly to create a new result.
+        """
+
+        def mapping(state: State) -> State:  # noqa: FURB118
+            return state[:2]
+
+        r = SimulationResult(
+            self.test_multi_array,
+            "probability",
+            inputs=self.test_multi_inputs,
+            outputs=self.test_multi_outputs,
+        )
+        # Apply mapping
+        r2 = r.map(mapping)
+        # Compare results
+        assert r2 == {
+            State([1, 1, 0, 0]): {State([1, 0]): 0.4, State([0, 1]): 0.2},
+            State([0, 0, 1, 1]): {State([1, 0]): 0.7, State([0, 1]): 0.4},
+        }
+
+    def test_custom_mapping_kwargs(self):
+        """
+        Checks that the arguments are correctly passed to a custom mapping by
+        getting it to raise an exception.
+        """
+
+        class CustomTestError(Exception): ...
+
+        def mapping(state: State, test: bool) -> State:
+            if test:
+                raise CustomTestError("Raised!")
+            return state[:2]
+
+        r = SimulationResult(
+            self.test_multi_array,
+            "probability",
+            inputs=self.test_multi_inputs,
+            outputs=self.test_multi_outputs,
+        )
+        # Check mapping can be applied normally
+        r.map(mapping, False)
+        # Check exception raised when passed as arg
+        with pytest.raises(CustomTestError):
+            r.map(mapping, True)
+        # And then as kwarg
+        with pytest.raises(CustomTestError):
+            r.map(mapping, test=True)
+
+    @pytest.mark.parametrize(
+        "post_selection",
+        [
+            CUSTOM_PS2,
+            PostSelectionFunction(lambda s: s[2] > 0),
+            lambda s: s[2] > 0,
+        ],
+    )
+    def test_custom_post_selection(self, post_selection):
+        """
+        Check that additional post-selection can be applied to a result
+        correctly.
+        """
+        r = SimulationResult(
+            self.test_multi_array,
+            "probability",
+            inputs=self.test_multi_inputs,
+            outputs=self.test_multi_outputs,
+        )
+        r2 = r.apply_post_selection(post_selection)
+        # Compare results
+        assert r2 == {
+            State([1, 1, 0, 0]): {
+                State([1, 0, 1, 0]): 0.3,
+                State([1, 0, 3, 0]): 0.1,
+            },
+            State([0, 0, 1, 1]): {
+                State([1, 0, 1, 0]): 0.2,
+                State([1, 0, 3, 0]): 0.5,
+            },
+        }

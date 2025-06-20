@@ -18,6 +18,7 @@ from typing import Any, TypeVar
 
 from lightworks.sdk.state import State
 from lightworks.sdk.utils.exceptions import ResultError
+from lightworks.sdk.utils.post_selection import PostSelectionType
 
 _KT = TypeVar("_KT")
 _VT = TypeVar("_VT")
@@ -39,6 +40,15 @@ class Result(dict[_KT, _VT], ABC):
     ) -> RT:
         """
         Requires ability to apply a state mapping on a particular result.
+        """
+
+    @abstractmethod
+    def apply_post_selection(
+        self: RT, post_selection: PostSelectionType | Callable[[State], bool]
+    ) -> RT:
+        """
+        Requite the ability to provided additional post-selection criteria to a
+        result.
         """
 
     def __setitem__(self, key: _KT, value: _VT) -> None:
