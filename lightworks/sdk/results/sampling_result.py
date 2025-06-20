@@ -22,7 +22,9 @@ import numpy as np
 import pandas as pd
 
 from lightworks.sdk.state import State
+from lightworks.sdk.utils import PostSelectionFunction
 from lightworks.sdk.utils.exceptions import ResultCreationError
+from lightworks.sdk.utils.post_selection import PostSelectionType
 
 from .result import Result
 
@@ -94,6 +96,29 @@ class SamplingResult(Result[State, int]):
             else:
                 mapped_result[new_s] = val
         return self._recombine_mapped_result(mapped_result)
+
+    def apply_post_selection(
+        self, post_selection: PostSelectionType | Callable[[State], bool]
+    ) -> "SamplingResult":
+        """
+        Applies an additional post-selection criteria to the stored result and
+        returns this as a new object.
+        """
+        if isinstance(post_selection, FunctionType | MethodType):
+            post_selection = PostSelectionFunction(post_selection)
+        if not isinstance(post_selection, PostSelectionType):
+            raise TypeError(
+                "Provided post_selection should either be a PostSelection "
+                "object or a callable function which accepts a state and "
+                "returns a boolean to indicate whether the state is valid."
+            )
+        return self._recombine_mapped_result(
+            {
+                state: val
+                for state, val in self.items()
+                if post_selection.validate(state)
+            }
+        )
 
     def _recombine_mapped_result(
         self, mapped_result: dict[State, int]
