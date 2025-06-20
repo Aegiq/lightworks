@@ -1,7 +1,7 @@
 PhotonicCircuit
 ===============
 
-The :doc:`../sdk_reference/photonic_circuit` is one of the key components of Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
+The :class:`PhotonicCircuit <lightworks.PhotonicCircuit>` is one of the key components of Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
 
 Building Circuits
 -----------------
