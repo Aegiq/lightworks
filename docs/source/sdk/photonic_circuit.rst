@@ -1,7 +1,7 @@
 PhotonicCircuit
 ===============
 
-The :doc:`../sdk_reference/photonic_circuit` is one of the key components of Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
+The :class:`PhotonicCircuit <lightworks.PhotonicCircuit>` is one of the key components of Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.
 
 Building Circuits
 -----------------
@@ -199,12 +199,12 @@ From the circuit above, there is a few things to note. The first is that the bea
     :scale: 125%
     :align: center
 
-For advanced users, rather than calling the ``display`` method of the PhotonicCircuit, it is instead possible to use the included :doc:`../sdk_reference/display` object. Instead of displaying the circuit as soon as it is called, it will return the pyplot/drawing object, allowing this to be modified or saved to file directly.
+For advanced users, rather than calling the ``display`` method of the PhotonicCircuit, it is instead possible to use the included :class:`display <lightworks.display>` object. Instead of displaying the circuit as soon as it is called, it will return the pyplot/drawing object, allowing this to be modified or saved to file directly.
 
 Parameterization
 ----------------
 
-Circuits in Lightworks support parameterization through a dedicated :doc:`../sdk_reference/parameter` object included within the module. This allows for different values in the circuit to be modified after circuit creation, which can simplify the process of adjusting circuits. This Parameter object has a range of functionalities, which are detailed in the :doc:`parameters` section. To parametrize a circuit, we will start by defining a parameter, which we assign an initial value to and can optionally include a label which will be used when displaying.
+Circuits in Lightworks support parameterization through a dedicated :class:`Parameter <lightworks.Parameter>` object included within the module. This allows for different values in the circuit to be modified after circuit creation, which can simplify the process of adjusting circuits. This Parameter object has a range of functionalities, which are detailed in the :doc:`parameters` section. To parametrize a circuit, we will start by defining a parameter, which we assign an initial value to and can optionally include a label which will be used when displaying.
 
 .. code-block:: Python
     
@@ -251,7 +251,7 @@ It is then possible to update the parameter value using the ``set`` method of th
     :scale: 100%
     :align: center
 
-This is the core functionality of Parameters in the circuit. It is also possible to store Parameters in the custom :doc:`../sdk_reference/parameter_dict` object, allowing for easy management and modification of parameters without having to assign each created Parameter to a distinct variable. It is recommended that this is utilized for any more than a couple of parameters. This is discussed further in the :doc:`parameters` section.
+This is the core functionality of Parameters in the circuit. It is also possible to store Parameters in the custom :class:`ParameterDict <lightworks.ParameterDict>` object, allowing for easy management and modification of parameters without having to assign each created Parameter to a distinct variable. It is recommended that this is utilized for any more than a couple of parameters. This is discussed further in the :doc:`parameters` section.
 
 .. note::
     Only certain aspects of a circuit can be parameterized, this includes phase shifts, beam splitter reflectivities and loss values. The mode number that elements are placed on cannot be parameterized. Some caution should also be used, as if the value of the parameter is altered some it becomes invalid for the quantity it is assigned to, then this will raise a compilation error when the circuit is attempted to be used. 

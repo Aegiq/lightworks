@@ -1,7 +1,7 @@
 Unitary
 =======
 
-In some cases, it is necessary to implement a target unitary as part of a circuit. Included with Lightworks is the :doc:`../sdk_reference/unitary` object, which enables this without having to worry about programming the exact beam splitters and phase shifters required to create the circuit.
+In some cases, it is necessary to implement a target unitary as part of a circuit. Included with Lightworks is the :class:`Unitary <lightworks.Unitary>` object, which enables this without having to worry about programming the exact beam splitters and phase shifters required to create the circuit.
 
 Usage
 -----

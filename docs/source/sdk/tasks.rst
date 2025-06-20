@@ -11,13 +11,13 @@ Currently included within Lightworks are the following:
 
     * - Task
       - Description
-    * - :doc:`../sdk_reference/tasks/simulator`
+    * - :class:`Simulator <lightworks.Simulator>`
       - Generates N samples from the configured system.
-    * - :doc:`../sdk_reference/tasks/sampler`
+    * - :class:`Sampler <lightworks.Sampler>`
       - Calculates the complex probability amplitudes between input and output states.
-    * - :doc:`../sdk_reference/tasks/analyzer`
+    * - :class:`Analyzer <lightworks.Analyzer>`
       - Determines possible outputs and their probability based on a set of constraints placed on a system. 
-    * - :doc:`../sdk_reference/tasks/batch`
+    * - :class:`Batch <lightworks.Batch>`
       - Compiles a number of tasks and enables them to be run all at once.
 
 Usage

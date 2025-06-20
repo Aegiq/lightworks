@@ -9,7 +9,7 @@ Unfortunately, real systems are not perfect, and due to a range of imperfections
 Single Photon Source
 --------------------
 
-An imperfect source will affect both the rate at which samples can be generated from the system (through brightness) and introduce errors in the computation (through less than ideal purity, indistinguishability). To include an imperfect source, we create a new :doc:`../emulator_reference/source` object, and set the quantities as required. Note that all quantities are optional, and if not specified will default to their ideal values. Some examples of this are shown below.
+An imperfect source will affect both the rate at which samples can be generated from the system (through brightness) and introduce errors in the computation (through less than ideal purity, indistinguishability). To include an imperfect source, we create a new :class:`Source <lightworks.emulator.Source>` object, and set the quantities as required. Note that all quantities are optional, and if not specified will default to their ideal values. Some examples of this are shown below.
 
 .. code-block:: Python
 
@@ -47,7 +47,7 @@ The system can then be sampled in the usual way, and the source properties will 
 Detectors
 ---------
 
-There is also a number of detector imperfections that can be included, through the use of the :doc:`../emulator_reference/detector` object. This includes the efficiency, which will alter the output count rates and whether the detectors are photon number resolving, which as well as reducing count rates can also be a benefit/limitation for some applications. Also included is dark counts, which occur when the system registers a detection event where none is present, generating states that should not exist. This is provided as a probability, meaning the detector dark count rate and system clock needs to be taken into account. Currently, it is assumed that all detection channels are identical across the system. A few examples of detector usage are shown below:
+There is also a number of detector imperfections that can be included, through the use of the :class:`Detector <lightworks.emulator.Detector>` object. This includes the efficiency, which will alter the output count rates and whether the detectors are photon number resolving, which as well as reducing count rates can also be a benefit/limitation for some applications. Also included is dark counts, which occur when the system registers a detection event where none is present, generating states that should not exist. This is provided as a probability, meaning the detector dark count rate and system clock needs to be taken into account. Currently, it is assumed that all detection channels are identical across the system. A few examples of detector usage are shown below:
 
 .. code-block:: Python
 

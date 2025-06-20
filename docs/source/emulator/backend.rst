@@ -1,7 +1,7 @@
 Backends
 ========
 
-To use the emulator, a target backend needs to be defined which a simulation task can be run against. Emulator backends are selected and interfaced with via the :doc:`../emulator_reference/backend` object. 
+To use the emulator, a target backend needs to be defined which a simulation task can be run against. Emulator backends are selected and interfaced with via the :class:`Backend <lightworks.emulator.Backend>` object. 
 
 The following backends are currently implemented within the emulator:
 
