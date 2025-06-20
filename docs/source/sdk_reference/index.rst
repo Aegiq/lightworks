@@ -12,6 +12,6 @@ SDK Reference
     parameter
     parameter_dict
     unitary
-    tasks/index
+    tasks
     results/index
     utils

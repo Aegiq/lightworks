@@ -1,7 +1,7 @@
 Analyzer
 ========
 
-The :doc:`../sdk_reference/tasks/analyzer` object provides a set of tools to enable a better understanding of the functionality of a circuit under a set of post-selection criteria. The provision of this criteria before computation enables the Analyzer to filter down the possible output states from a given target input, reducing the number of states that it needs to calculate the permanent for.
+The :class:`Analyzer <lightworks.Analyzer>` object provides a set of tools to enable a better understanding of the functionality of a circuit under a set of post-selection criteria. The provision of this criteria before computation enables the Analyzer to filter down the possible output states from a given target input, reducing the number of states that it needs to calculate the permanent for.
 
 To test the Analyzer, we will use the CNOT gate from :cite:p:`ralph2002`, as this is a useful demonstration of all analyzer features. For successful operation, it requires that at the output there are no output photons measured on the upper and lower modes, and also that only one photon exists across each of the two modes used to define each qubit. For the former condition, we will integrate these into the circuit with the ``herald`` method. This means we don't need to consider these modes when specifying inputs and outputs of the Analyzer. The latter condition is included later as part of the setup of the Analyzer.
 
