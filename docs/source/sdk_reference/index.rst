@@ -9,8 +9,7 @@ SDK Reference
     photonic_compiled_circuit
     state
     display
-    parameter
-    parameter_dict
+    parameters
     unitary
     tasks
     results/index

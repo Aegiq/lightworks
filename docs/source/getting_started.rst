@@ -60,7 +60,7 @@ Which, as expected, is a single 50:50 beam splitter (reflectivity = 0.5) across 
 Initial Simulation
 ------------------
 
-Once we have built a circuit, we can then move on to simulating it with the emulator. For the simulation, we will need to define the state which we wish to input into the system. This is achieved with the :doc:`sdk_reference/state` object, which takes a list of the number of photons in each mode as its input.
+Once we have built a circuit, we can then move on to simulating it with the emulator. For the simulation, we will need to define the state which we wish to input into the system. This is achieved with the :class:`State <lightworks.State>` object, which takes a list of the number of photons in each mode as its input.
 
 .. code-block:: Python
 
@@ -68,7 +68,7 @@ Once we have built a circuit, we can then move on to simulating it with the emul
 
 The exact functionality of the State object is discussed further in the :doc:`sdk/state` section.
 
-For this initial simulation, we will choose to use the :doc:`sdk_reference/tasks/sampler` to emulate the process of measuring photon outputs after they have propagated through the system. On creation of the Sampler, we specify the circuit, input state to sample from, and number of samples. A random seed can also be set to produce repeatable results. By default, it is assumed that all photons are indistinguishable, and so we do not need to set anything for this. 
+For this initial simulation, we will choose to use the :class:`Sampler <lightworks.Sampler>` to emulate the process of measuring photon outputs after they have propagated through the system. On creation of the Sampler, we specify the circuit, input state to sample from, and number of samples. A random seed can also be set to produce repeatable results. By default, it is assumed that all photons are indistinguishable, and so we do not need to set anything for this. 
 
 .. code-block:: Python
 
@@ -104,7 +104,7 @@ As expected, in near equal numbers we measure the states :math:`\ket{2,0}` and :
 Distinguishable Photons
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-With the emulator, we can also simulate distinguishable particles, to confirm that the HOM interference is no longer present. This is possible by defining a :doc:`emulator_reference/source` to use with the Sampler, and setting the value of the source indistinguishability to 0. We can then resample from the system and plot.
+With the emulator, we can also simulate distinguishable particles, to confirm that the HOM interference is no longer present. This is possible by defining a :class:`Source <lightworks.emulator.Source>` to use with the Sampler, and setting the value of the source indistinguishability to 0. We can then resample from the system and plot.
 
 .. code-block:: Python
 
