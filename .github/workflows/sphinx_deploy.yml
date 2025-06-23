@@ -50,7 +50,7 @@ jobs:
       - name: Build HTML
         run: | 
           cd docs/
-          make html --nitpicky --fail-on-warning
+          make html SPHINXOPTS="--nitpicky --fail-on-warning"
       
       # Use ghp-import on build folder to export docs
       - name: Run ghp-import
