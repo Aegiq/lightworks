@@ -47,4 +47,4 @@ jobs:
       - name: Build HTML
         run: | 
           cd docs/
-          make html
+          make html --nitpicky --fail-on-warning
