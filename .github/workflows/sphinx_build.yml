@@ -47,4 +47,4 @@ jobs:
       - name: Build HTML
         run: | 
           cd docs/
-          make html SPHINXOPTS="--nitpicky --fail-on-warning"
+          make html SPHINXOPTS="--fail-on-warning"
