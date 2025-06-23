@@ -3,8 +3,13 @@ Post-selection
 
 Post-selection if often a key part of linear optic quantum computing, enabling the non-linear transformations required for multi-qubit gates and other applications. It can be achieved in Lightworks through two different methods, either with the :class:`PostSelection <lightworks.PostSelection>` or with a custom function / :class:`PostSelectionFunction <lightworks.PostSelectionFunction>` for the application of more complex criteria.
 
-PostSelection
+Configuration
 -------------
+
+To start, we need to be able to configure the required post-selection for a job. The different ways this can eb achieved are discussed below.
+
+PostSelection
+^^^^^^^^^^^^^
 
 The ``PostSelection`` object allows the number of photons to be specified on a mode or across a number of modes. To start, a new post-selection object is created. Optionally, it can be allowed for multiple rules to apply to a particular mode with the ``multi_rules`` argument, but this is off by default.
 
@@ -44,7 +49,7 @@ As mentioned, any combination of photon numbers and modes can be used, so all of
     Heralded modes are excluded from post-selection, so it is important to remember to remove these.
 
 PostSelectionFunction
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 
 For more complex criteria, a custom function could be used to specify post-selection. In the majority of cases it is sufficient to supply this function directly to the various places this is used within Lightworks, but if in doubt it can also be wrapped in ``PostSelectionFunction`` to enable the use of the ``validate`` method.
 
@@ -74,3 +79,71 @@ As mentioned, we can then use validate to test the state, for example:
 
     post_selection.validate(lw.State([1, 2, 0, 0, 1, 0]))
     # Output: False
+
+Utilisation
+-----------
+
+Once, we have post-selection configured, this can then be provided to either the task or result objects to apply it. First, a new post-selection criteria is defined, requiring one photon on the first mode (mode 0) of a circuit.
+
+.. code-block:: Python
+
+    post_selection = lw.PostSelection()
+    post_selection.add(0, 1)
+
+The usage of this is then demonstrated below.
+
+Tasks
+^^^^^
+
+In tasks that support post-selection, this can be provided using the post_selection argument on initialisation of the task. For example, with the sampler, the post-selection would be added with:
+
+.. code-block:: Python
+
+    circuit = lw.Unitary(lw.random_unitary(4, seed=2))
+    input_state = lw.State([1, 1, 0, 0])
+    n_samples = 1000
+
+    sampler = lw.Sampler(
+        circuit, input_state, n_samples, post_selection=post_selection, random_seed=2
+    )
+
+This can then be run on a backend and the results plotted. It can be seen that, as expected, only results with one photon on the first mode are produced.
+
+.. code-block:: Python
+
+    backend = emulator.Backend("slos")
+
+    results = backend.run(sampler)
+    results.plot()
+
+.. image:: assets/sampler_post_selection_results.png
+    :scale: 100%
+    :align: center
+
+Results
+^^^^^^^
+
+Alternatively, after generating results, the post-selection can be applied directly to this object. First, the results from earlier are regenerated without post-selection being applied.
+
+.. code-block:: Python
+
+    circuit = lw.Unitary(lw.random_unitary(4, seed=2))
+    input_state = lw.State([1, 1, 0, 0])
+    n_samples = 1000
+
+    sampler = lw.Sampler(circuit, input_state, n_samples, random_seed=2)
+
+    backend = emulator.Backend("slos")
+
+    results = backend.run(sampler)
+
+The post-selection is then added to the result with the ``apply_post_selection`` method. This generates a new result object. When plotting this, it can again be seen how there is always one photon on the first mode.
+
+.. code-block:: Python
+
+    ps_results = results.apply_post_selection(post_selection)
+    ps_results.plot()
+
+.. image:: assets/results_post_selection_results.png
+    :scale: 100%
+    :align: center
