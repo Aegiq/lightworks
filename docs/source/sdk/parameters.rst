@@ -1,7 +1,7 @@
 Parameter & ParameterDict
 =========================
 
-As part of a Lightworks, a set of tools is included for the parametrisation of circuits. This includes the :doc:`../sdk_reference/parameter` object for storing single parameter values and the :doc:`../sdk_reference/parameter_dict` object for managing large amounts of Parameters used in a circuit.
+As part of a Lightworks, a set of tools is included for the parametrisation of circuits. This includes the :class:`Parameter <lightworks.Parameter>` object for storing single parameter values and the :class:`ParameterDict <lightworks.ParameterDict>` object for managing large amounts of Parameters used in a circuit.
 
 Parameter
 ---------

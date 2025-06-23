@@ -14,6 +14,7 @@
 
 
 from dataclasses import dataclass
+from typing import Literal
 
 from lightworks.emulator.components import Detector, Source
 from lightworks.sdk.circuit.photonic_compiler import CompiledPhotonicCircuit
@@ -47,7 +48,7 @@ class SamplerTask(TaskData):  # noqa: D101
     post_selection: PostSelectionType | None
     min_detection: int | None
     random_seed: int | None
-    sampling_mode: str
+    sampling_mode: Literal["input", "output"]
 
 
 @dataclass(slots=True)

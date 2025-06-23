@@ -14,6 +14,7 @@
 
 from collections.abc import Callable
 from types import NoneType
+from typing import Literal
 
 from lightworks.emulator.components import Detector, Source
 from lightworks.sdk.circuit import PhotonicCircuit
@@ -88,7 +89,7 @@ class Sampler(Task):
         source: Source | None = None,
         detector: Detector | None = None,
         random_seed: int | None = None,
-        sampling_mode: str = "output",
+        sampling_mode: Literal["input", "output"] = "output",
     ) -> None:
         # Assign provided quantities to attributes
         self.circuit = circuit
@@ -214,7 +215,7 @@ class Sampler(Task):
         self.__random_seed = process_random_seed(value)
 
     @property
-    def sampling_mode(self) -> str:
+    def sampling_mode(self) -> Literal["input", "output"]:
         """
         Stores the input mode of the sampler, which controls whether N valid
         inputs or outputs are produced from the system.
@@ -222,7 +223,7 @@ class Sampler(Task):
         return self.__sampling_mode
 
     @sampling_mode.setter
-    def sampling_mode(self, value: str) -> None:
+    def sampling_mode(self, value: Literal["input", "output"]) -> None:
         if value not in {"input", "output"}:
             raise ValueError(
                 "Sampling mode must be set to either input or output."
