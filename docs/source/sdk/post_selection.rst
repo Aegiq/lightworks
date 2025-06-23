@@ -41,7 +41,7 @@ As mentioned, any combination of photon numbers and modes can be used, so all of
 .. code-block:: Python
 
     post_selection.add(2, 1) # Require measuring 1 photon on mode 2
-    post_selection.add(3, (1, 2)) # Require measuring 1 or 2 photons on mode 2
+    post_selection.add(3, (1, 2)) # Require measuring 1 or 2 photons on mode 3
     post_selection.add((4, 5, 6), (1, 2)) # Require measuring 1 or 2 photons across modes 4, 5 & 6
 
 .. note::
