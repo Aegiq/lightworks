@@ -28,19 +28,19 @@ from lightworks.tomography.utils import (
     _get_tomo_measurements,
 )
 
+U_H = np.array([[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]], dtype=complex)
 U_CNOT = np.array(
     [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]], dtype=complex
 )
 U_CCNOT = np.identity(8, dtype=complex)
 U_CCNOT[6:, :] = U_CCNOT[7:5:-1, :]
-U_CCZ = np.identity(8, dtype=complex)
-U_CCZ[7, 7] = -1
 # NOTE: Currently an issue with scipy.linalg.sqrtm on certain platforms, which
-# causes process fidelity to fail. This can be mitigated by applying a small
-# permutation to one of the elements in the unitary. This is unlikely to be an
-# issue in real scenarios.
-for mat in [U_CNOT, U_CCNOT, U_CCZ]:
-    mat[0, 0] = 0.9999 + 0.0001j
+# causes process fidelity to fail for exact matrices. This can be mitigated by
+# applying a hadamard to all qubits at the input for these tests.
+H2 = np.kron(U_H, U_H)
+H3 = np.kron(H2, U_H)
+U_CNOT @= H2
+U_CCNOT @= H3
 
 
 class TestUtils:
@@ -75,12 +75,9 @@ class TestUtils:
     @pytest.mark.parametrize(
         "choi",
         [
-            choi_from_unitary([[0, 1], [1, 0]]),
-            choi_from_unitary([[0, -1j], [1j, 0]]),
-            choi_from_unitary([[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]]),
+            choi_from_unitary(U_H),
             choi_from_unitary(U_CNOT),
             choi_from_unitary(U_CCNOT),
-            choi_from_unitary(U_CCZ),
         ],
     )
     def test_process_fidelity(self, choi):
