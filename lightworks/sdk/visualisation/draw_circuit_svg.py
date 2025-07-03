@@ -220,8 +220,7 @@ class DrawCircuitSVG:
             )
 
         for spec in self.draw_spec:
-            for drawing in spec.draw_svg():
-                self.d.append(drawing)
+            self.d.append(spec.draw_svg())
 
         mode_width = self.circuit.n_modes - 0.6 * len(
             self.circuit._internal_modes

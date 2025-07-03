@@ -28,7 +28,7 @@ class DrawSpec(ABC):
     """Base class for all draw specs."""
 
     @abstractmethod
-    def draw_svg(self) -> list[draw.DrawingBasicElement]: ...
+    def draw_svg(self) -> draw.DrawingBasicElement | draw.Group: ...
 
 
 @dataclass(slots=True, kw_only=True)
@@ -42,16 +42,14 @@ class WaveguideDrawing(DrawSpec):
     length: float
     width: float
 
-    def draw_svg(self) -> list[draw.DrawingBasicElement]:
-        return [
-            draw.Rectangle(
-                self.x,
-                self.y - self.width / 2,
-                self.length,
-                self.width,
-                fill="black",
-            )
-        ]
+    def draw_svg(self) -> draw.DrawingBasicElement:
+        return draw.Rectangle(
+            self.x,
+            self.y - self.width / 2,
+            self.length,
+            self.width,
+            fill="black",
+        )
 
 
 @dataclass(slots=True, kw_only=True)
@@ -64,19 +62,17 @@ class PhaseShifterDrawing(DrawSpec):
     y: float
     size: float
 
-    def draw_svg(self) -> list[draw.DrawingBasicElement]:
-        return [
-            draw.Rectangle(
-                self.x,
-                self.y - self.size / 2,
-                self.size,
-                self.size,
-                fill="#e8532b",
-                stroke="black",
-                rx=5,
-                ry=5,
-            )
-        ]
+    def draw_svg(self) -> draw.DrawingBasicElement:
+        return draw.Rectangle(
+            self.x,
+            self.y - self.size / 2,
+            self.size,
+            self.size,
+            fill="#e8532b",
+            stroke="black",
+            rx=5,
+            ry=5,
+        )
 
 
 @dataclass(slots=True, kw_only=True)
@@ -91,19 +87,17 @@ class BeamSplitterDrawing(DrawSpec):
     size_y: float
     offset_y: float
 
-    def draw_svg(self) -> list[draw.DrawingBasicElement]:
-        return [
-            draw.Rectangle(
-                self.x,
-                self.y - self.offset_y,
-                self.size_x,
-                self.size_y,
-                fill="#3e368d",
-                stroke="black",
-                rx=5,
-                ry=5,
-            )
-        ]
+    def draw_svg(self) -> draw.DrawingBasicElement:
+        return draw.Rectangle(
+            self.x,
+            self.y - self.offset_y,
+            self.size_x,
+            self.size_y,
+            fill="#3e368d",
+            stroke="black",
+            rx=5,
+            ry=5,
+        )
 
 
 @dataclass(slots=True, kw_only=True)
@@ -118,19 +112,17 @@ class UnitaryDrawing(DrawSpec):
     size_y: float
     offset_y: float
 
-    def draw_svg(self) -> list[draw.DrawingBasicElement]:
-        return [
-            draw.Rectangle(
-                self.x,
-                self.y - self.offset_y,
-                self.size_x,
-                self.size_y,
-                fill="#1a0f36",
-                stroke="black",
-                rx=5,
-                ry=5,
-            )
-        ]
+    def draw_svg(self) -> draw.DrawingBasicElement:
+        return draw.Rectangle(
+            self.x,
+            self.y - self.offset_y,
+            self.size_x,
+            self.size_y,
+            fill="#1a0f36",
+            stroke="black",
+            rx=5,
+            ry=5,
+        )
 
 
 @dataclass(slots=True, kw_only=True)
@@ -143,19 +135,17 @@ class LossDrawing(DrawSpec):
     y: float
     size: float
 
-    def draw_svg(self) -> list[draw.DrawingBasicElement]:
-        return [
-            draw.Rectangle(
-                self.x,
-                self.y - self.size / 2,
-                self.size,
-                self.size,
-                fill="grey",
-                stroke="black",
-                rx=5,
-                ry=5,
-            )
-        ]
+    def draw_svg(self) -> draw.DrawingBasicElement:
+        return draw.Rectangle(
+            self.x,
+            self.y - self.size / 2,
+            self.size,
+            self.size,
+            fill="grey",
+            stroke="black",
+            rx=5,
+            ry=5,
+        )
 
 
 @dataclass(slots=True, kw_only=True)
@@ -172,7 +162,7 @@ class TextDrawing(DrawSpec):
     colour: str
     alignment: str
 
-    def draw_svg(self) -> list[draw.DrawingBasicElement]:
+    def draw_svg(self) -> draw.DrawingBasicElement:
         if self.alignment == "centred":
             ta = "middle"
             db = "middle"
@@ -184,18 +174,16 @@ class TextDrawing(DrawSpec):
             db = "middle"
         else:
             raise DisplayError("Alignment value not recognised.")
-        return [
-            draw.Text(
-                self.text,
-                self.size,
-                self.x,
-                self.y,
-                fill=self.colour,
-                text_anchor=ta,
-                dominant_baseline=db,
-                transform=f"rotate({self.rotation}, {self.x}, {self.y})",
-            )
-        ]
+        return draw.Text(
+            self.text,
+            self.size,
+            self.x,
+            self.y,
+            fill=self.colour,
+            text_anchor=ta,
+            dominant_baseline=db,
+            transform=f"rotate({self.rotation}, {self.x}, {self.y})",
+        )
 
 
 @dataclass(slots=True, kw_only=True)
@@ -209,8 +197,8 @@ class ModeSwapDrawing(DrawSpec):
     size_x: float
     wg_width: float
 
-    def draw_svg(self) -> list[draw.DrawingBasicElement]:
-        drawings = []
+    def draw_svg(self) -> draw.Group:
+        g = draw.Group()
         for y0, y1 in self.ys:
             w = self.wg_width / 2
             m = np.arctan(abs(y1 - y0) / self.size_x)
@@ -240,8 +228,8 @@ class ModeSwapDrawing(DrawSpec):
                 y1 - w,
             ]
             poly = draw.Lines(*points, fill="black", close=True)
-            drawings.append(poly)
-        return drawings
+            g.append(poly)
+        return g
 
 
 @dataclass(slots=True, kw_only=True)
@@ -256,19 +244,17 @@ class GroupedCircuitDrawing(DrawSpec):
     size_y: float
     offset_y: float
 
-    def draw_svg(self) -> list[draw.DrawingBasicElement]:
-        return [
-            draw.Rectangle(
-                self.x,
-                self.y - self.offset_y,
-                self.size_x,
-                self.size_y,
-                fill="#1a0f36",
-                stroke="black",
-                rx=5,
-                ry=5,
-            )
-        ]
+    def draw_svg(self) -> draw.DrawingBasicElement:
+        return draw.Rectangle(
+            self.x,
+            self.y - self.offset_y,
+            self.size_x,
+            self.size_y,
+            fill="#1a0f36",
+            stroke="black",
+            rx=5,
+            ry=5,
+        )
 
 
 @dataclass(slots=True, kw_only=True)
@@ -281,9 +267,7 @@ class HeraldDrawing(DrawSpec):
     y: float
     size: float
 
-    def draw_svg(self) -> list[draw.DrawingBasicElement]:
-        return [
-            draw.Circle(
-                self.x, self.y, self.size, fill="#3e368d", stroke="black"
-            )
-        ]
+    def draw_svg(self) -> draw.DrawingBasicElement:
+        return draw.Circle(
+            self.x, self.y, self.size, fill="#3e368d", stroke="black"
+        )
