@@ -12,12 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any
+from typing import TypeVar, overload
 
 from lightworks.sdk.circuit.parameters import Parameter
 
+T = TypeVar("T")
 
-def process_parameter_value(value: Any, show_parameter_value: bool) -> Any:
+
+@overload
+def process_parameter_value(
+    value: Parameter[T], show_parameter_value: bool
+) -> str | T: ...
+
+
+@overload
+def process_parameter_value(value: T, show_parameter_value: bool) -> T: ...
+
+
+def process_parameter_value(
+    value: T | Parameter[T], show_parameter_value: bool
+) -> str | T:
     """
     Takes a provided value and will convert into a label or value if it is
     provided as a parameter.

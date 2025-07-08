@@ -61,18 +61,46 @@ class PhaseShifterDrawing(DrawSpec):
     x: float
     y: float
     size: float
+    phase: str | float
 
-    def draw_svg(self) -> draw.DrawingBasicElement:
-        return draw.Rectangle(
-            self.x,
-            self.y - self.size / 2,
-            self.size,
-            self.size,
-            fill="#e8532b",
-            stroke="black",
-            rx=5,
-            ry=5,
+    def draw_svg(self) -> draw.Group:
+        g = draw.Group()
+        g.append(
+            draw.Rectangle(
+                self.x,
+                self.y - self.size / 2,
+                self.size,
+                self.size,
+                fill="#e8532b",
+                stroke="black",
+                rx=5,
+                ry=5,
+            )
         )
+        g.append(
+            TextDrawing(
+                text="PS",
+                x=self.x + self.size / 2,
+                y=self.y + 2,
+                rotation=0,
+                size=25,
+                colour="white",
+                alignment="centred",
+            ).draw_svg()
+        )
+        phi_text = simplify_phase(self.phase)
+        g.append(
+            TextDrawing(
+                text=f"φ = {phi_text}",
+                x=self.x + self.size / 2,
+                y=self.y + self.size,
+                rotation=0,
+                size=18,
+                colour="black",
+                alignment="centred",
+            ).draw_svg()
+        )
+        return g
 
 
 @dataclass(slots=True, kw_only=True)
@@ -86,18 +114,50 @@ class BeamSplitterDrawing(DrawSpec):
     size_x: float
     size_y: float
     offset_y: float
+    reflectivity: str | float
+    text_offset: float
 
-    def draw_svg(self) -> draw.DrawingBasicElement:
-        return draw.Rectangle(
-            self.x,
-            self.y - self.offset_y,
-            self.size_x,
-            self.size_y,
-            fill="#3e368d",
-            stroke="black",
-            rx=5,
-            ry=5,
+    def __post_init__(self) -> None:
+        if not isinstance(self.reflectivity, str):
+            self.reflectivity = round(self.reflectivity, 4)
+
+    def draw_svg(self) -> draw.Group:
+        g = draw.Group()
+        g.append(
+            draw.Rectangle(
+                self.x,
+                self.y - self.offset_y,
+                self.size_x,
+                self.size_y,
+                fill="#3e368d",
+                stroke="black",
+                rx=5,
+                ry=5,
+            )
         )
+        g.append(
+            TextDrawing(
+                text="BS",
+                x=self.x + self.size_x / 2,
+                y=(self.y + self.size_y / 2 - self.offset_y + self.text_offset),
+                rotation=0,
+                size=25,
+                colour="white",
+                alignment="centred",
+            ).draw_svg()
+        )
+        g.append(
+            TextDrawing(
+                text=f"r = {self.reflectivity}",
+                x=self.x + self.size_x / 2,
+                y=self.y + self.size_y,
+                rotation=0,
+                size=18,
+                colour="black",
+                alignment="centred",
+            ).draw_svg()
+        )
+        return g
 
 
 @dataclass(slots=True, kw_only=True)
@@ -111,18 +171,37 @@ class UnitaryDrawing(DrawSpec):
     size_x: float
     size_y: float
     offset_y: float
+    label: str
+    text_size: float
 
-    def draw_svg(self) -> draw.DrawingBasicElement:
-        return draw.Rectangle(
-            self.x,
-            self.y - self.offset_y,
-            self.size_x,
-            self.size_y,
-            fill="#1a0f36",
-            stroke="black",
-            rx=5,
-            ry=5,
+    def draw_svg(self) -> draw.Group:
+        g = draw.Group()
+        g.append(
+            draw.Rectangle(
+                self.x,
+                self.y - self.offset_y,
+                self.size_x,
+                self.size_y,
+                fill="#1a0f36",
+                stroke="black",
+                rx=5,
+                ry=5,
+            )
         )
+        s = self.text_size * 7 / 5 if len(self.label) == 1 else self.text_size
+        r = 270 if len(self.label) > 2 else 0
+        g.append(
+            TextDrawing(
+                text=self.label,
+                x=self.x + self.size_x / 2,
+                y=self.y + self.size_y / 2 - self.offset_y,
+                rotation=r,
+                size=s,
+                colour="white",
+                alignment="centred",
+            ).draw_svg()
+        )
+        return g
 
 
 @dataclass(slots=True, kw_only=True)
@@ -134,18 +213,49 @@ class LossDrawing(DrawSpec):
     x: float
     y: float
     size: float
+    loss: str | float
 
-    def draw_svg(self) -> draw.DrawingBasicElement:
-        return draw.Rectangle(
-            self.x,
-            self.y - self.size / 2,
-            self.size,
-            self.size,
-            fill="grey",
-            stroke="black",
-            rx=5,
-            ry=5,
+    def __post_init__(self) -> None:
+        if not isinstance(self.loss, str):
+            self.loss = str(round(self.loss, 4))
+
+    def draw_svg(self) -> draw.Group:
+        g = draw.Group()
+        g.append(
+            draw.Rectangle(
+                self.x,
+                self.y - self.size / 2,
+                self.size,
+                self.size,
+                fill="grey",
+                stroke="black",
+                rx=5,
+                ry=5,
+            )
         )
+        g.append(
+            TextDrawing(
+                text="L",
+                x=self.x + self.size / 2,
+                y=self.y + 2,
+                rotation=0,
+                size=25,
+                colour="white",
+                alignment="centred",
+            ).draw_svg()
+        )
+        g.append(
+            TextDrawing(
+                text=f"loss = {self.loss}",
+                x=self.x + self.size / 2,
+                y=self.y + self.size,
+                rotation=0,
+                size=18,
+                colour="black",
+                alignment="centred",
+            ).draw_svg()
+        )
+        return g
 
 
 @dataclass(slots=True, kw_only=True)
@@ -233,31 +343,6 @@ class ModeSwapDrawing(DrawSpec):
 
 
 @dataclass(slots=True, kw_only=True)
-class GroupedCircuitDrawing(DrawSpec):
-    """
-    Desc
-    """
-
-    x: float
-    y: float
-    size_x: float
-    size_y: float
-    offset_y: float
-
-    def draw_svg(self) -> draw.DrawingBasicElement:
-        return draw.Rectangle(
-            self.x,
-            self.y - self.offset_y,
-            self.size_x,
-            self.size_y,
-            fill="#1a0f36",
-            stroke="black",
-            rx=5,
-            ry=5,
-        )
-
-
-@dataclass(slots=True, kw_only=True)
 class HeraldDrawing(DrawSpec):
     """
     Desc
@@ -266,8 +351,51 @@ class HeraldDrawing(DrawSpec):
     x: float
     y: float
     size: float
+    n_photons: int
 
-    def draw_svg(self) -> draw.DrawingBasicElement:
-        return draw.Circle(
-            self.x, self.y, self.size, fill="#3e368d", stroke="black"
+    def draw_svg(self) -> draw.Group:
+        g = draw.Group()
+        g.append(
+            draw.Circle(
+                self.x, self.y, self.size, fill="#3e368d", stroke="black"
+            )
         )
+        g.append(
+            TextDrawing(
+                text=str(self.n_photons),
+                x=self.x,
+                y=self.y + 2.5,
+                rotation=0,
+                size=30,
+                colour="white",
+                alignment="centred",
+            ).draw_svg()
+        )
+        return g
+
+
+def simplify_phase(phase: str | float) -> str:
+    """
+    Desc
+    """
+    # Work out value of n*pi/4 closest to phi
+    if not isinstance(phase, str):
+        n = int(np.round(phase / (np.pi / 4)))
+        # Check if value of phi == n*pi/4 to 8 decimal places
+        if round(phase, 8) == round(n * np.pi / 4, 8):  # and n > 0:
+            n = abs(n)
+            # Set text with either pi or pi/2 or pi/4
+            if n == 0:
+                phi_text = "0"
+            elif n % 4 == 0:
+                phi_text = str(int(n / 4)) + "π" if n > 4 else "π"
+            elif n % 4 == 2:
+                phi_text = str(int(n / 2)) + "π/2" if n > 2 else "π/2"
+            else:
+                phi_text = str(int(n)) + "π/4" if n > 1 else "π/4"
+            if phase < 0:
+                phi_text = "-" + phi_text
+            return phi_text
+        # Otherwise round phi to 4 decimal places
+        return str(round(phase, 4))
+    return phase

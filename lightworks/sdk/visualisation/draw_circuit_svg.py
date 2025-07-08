@@ -15,7 +15,6 @@
 from typing import TYPE_CHECKING, Any
 
 import drawsvg as draw
-import numpy as np
 from multimethod import multimethod
 
 from lightworks.sdk.circuit.photonic_components import (
@@ -34,7 +33,6 @@ from .display_utils import process_parameter_value
 from .draw_specs import (
     BeamSplitterDrawing,
     DrawSpec,
-    GroupedCircuitDrawing,
     HeraldDrawing,
     LossDrawing,
     ModeSwapDrawing,
@@ -266,52 +264,9 @@ class DrawCircuitSVG:
         self._add_wg(xloc, yloc, con_length)
         xloc += con_length
         # Add phase shifter section
-        self.draw_spec.append(PhaseShifterDrawing(x=xloc, y=yloc, size=size))
         self.draw_spec.append(
-            TextDrawing(
-                text="PS",
-                x=xloc + size / 2,
-                y=yloc + 2,
-                rotation=0,
-                size=25,
-                colour="white",
-                alignment="centred",
-            ),
+            PhaseShifterDrawing(x=xloc, y=yloc, size=size, phase=phi)
         )
-        # Work out value of n*pi/4 closest to phi
-        if not isinstance(phi, str):
-            n = int(np.round(phi / (np.pi / 4)))
-            # Check if value of phi == n*pi/4 to 8 decimal places
-            if round(phi, 8) == round(n * np.pi / 4, 8):  # and n > 0:
-                n = abs(n)
-                # Set text with either pi or pi/2 or pi/4
-                if n == 0:
-                    phi_text = "0"
-                elif n % 4 == 0:
-                    phi_text = str(int(n / 4)) + "π" if n > 4 else "π"
-                elif n % 4 == 2:
-                    phi_text = str(int(n / 2)) + "π/2" if n > 2 else "π/2"
-                else:
-                    phi_text = str(int(n)) + "π/4" if n > 1 else "π/4"
-                if phi < 0:
-                    phi_text = "-" + phi_text
-            # Otherwise round phi to 4 decimal places
-            else:
-                phi_text = str(round(phi, 4))
-        else:
-            phi_text = phi
-        self.draw_spec.append(
-            TextDrawing(
-                text=f"φ = {phi_text}",
-                x=xloc + size / 2,
-                y=yloc + size,
-                rotation=0,
-                size=18,
-                colour="black",
-                alignment="centred",
-            ),
-        )
-
         xloc += size
         # Output waveguide
         self._add_wg(xloc, yloc, con_length)
@@ -346,6 +301,12 @@ class DrawCircuitSVG:
             if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length)
         xloc += con_length
+        # Check for any required text offset to avoid waveguides
+        mode_between = 0
+        for i in range(mode1 + 1, mode2 + 1, 1):
+            if i not in self.herald_modes:
+                mode_between += 1
+                dy = -50 if mode_between % 2 == 0 else 0
         # Add beam splitter section
         self.draw_spec.append(
             BeamSplitterDrawing(
@@ -354,36 +315,9 @@ class DrawCircuitSVG:
                 size_x=size_x,
                 size_y=size_y,
                 offset_y=offset / 2,
+                reflectivity=ref,
+                text_offset=dy,
             )
-        )
-        mode_between = 0
-        for i in range(mode1 + 1, mode2 + 1, 1):
-            if i not in self.herald_modes:
-                mode_between += 1
-        dy = -50 if mode_between % 2 == 0 else 0
-        self.draw_spec.append(
-            TextDrawing(
-                text="BS",
-                x=xloc + size_x / 2,
-                y=(yloc + (size_y - offset) / 2 + dy),
-                rotation=0,
-                size=25,
-                colour="white",
-                alignment="centred",
-            ),
-        )
-        if not isinstance(ref, str):
-            ref = round(ref, 4)
-        self.draw_spec.append(
-            TextDrawing(
-                text=f"r = {ref}",
-                x=xloc + size_x / 2,
-                y=yloc + size_y,
-                rotation=0,
-                size=18,
-                colour="black",
-                alignment="centred",
-            ),
         )
         # For any modes in between the beam splitter modes add a waveguide
         # across the beam splitter
@@ -428,24 +362,10 @@ class DrawCircuitSVG:
                 size_x=size_x,
                 size_y=size_y,
                 offset_y=offset / 2,
+                label=spec.label,
+                text_size=25 if self.n_modes > 2 else 20,
             )
         )
-        max_large_len = 2
-        s = 25 if self.n_modes > max_large_len else 20
-        s = 35 if len(spec.label) == 1 else s
-        r = 270 if len(spec.label) > max_large_len else 0
-        self.draw_spec.append(
-            TextDrawing(
-                text=spec.label,
-                x=xloc + size_x / 2,
-                y=yloc + (size_y - offset) / 2,
-                rotation=r,
-                size=s,
-                colour="white",
-                alignment="centred",
-            ),
-        )
-
         xloc += size_x
         # Add output waveguides and update mode positions
         for i in modes:
@@ -471,32 +391,7 @@ class DrawCircuitSVG:
         self._add_wg(xloc, yloc, con_length)
         xloc += con_length
         # Add phase shifter section
-        self.draw_spec.append(LossDrawing(x=xloc, y=yloc, size=size))
-        self.draw_spec.append(
-            TextDrawing(
-                text="L",
-                x=xloc + size / 2,
-                y=yloc + 2,
-                rotation=0,
-                size=25,
-                colour="white",
-                alignment="centred",
-            ),
-        )
-        # Add loss label
-        if not isinstance(loss, str):
-            loss = str(round(loss, 4))
-        self.draw_spec.append(
-            TextDrawing(
-                text=f"loss = {loss}",
-                x=xloc + size / 2,
-                y=yloc + size,
-                rotation=0,
-                size=18,
-                colour="black",
-                alignment="centred",
-            ),
-        )
+        self.draw_spec.append(LossDrawing(x=xloc, y=yloc, size=size, loss=loss))
         xloc += size
         # Output waveguide
         self._add_wg(xloc, yloc, con_length)
@@ -601,28 +496,15 @@ class DrawCircuitSVG:
         xloc += con_length + extra_length
         # Add unitary shape and U label
         self.draw_spec.append(
-            GroupedCircuitDrawing(
+            UnitaryDrawing(
                 x=xloc,
                 y=yloc,
                 size_x=size_x,
                 size_y=size_y,
                 offset_y=offset / 2,
+                label=spec.name,
+                text_size=25 if self.n_modes > 2 else 20,
             )
-        )
-        max_large_len = 2
-        s = 25 if self.n_modes > max_large_len else 20
-        s = 35 if len(spec.name) == 1 else s
-        r = 270 if len(spec.name) > max_large_len else 0
-        self.draw_spec.append(
-            TextDrawing(
-                text=spec.name,
-                x=xloc + size_x / 2,
-                y=yloc + (size_y - offset) / 2,
-                rotation=r,
-                size=s,
-                colour="white",
-                alignment="centred",
-            ),
         )
         xloc += size_x
         # Add output waveguides and update mode positions
@@ -658,32 +540,13 @@ class DrawCircuitSVG:
         for mode, num in heralds.input.items():
             xloc = start_loc
             yloc = self.y_locations[mode]
-            self.draw_spec.append(HeraldDrawing(x=xloc, y=yloc, size=size))
             self.draw_spec.append(
-                TextDrawing(
-                    text=str(num),
-                    x=xloc,
-                    y=yloc + 2.5,
-                    rotation=0,
-                    size=30,
-                    colour="white",
-                    alignment="centred",
-                ),
+                HeraldDrawing(x=xloc, y=yloc, size=size, n_photons=num)
             )
-
         # Output heralds
         for mode, num in heralds.output.items():
             xloc = end_loc
             yloc = self.y_locations[mode]
-            self.draw_spec.append(HeraldDrawing(x=xloc, y=yloc, size=size))
             self.draw_spec.append(
-                TextDrawing(
-                    text=str(num),
-                    x=xloc,
-                    y=yloc + 2.5,
-                    rotation=0,
-                    size=30,
-                    colour="white",
-                    alignment="centred",
-                ),
+                HeraldDrawing(x=xloc, y=yloc, size=size, n_photons=num)
             )
