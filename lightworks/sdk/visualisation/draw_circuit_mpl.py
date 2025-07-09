@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any
 
 import matplotlib.figure
@@ -231,11 +232,8 @@ class DrawCircuitMPL:
         )  # Find y size
         # Get x and y locations
         yloc = self.y_locations[min(mode1, mode2)]
-        xloc = max(self.x_locations[mode1 : mode2 + 1])
-        # Add initial connectors for any modes which haven't reach xloc yet:
-        for i, loc in enumerate(self.x_locations[mode1 : mode2 + 1]):
-            if loc < xloc and i + mode1 not in self.herald_modes:
-                self._add_wg(loc, self.y_locations[i + mode1], xloc - loc)
+        # Equalise all x waveguides
+        xloc = self._equalize_waveguides(range(mode1, mode2 + 1))
         # Add input waveguides for all included modes
         modes = range(min(mode1, mode2), max(mode1, mode2) + 1, 1)
         for i in modes:
@@ -324,16 +322,13 @@ class DrawCircuitMPL:
         for m in range(min_mode, max_mode + 1):
             if m not in swaps:
                 swaps[m] = m
-        # Get x and y locations
-        xloc = max(self.x_locations[min_mode : max_mode + 1])
+        # Get y locations
         ylocs = []
         for i, j in swaps.items():
             if i not in self.herald_modes:
                 ylocs.append((self.y_locations[i], self.y_locations[j]))
-        # Add initial connectors for any modes which haven't reach xloc yet:
-        for i, loc in enumerate(self.x_locations[min_mode : max_mode + 1]):
-            if loc < xloc and i + min_mode not in self.herald_modes:
-                self._add_wg(loc, self.y_locations[min_mode + i], xloc - loc)
+        # Equalise all x waveguides
+        xloc = self._equalize_waveguides(range(min_mode, max_mode + 1))
         # Add input waveguides for all included modes
         modes = range(min_mode, max_mode + 1, 1)
         for i in modes:
@@ -366,11 +361,8 @@ class DrawCircuitMPL:
         )  # Find total unitary size
         # Get x and y positions
         yloc = self.y_locations[min(mode1, mode2)]
-        xloc = max(self.x_locations[mode1 : mode2 + 1])
-        # Add initial connectors for any modes which haven't reach xloc yet:
-        for i, loc in enumerate(self.x_locations[mode1 : mode2 + 1]):
-            if loc < xloc and i + mode1 not in self.herald_modes:
-                self._add_wg(loc, self.y_locations[i + mode1], xloc - loc)
+        # Equalise all x waveguides
+        xloc = self._equalize_waveguides(range(mode1, mode2 + 1))
         # Add input waveguides
         modes = range(min(mode1, mode2), max(mode1, mode2) + 1, 1)
         for i in modes:
@@ -411,11 +403,8 @@ class DrawCircuitMPL:
         )  # Find total unitary size
         # Get x and y positions
         yloc = self.y_locations[min(mode1, mode2)]
-        xloc = max(self.x_locations[mode1 : mode2 + 1])
-        # Add initial connectors for any modes which haven't reach xloc yet:
-        for i, loc in enumerate(self.x_locations[mode1 : mode2 + 1]):
-            if loc < xloc and i + mode1 not in self.herald_modes:
-                self._add_wg(loc, self.y_locations[i + mode1], xloc - loc)
+        # Equalise all x waveguides
+        xloc = self._equalize_waveguides(range(mode1, mode2 + 1))
         # Add input waveguides
         modes = range(min(mode1, mode2), max(mode1, mode2) + 1, 1)
         for i in modes:
@@ -482,3 +471,14 @@ class DrawCircuitMPL:
             HeraldDrawing(x=xloc, y=yloc, size=size, n_photons=num).draw_mpl(
                 self.ax
             )
+
+    def _equalize_waveguides(self, modes: Iterable[int]) -> float:
+        """
+        Extends the waveguide of any modes in the list to the target position.
+        """
+        all_locations = [self.x_locations[m] for m in modes]
+        xloc = max(all_locations)
+        for mode, loc in zip(modes, all_locations, strict=True):
+            if loc < xloc and mode not in self.herald_modes:
+                self._add_wg(loc, self.y_locations[mode], xloc - loc)
+        return xloc
