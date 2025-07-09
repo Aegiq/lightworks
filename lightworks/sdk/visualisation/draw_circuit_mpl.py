@@ -30,7 +30,7 @@ from lightworks.sdk.circuit.photonic_components import (
 )
 from lightworks.sdk.utils.exceptions import DisplayError
 
-from .display_utils import process_parameter_value
+from .display_utils import MPLSettings, process_parameter_value
 from .draw_specs import (
     BeamSplitterDrawing,
     HeraldDrawing,
@@ -385,7 +385,7 @@ class DrawCircuitMPL:
             size_y=size_y,
             offset_y=offset,
             label=spec.label,
-            text_size=8,
+            text_size=MPLSettings.TEXT_SIZE.value,
         ).draw_mpl(self.ax)
         xloc += size_x
         # Add output waveguides and update mode positions
@@ -436,7 +436,7 @@ class DrawCircuitMPL:
             size_y=size_y,
             offset_y=offset,
             label=spec.name,
-            text_size=8,
+            text_size=MPLSettings.TEXT_SIZE.value,
         ).draw_mpl(self.ax)
         xloc += size_x
         # Add output waveguides and update mode positions

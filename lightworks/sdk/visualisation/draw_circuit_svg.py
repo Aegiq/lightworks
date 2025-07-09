@@ -29,7 +29,7 @@ from lightworks.sdk.circuit.photonic_components import (
 )
 from lightworks.sdk.utils.exceptions import DisplayError
 
-from .display_utils import process_parameter_value
+from .display_utils import SVGSettings, process_parameter_value
 from .draw_specs import (
     BeamSplitterDrawing,
     DrawSpec,
@@ -131,7 +131,7 @@ class DrawCircuitSVG:
                     x=init_length - 20,
                     y=self.y_locations[m] + 2,
                     rotation=0,
-                    size=25,
+                    size=SVGSettings.TEXT_SIZE.value,
                     colour="black",
                     alignment="right",
                 )
@@ -363,7 +363,9 @@ class DrawCircuitSVG:
                 size_y=size_y,
                 offset_y=offset / 2,
                 label=spec.label,
-                text_size=25 if self.n_modes > 2 else 20,
+                text_size=SVGSettings.TEXT_SIZE.value
+                if self.n_modes > 2
+                else SVGSettings.U_TEXT_SIZE.value,
             )
         )
         xloc += size_x
@@ -503,7 +505,9 @@ class DrawCircuitSVG:
                 size_y=size_y,
                 offset_y=offset / 2,
                 label=spec.name,
-                text_size=25 if self.n_modes > 2 else 20,
+                text_size=SVGSettings.TEXT_SIZE.value
+                if self.n_modes > 2
+                else SVGSettings.U_TEXT_SIZE.value,
             )
         )
         xloc += size_x

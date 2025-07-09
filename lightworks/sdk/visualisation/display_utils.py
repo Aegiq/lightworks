@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from enum import Enum
 from typing import TypeVar, overload
 
 from lightworks.sdk.circuit.parameters import Parameter
@@ -41,3 +42,18 @@ def process_parameter_value(
     if show_parameter_value:
         return value.get()
     return value.label if value.label is not None else value.get()
+
+
+class MPLSettings(Enum):
+    """Contains settings for the matplotlib display method."""
+
+    TEXT_SIZE = 10
+    S_TEXT_SIZE = 7
+
+
+class SVGSettings(Enum):
+    """Contains settings for the drawsvg display method."""
+
+    TEXT_SIZE = 25
+    U_TEXT_SIZE = 20
+    S_TEXT_SIZE = 18

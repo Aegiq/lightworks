@@ -23,6 +23,8 @@ from matplotlib import patches
 
 from lightworks.sdk.utils.exceptions import DisplayError
 
+from .display_utils import MPLSettings, SVGSettings
+
 # ruff: noqa: D102
 
 
@@ -99,7 +101,7 @@ class PhaseShifterDrawing(DrawSpec):
                 x=self.x + self.size / 2,
                 y=self.y + 2,
                 rotation=0,
-                size=25,
+                size=SVGSettings.TEXT_SIZE.value,
                 colour="white",
                 alignment="centred",
             ).draw_svg()
@@ -111,7 +113,7 @@ class PhaseShifterDrawing(DrawSpec):
                 x=self.x + self.size / 2,
                 y=self.y + self.size,
                 rotation=0,
-                size=18,
+                size=SVGSettings.S_TEXT_SIZE.value,
                 colour="black",
                 alignment="centred",
             ).draw_svg()
@@ -133,7 +135,7 @@ class PhaseShifterDrawing(DrawSpec):
             x=self.x + self.size / 2,
             y=self.y,
             rotation=0,
-            size=8,
+            size=MPLSettings.TEXT_SIZE.value,
             colour="white",
             alignment="centred",
         ).draw_mpl(axes)
@@ -143,7 +145,7 @@ class PhaseShifterDrawing(DrawSpec):
             x=self.x + self.size / 2,
             y=self.y + self.size / 2 + 0.15,
             rotation=0,
-            size=5,
+            size=MPLSettings.S_TEXT_SIZE.value,
             colour="black",
             alignment="centred",
         ).draw_mpl(axes)
@@ -187,7 +189,7 @@ class BeamSplitterDrawing(DrawSpec):
                 x=self.x + self.size_x / 2,
                 y=(self.y + self.size_y / 2 - self.offset_y + self.text_offset),
                 rotation=0,
-                size=25,
+                size=SVGSettings.TEXT_SIZE.value,
                 colour="white",
                 alignment="centred",
             ).draw_svg()
@@ -198,7 +200,7 @@ class BeamSplitterDrawing(DrawSpec):
                 x=self.x + self.size_x / 2,
                 y=self.y + self.size_y,
                 rotation=0,
-                size=18,
+                size=SVGSettings.S_TEXT_SIZE.value,
                 colour="black",
                 alignment="centred",
             ).draw_svg()
@@ -221,7 +223,7 @@ class BeamSplitterDrawing(DrawSpec):
             x=self.x + self.size_x / 2,
             y=self.y + 0.5,
             rotation=0,
-            size=8,
+            size=MPLSettings.TEXT_SIZE.value,
             alignment="centred",
             colour="white",
         ).draw_mpl(axes)
@@ -230,7 +232,7 @@ class BeamSplitterDrawing(DrawSpec):
             x=self.x + self.size_x / 2,
             y=self.y + self.size_y - self.offset_y / 2 + 0.15,
             rotation=0,
-            size=5,
+            size=MPLSettings.S_TEXT_SIZE.value,
             alignment="centred",
             colour="black",
         ).draw_mpl(axes)
@@ -337,7 +339,7 @@ class LossDrawing(DrawSpec):
                 x=self.x + self.size / 2,
                 y=self.y + 2,
                 rotation=0,
-                size=25,
+                size=SVGSettings.TEXT_SIZE.value,
                 colour="white",
                 alignment="centred",
             ).draw_svg()
@@ -348,7 +350,7 @@ class LossDrawing(DrawSpec):
                 x=self.x + self.size / 2,
                 y=self.y + self.size,
                 rotation=0,
-                size=18,
+                size=SVGSettings.S_TEXT_SIZE.value,
                 colour="black",
                 alignment="centred",
             ).draw_svg()
@@ -370,7 +372,7 @@ class LossDrawing(DrawSpec):
             x=self.x + self.size / 2,
             y=self.y,
             rotation=0,
-            size=8,
+            size=MPLSettings.TEXT_SIZE.value,
             colour="white",
             alignment="centred",
         ).draw_mpl(axes)
@@ -379,7 +381,7 @@ class LossDrawing(DrawSpec):
             x=self.x + self.size / 2,
             y=self.y + self.size / 2 + 0.15,
             rotation=0,
-            size=5,
+            size=MPLSettings.S_TEXT_SIZE.value,
             colour="black",
             alignment="centred",
         ).draw_mpl(axes)
@@ -558,7 +560,7 @@ class HeraldDrawing(DrawSpec):
             x=self.x,
             y=self.y + 0.01,
             rotation=0,
-            size=8,
+            size=MPLSettings.TEXT_SIZE.value,
             colour="white",
             alignment="centred",
         ).draw_mpl(axes)
