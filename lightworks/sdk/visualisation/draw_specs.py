@@ -42,7 +42,8 @@ class DrawSpec(ABC):
 @dataclass(slots=True, kw_only=True)
 class WaveguideDrawing(DrawSpec):
     """
-    Desc
+    Contains components for drawing a waveguide using the different
+    visualization methods.
     """
 
     x: float
@@ -73,7 +74,8 @@ class WaveguideDrawing(DrawSpec):
 @dataclass(slots=True, kw_only=True)
 class PhaseShifterDrawing(DrawSpec):
     """
-    Desc
+    Contains components for drawing a phase shifter using the different
+    visualization methods.
     """
 
     x: float
@@ -154,7 +156,8 @@ class PhaseShifterDrawing(DrawSpec):
 @dataclass(slots=True, kw_only=True)
 class BeamSplitterDrawing(DrawSpec):
     """
-    Desc
+    Contains components for drawing a beam splitter using the different
+    visualization methods.
     """
 
     x: float
@@ -241,7 +244,8 @@ class BeamSplitterDrawing(DrawSpec):
 @dataclass(slots=True, kw_only=True)
 class UnitaryDrawing(DrawSpec):
     """
-    Desc
+    Contains components for drawing a unitary using the different
+    visualization methods.
     """
 
     x: float
@@ -307,7 +311,8 @@ class UnitaryDrawing(DrawSpec):
 @dataclass(slots=True, kw_only=True)
 class LossDrawing(DrawSpec):
     """
-    Desc
+    Contains components for drawing a loss element using the different
+    visualization methods.
     """
 
     x: float
@@ -390,7 +395,8 @@ class LossDrawing(DrawSpec):
 @dataclass(slots=True, kw_only=True)
 class TextDrawing(DrawSpec):
     """
-    Desc
+    Contains components for drawing text using the different visualization
+    methods.
     """
 
     text: str
@@ -451,7 +457,8 @@ class TextDrawing(DrawSpec):
 @dataclass(slots=True, kw_only=True)
 class ModeSwapDrawing(DrawSpec):
     """
-    Desc
+    Contains components for drawing mode swaps using the different
+    visualization methods.
     """
 
     x: float
@@ -518,7 +525,8 @@ class ModeSwapDrawing(DrawSpec):
 @dataclass(slots=True, kw_only=True)
 class HeraldDrawing(DrawSpec):
     """
-    Desc
+    Contains components for drawing herald markers using the different
+    visualization methods.
     """
 
     x: float
