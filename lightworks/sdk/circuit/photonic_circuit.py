@@ -478,6 +478,7 @@ class PhotonicCircuit:
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
         display_type: Literal["svg", "mpl"] = "svg",
+        display_barriers: bool = False,
     ) -> None:
         """
         Displays the current circuit with parameters set using either their
@@ -500,6 +501,9 @@ class PhotonicCircuit:
                 matplotlib module should be used for displaying the circuit.
                 Should either be 'svg' or 'mpl', defaults to 'svg'.
 
+            display_barriers (bool, optional) : Shows included barriers within
+                the created visualization if this is required.
+
         """
         return_ = display(
             self,
@@ -507,6 +511,7 @@ class PhotonicCircuit:
             mode_labels=mode_labels,
             display_type=display_type,
             show_parameter_values=show_parameter_values,
+            display_barriers=display_barriers,
         )
         if display_type == "mpl":
             plt.show()
@@ -520,6 +525,7 @@ class PhotonicCircuit:
         show_parameter_values: bool = False,
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
+        display_barriers: bool = False,
     ) -> None:
         """
         Creates a figure of the current circuit and saves this to the provided
@@ -545,6 +551,9 @@ class PhotonicCircuit:
                 than numerical values. Can be set to None to use default
                 values.
 
+            display_barriers (bool, optional) : Shows included barriers within
+                the created visualization if this is required.
+
         """
         figure = display(
             self,
@@ -552,6 +561,7 @@ class PhotonicCircuit:
             mode_labels=mode_labels,
             display_type="svg",
             show_parameter_values=show_parameter_values,
+            display_barriers=display_barriers,
         )
         p = Path(path)
         p = p.with_suffix(".svg") if svg else p.with_suffix(".png")

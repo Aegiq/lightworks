@@ -32,6 +32,7 @@ from lightworks.sdk.utils.exceptions import DisplayError
 
 from .display_utils import SVGSettings, process_parameter_value
 from .draw_specs import (
+    BarrierDrawing,
     BeamSplitterDrawing,
     DrawSpec,
     HeraldDrawing,
@@ -68,6 +69,9 @@ class DrawCircuitSVG:
         show_parameter_values (bool, optional) : Shows the values of parameters
             instead of the associated labels if specified.
 
+        display_barriers (bool, optional) : Shows included barriers within the
+            created visualization if this is required.
+
     """
 
     def __init__(
@@ -76,11 +80,13 @@ class DrawCircuitSVG:
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
         show_parameter_values: bool = False,
+        display_barriers: bool = False,
     ) -> None:
         self.circuit = circuit
         self.display_loss = display_loss
         self.herald_modes = self.circuit._internal_modes
         self.show_parameter_values = show_parameter_values
+        self.display_barriers = display_barriers
         # Set a waveguide width and get mode number
         self.wg_width = 8
         self.n_modes = self.circuit.n_modes
@@ -408,6 +414,15 @@ class DrawCircuitSVG:
             if loc < max_loc:
                 self._add_wg(loc, self.y_locations[m], max_loc - loc)
             self.x_locations[m] = max_loc
+            if self.display_barriers:
+                self.draw_spec.append(
+                    BarrierDrawing(
+                        x=max_loc,
+                        y_start=self.y_locations[m] - self.dy_smaller / 2,
+                        y_end=self.y_locations[m] + self.dy_smaller / 2,
+                        width=self.wg_width * 0.6,
+                    )
+                )
 
     @_add.register
     def _add_mode_swaps(self, spec: ModeSwaps) -> None:

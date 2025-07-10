@@ -33,6 +33,7 @@ from lightworks.sdk.utils.exceptions import DisplayError
 
 from .display_utils import MPLSettings, process_parameter_value
 from .draw_specs import (
+    BarrierDrawing,
     BeamSplitterDrawing,
     HeraldDrawing,
     LossDrawing,
@@ -67,6 +68,9 @@ class DrawCircuitMPL:
         show_parameter_values (bool, optional) : Shows the values of parameters
             instead of the associated labels if specified.
 
+        display_barriers (bool, optional) : Shows included barriers within the
+            created visualization if this is required.
+
     """
 
     def __init__(
@@ -75,6 +79,7 @@ class DrawCircuitMPL:
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
         show_parameter_values: bool = False,
+        display_barriers: bool = False,
     ) -> None:
         self.circuit = circuit
         self.display_loss = display_loss
@@ -82,6 +87,7 @@ class DrawCircuitMPL:
         self.show_parameter_values = show_parameter_values
         self.n_modes = self.circuit.n_modes
         self.herald_modes = self.circuit._internal_modes
+        self.display_barriers = display_barriers
 
     def draw(self) -> tuple[matplotlib.figure.Figure, plt.Axes]:
         """
@@ -99,14 +105,14 @@ class DrawCircuitMPL:
         h = max(self.n_modes, 4)
         self.fig.set_figheight(h)
         dy = 1.0
-        dy_smaller = 0.6
+        self.dy_smaller = 0.6
         self.y_locations = []
         # Set mode y locations
         yloc = 0.0
         for i in range(self.n_modes):
             self.y_locations.append(yloc)
             if i + 1 in self.herald_modes or i in self.herald_modes:
-                yloc += dy_smaller
+                yloc += self.dy_smaller
             else:
                 yloc += dy
         # Set a starting length and add a waveguide for each mode
@@ -304,6 +310,13 @@ class DrawCircuitMPL:
             if loc < max_loc:
                 self._add_wg(loc, self.y_locations[m], max_loc - loc)
             self.x_locations[m] = max_loc
+            if self.display_barriers:
+                BarrierDrawing(
+                    x=max_loc,
+                    y_start=self.y_locations[m] - self.dy_smaller / 2,
+                    y_end=self.y_locations[m] + self.dy_smaller / 2,
+                    width=self.wg_width * 0.6,
+                ).draw_mpl(self.ax)
 
     @_add.register
     def _add_mode_swaps(self, spec: ModeSwaps) -> None:

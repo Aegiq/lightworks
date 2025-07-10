@@ -574,6 +574,39 @@ class HeraldDrawing(DrawSpec):
         ).draw_mpl(axes)
 
 
+@dataclass(slots=True, kw_only=True)
+class BarrierDrawing(DrawSpec):
+    """
+    Contains components for drawing barriers markers using the different
+    visualization methods.
+    """
+
+    x: float
+    y_start: float
+    y_end: float
+    width: float
+
+    def draw_svg(self) -> draw.Group:
+        return draw.Line(
+            self.x,
+            self.y_start,
+            self.x,
+            self.y_end,
+            stroke="black",
+            stroke_width=self.width,
+        )
+
+    def draw_mpl(self, axes: plt.Axes) -> None:
+        axes.add_patch(
+            patches.Rectangle(
+                (self.x - self.width / 2, self.y_start),
+                self.width,
+                self.y_end - self.y_start,
+                facecolor="black",
+            )
+        )
+
+
 def simplify_phase(phase: str | float) -> str:
     """
     Converts a phase values into a fraction of pi if it is some integer amount
