@@ -228,7 +228,7 @@ class BeamSplitterDrawing(DrawSpec):
             colour="white",
         ).draw_mpl(axes)
         TextDrawing(
-            text=f"$r =$ {self.reflectivity}",
+            text=f"$r = ${self.reflectivity}",
             x=self.x + self.size_x / 2,
             y=self.y + self.size_y - self.offset_y / 2 + 0.15,
             rotation=0,
@@ -377,7 +377,7 @@ class LossDrawing(DrawSpec):
             alignment="centred",
         ).draw_mpl(axes)
         TextDrawing(
-            text=f"$loss = {self.loss}$",
+            text=f"loss = ${self.loss}$",
             x=self.x + self.size / 2,
             y=self.y + self.size / 2 + 0.15,
             rotation=0,
@@ -568,7 +568,8 @@ class HeraldDrawing(DrawSpec):
 
 def simplify_phase(phase: str | float) -> str:
     """
-    Desc
+    Converts a phase values into a fraction of pi if it is some integer amount
+    of π/4.
     """
     # Work out value of n*pi/4 closest to phi
     if not isinstance(phase, str):
