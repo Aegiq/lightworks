@@ -94,6 +94,16 @@ class TestDisplay:
         except:
             pytest.fail("Exception occurred during display operation.")
 
+    def test_circuit_display_method_barriers(self):
+        """
+        Checks that the display method works without any errors arising when
+        display barriers in activated.
+        """
+        try:
+            self.circuit.display(display_barriers=True)
+        except:
+            pytest.fail("Exception occurred during display operation.")
+
     def test_circuit_display_show_parameter_values(self):
         """
         Checks that the display method works without any errors arising when

@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any
 
 import matplotlib.figure
 import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib import patches
 from multimethod import multimethod
 
 from lightworks.sdk.circuit.photonic_components import (
@@ -32,7 +31,17 @@ from lightworks.sdk.circuit.photonic_components import (
 )
 from lightworks.sdk.utils.exceptions import DisplayError
 
-from .display_utils import process_parameter_value
+from .display_utils import MPLSettings, process_parameter_value
+from .draw_specs import (
+    BarrierDrawing,
+    BeamSplitterDrawing,
+    HeraldDrawing,
+    LossDrawing,
+    ModeSwapDrawing,
+    PhaseShifterDrawing,
+    UnitaryDrawing,
+    WaveguideDrawing,
+)
 
 if TYPE_CHECKING:
     from lightworks.sdk.circuit import PhotonicCircuit
@@ -59,6 +68,9 @@ class DrawCircuitMPL:
         show_parameter_values (bool, optional) : Shows the values of parameters
             instead of the associated labels if specified.
 
+        display_barriers (bool, optional) : Shows included barriers within the
+            created visualization if this is required.
+
     """
 
     def __init__(
@@ -67,6 +79,7 @@ class DrawCircuitMPL:
         display_loss: bool = False,
         mode_labels: list[str] | None = None,
         show_parameter_values: bool = False,
+        display_barriers: bool = False,
     ) -> None:
         self.circuit = circuit
         self.display_loss = display_loss
@@ -74,6 +87,7 @@ class DrawCircuitMPL:
         self.show_parameter_values = show_parameter_values
         self.n_modes = self.circuit.n_modes
         self.herald_modes = self.circuit._internal_modes
+        self.display_barriers = display_barriers
 
     def draw(self) -> tuple[matplotlib.figure.Figure, plt.Axes]:
         """
@@ -91,14 +105,14 @@ class DrawCircuitMPL:
         h = max(self.n_modes, 4)
         self.fig.set_figheight(h)
         dy = 1.0
-        dy_smaller = 0.6
+        self.dy_smaller = 0.6
         self.y_locations = []
         # Set mode y locations
         yloc = 0.0
         for i in range(self.n_modes):
             self.y_locations.append(yloc)
             if i + 1 in self.herald_modes or i in self.herald_modes:
-                yloc += dy_smaller
+                yloc += self.dy_smaller
             else:
                 yloc += dy
         # Set a starting length and add a waveguide for each mode
@@ -169,12 +183,9 @@ class DrawCircuitMPL:
         """
         Add a waveguide to the axis.
         """
-        # Create rectangle using provided length and waveguide width and then
-        # add patch
-        rect = patches.Rectangle(
-            (x, y - self.wg_width / 2), length, self.wg_width, facecolor="black"
+        WaveguideDrawing(x=x, y=y, length=length, width=self.wg_width).draw_mpl(
+            self.ax
         )
-        self.ax.add_patch(rect)
 
     @multimethod
     def _add(self, spec: Any) -> None:  # noqa: ARG002
@@ -199,55 +210,8 @@ class DrawCircuitMPL:
         self._add_wg(xloc, yloc, con_length)
         xloc += con_length
         # Add phase shifter square
-        rect = patches.Rectangle(
-            (xloc, yloc - size / 2),
-            size,
-            size,
-            facecolor="#e8532b",
-            edgecolor="black",
-        )
-        self.ax.add_patch(rect)
-        # Include text to label applied phase shift
-        self.ax.text(
-            xloc + size / 2,
-            yloc,
-            "PS",
-            horizontalalignment="center",
-            verticalalignment="center",
-            color="white",
-            size=8,
-        )
-        # Work out value of n*pi/4 closest to phi
-        if not isinstance(phi, str):
-            n = int(np.round(phi / (np.pi / 4)))
-            # Check if value of phi == n*pi/4 to 8 decimal places
-            if round(phi, 8) == round(n * np.pi / 4, 8):  # and n > 0:
-                n = abs(n)
-                # Set text with either pi or pi/2 or pi/4
-                if n == 0:
-                    phi_text = "0"
-                elif n % 4 == 0:
-                    phi_text = str(int(n / 4)) + "π" if n > 4 else "π"
-                elif n % 4 == 2:
-                    phi_text = str(int(n / 2)) + "π/2" if n > 2 else "π/2"
-                else:
-                    phi_text = str(int(n)) + "π/4" if n > 1 else "π/4"
-                if phi < 0:
-                    phi_text = "-" + phi_text
-            # Otherwise round phi to 4 decimal places
-            else:
-                phi_text = str(round(phi, 4))
-            phi_text = f"$\\phi = {phi_text}$"
-        else:
-            phi_text = "$\\phi =$ " + phi
-        self.ax.text(
-            xloc + size / 2,
-            yloc + size / 2 + 0.15,
-            phi_text,
-            color="black",
-            size=5,
-            horizontalalignment="center",
-            verticalalignment="center",
+        PhaseShifterDrawing(x=xloc, y=yloc, size=size, phase=phi).draw_mpl(
+            self.ax
         )
         xloc += size
         # Add output waveguides
@@ -274,11 +238,8 @@ class DrawCircuitMPL:
         )  # Find y size
         # Get x and y locations
         yloc = self.y_locations[min(mode1, mode2)]
-        xloc = max(self.x_locations[mode1 : mode2 + 1])
-        # Add initial connectors for any modes which haven't reach xloc yet:
-        for i, loc in enumerate(self.x_locations[mode1 : mode2 + 1]):
-            if loc < xloc and i + mode1 not in self.herald_modes:
-                self._add_wg(loc, self.y_locations[i + mode1], xloc - loc)
+        # Equalise all x waveguides
+        xloc = self._equalize_waveguides(range(mode1, mode2 + 1))
         # Add input waveguides for all included modes
         modes = range(min(mode1, mode2), max(mode1, mode2) + 1, 1)
         for i in modes:
@@ -286,36 +247,15 @@ class DrawCircuitMPL:
                 self._add_wg(xloc, self.y_locations[i], con_length)
         xloc += con_length
         # Add beam splitter rectangle shape
-        rect = patches.Rectangle(
-            (xloc, yloc - offset / 2),
-            size_x,
-            size_y,
-            facecolor="#3e368d",
-            alpha=1,
-            edgecolor="black",
-        )
-        self.ax.add_patch(rect)
-        # Label beam splitter as BS and display reflectivity
-        self.ax.text(
-            xloc + size_x / 2,
-            yloc + 0.5,
-            "BS",
-            size=8,
-            horizontalalignment="center",
-            verticalalignment="center",
-            color="white",
-        )
-        if not isinstance(ref, str):
-            ref = round(ref, 4)
-        self.ax.text(
-            xloc + size_x / 2,
-            yloc + size_y - offset / 2 + 0.15,
-            f"$r =$ {ref}",
-            color="black",
-            size=5,
-            horizontalalignment="center",
-            verticalalignment="center",
-        )
+        BeamSplitterDrawing(
+            x=xloc,
+            y=yloc,
+            size_x=size_x,
+            size_y=size_y,
+            offset_y=offset,
+            reflectivity=ref,
+            text_offset=0,
+        ).draw_mpl(self.ax)
         # For any modes in between the beam splitter modes add a waveguide
         # across the beam splitter
         for i in range(mode1 + 1, mode2):
@@ -347,37 +287,7 @@ class DrawCircuitMPL:
         self._add_wg(xloc, yloc, con_length)
         xloc += con_length
         # Add loss elements
-        rect = patches.Rectangle(
-            (xloc, yloc - size / 2),
-            size,
-            size,
-            facecolor="grey",
-            edgecolor="black",
-        )
-        self.ax.add_patch(rect)
-        # Label element and add text will loss amount in dB
-        self.ax.text(
-            xloc + size / 2,
-            yloc,
-            "L",
-            horizontalalignment="center",
-            verticalalignment="center",
-            color="white",
-            size=8,
-        )
-        if not isinstance(loss, str):
-            loss_text = f"$loss = {round(loss, 4)}$"
-        else:
-            loss_text = "$loss =$ " + loss
-        self.ax.text(
-            xloc + size / 2,
-            yloc + size / 2 + 0.15,
-            loss_text,
-            color="black",
-            size=5,
-            horizontalalignment="center",
-            verticalalignment="center",
-        )
+        LossDrawing(x=xloc, y=yloc, size=size, loss=loss).draw_mpl(self.ax)
         xloc += size
         # Add output waveguide
         self._add_wg(xloc, yloc, con_length)
@@ -400,6 +310,13 @@ class DrawCircuitMPL:
             if loc < max_loc:
                 self._add_wg(loc, self.y_locations[m], max_loc - loc)
             self.x_locations[m] = max_loc
+            if self.display_barriers:
+                BarrierDrawing(
+                    x=max_loc,
+                    y_start=self.y_locations[m] - self.dy_smaller / 2,
+                    y_end=self.y_locations[m] + self.dy_smaller / 2,
+                    width=self.wg_width * 0.6,
+                ).draw_mpl(self.ax)
 
     @_add.register
     def _add_mode_swaps(self, spec: ModeSwaps) -> None:
@@ -418,42 +335,22 @@ class DrawCircuitMPL:
         for m in range(min_mode, max_mode + 1):
             if m not in swaps:
                 swaps[m] = m
-        # Get x and y locations
-        xloc = max(self.x_locations[min_mode : max_mode + 1])
+        # Get y locations
         ylocs = []
         for i, j in swaps.items():
             if i not in self.herald_modes:
                 ylocs.append((self.y_locations[i], self.y_locations[j]))
-        # Add initial connectors for any modes which haven't reach xloc yet:
-        for i, loc in enumerate(self.x_locations[min_mode : max_mode + 1]):
-            if loc < xloc and i + min_mode not in self.herald_modes:
-                self._add_wg(loc, self.y_locations[min_mode + i], xloc - loc)
+        # Equalise all x waveguides
+        xloc = self._equalize_waveguides(range(min_mode, max_mode + 1))
         # Add input waveguides for all included modes
         modes = range(min_mode, max_mode + 1, 1)
         for i in modes:
             if i not in self.herald_modes:
                 self._add_wg(xloc, self.y_locations[i], con_length)
         xloc += con_length
-        for y0, y1 in ylocs:
-            w = self.wg_width / 2
-            if y0 < y1:
-                dx1 = w * np.arctan(abs(y1 - y0) / size_x)
-                dx2 = 0
-            else:
-                dx1 = 0
-                dx2 = w * np.arctan(abs(y1 - y0) / size_x)
-            points = [
-                (xloc + dx1, y0 - w),
-                (xloc, y0 - w),
-                (xloc, y0 + w),
-                (xloc + dx2, y0 + w),
-                (xloc + size_x - dx1, y1 + w),
-                (xloc + size_x, y1 + w),
-                (xloc + size_x, y1 - w),
-                (xloc + size_x - dx2, y1 - w),
-            ]
-            poly = patches.Polygon(points, facecolor="black")
-            self.ax.add_patch(poly)
+        ModeSwapDrawing(
+            x=xloc, ys=ylocs, size_x=size_x, wg_width=self.wg_width
+        ).draw_mpl(self.ax)
         xloc += size_x
         # Add output waveguides update mode locations
         for i in modes:
@@ -477,11 +374,8 @@ class DrawCircuitMPL:
         )  # Find total unitary size
         # Get x and y positions
         yloc = self.y_locations[min(mode1, mode2)]
-        xloc = max(self.x_locations[mode1 : mode2 + 1])
-        # Add initial connectors for any modes which haven't reach xloc yet:
-        for i, loc in enumerate(self.x_locations[mode1 : mode2 + 1]):
-            if loc < xloc and i + mode1 not in self.herald_modes:
-                self._add_wg(loc, self.y_locations[i + mode1], xloc - loc)
+        # Equalise all x waveguides
+        xloc = self._equalize_waveguides(range(mode1, mode2 + 1))
         # Add input waveguides
         modes = range(min(mode1, mode2), max(mode1, mode2) + 1, 1)
         for i in modes:
@@ -489,26 +383,15 @@ class DrawCircuitMPL:
                 self._add_wg(xloc, self.y_locations[i], con_length)
         xloc += con_length
         # Add unitary shape and label
-        rect = patches.Rectangle(
-            (xloc, yloc - offset / 2),
-            size_x,
-            size_y,
-            facecolor="#1a0f36",
-            edgecolor="black",
-        )
-        self.ax.add_patch(rect)
-        s = 10 if len(spec.label) == 1 else 8
-        r = 90 if len(spec.label) > 2 else 0
-        self.ax.text(
-            xloc + size_x / 2,
-            yloc + (size_y - offset) / 2,
-            spec.label,
-            horizontalalignment="center",
-            size=s,
-            verticalalignment="center",
-            color="white",
-            rotation=r,
-        )
+        UnitaryDrawing(
+            x=xloc,
+            y=yloc,
+            size_x=size_x,
+            size_y=size_y,
+            offset_y=offset,
+            label=spec.label,
+            text_size=MPLSettings.TEXT_SIZE.value,
+        ).draw_mpl(self.ax)
         xloc += size_x
         # Add output waveguides and update mode positions
         for i in modes:
@@ -533,11 +416,8 @@ class DrawCircuitMPL:
         )  # Find total unitary size
         # Get x and y positions
         yloc = self.y_locations[min(mode1, mode2)]
-        xloc = max(self.x_locations[mode1 : mode2 + 1])
-        # Add initial connectors for any modes which haven't reach xloc yet:
-        for i, loc in enumerate(self.x_locations[mode1 : mode2 + 1]):
-            if loc < xloc and i + mode1 not in self.herald_modes:
-                self._add_wg(loc, self.y_locations[i + mode1], xloc - loc)
+        # Equalise all x waveguides
+        xloc = self._equalize_waveguides(range(mode1, mode2 + 1))
         # Add input waveguides
         modes = range(min(mode1, mode2), max(mode1, mode2) + 1, 1)
         for i in modes:
@@ -551,26 +431,15 @@ class DrawCircuitMPL:
                 )
         xloc += con_length + extra_length
         # Add circuit shape and label
-        rect = patches.Rectangle(
-            (xloc, yloc - offset / 2),
-            size_x,
-            size_y,
-            facecolor="#1a0f36",
-            edgecolor="black",
-        )
-        self.ax.add_patch(rect)
-        s = 10 if len(spec.name) == 1 else 8
-        r = 90 if len(spec.name) > 2 else 0
-        self.ax.text(
-            xloc + size_x / 2,
-            yloc + (size_y - offset) / 2,
-            spec.name,
-            horizontalalignment="center",
-            size=s,
-            verticalalignment="center",
-            color="white",
-            rotation=r,
-        )
+        UnitaryDrawing(
+            x=xloc,
+            y=yloc,
+            size_x=size_x,
+            size_y=size_y,
+            offset_y=offset,
+            label=spec.name,
+            text_size=MPLSettings.TEXT_SIZE.value,
+        ).draw_mpl(self.ax)
         xloc += size_x
         # Add output waveguides and update mode positions
         for i in modes:
@@ -605,33 +474,24 @@ class DrawCircuitMPL:
         for mode, num in heralds.input.items():
             xloc = start_loc
             yloc = self.y_locations[mode]
-            circle = patches.Circle(
-                (xloc, yloc), size, facecolor="#3e368d", edgecolor="black"
-            )
-            self.ax.add_patch(circle)
-            self.ax.text(
-                xloc,
-                yloc + 0.01,
-                str(num),
-                color="white",
-                size=8,
-                horizontalalignment="center",
-                verticalalignment="center",
+            HeraldDrawing(x=xloc, y=yloc, size=size, n_photons=num).draw_mpl(
+                self.ax
             )
         # Output heralds
         for mode, num in heralds.output.items():
             xloc = end_loc
             yloc = self.y_locations[mode]
-            circle = patches.Circle(
-                (xloc, yloc), size, facecolor="#3e368d", edgecolor="black"
+            HeraldDrawing(x=xloc, y=yloc, size=size, n_photons=num).draw_mpl(
+                self.ax
             )
-            self.ax.add_patch(circle)
-            self.ax.text(
-                xloc,
-                yloc + 0.01,
-                str(num),
-                color="white",
-                size=8,
-                horizontalalignment="center",
-                verticalalignment="center",
-            )
+
+    def _equalize_waveguides(self, modes: Iterable[int]) -> float:
+        """
+        Extends the waveguide of any modes in the list to the target position.
+        """
+        all_locations = [self.x_locations[m] for m in modes]
+        xloc = max(all_locations)
+        for mode, loc in zip(modes, all_locations, strict=True):
+            if loc < xloc and mode not in self.herald_modes:
+                self._add_wg(loc, self.y_locations[mode], xloc - loc)
+        return xloc

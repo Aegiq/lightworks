@@ -34,6 +34,7 @@ def display(
     mode_labels: list[str] | None = ...,
     display_type: Literal["svg"] = ...,
     show_parameter_values: bool = ...,
+    display_barriers: bool = ...,
 ) -> drawsvg.Drawing: ...
 
 
@@ -44,6 +45,7 @@ def display(
     mode_labels: list[str] | None = ...,
     display_type: Literal["mpl"] = ...,
     show_parameter_values: bool = ...,
+    display_barriers: bool = ...,
 ) -> tuple[matplotlib.figure.Figure, plt.Axes]: ...
 
 
@@ -54,6 +56,7 @@ def display(
     mode_labels: list[str] | None = None,
     display_type: Literal["svg", "mpl"] = "svg",
     show_parameter_values: bool = False,
+    display_barriers: bool = False,
 ) -> tuple[matplotlib.figure.Figure, plt.Axes] | drawsvg.Drawing:
     """
     Used to display a circuit from lightworks in the chosen format.
@@ -76,6 +79,9 @@ def display(
         show_parameter_values (bool, optional) : Shows the values of parameters
             instead of the associated labels if specified.
 
+        display_barriers (bool, optional) : Shows included barriers within the
+            created visualization if this is required.
+
     Returns:
 
         (fig, ax) | Drawing : The created figure and axis or drawing for the
@@ -89,12 +95,20 @@ def display(
     """
     if display_type == "mpl":
         disp = DrawCircuitMPL(
-            circuit, display_loss, mode_labels, show_parameter_values
+            circuit,
+            display_loss,
+            mode_labels,
+            show_parameter_values,
+            display_barriers,
         )
         return disp.draw()
     if display_type == "svg":
         disp_svg = DrawCircuitSVG(
-            circuit, display_loss, mode_labels, show_parameter_values
+            circuit,
+            display_loss,
+            mode_labels,
+            show_parameter_values,
+            display_barriers,
         )
         return disp_svg.draw()
     raise DisplayError("Display type not recognised.")
