@@ -86,16 +86,15 @@ class PhaseShifterDrawing(DrawSpec):
     def draw_svg(self) -> draw.Group:
         g = draw.Group()
         g.append(
-            draw.Rectangle(
-                self.x,
-                self.y - self.size / 2,
-                self.size,
-                self.size,
-                fill="#e8532b",
-                stroke="black",
-                rx=5,
-                ry=5,
-            )
+            CurvedRectangle(
+                x=self.x,
+                y=self.y - self.size / 2,
+                size_x=self.size,
+                size_y=self.size,
+                radius=5,
+                colour="#e8532b",
+                outline="black",
+            ).draw_svg()
         )
         g.append(
             TextDrawing(
@@ -123,15 +122,15 @@ class PhaseShifterDrawing(DrawSpec):
         return g
 
     def draw_mpl(self, axes: plt.Axes) -> None:
-        axes.add_patch(
-            patches.Rectangle(
-                (self.x, self.y - self.size / 2),
-                self.size,
-                self.size,
-                facecolor="#e8532b",
-                edgecolor="black",
-            )
-        )
+        CurvedRectangle(
+            x=self.x,
+            y=self.y - self.size / 2,
+            size_x=self.size,
+            size_y=self.size,
+            radius=0.07,
+            colour="#e8532b",
+            outline="black",
+        ).draw_mpl(axes)
         TextDrawing(
             text="PS",
             x=self.x + self.size / 2,
@@ -175,16 +174,15 @@ class BeamSplitterDrawing(DrawSpec):
     def draw_svg(self) -> draw.Group:
         g = draw.Group()
         g.append(
-            draw.Rectangle(
-                self.x,
-                self.y - self.offset_y,
-                self.size_x,
-                self.size_y,
-                fill="#3e368d",
-                stroke="black",
-                rx=5,
-                ry=5,
-            )
+            CurvedRectangle(
+                x=self.x,
+                y=self.y - self.offset_y,
+                size_x=self.size_x,
+                size_y=self.size_y,
+                radius=5,
+                colour="#3e368d",
+                outline="black",
+            ).draw_svg()
         )
         g.append(
             TextDrawing(
@@ -211,16 +209,15 @@ class BeamSplitterDrawing(DrawSpec):
         return g
 
     def draw_mpl(self, axes: plt.Axes) -> None:
-        axes.add_patch(
-            patches.Rectangle(
-                (self.x, self.y - self.offset_y / 2),
-                self.size_x,
-                self.size_y,
-                facecolor="#3e368d",
-                alpha=1,
-                edgecolor="black",
-            )
-        )
+        CurvedRectangle(
+            x=self.x,
+            y=self.y - self.offset_y / 2,
+            size_x=self.size_x,
+            size_y=self.size_y,
+            radius=0.07,
+            colour="#3e368d",
+            outline="black",
+        ).draw_mpl(axes)
         TextDrawing(
             text="BS",
             x=self.x + self.size_x / 2,
@@ -259,16 +256,15 @@ class UnitaryDrawing(DrawSpec):
     def draw_svg(self) -> draw.Group:
         g = draw.Group()
         g.append(
-            draw.Rectangle(
-                self.x,
-                self.y - self.offset_y,
-                self.size_x,
-                self.size_y,
-                fill="#1a0f36",
-                stroke="black",
-                rx=5,
-                ry=5,
-            )
+            CurvedRectangle(
+                x=self.x,
+                y=self.y - self.offset_y,
+                size_x=self.size_x,
+                size_y=self.size_y,
+                radius=5,
+                colour="#1a0f36",
+                outline="black",
+            ).draw_svg()
         )
         s = self.text_size * 7 / 5 if len(self.label) == 1 else self.text_size
         r = 270 if len(self.label) > 2 else 0
@@ -286,15 +282,15 @@ class UnitaryDrawing(DrawSpec):
         return g
 
     def draw_mpl(self, axes: plt.Axes) -> None:
-        axes.add_patch(
-            patches.Rectangle(
-                (self.x, self.y - self.offset_y / 2),
-                self.size_x,
-                self.size_y,
-                facecolor="#1a0f36",
-                edgecolor="black",
-            )
-        )
+        CurvedRectangle(
+            x=self.x,
+            y=self.y - self.offset_y / 2,
+            size_x=self.size_x,
+            size_y=self.size_y,
+            radius=0.07,
+            colour="#1a0f36",
+            outline="black",
+        ).draw_mpl(axes)
         s = 5 / 4 * self.text_size if len(self.label) == 1 else self.text_size
         r = 90 if len(self.label) > 2 else 0
         TextDrawing(
@@ -327,16 +323,15 @@ class LossDrawing(DrawSpec):
     def draw_svg(self) -> draw.Group:
         g = draw.Group()
         g.append(
-            draw.Rectangle(
-                self.x,
-                self.y - self.size / 2,
-                self.size,
-                self.size,
-                fill="grey",
-                stroke="black",
-                rx=5,
-                ry=5,
-            )
+            CurvedRectangle(
+                x=self.x,
+                y=self.y - self.size / 2,
+                size_x=self.size,
+                size_y=self.size,
+                radius=5,
+                colour="grey",
+                outline="black",
+            ).draw_svg()
         )
         g.append(
             TextDrawing(
@@ -363,15 +358,15 @@ class LossDrawing(DrawSpec):
         return g
 
     def draw_mpl(self, axes: plt.Axes) -> None:
-        axes.add_patch(
-            patches.Rectangle(
-                (self.x, self.y - self.size / 2),
-                self.size,
-                self.size,
-                facecolor="grey",
-                edgecolor="black",
-            )
-        )
+        CurvedRectangle(
+            x=self.x,
+            y=self.y - self.size / 2,
+            size_x=self.size,
+            size_y=self.size,
+            radius=0.07,
+            colour="grey",
+            outline="black",
+        ).draw_mpl(axes)
         TextDrawing(
             text="L",
             x=self.x + self.size / 2,
@@ -586,7 +581,7 @@ class BarrierDrawing(DrawSpec):
     y_end: float
     width: float
 
-    def draw_svg(self) -> draw.Group:
+    def draw_svg(self) -> draw.DrawingBasicElement:
         return draw.Line(
             self.x,
             self.y_start,
@@ -603,6 +598,46 @@ class BarrierDrawing(DrawSpec):
                 self.width,
                 self.y_end - self.y_start,
                 facecolor="black",
+            )
+        )
+
+
+@dataclass(slots=True, kw_only=True)
+class CurvedRectangle(DrawSpec):
+    """
+    Contains components for drawing curved rectangles using the different
+    visualization methods.
+    """
+
+    x: float
+    y: float
+    size_x: float
+    size_y: float
+    radius: float
+    colour: str
+    outline: str
+
+    def draw_svg(self) -> draw.DrawingBasicElement:
+        return draw.Rectangle(
+            self.x,
+            self.y,
+            self.size_x,
+            self.size_y,
+            fill=self.colour,
+            stroke=self.outline,
+            rx=self.radius,
+            ry=self.radius,
+        )
+
+    def draw_mpl(self, axes: plt.Axes) -> None:
+        axes.add_patch(
+            patches.FancyBboxPatch(
+                (self.x, self.y),
+                self.size_x,
+                self.size_y,
+                boxstyle=f"Round, pad=0, rounding_size={self.radius}",
+                facecolor=self.colour,
+                edgecolor=self.outline,
             )
         )
 
