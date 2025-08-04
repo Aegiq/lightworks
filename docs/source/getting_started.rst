@@ -75,11 +75,15 @@ For this initial simulation, we will choose to use the :class:`Sampler <lightwor
     n_samples = 10000
     sampler = lw.Sampler(circuit, input_state, n_samples, random_seed = 1)
 
-A backend from the emulator then needs to be selected to run the sampler task on. In this case the permanent backend is chosen, more information about this can be found in :doc:`emulator/backend`. The task is then executed using this backend with ``run``.
+A backend from the emulator then needs to be selected to run the sampler task on. In this case the permanent backend is chosen, more information about this can be found in :doc:`emulator/backend`. The task is then executed using this backend with ``run`` or by directly calling the backend as a function, both examples are shown below.
 
 .. code-block:: Python
 
     backend = emulator.Backend("permanent")
+
+    # Run method
+    results = backend.run(sampler)
+    # Direct call
     results = backend.run(sampler)
 
 This produces a :doc:`sdk_reference/results/sampling_result` object, we can quickly view the contents of this using the print statement.

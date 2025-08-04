@@ -43,6 +43,12 @@ The task can then be run against the backend with the ``run`` method, this will 
 
     results = backend.run(sim)
 
+Alternatively, the run method can be excluded and a function call made directly to the backend, so the equivalent code to above would be: 
+
+.. code-block:: Python
+
+    results = backend(sim)
+
 The results can then be viewed using one of the built-in methods, such as plot.
 
 .. code-block:: Python
