@@ -356,7 +356,7 @@ class _HeraldCache:
     """
 
     def __init__(self, herald_modes: list[int]) -> None:
-        self.cache = {}
+        self.cache: dict[State, State] = {}
         self.herald_modes = list(herald_modes)
 
     def __getitem__(self, state: State) -> State:
