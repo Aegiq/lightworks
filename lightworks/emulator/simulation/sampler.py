@@ -100,9 +100,13 @@ class SamplerRunner(RunnerABC):
         # Assign calculated distribution to attribute
         self.probability_distribution = pdist
         herald_modes = list(self.data.circuit.heralds.output.keys())
-        self.full_to_heralded = {
-            s: State(remove_heralds_from_state(s, herald_modes)) for s in pdist
-        }
+        self.herald_cache = _HeraldCache(
+            {
+                s: State(remove_heralds_from_state(s, herald_modes))
+                for s in pdist
+            },
+            herald_modes,
+        )
         return pdist
 
     def run(self) -> SamplingResult:
@@ -213,7 +217,6 @@ class SamplerRunner(RunnerABC):
                 "Non photon number resolving detectors cannot be used when"
                 "a heralded mode has more than 1 photon."
             )
-        herald_modes = list(heralds.keys())
         herald_items = list(heralds.items())
         # Set detector seed before sampling
         self.detector._set_random_seed(seed)
@@ -227,21 +230,16 @@ class SamplerRunner(RunnerABC):
                         break
                 # If met then remove heralded modes and store
                 else:
-                    if heralds:
-                        if output_state not in self.full_to_heralded:
-                            self.full_to_heralded[output_state] = State(
-                                remove_heralds_from_state(
-                                    output_state, herald_modes
-                                )
-                            )
-                        hs = self.full_to_heralded[output_state]
-                    else:
-                        hs = output_state
+                    herald_state = (
+                        self.herald_cache[output_state]
+                        if heralds
+                        else output_state
+                    )
                     if (
-                        post_select.validate(hs)
-                        and hs.n_photons >= min_detection
+                        post_select.validate(herald_state)
+                        and herald_state.n_photons >= min_detection
                     ):
-                        filtered_samples.append(hs)
+                        filtered_samples.append(herald_state)
         counted = dict(Counter(filtered_samples))
         return SamplingResult(counted, self.data.input_state)
 
@@ -297,7 +295,6 @@ class SamplerRunner(RunnerABC):
                 "Non photon number resolving detectors cannot be used when"
                 "a heralded mode has more than 1 photon."
             )
-        herald_modes = list(heralds.keys())
         herald_items = list(heralds.items())
         # Convert distribution using provided data
         new_dist: dict[State, float] = {}
@@ -311,23 +308,17 @@ class SamplerRunner(RunnerABC):
                     break
             else:
                 # Then remove herald modes
-                if heralds:
-                    if s not in self.full_to_heralded:
-                        self.full_to_heralded[s] = State(
-                            remove_heralds_from_state(s, herald_modes)
-                        )
-                    new_s = self.full_to_heralded[s]
-                else:
-                    new_s = s
+                herald_state = self.herald_cache[s] if heralds else s
                 # Check state meets min detection and post-selection criteria
                 # across remaining modes
-                if new_s.n_photons >= min_detection and post_select.validate(
-                    new_s
+                if (
+                    herald_state.n_photons >= min_detection
+                    and post_select.validate(herald_state)
                 ):
-                    if new_s in new_dist:
-                        new_dist[new_s] += p
+                    if herald_state in new_dist:
+                        new_dist[herald_state] += p
                     else:
-                        new_dist[new_s] = p
+                        new_dist[herald_state] = p
         pdist = new_dist
         # Check some states are found
         if not pdist:
@@ -361,3 +352,26 @@ class SamplerRunner(RunnerABC):
         samples = rng.choice(range(len(mapping)), p=probs, size=n_samples)
         # Count states and convert to results object
         return {mapping[n]: c for n, c in Counter(samples).items()}
+
+
+class _HeraldCache:
+    """
+    Used for reducing the number of repeated computations of states with
+    heralded modes removed.
+    """
+
+    def __init__(
+        self, initial: dict[State, State], herald_modes: list[int]
+    ) -> None:
+        self.cache = initial
+        self.herald_modes = list(herald_modes)
+
+    def __getitem__(self, state: State) -> State:
+        """
+        Checks if a state is in the cache, otherwise removes the heralded modes.
+        """
+        if state not in self.cache:
+            self.cache[state] = State(
+                remove_heralds_from_state(state, self.herald_modes)
+            )
+        return self.cache[state]
