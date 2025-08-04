@@ -181,26 +181,23 @@ class SamplerRunner(RunnerABC):
                 states and the number of counts for each one.
 
         """
-        pdist = self.probability_distribution
-        vals = np.zeros(len(pdist), dtype=object)
-        for i, k in enumerate(pdist.keys()):
-            vals[i] = k
-        # Generate N random samples and then process and count output states
-        rng = np.random.default_rng(process_random_seed(seed))
         try:
-            samples = rng.choice(vals, p=list(pdist.values()), size=N)
+            samples = self._gen_samples_from_dist(
+                self.probability_distribution, N, seed, normalize=False
+            )
         # Sometimes the probability distribution will not quite be normalized,
         # in this case try to re-normalize it.
         except ValueError as e:
-            total_p = sum(pdist.values())
+            total_p = sum(self.probability_distribution.values())
             if abs(total_p - 1) > 0.01:
                 msg = (
                     "Probability distribution significantly deviated from "
                     f"required normalisation ({total_p})."
                 )
                 raise ValueError(msg) from e
-            norm_p = [p / total_p for p in pdist.values()]
-            samples = rng.choice(vals, p=norm_p, size=N)
+            samples = self._gen_samples_from_dist(
+                self.probability_distribution, N, seed, normalize=True
+            )
             self.probability_distribution = {
                 k: v / total_p for k, v in self.probability_distribution.items()
             }
@@ -221,24 +218,30 @@ class SamplerRunner(RunnerABC):
         # Set detector seed before sampling
         self.detector._set_random_seed(seed)
         # Process output states
-        for state in samples:
-            state = self.detector._get_output(state)  # noqa: PLW2901
-            # Checks herald requirements are met
-            for m, n in herald_items:
-                if state[m] != n:
-                    break
-            # If met then remove heralded modes and store
-            else:
-                if heralds:
-                    if state not in self.full_to_heralded:
-                        self.full_to_heralded[state] = State(
-                            remove_heralds_from_state(state, herald_modes)
-                        )
-                    hs = self.full_to_heralded[state]
+        for state, count in samples.items():
+            for _ in range(count):
+                output_state = self.detector._get_output(state)
+                # Checks herald requirements are met
+                for m, n in herald_items:
+                    if output_state[m] != n:
+                        break
+                # If met then remove heralded modes and store
                 else:
-                    hs = state
-                if post_select.validate(hs) and hs.n_photons >= min_detection:
-                    filtered_samples.append(hs)
+                    if heralds:
+                        if output_state not in self.full_to_heralded:
+                            self.full_to_heralded[output_state] = State(
+                                remove_heralds_from_state(
+                                    output_state, herald_modes
+                                )
+                            )
+                        hs = self.full_to_heralded[output_state]
+                    else:
+                        hs = output_state
+                    if (
+                        post_select.validate(hs)
+                        and hs.n_photons >= min_detection
+                    ):
+                        filtered_samples.append(hs)
         counted = dict(Counter(filtered_samples))
         return SamplingResult(counted, self.data.input_state)
 
