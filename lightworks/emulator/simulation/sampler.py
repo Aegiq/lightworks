@@ -332,16 +332,29 @@ class SamplerRunner(RunnerABC):
                 "No output states compatible with provided post-selection/"
                 "min-detection criteria."
             )
+        # Then generate samples and return
+        return SamplingResult(
+            self._gen_samples_from_dist(pdist, N, seed, normalize=True),
+            self.data.input_state,
+        )
+
+    def _gen_samples_from_dist(
+        self,
+        distribution: dict[State, float],
+        n_samples: int,
+        seed: int | None,
+        normalize: bool = False,
+    ) -> SamplingResult:
+        """
+        Takes a computed probability distribution and
+        """
         # Re-normalise distribution probabilities
-        probs = np.array(list(pdist.values()), dtype=float)
-        probs /= sum(probs)
-        # Put all possible states into array
-        vals = np.zeros(len(pdist), dtype=object)
-        for i, k in enumerate(pdist.keys()):
-            vals[i] = k
+        mapping = dict(enumerate(distribution))
+        probs = np.array(list(distribution.values()), dtype=float)
+        if normalize:
+            probs /= sum(probs)
         # Generate N random samples and then process and count output states
         rng = np.random.default_rng(process_random_seed(seed))
-        samples = rng.choice(vals, p=probs, size=N)
+        samples = rng.choice(range(len(mapping)), p=probs, size=n_samples)
         # Count states and convert to results object
-        counted = dict(Counter(samples))
-        return SamplingResult(counted, self.data.input_state)
+        return {mapping[n]: c for n, c in Counter(samples).items()}
