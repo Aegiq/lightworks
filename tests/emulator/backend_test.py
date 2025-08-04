@@ -111,6 +111,23 @@ class TestBackend:
         backend = Backend("permanent")
         assert "permanent" in repr(backend)
 
+    def test_backend_call(self):
+        """
+        Checks that a backend can be called directly by providing a target task.
+        """
+        backend = Backend("permanent")
+        sim = Simulator(Unitary(random_unitary(4)), State([1, 0, 1, 0]))
+        backend(sim)
+
+    def test_backend_call_equivalance(self):
+        """
+        Checks that a backend can be called directly and this produces
+        equivalent results to run.
+        """
+        backend = Backend("permanent")
+        sim = Simulator(Unitary(random_unitary(4)), State([1, 0, 1, 0]))
+        assert backend.run(sim) == backend(sim)
+
 
 class TestPermanent:
     """

@@ -43,6 +43,18 @@ class Backend:
         self.backend = backend
 
     @overload
+    def __call__(self, task: Task) -> Result[Any, Any]: ...
+
+    @overload
+    def __call__(self, task: Batch) -> list[Result[Any, Any]]: ...
+
+    def __call__(
+        self, task: Task | Batch
+    ) -> Result[Any, Any] | list[Result[Any, Any]]:
+        """Runs the provided task on the current backend."""
+        return self.run(task)
+
+    @overload
     def run(self, task: Task) -> Result[Any, Any]: ...
 
     @overload
