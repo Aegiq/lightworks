@@ -347,7 +347,7 @@ class SamplerRunner(RunnerABC):
         n_samples: int,
         seed: int | None,
         normalize: bool = False,
-    ) -> SamplingResult:
+    ) -> dict[State, int]:
         """
         Takes a computed probability distribution and
         """
