@@ -100,13 +100,7 @@ class SamplerRunner(RunnerABC):
         # Assign calculated distribution to attribute
         self.probability_distribution = pdist
         herald_modes = list(self.data.circuit.heralds.output.keys())
-        self.herald_cache = _HeraldCache(
-            {
-                s: State(remove_heralds_from_state(s, herald_modes))
-                for s in pdist
-            },
-            herald_modes,
-        )
+        self.herald_cache = _HeraldCache(herald_modes)
         return pdist
 
     def run(self) -> SamplingResult:
@@ -340,7 +334,8 @@ class SamplerRunner(RunnerABC):
         normalize: bool = False,
     ) -> dict[State, int]:
         """
-        Takes a computed probability distribution and
+        Takes a computed probability distribution and generates the request
+        number of samples, returning this as a dictionary of states and counts.
         """
         # Re-normalise distribution probabilities
         mapping = dict(enumerate(distribution))
@@ -360,10 +355,8 @@ class _HeraldCache:
     heralded modes removed.
     """
 
-    def __init__(
-        self, initial: dict[State, State], herald_modes: list[int]
-    ) -> None:
-        self.cache = initial
+    def __init__(self, herald_modes: list[int]) -> None:
+        self.cache = {}
         self.herald_modes = list(herald_modes)
 
     def __getitem__(self, state: State) -> State:
