@@ -100,9 +100,7 @@ class SamplerRunner(RunnerABC):
         # Assign calculated distribution to attribute
         self.probability_distribution = pdist
         herald_modes = list(self.data.circuit.heralds.output.keys())
-        self.full_to_heralded = {
-            s: State(remove_heralds_from_state(s, herald_modes)) for s in pdist
-        }
+        self.herald_cache = _HeraldCache(herald_modes)
         return pdist
 
     def run(self) -> SamplingResult:
@@ -181,26 +179,23 @@ class SamplerRunner(RunnerABC):
                 states and the number of counts for each one.
 
         """
-        pdist = self.probability_distribution
-        vals = np.zeros(len(pdist), dtype=object)
-        for i, k in enumerate(pdist.keys()):
-            vals[i] = k
-        # Generate N random samples and then process and count output states
-        rng = np.random.default_rng(process_random_seed(seed))
         try:
-            samples = rng.choice(vals, p=list(pdist.values()), size=N)
+            samples = self._gen_samples_from_dist(
+                self.probability_distribution, N, seed, normalize=False
+            )
         # Sometimes the probability distribution will not quite be normalized,
         # in this case try to re-normalize it.
         except ValueError as e:
-            total_p = sum(pdist.values())
+            total_p = sum(self.probability_distribution.values())
             if abs(total_p - 1) > 0.01:
                 msg = (
                     "Probability distribution significantly deviated from "
                     f"required normalisation ({total_p})."
                 )
                 raise ValueError(msg) from e
-            norm_p = [p / total_p for p in pdist.values()]
-            samples = rng.choice(vals, p=norm_p, size=N)
+            samples = self._gen_samples_from_dist(
+                self.probability_distribution, N, seed, normalize=True
+            )
             self.probability_distribution = {
                 k: v / total_p for k, v in self.probability_distribution.items()
             }
@@ -216,29 +211,29 @@ class SamplerRunner(RunnerABC):
                 "Non photon number resolving detectors cannot be used when"
                 "a heralded mode has more than 1 photon."
             )
-        herald_modes = list(heralds.keys())
         herald_items = list(heralds.items())
         # Set detector seed before sampling
         self.detector._set_random_seed(seed)
         # Process output states
-        for state in samples:
-            state = self.detector._get_output(state)  # noqa: PLW2901
-            # Checks herald requirements are met
-            for m, n in herald_items:
-                if state[m] != n:
-                    break
-            # If met then remove heralded modes and store
-            else:
-                if heralds:
-                    if state not in self.full_to_heralded:
-                        self.full_to_heralded[state] = State(
-                            remove_heralds_from_state(state, herald_modes)
-                        )
-                    hs = self.full_to_heralded[state]
+        for state, count in samples.items():
+            for _ in range(count):
+                output_state = self.detector._get_output(state)
+                # Checks herald requirements are met
+                for m, n in herald_items:
+                    if output_state[m] != n:
+                        break
+                # If met then remove heralded modes and store
                 else:
-                    hs = state
-                if post_select.validate(hs) and hs.n_photons >= min_detection:
-                    filtered_samples.append(hs)
+                    herald_state = (
+                        self.herald_cache[output_state]
+                        if heralds
+                        else output_state
+                    )
+                    if (
+                        post_select.validate(herald_state)
+                        and herald_state.n_photons >= min_detection
+                    ):
+                        filtered_samples.append(herald_state)
         counted = dict(Counter(filtered_samples))
         return SamplingResult(counted, self.data.input_state)
 
@@ -294,7 +289,6 @@ class SamplerRunner(RunnerABC):
                 "Non photon number resolving detectors cannot be used when"
                 "a heralded mode has more than 1 photon."
             )
-        herald_modes = list(heralds.keys())
         herald_items = list(heralds.items())
         # Convert distribution using provided data
         new_dist: dict[State, float] = {}
@@ -308,23 +302,17 @@ class SamplerRunner(RunnerABC):
                     break
             else:
                 # Then remove herald modes
-                if heralds:
-                    if s not in self.full_to_heralded:
-                        self.full_to_heralded[s] = State(
-                            remove_heralds_from_state(s, herald_modes)
-                        )
-                    new_s = self.full_to_heralded[s]
-                else:
-                    new_s = s
+                herald_state = self.herald_cache[s] if heralds else s
                 # Check state meets min detection and post-selection criteria
                 # across remaining modes
-                if new_s.n_photons >= min_detection and post_select.validate(
-                    new_s
+                if (
+                    herald_state.n_photons >= min_detection
+                    and post_select.validate(herald_state)
                 ):
-                    if new_s in new_dist:
-                        new_dist[new_s] += p
+                    if herald_state in new_dist:
+                        new_dist[herald_state] += p
                     else:
-                        new_dist[new_s] = p
+                        new_dist[herald_state] = p
         pdist = new_dist
         # Check some states are found
         if not pdist:
@@ -332,16 +320,51 @@ class SamplerRunner(RunnerABC):
                 "No output states compatible with provided post-selection/"
                 "min-detection criteria."
             )
+        # Then generate samples and return
+        return SamplingResult(
+            self._gen_samples_from_dist(pdist, N, seed, normalize=True),
+            self.data.input_state,
+        )
+
+    def _gen_samples_from_dist(
+        self,
+        distribution: dict[State, float],
+        n_samples: int,
+        seed: int | None,
+        normalize: bool = False,
+    ) -> dict[State, int]:
+        """
+        Takes a computed probability distribution and generates the request
+        number of samples, returning this as a dictionary of states and counts.
+        """
         # Re-normalise distribution probabilities
-        probs = np.array(list(pdist.values()), dtype=float)
-        probs /= sum(probs)
-        # Put all possible states into array
-        vals = np.zeros(len(pdist), dtype=object)
-        for i, k in enumerate(pdist.keys()):
-            vals[i] = k
+        mapping = dict(enumerate(distribution))
+        probs = np.array(list(distribution.values()), dtype=float)
+        if normalize:
+            probs /= sum(probs)
         # Generate N random samples and then process and count output states
         rng = np.random.default_rng(process_random_seed(seed))
-        samples = rng.choice(vals, p=probs, size=N)
+        samples = rng.choice(range(len(mapping)), p=probs, size=n_samples)
         # Count states and convert to results object
-        counted = dict(Counter(samples))
-        return SamplingResult(counted, self.data.input_state)
+        return {mapping[n]: c for n, c in Counter(samples).items()}
+
+
+class _HeraldCache:
+    """
+    Used for reducing the number of repeated computations of states with
+    heralded modes removed.
+    """
+
+    def __init__(self, herald_modes: list[int]) -> None:
+        self.cache: dict[State, State] = {}
+        self.herald_modes = list(herald_modes)
+
+    def __getitem__(self, state: State) -> State:
+        """
+        Checks if a state is in the cache, otherwise removes the heralded modes.
+        """
+        if state not in self.cache:
+            self.cache[state] = State(
+                remove_heralds_from_state(state, self.herald_modes)
+            )
+        return self.cache[state]

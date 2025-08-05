@@ -67,7 +67,7 @@ class FockBackend(EmulatorBackend):
         cached_results = self._check_cache(data)
         if cached_results is not None:
             runner.probability_distribution = cached_results["pdist"]
-            runner.full_to_heralded = cached_results["full_to_herald"]
+            runner.herald_cache = cached_results["herald_cache"]
             task._probability_distribution = ProbabilityDistribution(
                 cached_results["pdist"]
             )
@@ -77,7 +77,7 @@ class FockBackend(EmulatorBackend):
             )
             results = {
                 "pdist": runner.probability_distribution,
-                "full_to_herald": runner.full_to_heralded,
+                "herald_cache": runner.herald_cache,
             }
             self._add_to_cache(data, results)
         return runner.run()
