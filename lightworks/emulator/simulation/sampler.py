@@ -73,7 +73,7 @@ class SamplerRunner(RunnerABC):
         self.detector = (
             Detector() if self.data.detector is None else self.data.detector
         )
-        self.func = pdist_function
+        self.pdist_function = pdist_function
 
     def distribution_calculator(self) -> dict[State, float]:
         """
@@ -93,7 +93,7 @@ class SamplerRunner(RunnerABC):
         # Then build with source
         all_inputs = self.source._build_statistics(input_state)
         # And find probability distribution
-        pdist = pdist_calc(self.data.circuit, all_inputs, self.func)
+        pdist = pdist_calc(self.data.circuit, all_inputs, self.pdist_function)
         # Special case to catch an empty distribution
         if not pdist:
             pdist = {State([0] * self.data.circuit.n_modes): 1}

@@ -54,8 +54,8 @@ class AnalyzerRunner(RunnerABC):
         state_generator: Callable[[int, int], list[list[int]]],
     ) -> None:
         self.data = data
-        self.func = probability_function
-        self.s_gen = state_generator
+        self.probability_function = probability_function
+        self.state_generator = state_generator
 
     def run(self) -> SimulationResult:
         """
@@ -120,13 +120,13 @@ class AnalyzerRunner(RunnerABC):
             for j, outs in enumerate(full_outputs):
                 # No loss case
                 if not self.data.circuit.loss_modes:
-                    probs[i, j] += self.func(
+                    probs[i, j] += self.probability_function(
                         self.data.circuit.U_full, ins, outs
                     )
                 # Lossy case
                 # Photon number preserved
                 elif sum(ins) == sum(outs):
-                    probs[i, j] += self.func(
+                    probs[i, j] += self.probability_function(
                         self.data.circuit.U_full,
                         ins,
                         outs + [0] * self.data.circuit.loss_modes,
@@ -141,12 +141,12 @@ class AnalyzerRunner(RunnerABC):
                             "Output photon number larger than input number."
                         )
                     # Find loss states and find probability of each
-                    loss_states = self.s_gen(
+                    loss_states = self.state_generator(
                         self.data.circuit.loss_modes, n_loss
                     )
                     for ls in loss_states:
                         fs = outs + ls
-                        probs[i, j] += self.func(
+                        probs[i, j] += self.probability_function(
                             self.data.circuit.U_full, ins, fs
                         )
 
@@ -196,12 +196,12 @@ class AnalyzerRunner(RunnerABC):
         """
         # Get all possible outputs for the non-herald modes
         if not self.data.circuit.loss_modes:
-            outputs = self.s_gen(n_modes, n_photons)
+            outputs = self.state_generator(n_modes, n_photons)
         # Combine all n < n_in for lossy case
         else:
             outputs = []
             for n in range(n_photons + 1):
-                outputs += self.s_gen(n_modes, n)
+                outputs += self.state_generator(n_modes, n)
         # Filter outputs according to post selection and add heralded photons
         filtered_outputs = []
         full_outputs = []
