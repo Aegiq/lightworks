@@ -43,6 +43,12 @@ class PermanentBackend(FockBackend):
         """Returns backends which are compatible with the backend."""
         return ("Sampler", "Analyzer", "Simulator")
 
+    def state_generator(self, n_modes: int, n_photons: int) -> list[list[int]]:
+        """
+        Generates all possible photonic states.
+        """
+        return fock_basis(n_modes, n_photons)
+
     def probability_amplitude(
         self,
         unitary: NDArray[np.complex128],

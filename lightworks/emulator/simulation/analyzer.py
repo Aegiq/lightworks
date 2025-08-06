@@ -18,7 +18,6 @@ import numpy as np
 from numpy.typing import NDArray
 
 from lightworks.emulator.utils.sim import check_photon_numbers
-from lightworks.emulator.utils.state import fock_basis
 from lightworks.sdk.results import SimulationResult
 from lightworks.sdk.state import State
 from lightworks.sdk.tasks import AnalyzerTask
@@ -41,6 +40,9 @@ class AnalyzerRunner(RunnerABC):
         probability_function (Callable) : Function for calculating probability
             of transition between an input and output for a given unitary.
 
+        state_generator (Callable) : A function for generating the basis states
+            for a given number of modes and photons.
+
     """
 
     def __init__(
@@ -49,9 +51,11 @@ class AnalyzerRunner(RunnerABC):
         probability_function: Callable[
             [NDArray[np.complex128], list[int], list[int]], float
         ],
+        state_generator: Callable[[int, int], list[list[int]]],
     ) -> None:
         self.data = data
         self.func = probability_function
+        self.s_gen = state_generator
 
     def run(self) -> SimulationResult:
         """
@@ -137,7 +141,7 @@ class AnalyzerRunner(RunnerABC):
                             "Output photon number larger than input number."
                         )
                     # Find loss states and find probability of each
-                    loss_states = fock_basis(
+                    loss_states = self.s_gen(
                         self.data.circuit.loss_modes, n_loss
                     )
                     for ls in loss_states:
@@ -192,12 +196,12 @@ class AnalyzerRunner(RunnerABC):
         """
         # Get all possible outputs for the non-herald modes
         if not self.data.circuit.loss_modes:
-            outputs = fock_basis(n_modes, n_photons)
+            outputs = self.s_gen(n_modes, n_photons)
         # Combine all n < n_in for lossy case
         else:
             outputs = []
             for n in range(n_photons + 1):
-                outputs += fock_basis(n_modes, n)
+                outputs += self.s_gen(n_modes, n)
         # Filter outputs according to post selection and add heralded photons
         filtered_outputs = []
         full_outputs = []
