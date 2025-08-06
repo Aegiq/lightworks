@@ -18,7 +18,6 @@ import numpy as np
 from numpy.typing import NDArray
 
 from lightworks.emulator.utils.sim import check_photon_numbers
-from lightworks.emulator.utils.state import fock_basis
 from lightworks.sdk.results import SimulationResult
 from lightworks.sdk.state import State
 from lightworks.sdk.tasks import SimulatorTask
@@ -39,6 +38,9 @@ class SimulatorRunner(RunnerABC):
         amplitude_function (Callable) : Function for calculating probability
             amplitudes between an input and output for a given unitary.
 
+        state_generator (Callable) : A function for generating the basis states
+            for a given number of modes and photons.
+
     """
 
     def __init__(
@@ -47,9 +49,11 @@ class SimulatorRunner(RunnerABC):
         amplitude_function: Callable[
             [NDArray[np.complex128], list[int], list[int]], complex
         ],
+        state_generator: Callable[[int, int], list[list[int]]],
     ) -> None:
         self.data = data
-        self.func = amplitude_function
+        self.amplitude_function = amplitude_function
+        self.state_generator = state_generator
 
     def run(self) -> SimulationResult:
         """
@@ -72,7 +76,7 @@ class SimulatorRunner(RunnerABC):
             check_photon_numbers(self.data.inputs, target_n - in_heralds_n)
             outputs = [
                 State(s)
-                for s in fock_basis(
+                for s in self.state_generator(
                     self.data.circuit.input_modes, target_n - out_heralds_n
                 )
             ]
@@ -95,7 +99,7 @@ class SimulatorRunner(RunnerABC):
             in_state = add_heralds_to_state(ins, in_heralds)
             in_state += [0] * self.data.circuit.loss_modes
             for j, outs in enumerate(full_outputs):
-                amplitudes[i, j] = self.func(
+                amplitudes[i, j] = self.amplitude_function(
                     self.data.circuit.U_full, in_state, outs
                 )
         # Return results and corresponding states as dictionary

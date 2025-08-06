@@ -19,9 +19,9 @@ Script to store various useful functions for the simulation aspect of the code.
 from collections.abc import Iterable
 
 
-def fock_basis(N: int, n: int) -> list[list[int]]:  # noqa: N803
+def fock_basis(n_modes: int, n_photons: int) -> list[list[int]]:
     """Returns the Fock basis for n photons in N modes."""
-    return list(_sums(N, n))
+    return list(_sums(n_modes, n_photons))
 
 
 def _sums(length: int, total_sum: int) -> Iterable[list[int]]:

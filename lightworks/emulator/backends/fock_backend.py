@@ -53,12 +53,16 @@ class FockBackend(EmulatorBackend):
     @run.register
     def run_simulator(self, task: Simulator) -> SimulationResult:
         data = task._generate_task()
-        return SimulatorRunner(data, self.probability_amplitude).run()
+        return SimulatorRunner(
+            data, self.probability_amplitude, self.state_generator
+        ).run()
 
     @run.register
     def run_analyzer(self, task: Analyzer) -> SimulationResult:
         data = task._generate_task()
-        return AnalyzerRunner(data, self.probability).run()
+        return AnalyzerRunner(
+            data, self.probability, self.state_generator
+        ).run()
 
     @run.register
     def run_sampler(self, task: Sampler) -> SamplingResult:
@@ -84,6 +88,12 @@ class FockBackend(EmulatorBackend):
 
     # Below defaults are defined for all possible methods in case they are
     # called without being implemented. This shouldn't normally happen.
+
+    def state_generator(self, n_modes: int, n_photons: int) -> list[list[int]]:
+        raise BackendError(
+            "The required state generation function is not defined by this "
+            "backend."
+        )
 
     def probability_amplitude(
         self,
