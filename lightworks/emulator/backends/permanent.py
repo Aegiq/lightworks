@@ -45,7 +45,8 @@ class PermanentBackend(FockBackend):
 
     def state_generator(self, n_modes: int, n_photons: int) -> list[list[int]]:
         """
-        Generates all possible photonic states.
+        Generates all possible photonic states for a given number of modes and
+        photons.
         """
         return fock_basis(n_modes, n_photons)
 
