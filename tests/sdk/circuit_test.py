@@ -1106,6 +1106,63 @@ class TestCircuit:
             assert path.exists()
             path.unlink()
 
+    def test_circuit_equivalence(self):
+        """
+        Checks that the equals comparison between two circuits returns true when
+        they are the same.
+        """
+        # Define two circuits, changing the order in which components are added
+        c1 = PhotonicCircuit(5)
+        c1.bs(0, reflectivity=0.4)
+        c1.bs(3, reflectivity=0.55)
+        c1.ps(2, 0.531, loss=0.3)
+        c2 = PhotonicCircuit(5)
+        c2.ps(2, 0.531, loss=0.3)
+        c2.bs(3, reflectivity=0.55)
+        c2.bs(0, reflectivity=0.4)
+        # Check equivalence
+        assert c1 == c2
+
+    def test_circuit_non_equivalence(self):
+        """
+        Checks that the equals comparison between two circuits returns false
+        when the unitary differs.
+        """
+        # Define two circuits, changing the order in which components are added
+        c1 = PhotonicCircuit(5)
+        c1.bs(0, reflectivity=0.4)
+        c1.bs(3, reflectivity=0.55)
+        c1.ps(2, 0.531, loss=0.3)
+        c2 = PhotonicCircuit(5)
+        c2.ps(2, 0.2, loss=0.3)
+        c2.bs(3, reflectivity=0.3)
+        c2.bs(0, reflectivity=0.45)
+        # Check equivalence
+        assert c1 != c2
+
+    def test_circuit_non_equivalence_modes(self):
+        """
+        Checks that the equals comparison between two circuits returns false
+        when the number of modes is different.
+        """
+        # Define two circuits, changing the order in which components are added
+        c1 = PhotonicCircuit(5)
+        c2 = PhotonicCircuit(2)
+        # Check equivalence
+        assert c1 != c2
+
+    def test_circuit_non_equivalence_loss_modes(self):
+        """
+        Checks that the equals comparison between two circuits returns false
+        when the number of loss modes is different.
+        """
+        # Define two circuits, changing the order in which components are added
+        c1 = PhotonicCircuit(5)
+        c2 = PhotonicCircuit(5)
+        c2.loss(0, 0.5)
+        # Check equivalence
+        assert c1 != c2
+
 
 class TestUnitary:
     """
