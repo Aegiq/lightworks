@@ -53,7 +53,7 @@ class TestBackend:
         Check against a known result for the full probability distribution
         while using the both permanent and slos backends.
         """
-        backend = Backend(backend_type)._Backend__backend
+        backend = Backend(backend_type)._backend
         unitary = random_unitary(3, seed=2)
         dist = backend.full_probability_distribution(
             Unitary(unitary)._build(), State([1, 1, 0])
