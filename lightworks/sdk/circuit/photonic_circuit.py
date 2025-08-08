@@ -119,6 +119,8 @@ class PhotonicCircuit:
     def __eq__(self, value: object) -> bool:
         if not isinstance(value, PhotonicCircuit):
             return False
+        if self.n_modes != value.n_modes:
+            return False
         u1, u2 = self.U_full, value.U_full
         if u1.shape != u2.shape:
             return False
