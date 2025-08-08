@@ -113,6 +113,17 @@ class PhotonicCircuit:
     def __repr__(self) -> str:
         return f"lightworks.PhotonicCircuit({self.n_modes})"
 
+    def __hash__(self) -> int:
+        return id(self)
+
+    def __eq__(self, value: object) -> bool:
+        if not isinstance(value, PhotonicCircuit):
+            return False
+        u1, u2 = self.U_full, value.U_full
+        if u1.shape != u2.shape:
+            return False
+        return np.allclose(u1, u2, rtol=0, atol=1e-8)
+
     @property
     def U(self) -> NDArray[np.complex128]:  # noqa: N802
         """
