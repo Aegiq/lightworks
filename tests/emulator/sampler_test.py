@@ -257,7 +257,7 @@ class TestSamplerGeneral:
         P_BACKEND.run(sampler)
         b2 = Backend("slos")
         # Check attribute doesn't exist
-        assert not hasattr(b2._Backend__backend, "_cache")
+        assert not hasattr(b2._backend, "_cache")
 
     def test_output_heralds_too_large(self):
         """
