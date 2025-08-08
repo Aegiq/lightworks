@@ -39,6 +39,11 @@ class Backend:
 
     """
 
+    _backend_map: tuple[tuple[str, type], ...] = (
+        ("permanent", PermanentBackend),
+        ("slos", SLOSBackend),
+    )
+
     def __init__(self, backend: str) -> None:
         self.backend = backend
 
@@ -84,14 +89,14 @@ class Backend:
 
     @multimethod
     def _run(self, task: Task) -> Result[Any, Any]:
-        if task.__class__.__name__ not in self.__backend.compatible_tasks:
+        if task.__class__.__name__ not in self._backend.compatible_tasks:
             msg = (
                 "Selected backend not compatible with task, supported tasks for"
                 " the backend are: "
-                f"{', '.join(self.__backend.compatible_tasks)}."
+                f"{', '.join(self._backend.compatible_tasks)}."
             )
             raise BackendError(msg)
-        return self.__backend.run(task)
+        return self._backend.run(task)
 
     @_run.register
     def _run_batch(self, task: Batch) -> list[Result[Any, Any]]:
@@ -102,14 +107,11 @@ class Backend:
         """
         Returns the name of the currently selected backend.
         """
-        return self.__backend.name
+        return self._backend.name
 
     @backend.setter
     def backend(self, value: str) -> None:
-        backends = {
-            "permanent": PermanentBackend,
-            "slos": SLOSBackend,
-        }
+        backends = dict(self._backend_map)
         if value not in backends:
             msg = (
                 "Backend name not recognised, valid options are: "
@@ -117,7 +119,7 @@ class Backend:
             )
             raise ValueError(msg)
         # Initialise selected backend
-        self.__backend: EmulatorBackend = backends[value]()
+        self._backend: EmulatorBackend = backends[value]()
 
     def __str__(self) -> str:
         return self.backend
