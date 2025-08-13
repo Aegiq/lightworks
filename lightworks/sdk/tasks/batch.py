@@ -54,7 +54,14 @@ class Batch:
                 if kwargs is not None
                 else {}
             )
-            self.__tasks.append(task(*sub_args, **sub_kwargs))
+            try:
+                self.__tasks.append(task(*sub_args, **sub_kwargs))
+            except Exception as e:
+                msg = (
+                    "An exception occurred while trying to create task number "
+                    f"{i + 1}. Please see the above exception for more details."
+                )
+                raise ValueError(msg) from e
 
     def __iter__(self) -> Any:
         """Iterable to allow to loop over each task."""
@@ -71,7 +78,7 @@ class Batch:
         return len(self.tasks)
 
     def add(self, task: Task) -> None:
-        """Allows for tasks to be manually added to the BatchTask."""
+        """Allows for tasks to be manually added to the batch."""
         if not isinstance(task, Task):
             raise TypeError("Provided task must be a Task object.")
         self.__tasks.append(task)
