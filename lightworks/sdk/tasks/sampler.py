@@ -97,7 +97,7 @@ class Sampler(Task):
         self.source = source
         self.detector = detector
         self.n_samples = n_samples
-        self.post_selection = post_selection  # type: ignore[assignment]
+        self.post_selection = post_selection
         self.min_detection = min_detection
         self.random_seed = random_seed
         self.sampling_mode = sampling_mode
