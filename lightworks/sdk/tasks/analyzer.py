@@ -66,8 +66,8 @@ class Analyzer(Task):
     ) -> None:
         # Assign key parameters to attributes
         self.circuit = circuit
-        self.post_selection = post_selection  # type: ignore[assignment]
-        self.inputs = inputs  # type: ignore[assignment]
+        self.post_selection = post_selection
+        self.inputs = inputs
         self.expected = expected
 
     @property

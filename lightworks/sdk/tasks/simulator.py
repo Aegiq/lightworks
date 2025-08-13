@@ -48,8 +48,8 @@ class Simulator(Task):
     ) -> None:
         # Assign circuit to attribute
         self.circuit = circuit
-        self.inputs = inputs  # type: ignore[assignment]
-        self.outputs = outputs  # type: ignore[assignment]
+        self.inputs = inputs
+        self.outputs = outputs
 
     @property
     def circuit(self) -> PhotonicCircuit:
