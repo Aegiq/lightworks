@@ -22,11 +22,13 @@ from qiskit.circuit.library import MCXGate
 from lightworks import Sampler, Simulator, State, qubit
 from lightworks.emulator import Backend
 from lightworks.qubit import qiskit_converter
-from lightworks.qubit.converter.qiskit_convert import (
+from lightworks.qubit.converter.converter import (
     ROTATION_GATES_MAP,
     SINGLE_QUBIT_GATES_MAP,
     THREE_QUBIT_GATES_MAP,
     TWO_QUBIT_GATES_MAP,
+)
+from lightworks.qubit.converter.utils import (
     convert_two_qubits_to_adjacent,
     post_selection_analyzer,
 )
