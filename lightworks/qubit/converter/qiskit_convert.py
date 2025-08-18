@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import numpy as np
+
 from lightworks.qubit.gates.single_qubit_gates import (
     SX,
     H,
@@ -35,7 +37,7 @@ from lightworks.qubit.gates.two_qubit_gates import (
     CNOT_Heralded,
     CZ_Heralded,
 )
-from lightworks.sdk.circuit import PhotonicCircuit
+from lightworks.sdk.circuit import PhotonicCircuit, Unitary
 from lightworks.sdk.utils.exceptions import LightworksError
 from lightworks.sdk.utils.post_selection import PostSelection
 
@@ -67,6 +69,7 @@ ALLOWED_GATES = [
     *ROTATION_GATES_MAP,
     *TWO_QUBIT_GATES_MAP,
     *THREE_QUBIT_GATES_MAP,
+    "u",
 ]
 
 
@@ -162,7 +165,9 @@ class QiskitConverter:
                 raise ValueError(msg)
             # Single Qubit Gates
             if len(qubits) == 1:
-                if gate in SINGLE_QUBIT_GATES_MAP:
+                if gate == "u":
+                    self._add_single_qubit_unitary(inst.params, *qubits)
+                elif gate in SINGLE_QUBIT_GATES_MAP:
                     self._add_single_qubit_gate(gate, *qubits)
                 else:
                     theta = inst.operation.params[0]
@@ -210,6 +215,26 @@ class QiskitConverter:
         Adds a single qubit gate to the selected qubit on the circuit.
         """
         self.circuit.add(ROTATION_GATES_MAP[gate](theta), self.modes[qubit][0])
+
+    def _add_single_qubit_unitary(
+        self, params: list[float], qubit: int
+    ) -> None:
+        """
+        Adds an arbitrary single qubit rotation unitary to a circuit
+        """
+        if len(params) != 3:
+            raise ValueError("Expected unitary gate to have 3 parameters.")
+        theta, phi, lam = params
+        unitary = np.array(
+            [
+                [np.cos(theta / 2), -np.exp(1j * lam) * np.sin(theta / 2)],
+                [
+                    np.exp(1j * phi) * np.sin(theta / 2),
+                    np.exp(1j * (phi + lam)) * np.cos(theta / 2),
+                ],
+            ]
+        )
+        self.circuit.add(Unitary(unitary), self.modes[qubit][0])
 
     def _add_two_qubit_gate(
         self, gate: str, q0: int, q1: int, post_selection: bool = False

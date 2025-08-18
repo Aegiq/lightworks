@@ -19,7 +19,7 @@ import pytest
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import MCXGate
 
-from lightworks import Sampler, Simulator, State
+from lightworks import Sampler, Simulator, State, qubit
 from lightworks.emulator import Backend
 from lightworks.qubit import qiskit_converter
 from lightworks.qubit.converter.qiskit_convert import (
@@ -55,6 +55,15 @@ class TestQiskitConversion:
         """
         circ = QuantumCircuit(1)
         getattr(circ, gate)(math.tau * random(), 0)
+        qiskit_converter(circ)
+
+    def test_single_qubit_unitary(self):
+        """
+        Checks that a single qubit rotation gate can successfully be converted
+        from qiskit to Lightworks.
+        """
+        circ = QuantumCircuit(1)
+        circ.u(math.tau * random(), math.tau * random(), math.tau * random(), 0)
         qiskit_converter(circ)
 
     @pytest.mark.parametrize("gate", list(TWO_QUBIT_GATES_MAP.keys()))
@@ -345,6 +354,34 @@ class TestQiskitConversion:
         circuit = build_random_qiskit_circuit(n_qubits)
         post_selects, _ = post_selection_analyzer(circuit)
         assert len(post_selects) == len(circuit.data)
+
+    def test_single_qubit_rotation_rx_equivalance(self):
+        """
+        Checks that a qiskit single qubit rotation gate with correct angles
+        successfully replicates the Rx gate in lightworks.
+        """
+        # Build circuit
+        theta = math.tau * random()
+        qc = QuantumCircuit(1)
+        qc.u(theta, -math.pi / 2, math.pi / 2, 0)
+        # Then convert to lightworks
+        circ = qiskit_converter(qc)[0]
+        # And check equivalence to Rx gate
+        assert pytest.approx(qubit.Rx(theta).U) == circ.U
+
+    def test_single_qubit_rotation_ry_equivalance(self):
+        """
+        Checks that a qiskit single qubit rotation gate with correct angles
+        successfully replicates the Ry gate in lightworks.
+        """
+        # Build circuit
+        theta = math.tau * random()
+        qc = QuantumCircuit(1)
+        qc.u(theta, 0, 0, 0)
+        # Then convert to lightworks
+        circ = qiskit_converter(qc)[0]
+        # And check equivalence to Ry gate
+        assert pytest.approx(qubit.Ry(theta).U) == circ.U
 
 
 def build_random_qiskit_circuit(n_qubits):
