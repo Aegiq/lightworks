@@ -56,6 +56,8 @@ class TestUtils:
             [[0.5, 0.5j], [-0.5j, 0.5]],
         ],
     )
+    @pytest.mark.filterwarnings("ignore:.*Matrix is singular.")
+    @pytest.mark.filterwarnings("ignore:.*Matrix is ill-conditioned.")
     def test_state_fidelity(self, rho):
         """
         Validate that fidelity value is always 1 when using two identical
@@ -80,6 +82,8 @@ class TestUtils:
             choi_from_unitary(U_CCNOT),
         ],
     )
+    @pytest.mark.filterwarnings("ignore:.*Matrix is singular.")
+    @pytest.mark.filterwarnings("ignore:.*Matrix is ill-conditioned.")
     def test_process_fidelity(self, choi):
         """
         Validate that fidelity value is always 1 when using two identical
