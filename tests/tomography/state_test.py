@@ -65,6 +65,7 @@ class TestStateTomography:
     """
 
     @pytest.mark.parametrize("n_qubits", [1, 2, 3])
+    @pytest.mark.filterwarnings("ignore:.*Matrix is ill-conditioned.")
     def test_basic_state(self, n_qubits):
         """
         Checks correct density matrix is produced when performing tomography on
