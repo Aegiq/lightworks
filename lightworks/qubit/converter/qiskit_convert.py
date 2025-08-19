@@ -134,21 +134,22 @@ class QiskitConverter(Converter):
             if len(qubits) == 1:
                 if gate == "u":
                     self._add_single_qubit_unitary(
-                        circuit, inst.params, *qubits
+                        circuit, inst.params, qubits[0]
                     )
                 elif gate in SINGLE_QUBIT_GATES_MAP:
-                    self._add_single_qubit_gate(circuit, gate, *qubits)
+                    self._add_single_qubit_gate(circuit, gate, qubits[0])
                 else:
                     theta = inst.operation.params[0]
                     self._add_single_qubit_rotation_gate(
-                        circuit, gate, theta, *qubits
+                        circuit, gate, theta, qubits[0]
                     )
             # Two Qubit Gates
             elif len(qubits) == 2:
                 self._add_two_qubit_gate(
                     circuit,
                     gate,
-                    *qubits,  # type: ignore[call-arg]
+                    qubits[0],
+                    qubits[1],
                     post_select[i],
                 )
             # Three Qubit Gates
@@ -156,21 +157,19 @@ class QiskitConverter(Converter):
                 self._add_three_qubit_gate(
                     circuit,
                     gate,
-                    *qubits,  # type: ignore[call-arg]
+                    qubits[0],
+                    qubits[1],
+                    qubits[2],
                     post_select[i],
                 )
             # Limit to three qubit gates
             else:
                 raise ValueError("Gates with more than 3 qubits not supported.")
 
-        if self.allow_post_selection:
-            if ps_qubits:
-                ps_rules = PostSelection()
-                for q in ps_qubits:
-                    ps_rules.add(self._modes[q], 1)
-            else:
-                ps_rules = None
-        else:
-            ps_rules = None
+        ps_rules = None
+        if self.allow_post_selection and ps_qubits:
+            ps_rules = PostSelection()
+            for q in ps_qubits:
+                ps_rules.add(self._modes[q], 1)
 
         return (circuit, ps_rules)

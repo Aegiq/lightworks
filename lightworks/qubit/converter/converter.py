@@ -166,8 +166,8 @@ class Converter:
                     "Three qubit gates can only be used with post-selection. "
                     "Ensure allow_post_selection is True to enable this. The "
                     "location of the gate may also need to be towards the end "
-                    "of the circuit as a result of requirements on "
-                    "post-selection.."
+                    "of the circuit as a result of the requirements on "
+                    "post-selection."
                 )
             all_qubits = [q0, q1, q2]
             if max(all_qubits) - min(all_qubits) != 2:
