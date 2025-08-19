@@ -35,6 +35,7 @@ ALLOWED_GATES = [
     *ROTATION_GATES_MAP,
     *TWO_QUBIT_GATES_MAP,
     *THREE_QUBIT_GATES_MAP,
+    "barrier",
     "u",
 ]
 
@@ -130,8 +131,11 @@ class QiskitConverter(Converter):
             if gate not in ALLOWED_GATES:
                 msg = f"Unsupported gate '{gate}' included in circuit."
                 raise ValueError(msg)
+            # First catch barriers
+            if gate == "barrier":
+                self._add_barrier(circuit, qubits)
             # Single Qubit Gates
-            if len(qubits) == 1:
+            elif len(qubits) == 1:
                 if gate == "u":
                     self._add_single_qubit_unitary(
                         circuit, inst.params, qubits[0]

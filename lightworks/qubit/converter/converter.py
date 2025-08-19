@@ -185,3 +185,10 @@ class Converter:
         else:
             msg = f"Unsupported gate '{gate}' included in circuit."
             raise ValueError(msg)
+
+    def _add_barrier(self, circuit: PhotonicCircuit, qubits: list[int]) -> None:
+        """
+        Adds a barrier to the circuit on the provided qubits.
+        """
+        modes = [self._modes[q][i] for q in qubits for i in range(2)]
+        circuit.barrier(modes)
