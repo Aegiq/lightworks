@@ -90,7 +90,10 @@ def post_selection_analyzer(
     # First extract all qubit data from the circuit
     gate_qubits: list[list[int] | None] = []
     for inst in qc.data:
-        if inst.operation.num_qubits >= 2:
+        if inst.operation.num_qubits >= 2 and inst.operation.name not in {
+            "barrier",
+            "swap",
+        }:
             gate_qubits.append(
                 [
                     inst.qubits[i]._index

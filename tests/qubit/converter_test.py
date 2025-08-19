@@ -32,6 +32,7 @@ from lightworks.qubit.converter.utils import (
     convert_two_qubits_to_adjacent,
     post_selection_analyzer,
 )
+from lightworks.sdk.circuit.photonic_components import Barrier, Group
 
 BACKEND = Backend("permanent")
 
@@ -95,6 +96,15 @@ class TestQiskitConversion:
         circ.append(MCXGate(3), [0, 1, 2, 3])
         with pytest.raises(ValueError):
             qiskit_converter(circ)
+
+    def test_barrier(self):
+        """
+        Checks that barrier can be converted to lightworks.
+        """
+        circ = QuantumCircuit(3)
+        circ.barrier([0, 1, 2])
+        conv_circ = qiskit_converter(circ)[0]
+        assert isinstance(conv_circ._get_circuit_spec()[0], Barrier)
 
     def test_x_gate(self):
         """
@@ -384,6 +394,26 @@ class TestQiskitConversion:
         circ = qiskit_converter(qc)[0]
         # And check equivalence to Ry gate
         assert pytest.approx(qubit.Ry(theta).U) == circ.U
+
+    def test_barrier_does_not_affect_post_selection(self):
+        """
+        Checks that barriers don't affect post-selection being added to a
+        circuit.
+        """
+        # Build circuit
+        qc = QuantumCircuit(2)
+        qc.barrier()
+        qc.cx(0, 1)
+        qc.barrier()
+        # Then convert to lightworks
+        circ = qiskit_converter(qc)[0]
+        # Check the relevant entry in the circuit spec is a heralded CNOT first
+        assert isinstance(circ._get_circuit_spec()[1], Group)
+        assert "Heralded" in circ._get_circuit_spec()[1].name
+        # Then convert again with post-selection and check this is no longer the
+        # case.
+        circ = qiskit_converter(qc, allow_post_selection=True)[0]
+        assert "Heralded" not in circ._get_circuit_spec()[1].name
 
 
 def build_random_qiskit_circuit(n_qubits):
