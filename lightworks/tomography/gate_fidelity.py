@@ -54,6 +54,7 @@ class GateFidelity(_ProcessTomography):
         self,
         data: list[dict[State, int]] | dict[tuple[str, str], dict[State, int]],
         target_process: NDArray[np.complex128],
+        project_to_physical: bool = False,
     ) -> float:
         """
         Calculates gate fidelity for an expected target process
@@ -68,6 +69,9 @@ class GateFidelity(_ProcessTomography):
             target_process (np.ndarray) : The unitary matrix corresponding to
                 the target process. The dimension of this should be 2^n_qubits.
 
+            project_to_physical (bool) : Controls whether the calculated density
+                matrices are projected to a physical space. Defaults to False.
+
         Returns:
 
             float : The calculated fidelity.
@@ -75,7 +79,7 @@ class GateFidelity(_ProcessTomography):
         """
         target_process = _check_target_process(target_process, self.n_qubits)
         # Get density matrices and convert to vector
-        rhos = self.process_density_matrices(data)
+        rhos = self.process_density_matrices(data, project_to_physical)
         rho_vec = [rhos[i] for i in self._full_input_basis()]
         # Get pauli matrix basis and coefficients relating to unitary
         alpha_mat, u_basis = self._calculate_alpha_and_u_basis()
@@ -116,5 +120,5 @@ class GateFidelity(_ProcessTomography):
         )
         basis_vectors = np.column_stack([_vec(m) for m in rho_basis])
         for i, u in enumerate(u_basis):
-            alpha[i, :] = np.linalg.solve(basis_vectors, _vec(u))
+            alpha[i, :] = np.linalg.lstsq(basis_vectors, _vec(u))[0]
         return alpha, u_basis

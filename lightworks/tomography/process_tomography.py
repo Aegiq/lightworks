@@ -70,6 +70,7 @@ class _ProcessTomography(_Tomography):
         self,
         data: list[dict[State, int]] | dict[tuple[str, str], dict[State, int]],
         target_process: NDArray[np.complex128],
+        project_to_physical: bool = False,
     ) -> dict[str, float]:
         """
         Calculates the density matrix of the state created for each input to the
@@ -85,19 +86,23 @@ class _ProcessTomography(_Tomography):
             target_process (np.ndarray) : The unitary matrix corresponding to
                 the target process. The dimension of this should be 2^n_qubits.
 
+            project_to_physical (bool) : Controls whether the calculated density
+                matrices are projected to a physical space. Defaults to False.
+
         Returns:
 
             float : The calculated fidelity.
 
         """
         target_process = _check_target_process(target_process, self.n_qubits)
-        rhos = self.process_density_matrices(data)
+        rhos = self.process_density_matrices(data, project_to_physical)
         rho_exp = self.get_expected_density_matrices(target_process)
         return {i: state_fidelity(r, rho_exp[i]) for i, r in rhos.items()}
 
     def process_density_matrices(
         self,
         data: list[dict[State, int]] | dict[tuple[str, str], dict[State, int]],
+        project_to_physical: bool = False,
     ) -> dict[str, NDArray[np.complex128]]:
         """
         Calculate and returns the density matrix of the state created for each
@@ -109,6 +114,9 @@ class _ProcessTomography(_Tomography):
                 this should match the order the experiments were provided, and
                 if a dictionary, then each key should be tuple of the input and
                 measurement basis.
+
+            project_to_physical (bool) : Controls whether the calculated density
+                matrices are projected to a physical space. Defaults to False.
 
         Returns:
 
@@ -126,7 +134,9 @@ class _ProcessTomography(_Tomography):
             remapped_results[k1][k2] = r
         # Calculate density matrices
         return {
-            i: _calculate_density_matrix(remapped_results[i], self.n_qubits)
+            i: _calculate_density_matrix(
+                remapped_results[i], self.n_qubits, project_to_physical
+            )
             for i in self._full_input_basis()
         }
 

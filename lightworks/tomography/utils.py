@@ -299,7 +299,9 @@ def _calculate_expectation_value(
 
 
 def _calculate_density_matrix(
-    results: dict[str, dict[State, int]], n_qubits: int
+    results: dict[str, dict[State, int]],
+    n_qubits: int,
+    project_to_physical: bool,
 ) -> NDArray[np.complex128]:
     """
     Calculates the density matrix using a provided dictionary of results
@@ -311,6 +313,9 @@ def _calculate_density_matrix(
             corresponding set of measurement indices.
 
         n_qubits (int) : The number of qubits in the experiment.
+
+        project_to_physical (bool) : Controls whether the matrix is project into
+            a physical subspace.
 
     Returns:
 
@@ -330,7 +335,50 @@ def _calculate_density_matrix(
             mat = np.kron(mat, PAULI_MAPPING[g]).astype(complex)
         # Updated density matrix
         rho += expectation * mat
+    if project_to_physical:
+        return project_density_to_physical(rho)
     return rho
+
+
+def project_density_to_physical(
+    rho: NDArray[np.complex128],
+) -> NDArray[np.complex128]:
+    """
+    Takes a provided density matrix and projects into to a physical space.
+    Ensuring:
+        1) The matrix is Hermitian
+        2) All eigenvalues of the matrix are positive.
+        3) The trace of the matrix is 1.
+
+    Args:
+
+        rho (ndarray) : The matrix which is to be projected.
+
+    Returns:
+
+        ndarray : The calculated density matrix, which meets the required
+            conditions to be physical.
+
+    """
+    # Enforce that rho is Hermitian
+    rho = (rho + rho.conj().T) / 2
+    # Remove any negative eigenvalues and reconstruct
+    eigvals, eigvecs = _find_eigen_data(rho)
+    eigvals_clipped = np.clip(eigvals, 0, None)
+    rho_proj = eigvecs @ np.diag(eigvals_clipped) @ eigvecs.conj().T
+    # Then renormalize to ensure trace is 1.
+    rho_proj /= np.trace(rho_proj)
+    return rho_proj
+
+
+def _find_eigen_data(
+    rho: NDArray[np.complex128],
+) -> tuple[NDArray[np.float64], NDArray[np.complex128]]:
+    """
+    Calculates and returns the eigenvalues and eigenvectors of a provided
+    density matrix.
+    """
+    return np.linalg.eigh(rho)
 
 
 def _check_target_process(

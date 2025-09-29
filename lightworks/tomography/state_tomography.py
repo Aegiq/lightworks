@@ -83,10 +83,21 @@ class StateTomography(_Tomography):
     def process(
         self,
         data: list[dict[State, int]] | dict[str, dict[State, int]],
+        project_to_physical: bool = False,
     ) -> NDArray[np.complex128]:
         """
         Performs the state tomography process with the configured elements to
         calculate the density matrix of the output state.
+
+        Args:
+
+            data (list | dict) : The collected measurement data. If a list then
+                this should match the order the experiments were provided, and
+                if a dictionary, then each key should be the corresponding
+                measurement basis.
+
+            project_to_physical (bool) : Controls whether the calculated density
+                matrix is projected to a physical space. Defaults to False.
 
         Returns:
 
@@ -122,7 +133,9 @@ class StateTomography(_Tomography):
             for c in _get_tomo_measurements(self.n_qubits)
         }
 
-        self._rho = _calculate_density_matrix(results_dict, self.n_qubits)
+        self._rho = _calculate_density_matrix(
+            results_dict, self.n_qubits, project_to_physical
+        )
         return self.rho
 
     def fidelity(self, rho_exp: NDArray[np.complex128]) -> float:

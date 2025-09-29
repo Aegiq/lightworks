@@ -46,7 +46,8 @@ class _Tomography:
             msg = (
                 "Number of circuit input modes does not match the amount "
                 "required for the specified number of qubits, expected "
-                f"{2 * n_qubits}."
+                f"{2 * n_qubits} modes but the circuit has "
+                f"{base_circuit.input_modes}."
             )
             raise ValueError(msg)
 
