@@ -344,11 +344,12 @@ def project_density_to_physical(
     rho: NDArray[np.complex128],
 ) -> NDArray[np.complex128]:
     """
-    Takes a provided density matrix and projects into to a physical space.
-    Ensuring:
+    Takes a provided density matrix and projects into to a physical space using
+    the algorithm from https://doi.org/10.48550/arXiv.1106.5458. It ensure:
         1) The matrix is Hermitian
-        2) All eigenvalues of the matrix are positive.
-        3) The trace of the matrix is 1.
+        2) The trace of the matrix is 1.
+        3) All eigenvalues of the matrix are positive, if not the matrix is
+            projected so this is the case.
 
     Args:
 
@@ -360,15 +361,33 @@ def project_density_to_physical(
             conditions to be physical.
 
     """
-    # Enforce that rho is Hermitian
+    dim = rho.shape[0]
+    # Ensure matrix is hermitian
     rho = (rho + rho.conj().T) / 2
-    # Remove any negative eigenvalues and reconstruct
+    # And that the trace is 1
+    rho /= np.trace(rho)
+    # Then find eigenvalues and eigenvectors
     eigvals, eigvecs = _find_eigen_data(rho)
-    eigvals_clipped = np.clip(eigvals, 0, None)
-    rho_proj = eigvecs @ np.diag(eigvals_clipped) @ eigvecs.conj().T
-    # Then renormalize to ensure trace is 1.
-    rho_proj /= np.trace(rho_proj)
-    return rho_proj
+    # Don't do anything else if the eigenvalues are all positive
+    if min(eigvals) >= 0:
+        return rho
+    # Otherwise apply algorithm - requires eigenvalues are sorted from largest
+    # to smallest so invert these first
+    eigvals = np.flip(eigvals)
+    i = dim
+    acc = 0.0
+    while eigvals[i - 1] + acc / i < 0:
+        acc += eigvals[i - 1]
+        i -= 1
+    for j in range(dim):
+        if j < i:
+            eigvals[j] += acc / i
+        else:
+            eigvals[j] = 0
+    # Return eigenvalues to the correct order
+    eigvals = np.flip(eigvals)
+    # Reconstruct the matrix and return
+    return eigvecs @ np.diag(eigvals) @ np.conj(eigvecs.T)
 
 
 def _find_eigen_data(
@@ -376,7 +395,8 @@ def _find_eigen_data(
 ) -> tuple[NDArray[np.float64], NDArray[np.complex128]]:
     """
     Calculates and returns the eigenvalues and eigenvectors of a provided
-    density matrix.
+    density matrix. These are returned from the smallest to the largest
+    eigenvalue.
     """
     return np.linalg.eigh(rho)
 
