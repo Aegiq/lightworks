@@ -24,6 +24,7 @@ from .tomography import _Tomography
 from .utils import (
     TomographyDataError,
     _calculate_density_matrix,
+    _find_eigen_data,
     _get_required_tomo_measurements,
     _get_tomo_measurements,
     state_fidelity,
@@ -153,6 +154,19 @@ class StateTomography(_Tomography):
 
         """
         return state_fidelity(self.rho, rho_exp)
+
+    def check_eigenvalues(self) -> NDArray[np.float64]:
+        """
+        Determines the eigenvalues of the calculated density matrix, if the
+        matrix is physical then these should all be non-negative.
+
+        Returns:
+
+            np.ndarray : An array of the calculated eigenvalues, ranging from
+                smallest to largest.
+
+        """
+        return _find_eigen_data(self.rho)[0]
 
     def _create_circuit(
         self, measurement_operators: list[PhotonicCircuit]

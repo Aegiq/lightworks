@@ -27,6 +27,7 @@ from .utils import (
     _calculate_density_matrix,
     _check_target_process,
     _combine_all,
+    _find_eigen_data,
     _get_required_tomo_measurements,
     _get_tomo_measurements,
     state_fidelity,
@@ -166,6 +167,34 @@ class _ProcessTomography(_Tomography):
             i: target_process @ input_rhos[i] @ np.conj(target_process.T)
             for i in self._full_input_basis()
         }
+
+    def check_eigenvalues(
+        self,
+        data: list[dict[State, int]] | dict[tuple[str, str], dict[State, int]],
+        project_to_physical: bool = False,
+    ) -> dict[str, NDArray[np.float64]]:
+        """
+        Determines the eigenvalues of the calculated density matrices, if the
+        matrix is physical then these should all be non-negative.
+
+        Args:
+
+            data (list | dict) : The collected measurement data. If a list then
+                this should match the order the experiments were provided, and
+                if a dictionary, then each key should be tuple of the input and
+                measurement basis.
+
+            project_to_physical (bool) : Controls whether the calculated density
+                matrices are projected to a physical space. Defaults to False.
+
+        Returns:
+
+            dict : An array of the calculated eigenvalues for each of the input
+                basis, with eigenvalues ranging from smallest to largest.
+
+        """
+        rhos = self.process_density_matrices(data, project_to_physical)
+        return {k: _find_eigen_data(v)[0] for k, v in rhos.items()}
 
     def _full_input_basis(self) -> list[str]:
         """

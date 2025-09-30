@@ -353,11 +353,11 @@ def project_density_to_physical(
 
     Args:
 
-        rho (ndarray) : The matrix which is to be projected.
+        rho (np.ndarray) : The matrix which is to be projected.
 
     Returns:
 
-        ndarray : The calculated density matrix, which meets the required
+        np.ndarray : The calculated density matrix, which meets the required
             conditions to be physical.
 
     """
