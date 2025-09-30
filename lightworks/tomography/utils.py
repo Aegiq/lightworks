@@ -345,11 +345,12 @@ def project_density_to_physical(
 ) -> NDArray[np.complex128]:
     """
     Takes a provided density matrix and projects into to a physical space using
-    the algorithm from https://doi.org/10.48550/arXiv.1106.5458. It ensure:
-        1) The matrix is Hermitian
-        2) The trace of the matrix is 1.
-        3) All eigenvalues of the matrix are positive, if not the matrix is
-            projected so this is the case.
+    the algorithm from https://doi.org/10.48550/arXiv.1106.5458. It ensures:
+
+        1. The matrix is Hermitian
+        2. The trace of the matrix is 1.
+        3. All eigenvalues of the matrix are positive, if not the matrix is
+           projected so this is the case.
 
     Args:
 
