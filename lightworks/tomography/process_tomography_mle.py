@@ -21,14 +21,12 @@ from lightworks.sdk.state import State
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import _ProcessTomography
+from .projection import _unvec, _vec, project_choi_to_physical
 from .utils import (
     _calculate_expectation_value,
     _combine_all,
     _get_tomo_measurements,
-    _unvec,
-    _vec,
     process_fidelity,
-    project_choi_to_physical,
 )
 
 

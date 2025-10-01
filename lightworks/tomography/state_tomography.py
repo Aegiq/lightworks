@@ -20,11 +20,11 @@ from lightworks.sdk.state import State
 
 from .experiments import StateTomographyExperiment, StateTomographyList
 from .mappings import MEASUREMENT_MAPPING
+from .projection import _find_eigen_data
 from .tomography import _Tomography
 from .utils import (
     TomographyDataError,
     _calculate_density_matrix,
-    _find_eigen_data,
     _get_required_tomo_measurements,
     _get_tomo_measurements,
     state_fidelity,

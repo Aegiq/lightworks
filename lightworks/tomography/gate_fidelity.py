@@ -19,7 +19,8 @@ from lightworks.sdk.state import State
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import _ProcessTomography
-from .utils import _check_target_process, _combine_all, _vec
+from .projection import _vec
+from .utils import _check_target_process, _combine_all
 
 
 class GateFidelity(_ProcessTomography):
