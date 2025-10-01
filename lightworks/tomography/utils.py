@@ -391,15 +391,89 @@ def project_density_to_physical(
     return eigvecs @ np.diag(eigvals) @ np.conj(eigvecs.T)
 
 
+def project_choi_to_physical(
+    choi: NDArray[np.complex128], max_iter: int = 1000
+) -> NDArray[np.complex128]:
+    """
+    Performs the CPTP algorithm from https://arxiv.org/abs/1803.10062, ensuring
+    the provided choi matrix is completely positive and trace preserving. This
+    uses a series of repeat projection steps until a convergence is reached.
+
+    Args:
+
+        choi (np.ndarray) : The matrix which is to be projected.
+
+        max_iter (int) : The max number of iterations that can be performed by
+            the projection algorithm.
+
+    Returns:
+
+        np.ndarray : The calculated choi matrix, which meets the required
+            conditions to be physical.
+
+    """
+    x_0 = _vec(choi)
+    dim = x_0.shape[0]
+    # Initialize most quantities as a zero matrix
+    p_0 = np.array([0] * dim)
+    q_0 = np.array([0] * dim)
+    y_0 = np.array([0] * dim)
+    # Run for maximum number of iterations
+    for _ in range(max_iter):
+        # Calculate updated quantiles
+        y_k = _vec(_tp_proj(_unvec(x_0 + p_0)))
+        p_k = x_0 + p_0 - y_k
+        x_k = _vec(_cp_proj(_unvec(y_k + q_0)))
+        q_k = y_k + q_0 - x_k
+        # Stopping condition (see paper)
+        if (
+            np.linalg.norm(p_0 - p_k) ** 2
+            + np.linalg.norm(q_0 - q_k) ** 2
+            + abs(2 * np.conj(p_0) @ (x_k - x_0))
+            + abs(2 * np.conj(q_0) @ (y_k - y_0))
+        ) < 10**-4:
+            break
+        # Update values
+        y_0, p_0, x_0, q_0 = y_k, p_k, x_k, q_k
+
+    return _unvec(x_k)
+
+
+def _cp_proj(choi: NDArray[np.complex128]) -> NDArray[np.complex128]:
+    """
+    Performs the CP part of the projection by enforcing that the eigenvalues
+    of the matrix are all positive.
+    """
+    vals, vecs = _find_eigen_data(choi)
+    d = np.diag([max(v, 0) for v in vals])
+    return vecs @ d @ np.conj(vecs.T)
+
+
+def _tp_proj(choi: NDArray[np.complex128]) -> NDArray[np.complex128]:
+    """
+    Performs the TP part of the projection by enforcing that the partial
+    trace of the choi matrix is equal to the identity matrix.
+    """
+    # Compute partial trace
+    dim = int(choi.shape[0] ** 0.5)
+    partial_trace = choi.reshape(np.tile([dim, dim], 2))
+    partial_trace = np.einsum(partial_trace, np.array([0, 1, 2, 1])).astype(  # type: ignore[arg-type]
+        complex
+    )
+    partial_trace = partial_trace.reshape(dim, dim)  # type: ignore[assignment]
+    # Then find the variation and subtract this from the choi matrix
+    variation = partial_trace - np.identity(dim)
+    return choi - np.kron(variation / dim, np.identity(dim))
+
+
 def _find_eigen_data(
-    rho: NDArray[np.complex128],
+    matrix: NDArray[np.complex128],
 ) -> tuple[NDArray[np.float64], NDArray[np.complex128]]:
     """
     Calculates and returns the eigenvalues and eigenvectors of a provided
-    density matrix. These are returned from the smallest to the largest
-    eigenvalue.
+    matrix. These are returned from the smallest to the largest eigenvalue.
     """
-    return np.linalg.eigh(rho)
+    return np.linalg.eigh(matrix)
 
 
 def _check_target_process(

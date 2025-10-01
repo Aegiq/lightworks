@@ -25,6 +25,7 @@ from .utils import (
     _unvec,
     _vec,
     process_fidelity,
+    project_choi_to_physical,
 )
 
 
@@ -58,6 +59,7 @@ class LIProcessTomography(_ProcessTomography):
     def process(
         self,
         data: list[dict[State, int]] | dict[tuple[str, str], dict[State, int]],
+        project_to_physical: bool = False,
     ) -> NDArray[np.complex128]:
         """
         Performs process tomography with the configured elements and calculates
@@ -69,6 +71,9 @@ class LIProcessTomography(_ProcessTomography):
                 this should match the order the experiments were provided, and
                 if a dictionary, then each key should be tuple of the input and
                 measurement basis.
+
+            project_to_physical (bool) : Controls whether the calculated choi
+                matrix is projected to a physical space. Defaults to False.
 
         Returns:
 
@@ -92,7 +97,10 @@ class LIProcessTomography(_ProcessTomography):
         choi = np.linalg.pinv(transform_matrix) @ np.array(
             list(lambdas.values())
         )
-        self._choi = _unvec(choi)
+        if project_to_physical:
+            self._choi = project_choi_to_physical(_unvec(choi))
+        else:
+            self._choi = _unvec(choi)
         return self.choi
 
     def fidelity(self, choi_exp: NDArray[np.complex128]) -> float:

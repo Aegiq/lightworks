@@ -27,6 +27,7 @@ from .utils import (
     choi_from_unitary,
     density_from_state,
     process_fidelity,
+    project_choi_to_physical,
     project_density_to_physical,
     state_fidelity,
 )
@@ -39,6 +40,7 @@ __all__ = [
     "choi_from_unitary",
     "density_from_state",
     "process_fidelity",
+    "project_choi_to_physical",
     "project_density_to_physical",
     "state_fidelity",
 ]
