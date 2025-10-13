@@ -22,6 +22,7 @@ A set of tools for quantum state & process tomography on a system.
 from .gate_fidelity import GateFidelity
 from .process_tomography_li import LIProcessTomography
 from .process_tomography_mle import MLEProcessTomography
+from .projection import project_choi_to_physical, project_density_to_physical
 from .state_tomography import StateTomography
 from .utils import (
     choi_from_unitary,
@@ -38,5 +39,7 @@ __all__ = [
     "choi_from_unitary",
     "density_from_state",
     "process_fidelity",
+    "project_choi_to_physical",
+    "project_density_to_physical",
     "state_fidelity",
 ]

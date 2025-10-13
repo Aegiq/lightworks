@@ -21,12 +21,11 @@ from lightworks.sdk.state import State
 
 from .mappings import PAULI_MAPPING, RHO_MAPPING
 from .process_tomography import _ProcessTomography
+from .projection import _unvec, _vec, project_choi_to_physical
 from .utils import (
     _calculate_expectation_value,
     _combine_all,
     _get_tomo_measurements,
-    _unvec,
-    _vec,
     process_fidelity,
 )
 
@@ -141,7 +140,7 @@ class MLETomographyAlgorithm:
                 values should be the calculated expectation values.
 
             max_iter (int, optional) : Sets the maximum number of iterations
-                that the algorithm can do, defaults to 1000.
+                that the algorithm can perform, defaults to 1000.
 
             stop_threshold (float, optional) : Sets the stopping threshold for
                 the gradient descent algorithm. Defaults to 1e-10.
@@ -166,7 +165,7 @@ class MLETomographyAlgorithm:
         # Run gradient descent
         for _ in range(max_iter):
             # Find modification to the choi matrix
-            mod = self._cptp_proj(
+            mod = project_choi_to_physical(
                 choi - 1 / mu * self._gradient(choi, n_vec),
                 max_iter=max_iter,
             )
@@ -254,62 +253,3 @@ class MLETomographyAlgorithm:
         Finds gradient between expected and measured expectation values.
         """
         return -_unvec(np.conj(self._a_matrix.T) @ (n_vec / self._p_vec(choi)))
-
-    def _cptp_proj(
-        self, choi: NDArray[np.complex128], max_iter: int = 1000
-    ) -> NDArray[np.complex128]:
-        """
-        Performs the CPTP algorithm, ensuring the matrix is completely positive
-        and trace preserving. This uses a series of repeat TP and CP steps until
-        the choi matrix converges.
-        """
-        x_0 = _vec(choi)
-        dim = x_0.shape[0]
-        # Initialize most quantities as a zero matrix
-        p_0 = np.array([0] * dim)
-        q_0 = np.array([0] * dim)
-        y_0 = np.array([0] * dim)
-        # Run for maximum number of iterations
-        for _ in range(max_iter):
-            # Calculate updated quantiles
-            y_k = _vec(self._tp_proj(_unvec(x_0 + p_0)))
-            p_k = x_0 + p_0 - y_k
-            x_k = _vec(self._cp_proj(_unvec(y_k + q_0)))
-            q_k = y_k + q_0 - x_k
-            # Stopping condition (see paper)
-            if (
-                np.linalg.norm(p_0 - p_k) ** 2
-                + np.linalg.norm(q_0 - q_k) ** 2
-                + abs(2 * np.conj(p_0) @ (x_k - x_0))
-                + abs(2 * np.conj(q_0) @ (y_k - y_0))
-            ) < 10**-4:
-                break
-            # Update values
-            y_0, p_0, x_0, q_0 = y_k, p_k, x_k, q_k
-
-        return _unvec(x_k)
-
-    def _cp_proj(self, choi: NDArray[np.complex128]) -> NDArray[np.complex128]:
-        """
-        Performs the CP part of the projection by enforcing that the eigenvalues
-        of the matrix are all positive.
-        """
-        vals, vecs = np.linalg.eigh(choi)
-        d = np.diag([max(v, 0) for v in vals])
-        return vecs @ d @ np.conj(vecs.T)
-
-    def _tp_proj(self, choi: NDArray[np.complex128]) -> NDArray[np.complex128]:
-        """
-        Performs the TP part of the projection by enforcing that the partial
-        trace of the choi matrix is equal to the identity matrix.
-        """
-        # Compute partial trace
-        dim = int(choi.shape[0] ** 0.5)
-        partial_trace = choi.reshape(np.tile([dim, dim], 2))
-        partial_trace = np.einsum(partial_trace, np.array([0, 1, 2, 1])).astype(  # type: ignore[arg-type]
-            complex
-        )
-        partial_trace = partial_trace.reshape(dim, dim)  # type: ignore[assignment]
-        # Then find the variation and subtract this from the choi matrix
-        variation = partial_trace - np.identity(dim)
-        return choi - np.kron(variation / dim, np.identity(dim))

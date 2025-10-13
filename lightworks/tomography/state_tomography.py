@@ -20,6 +20,7 @@ from lightworks.sdk.state import State
 
 from .experiments import StateTomographyExperiment, StateTomographyList
 from .mappings import MEASUREMENT_MAPPING
+from .projection import _find_eigen_data
 from .tomography import _Tomography
 from .utils import (
     TomographyDataError,
@@ -83,10 +84,21 @@ class StateTomography(_Tomography):
     def process(
         self,
         data: list[dict[State, int]] | dict[str, dict[State, int]],
+        project_to_physical: bool = False,
     ) -> NDArray[np.complex128]:
         """
         Performs the state tomography process with the configured elements to
         calculate the density matrix of the output state.
+
+        Args:
+
+            data (list | dict) : The collected measurement data. If a list then
+                this should match the order the experiments were provided, and
+                if a dictionary, then each key should be the corresponding
+                measurement basis.
+
+            project_to_physical (bool) : Controls whether the calculated density
+                matrix is projected to a physical space. Defaults to False.
 
         Returns:
 
@@ -122,7 +134,9 @@ class StateTomography(_Tomography):
             for c in _get_tomo_measurements(self.n_qubits)
         }
 
-        self._rho = _calculate_density_matrix(results_dict, self.n_qubits)
+        self._rho = _calculate_density_matrix(
+            results_dict, self.n_qubits, project_to_physical
+        )
         return self.rho
 
     def fidelity(self, rho_exp: NDArray[np.complex128]) -> float:
@@ -140,6 +154,19 @@ class StateTomography(_Tomography):
 
         """
         return state_fidelity(self.rho, rho_exp)
+
+    def check_eigenvalues(self) -> NDArray[np.float64]:
+        """
+        Determines the eigenvalues of the calculated density matrix, if the
+        matrix is physical then these should all be non-negative.
+
+        Returns:
+
+            np.ndarray : An array of the calculated eigenvalues, ranging from
+                smallest to largest.
+
+        """
+        return _find_eigen_data(self.rho)[0]
 
     def _create_circuit(
         self, measurement_operators: list[PhotonicCircuit]

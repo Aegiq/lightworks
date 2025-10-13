@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, TypeVar
+from typing import Any
 
 import numpy as np
 from multimethod import multimethod
@@ -22,11 +22,10 @@ from scipy.linalg import sqrtm
 from lightworks.sdk.state import State
 
 from .mappings import MEASUREMENT_MAPPING, PAULI_MAPPING
+from .projection import project_density_to_physical
 
 # NOTE: This file is auto-documented, so any functions not intended to be public
 # should begin with _
-
-T = TypeVar("T", bound=np.generic)
 
 
 class TomographyDataError(Exception):
@@ -132,21 +131,6 @@ def choi_from_unitary(
     return np.outer(unitary.flatten(), np.conj(unitary.flatten())).astype(
         complex
     )
-
-
-def _vec(mat: NDArray[T]) -> NDArray[T]:
-    """
-    Applies flatten operation to a provided matrix to convert it into a vector.
-    """
-    return mat.flatten()
-
-
-def _unvec(mat: NDArray[T]) -> NDArray[T]:
-    """
-    Takes a provided vector and converts it into a square matrix.
-    """
-    dim = int(mat.shape[0] ** 0.5)
-    return mat.reshape(dim, dim)
 
 
 @multimethod
@@ -299,7 +283,9 @@ def _calculate_expectation_value(
 
 
 def _calculate_density_matrix(
-    results: dict[str, dict[State, int]], n_qubits: int
+    results: dict[str, dict[State, int]],
+    n_qubits: int,
+    project_to_physical: bool,
 ) -> NDArray[np.complex128]:
     """
     Calculates the density matrix using a provided dictionary of results
@@ -311,6 +297,9 @@ def _calculate_density_matrix(
             corresponding set of measurement indices.
 
         n_qubits (int) : The number of qubits in the experiment.
+
+        project_to_physical (bool) : Controls whether the matrix is project into
+            a physical subspace.
 
     Returns:
 
@@ -330,6 +319,8 @@ def _calculate_density_matrix(
             mat = np.kron(mat, PAULI_MAPPING[g]).astype(complex)
         # Updated density matrix
         rho += expectation * mat
+    if project_to_physical:
+        return project_density_to_physical(rho)
     return rho
 
 
