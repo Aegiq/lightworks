@@ -33,7 +33,7 @@ setup(
         "ipython",
     ],
     extras_require={
-        "all": ["lightworks[qiskit, lightworks_remote]>=1.1.0"],
+        "all": ["lightworks[qiskit, remote]"],
         "remote": ["lightworks_remote>=1.1.0"],
         "qiskit": ["qiskit[visualization]>=1.1.0"],
     },
