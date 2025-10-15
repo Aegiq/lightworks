@@ -32,7 +32,11 @@ setup(
         "pyarrow",
         "ipython",
     ],
-    extras_require={"qiskit": ["qiskit[visualization]>=1.1.0"]},
+    extras_require={
+        "all": ["lightworks[qiskit, lightworks_remote]>=1.1.0"],
+        "remote": ["lightworks_remote>=1.1.0"],
+        "qiskit": ["qiskit[visualization]>=1.1.0"],
+    },
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Natural Language :: English",
