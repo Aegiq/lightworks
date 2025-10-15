@@ -34,7 +34,7 @@ setup(
     ],
     extras_require={
         "all": ["lightworks[qiskit, remote]"],
-        "remote": ["lightworks_remote>=1.1.0"],
+        "remote": ["lightworks-remote>=1.1.0"],
         "qiskit": ["qiskit[visualization]>=1.1.0"],
     },
     classifiers=[
