@@ -18,7 +18,7 @@ permissions:
   pull-requests: write
      
 env:
-  COV_PY_VER: "3.11"
+  COV_PY_VER: "3.13"
 
 jobs:
   pytest:
@@ -28,9 +28,9 @@ jobs:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
         os: [ubuntu-latest]
         include:
-          - python-version: "3.11"
+          - python-version: "3.13"
             os: windows-latest
-          - python-version: "3.11"
+          - python-version: "3.13"
             os: macos-latest
 
     runs-on: ${{ matrix.os }}

@@ -24,11 +24,11 @@ jobs:
       # Checks-out repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Create Python 3.11 environment
-      - name: Set up Python 3.11
+      # Create Python environment
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-           python-version: "3.11"
+           python-version: "3.13"
         
       # Install all dependencies from requirements file and ghp-import
       - name: Install dependencies
