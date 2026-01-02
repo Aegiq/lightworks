@@ -1,0 +1,906 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Average Gate Fidelity" href="gate_fidelity.html"><link rel="prev" title="State Tomography" href="state_tomography.html">
+        <link rel="prefetch" href="../_static/lightworks_logo.svg" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Process Tomography - Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #3e368d;
+  --color-brand-content: #873bd4;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #9198cc;
+  --color-brand-content: #9198cc;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #9198cc;
+  --color-brand-content: #9198cc;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/lightworks_logo.svg" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials</a><input aria-label="Toggle navigation of Tutorials" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/circuit_building.html">Circuit Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/using_parameters.html">Parameters &amp; Optimisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/error_simulation.html">Error Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/qubit.html">Qubit Components</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../sdk/index.html">SDK</a><input aria-label="Toggle navigation of SDK" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/photonic_circuit.html">PhotonicCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/unitary.html">Unitary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/parameters.html">Parameter &amp; ParameterDict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/state.html">State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/tasks.html">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/post_selection.html">Post-selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/utilities.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../emulator/index.html">Emulator</a><input aria-label="Toggle navigation of Emulator" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/theory.html">Theory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/backend.html">Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/simulator.html">Simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/sampler.html">Sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/imperfect_sampling.html">Imperfect Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/analyzer.html">Analyzer</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../qubit/index.html">Qubit</a><input aria-label="Toggle navigation of Qubit" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../qubit/gates.html">Qubit Gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qubit/conversion.html">Circuit Conversion</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../interferometers/index.html">Interferometers</a><input aria-label="Toggle navigation of Interferometers" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../interferometers/tutorial.html">Tutorial</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Tomography</a><input aria-label="Toggle navigation of Tomography" checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="state_tomography.html">State Tomography</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Process Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gate_fidelity.html">Average Gate Fidelity</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input aria-label="Toggle navigation of Examples" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/single_photon_demo.html">Single-photon Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/multi_photon_sampling.html">Multi-photon Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/bell_state_generator.html">Bell State Generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/ralph_cnot.html">Ralph CNOT - All Simulators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/heralded_cnot.html">Heralded CNOT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/3_qubit_GHZ_generation.html">3 Qubit GHZ Generation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../sdk_reference/index.html">SDK Reference</a><input aria-label="Toggle navigation of SDK Reference" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/photonic_circuit.html">PhotonicCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/photonic_components.html">PhotonicComponents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/photonic_compiled_circuit.html">CompiledPhotonicCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/state.html">State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/display.html">Display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/parameters.html">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/unitary.html">Unitary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/tasks.html">Tasks</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../sdk_reference/results/index.html">Results</a><input aria-label="Toggle navigation of Results" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../sdk_reference/results/sampling_result.html">SamplingResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../sdk_reference/results/simulation_result.html">SimulationResult</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../emulator_reference/index.html">Emulator Reference</a><input aria-label="Toggle navigation of Emulator Reference" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../emulator_reference/backend.html">Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator_reference/source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator_reference/detector.html">Detector</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../qubit_reference/index.html">Qubit Reference</a><input aria-label="Toggle navigation of Qubit Reference" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../qubit_reference/qubit_gates.html">Gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qubit_reference/converters.html">Converters</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../interferometers_reference/index.html">Interferometers Reference</a><input aria-label="Toggle navigation of Interferometers Reference" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../interferometers_reference/reck.html">Reck</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../interferometers_reference/error_model.html">Error Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../interferometers_reference/distributions.html">Distributions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tomography_reference/index.html">Tomography Reference</a><input aria-label="Toggle navigation of Tomography Reference" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/state_tomography.html">State Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/process_tomography.html">Process Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/gate_fidelity.html">Gate Fidelity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/experiments.html">Experiments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/utils.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/projection.html">Projection</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/tomography/process_tomography.ipynb.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="Process-Tomography">
+<h1>Process Tomography<a class="headerlink" href="#Process-Tomography" title="Link to this heading">¶</a></h1>
+<p>Process tomography allows for the characterisation of a quantum process <span class="math notranslate nohighlight">\(\mathcal{E}\)</span>, where <span class="math notranslate nohighlight">\(\mathcal{E}(\rho) = \rho^\prime\)</span>. This is very useful when assessing the exact operation of different quantum gates and can be used for the assessment of gate fidelities.</p>
+<p>This notebook demonstates the utilisation of the different process tomography algorithms included within Lightworks. In each the choi matrix is found and used as a characterisation of the quantum process which occured.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">lightworks</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">lw</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lightworks</span><span class="w"> </span><span class="kn">import</span> <span class="n">emulator</span><span class="p">,</span> <span class="n">qubit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lightworks.tomography</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LIProcessTomography</span><span class="p">,</span>
+    <span class="n">MLEProcessTomography</span><span class="p">,</span>
+    <span class="n">choi_from_unitary</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Before starting, a general function is defined to quickly perform the plotting of choi matrices. This takes a complex matrix and plots the real and imaginary parts separately.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_choi_matrix</span><span class="p">(</span><span class="n">choi</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    General function for plotting a choi matrix. It will split up and plot</span>
+<span class="sd">    the real and imaginary components using a common colorbar between them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create required plotting data</span>
+    <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">choi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">range</span><span class="p">(</span><span class="n">choi</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">xx</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">yy</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">depth</span> <span class="o">=</span> <span class="mf">0.7</span>
+    <span class="n">h1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">choi</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">h2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">choi</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">h1</span><span class="p">)</span>
+
+    <span class="c1"># Create figure</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;3d&quot;</span><span class="p">)</span>
+    <span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s2">&quot;3d&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Plot bar charts</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">bar3d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">h1</span><span class="p">,</span> <span class="n">shade</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Re(C)&quot;</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">bar3d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">h2</span><span class="p">,</span> <span class="n">shade</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Im(C)&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">]:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_zlim</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Setup">
+<h2>Setup<a class="headerlink" href="#Setup" title="Link to this heading">¶</a></h2>
+<p>To perform process tomography, the circuit to analyse needs to be provided. This should be a Lightworks circuit object, where the number of available modes (excluding heralded) is equal to the number of qubits.</p>
+<p>In this case, we’ll examine the post-selected CNOT gate, which acts across two qubits. The post-selection requires measurement of 1 photon across each pair of qubits modes, this is also configured below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_qubits</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">cnot</span> <span class="o">=</span> <span class="n">qubit</span><span class="o">.</span><span class="n">CNOT</span><span class="p">()</span>
+<span class="n">cnot</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+
+<span class="n">post_select</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PostSelection</span><span class="p">()</span>
+<span class="n">post_select</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">post_select</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tomography_process_tomography_5_0.svg" src="../_images/tomography_process_tomography_5_0.svg" />
+</div>
+</div>
+<p>There is then a choice of algorithms that can be used for the calculation of the choi matrix for the process:</p>
+<ol class="arabic simple">
+<li><p>Linear inversion - this is a simpler algorithm with less measurements, but can produce non-physical process matrices (particularily in noisy scenarios).</p></li>
+<li><p>Maximum likelihood estimation - this uses a gradient-descent based optimisation, along with a set of projections to enforce conditions for a physical process matrix.</p></li>
+</ol>
+</section>
+<section id="Linear-Inversion">
+<h2>Linear Inversion<a class="headerlink" href="#Linear-Inversion" title="Link to this heading">¶</a></h2>
+<p>This method is achieved with the LIProcessTomography object. To initialise this, the number of qubits &amp; the circuit is provided. The required experiments are then generated with <code class="docutils literal notranslate"><span class="pre">get_experiments</span></code>, which is provided as a list of python ProcessTomographyExperiment objects.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">li_tomo</span> <span class="o">=</span> <span class="n">LIProcessTomography</span><span class="p">(</span><span class="n">n_qubits</span><span class="p">,</span> <span class="n">cnot</span><span class="p">)</span>
+<span class="n">experiments</span> <span class="o">=</span> <span class="n">li_tomo</span><span class="o">.</span><span class="n">get_experiments</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>The experiments are then run on the target backend. For process tomography, each experiments specifies a circuit and input state to use, these should both be provided to the Sampler (or whichever task you choose).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">backend</span> <span class="o">=</span> <span class="n">emulator</span><span class="o">.</span><span class="n">Backend</span><span class="p">(</span><span class="s2">&quot;slos&quot;</span><span class="p">)</span>
+
+<span class="c1"># Generate results and return</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">experiments</span><span class="p">:</span>
+    <span class="n">sampler</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">Sampler</span><span class="p">(</span>
+        <span class="n">exp</span><span class="o">.</span><span class="n">circuit</span><span class="p">,</span>
+        <span class="n">exp</span><span class="o">.</span><span class="n">input_state</span><span class="p">,</span>
+        <span class="mi">50000</span><span class="p">,</span>
+        <span class="n">post_selection</span><span class="o">=</span><span class="n">post_select</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="mi">98</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sampler</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Finally, the choi matrix is calculated by providing this result set to the <code class="docutils literal notranslate"><span class="pre">process</span></code> method.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">choi</span> <span class="o">=</span> <span class="n">li_tomo</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Once calculated, we plot this to view the structure of the density matrix.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_choi_matrix</span><span class="p">(</span><span class="n">choi</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tomography_process_tomography_14_0.png" src="../_images/tomography_process_tomography_14_0.png" />
+</div>
+</div>
+<p>The choi_from_untiary function can then be used to find the expected unitary for a CNOT gate and the fidelity calculated with the relevant fidelity method. As expected this is near to 100%, with the variance resulting mostly from sample noise.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">choi_exp</span> <span class="o">=</span> <span class="n">choi_from_unitary</span><span class="p">(</span>
+    <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fidelity = </span><span class="si">{</span><span class="n">li_tomo</span><span class="o">.</span><span class="n">fidelity</span><span class="p">(</span><span class="n">choi_exp</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Fidelity = 99.997 %
+</pre></div></div>
+</div>
+</section>
+<section id="Projection-to-a-physical-process">
+<h2>Projection to a physical process<a class="headerlink" href="#Projection-to-a-physical-process" title="Link to this heading">¶</a></h2>
+<p>As with state tomography, it is also possible for the produced choi matrix to be unphysical. For the choi matrix the following is required:</p>
+<ol class="arabic simple">
+<li><p>It is completely positive, this is equivalent to having no negative eigenvalues.</p></li>
+<li><p>It is trace preserving, or equivalently <span class="math notranslate nohighlight">\(\text{Tr}_{\mathcal{H}_{out}}(C)=\mathbb{I}\)</span>.</p></li>
+</ol>
+<p>There are two different ways to deal with this in Lightworks, both of which are detailed below.</p>
+<section id="Maximum-Likelihood-Estimation">
+<h3>Maximum Likelihood Estimation<a class="headerlink" href="#Maximum-Likelihood-Estimation" title="Link to this heading">¶</a></h3>
+<p>The first option is the pgdB algorithm from <span id="id1">[<a class="reference internal" href="../bibliography.html#id6" title="George C. Knee, Eliot Bolduc, Jonathan Leach, and Erik M. Gauger. Quantum process tomography via completely positive and trace-preserving projection. Physical Review A, December 2018. URL: http://dx.doi.org/10.1103/PhysRevA.98.062336, doi:10.1103/physreva.98.062336.">KBLG18</a>]</span>, which is used for the projection and fitting of the choi matrix through maximum likelihood estimation. This is a series of projections which minimises the variance between the fitted and measured processes. There is a downside however, in that it requires <span class="math notranslate nohighlight">\(6^n\)</span> input states rather than the <span class="math notranslate nohighlight">\(4^n\)</span> required for normal process tomography.</p>
+<p>This method is implemented using the MLEProcessTomography object and utilised in the same way as above. However, instead of looping through the experiments, we use all_circuits and all_inputs to get a list of the circuits and input states directly, which are compiled within a batch task.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create tomography object and get experiments</span>
+<span class="n">mle_tomo</span> <span class="o">=</span> <span class="n">MLEProcessTomography</span><span class="p">(</span><span class="n">n_qubits</span><span class="p">,</span> <span class="n">cnot</span><span class="p">)</span>
+<span class="n">experiments</span> <span class="o">=</span> <span class="n">mle_tomo</span><span class="o">.</span><span class="n">get_experiments</span><span class="p">()</span>
+
+<span class="n">backend</span> <span class="o">=</span> <span class="n">emulator</span><span class="o">.</span><span class="n">Backend</span><span class="p">(</span><span class="s2">&quot;slos&quot;</span><span class="p">)</span>
+
+<span class="c1"># Generate results and return</span>
+<span class="n">batch</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">Batch</span><span class="p">(</span>
+    <span class="n">lw</span><span class="o">.</span><span class="n">Sampler</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">experiments</span><span class="o">.</span><span class="n">all_circuits</span><span class="p">,</span> <span class="n">experiments</span><span class="o">.</span><span class="n">all_inputs</span><span class="p">,</span> <span class="p">[</span><span class="mi">10000</span><span class="p">]],</span>
+    <span class="p">{</span><span class="s2">&quot;post_selection&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">post_select</span><span class="p">],</span> <span class="s2">&quot;random_seed&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">98</span><span class="p">]},</span>
+<span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+
+<span class="c1"># Find choi matrix</span>
+<span class="n">choi</span> <span class="o">=</span> <span class="n">mle_tomo</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Again, the fidelity can be calculated using the expected matrix and the results plotted to confirm the structure remains consistent.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fidelity = </span><span class="si">{</span><span class="n">mle_tomo</span><span class="o">.</span><span class="n">fidelity</span><span class="p">(</span><span class="n">choi_exp</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+
+<span class="n">plot_choi_matrix</span><span class="p">(</span><span class="n">choi</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Fidelity = 100.0035 %
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tomography_process_tomography_20_1.png" src="../_images/tomography_process_tomography_20_1.png" />
+</div>
+</div>
+<section id="Imperfect-Experiment">
+<h4>Imperfect Experiment<a class="headerlink" href="#Imperfect-Experiment" title="Link to this heading">¶</a></h4>
+<p>As with state tomography, it is also possible to introduce imperfections into the experimental simulation, for a better understanding of how these errors affect fidelity.</p>
+<p>For this, we’ll use a class to create a parametrised experiment with optional single photon source noise and then use this for running the experiments.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SamplerExperiment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Runs experiment using the emulator Sampler for a given n_qubits with an</span>
+<span class="sd">    optional imperfect single photon source.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">n_qubits</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">emulator</span><span class="o">.</span><span class="n">Source</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_qubits</span> <span class="o">=</span> <span class="n">n_qubits</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span> <span class="o">=</span> <span class="mi">50000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="mi">123</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">emulator</span><span class="o">.</span><span class="n">Backend</span><span class="p">(</span><span class="s2">&quot;slos&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">experiments</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generalised version of experiment function above, designed for any</span>
+<span class="sd">        number of qubits. It is assumes the provided circuits contain dual-rail</span>
+<span class="sd">        encoded qubits across pairs of adjacent modes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Post-select on 1 photon across each pair of qubit modes</span>
+        <span class="n">post_select</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PostSelection</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_qubits</span><span class="p">):</span>
+            <span class="n">post_select</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Use a batch to run all tasks at once</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">Batch</span><span class="p">(</span>
+            <span class="n">lw</span><span class="o">.</span><span class="n">Sampler</span><span class="p">,</span>
+            <span class="n">task_args</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">experiments</span><span class="o">.</span><span class="n">all_circuits</span><span class="p">,</span>
+                <span class="n">experiments</span><span class="o">.</span><span class="n">all_inputs</span><span class="p">,</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span><span class="p">],</span>
+            <span class="p">],</span>
+            <span class="n">task_kwargs</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">],</span>
+                <span class="s2">&quot;post_selection&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">post_select</span><span class="p">],</span>
+                <span class="s2">&quot;random_seed&quot;</span><span class="p">:</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span><span class="p">],</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The single photon source parameters are then configured and assigned below, setting the source indistinguishability to 95% and purity to 99%.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">=</span> <span class="n">emulator</span><span class="o">.</span><span class="n">Source</span><span class="p">(</span><span class="n">indistinguishability</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">purity</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
+
+<span class="n">imperfect_exp</span> <span class="o">=</span> <span class="n">SamplerExperiment</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Once the tomography is performed, as expected we see a drop in fidelity and the presence of additional erroneous elements in the choi matrix.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mle_tomo_2</span> <span class="o">=</span> <span class="n">MLEProcessTomography</span><span class="p">(</span><span class="n">n_qubits</span><span class="p">,</span> <span class="n">cnot</span><span class="p">)</span>
+<span class="n">experiments</span> <span class="o">=</span> <span class="n">mle_tomo_2</span><span class="o">.</span><span class="n">get_experiments</span><span class="p">()</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">imperfect_exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
+<span class="n">choi</span> <span class="o">=</span> <span class="n">mle_tomo_2</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fidelity = </span><span class="si">{</span><span class="n">mle_tomo_2</span><span class="o">.</span><span class="n">fidelity</span><span class="p">(</span><span class="n">choi_exp</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+
+<span class="n">plot_choi_matrix</span><span class="p">(</span><span class="n">choi</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Fidelity = 85.25 %
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tomography_process_tomography_26_1.png" src="../_images/tomography_process_tomography_26_1.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Direct-choi-projection">
+<h3>Direct choi projection<a class="headerlink" href="#Direct-choi-projection" title="Link to this heading">¶</a></h3>
+<p>The alternative is to use linear inversion tomography and then perform a projection step at the end. In Lightworks, the CPTP projection subroutine from MLE tomography (Algorithm 1 in <span id="id2">[<a class="reference internal" href="../bibliography.html#id6" title="George C. Knee, Eliot Bolduc, Jonathan Leach, and Erik M. Gauger. Quantum process tomography via completely positive and trace-preserving projection. Physical Review A, December 2018. URL: http://dx.doi.org/10.1103/PhysRevA.98.062336, doi:10.1103/physreva.98.062336.">KBLG18</a>]</span>) is used.</p>
+<p>To examine the effect of this, the experiments are run on a noisy system and then the choi matrix calculated without projection.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">li_tomo</span> <span class="o">=</span> <span class="n">LIProcessTomography</span><span class="p">(</span><span class="n">n_qubits</span><span class="p">,</span> <span class="n">cnot</span><span class="p">)</span>
+<span class="n">experiments</span> <span class="o">=</span> <span class="n">li_tomo</span><span class="o">.</span><span class="n">get_experiments</span><span class="p">()</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">imperfect_exp</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">experiments</span><span class="p">)</span>
+
+<span class="n">choi</span> <span class="o">=</span> <span class="n">li_tomo</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Then, to check if the calculated matrix is physical, the eigenvalues can be found directly. In this case it can be seen how a significant number of these are negative.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">choi</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([-6.03772803e-02, -3.91692590e-02, -2.01208228e-02, -8.08525147e-03,
+       -4.99687703e-03, -1.16218470e-03, -2.25089136e-04,  2.00668272e-04,
+        5.33464843e-04,  2.70653003e-03,  1.37126584e-02,  2.60911814e-02,
+        4.34609807e-02,  1.18602889e-01,  2.45125605e-01,  3.68370279e+00])
+</pre></div></div>
+</div>
+<p>Alternatively, the check eigenvalues method can be used to perform a state tomography on each input and find the eigenvalues of these density matrices. This is not directly equivalent to above, but should allow for an indication of potential issues and also allow for the identification of any problematic inputs.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">li_tomo</span><span class="o">.</span><span class="n">check_eigenvalues</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;Z+,Z+&#39;: array([-8.27398291e-04, -6.66382273e-07,  8.20000000e-04,  1.00000806e+00]),
+ &#39;Z+,Z-&#39;: array([-8.27398291e-04, -6.66382273e-07,  8.20000000e-04,  1.00000806e+00]),
+ &#39;Z+,X+&#39;: array([-8.27398291e-04, -6.66382273e-07,  8.20000000e-04,  1.00000806e+00]),
+ &#39;Z+,Y+&#39;: array([-8.27398291e-04, -6.66382273e-07,  8.20000000e-04,  1.00000806e+00]),
+ &#39;Z-,Z+&#39;: array([-3.48642964e-05, -2.39445246e-06,  8.64395747e-02,  9.13597684e-01]),
+ &#39;Z-,Z-&#39;: array([-3.48642964e-05, -2.39445246e-06,  8.64395747e-02,  9.13597684e-01]),
+ &#39;Z-,X+&#39;: array([-8.27398291e-04, -6.66382273e-07,  8.20000000e-04,  1.00000806e+00]),
+ &#39;Z-,Y+&#39;: array([-2.89682582e-05, -1.25454177e-06,  8.64296910e-02,  9.13600532e-01]),
+ &#39;X+,Z+&#39;: array([-0.00162737,  0.00108129,  0.07161104,  0.92893504]),
+ &#39;X+,Z-&#39;: array([-4.75020216e-04,  2.98610722e-04,  7.12395729e-02,  9.28936837e-01]),
+ &#39;X+,X+&#39;: array([-1.21858635e-05, -6.76875063e-07,  8.68024090e-02,  9.13210454e-01]),
+ &#39;X+,Y+&#39;: array([-8.28289905e-04,  2.78897208e-04,  7.16137855e-02,  9.28935607e-01]),
+ &#39;Y+,Z+&#39;: array([-1.03924709e-03,  4.95328673e-04,  7.16072486e-02,  9.28936670e-01]),
+ &#39;Y+,Z-&#39;: array([-1.07988172e-03,  8.92478638e-04,  7.12524403e-02,  9.28934963e-01]),
+ &#39;Y+,X+&#39;: array([-1.21858635e-05, -6.76875063e-07,  8.68024090e-02,  9.13210454e-01]),
+ &#39;Y+,Y+&#39;: array([-1.38458136e-03,  8.44230721e-04,  7.16050764e-02,  9.28935274e-01])}
+</pre></div></div>
+</div>
+<p>The choi matrix can then be projected by adding <code class="docutils literal notranslate"><span class="pre">project_to_physical</span> <span class="pre">=</span> <span class="pre">True</span></code> to the original process call.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">choi</span> <span class="o">=</span> <span class="n">li_tomo</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">project_to_physical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Again, the eigenvalues can be examined, in this case it can be seen that while a few are technically negative, they are effectively zero and therefore not an issue.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">choi</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([-2.27992457e-17, -3.13751246e-18, -2.16073520e-18, -8.36340788e-19,
+       -4.64465885e-20,  1.32871001e-21,  4.00708695e-19,  4.95347843e-18,
+        5.03172483e-18,  5.38552379e-18,  4.53125866e-16,  8.96280143e-03,
+        2.89721701e-02,  9.04046604e-02,  2.20360468e-01,  3.65379082e+00])
+</pre></div></div>
+</div>
+<p>This new matrix can then be plotted and the fidelity checked to confirm it seems reasonable.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fidelity = </span><span class="si">{</span><span class="n">li_tomo</span><span class="o">.</span><span class="n">fidelity</span><span class="p">(</span><span class="n">choi_exp</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> %&quot;</span><span class="p">)</span>
+
+<span class="n">plot_choi_matrix</span><span class="p">(</span><span class="n">choi</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Fidelity = 91.22 %
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tomography_process_tomography_38_1.png" src="../_images/tomography_process_tomography_38_1.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="gate_fidelity.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Average Gate Fidelity</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="state_tomography.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">State Tomography</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Aegiq Ltd.
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/Aegiq/lightworks" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Process Tomography</a><ul>
+<li><a class="reference internal" href="#Setup">Setup</a></li>
+<li><a class="reference internal" href="#Linear-Inversion">Linear Inversion</a></li>
+<li><a class="reference internal" href="#Projection-to-a-physical-process">Projection to a physical process</a><ul>
+<li><a class="reference internal" href="#Maximum-Likelihood-Estimation">Maximum Likelihood Estimation</a><ul>
+<li><a class="reference internal" href="#Imperfect-Experiment">Imperfect Experiment</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Direct-choi-projection">Direct choi projection</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=57236720"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    </body>
+</html>
