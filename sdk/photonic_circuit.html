@@ -1,0 +1,820 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Unitary" href="unitary.html"><link rel="prev" title="SDK" href="index.html">
+        <link rel="prefetch" href="../_static/lightworks_logo.svg" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>PhotonicCircuit - Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #3e368d;
+  --color-brand-content: #873bd4;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #9198cc;
+  --color-brand-content: #9198cc;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #9198cc;
+  --color-brand-content: #9198cc;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/lightworks_logo.svg" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index.html">Tutorials</a><input aria-label="Toggle navigation of Tutorials" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/circuit_building.html">Circuit Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/using_parameters.html">Parameters &amp; Optimisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/error_simulation.html">Error Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/qubit.html">Qubit Components</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">SDK</a><input aria-label="Toggle navigation of SDK" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">PhotonicCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unitary.html">Unitary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameters.html">Parameter &amp; ParameterDict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="state.html">State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tasks.html">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="post_selection.html">Post-selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../emulator/index.html">Emulator</a><input aria-label="Toggle navigation of Emulator" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/theory.html">Theory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/backend.html">Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/simulator.html">Simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/sampler.html">Sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/imperfect_sampling.html">Imperfect Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/analyzer.html">Analyzer</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../qubit/index.html">Qubit</a><input aria-label="Toggle navigation of Qubit" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../qubit/gates.html">Qubit Gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qubit/conversion.html">Circuit Conversion</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../interferometers/index.html">Interferometers</a><input aria-label="Toggle navigation of Interferometers" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../interferometers/tutorial.html">Tutorial</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tomography/index.html">Tomography</a><input aria-label="Toggle navigation of Tomography" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tomography/state_tomography.html">State Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography/process_tomography.html">Process Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography/gate_fidelity.html">Average Gate Fidelity</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input aria-label="Toggle navigation of Examples" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/single_photon_demo.html">Single-photon Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/multi_photon_sampling.html">Multi-photon Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/bell_state_generator.html">Bell State Generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/ralph_cnot.html">Ralph CNOT - All Simulators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/heralded_cnot.html">Heralded CNOT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/3_qubit_GHZ_generation.html">3 Qubit GHZ Generation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../sdk_reference/index.html">SDK Reference</a><input aria-label="Toggle navigation of SDK Reference" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/photonic_circuit.html">PhotonicCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/photonic_components.html">PhotonicComponents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/photonic_compiled_circuit.html">CompiledPhotonicCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/state.html">State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/display.html">Display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/parameters.html">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/unitary.html">Unitary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/tasks.html">Tasks</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../sdk_reference/results/index.html">Results</a><input aria-label="Toggle navigation of Results" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../sdk_reference/results/sampling_result.html">SamplingResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../sdk_reference/results/simulation_result.html">SimulationResult</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../emulator_reference/index.html">Emulator Reference</a><input aria-label="Toggle navigation of Emulator Reference" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../emulator_reference/backend.html">Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator_reference/source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator_reference/detector.html">Detector</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../qubit_reference/index.html">Qubit Reference</a><input aria-label="Toggle navigation of Qubit Reference" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../qubit_reference/qubit_gates.html">Gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qubit_reference/converters.html">Converters</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../interferometers_reference/index.html">Interferometers Reference</a><input aria-label="Toggle navigation of Interferometers Reference" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../interferometers_reference/reck.html">Reck</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../interferometers_reference/error_model.html">Error Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../interferometers_reference/distributions.html">Distributions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tomography_reference/index.html">Tomography Reference</a><input aria-label="Toggle navigation of Tomography Reference" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/state_tomography.html">State Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/process_tomography.html">Process Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/gate_fidelity.html">Gate Fidelity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/experiments.html">Experiments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/utils.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/projection.html">Projection</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/sdk/photonic_circuit.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="photoniccircuit">
+<h1>PhotonicCircuit<a class="headerlink" href="#photoniccircuit" title="Link to this heading">¶</a></h1>
+<p>The <a class="reference internal" href="../sdk_reference/photonic_circuit.html#lightworks.PhotonicCircuit" title="lightworks.PhotonicCircuit"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhotonicCircuit</span></code></a> is one of the key components of Lightworks. It is typically the main interaction point for users and allows for an algorithm to be encoded for implementation on a photonic quantum computing system.</p>
+<section id="building-circuits">
+<h2>Building Circuits<a class="headerlink" href="#building-circuits" title="Link to this heading">¶</a></h2>
+<p>A circuit is initialized by calling the PhotonicCircuit object, and only requires the number of modes used in the circuit to be specified. For example, to create a circuit with 4 modes the required code would be:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once a circuit has been created, it is then possible to view the number of modes with the <code class="docutils literal notranslate"><span class="pre">n_modes</span></code> attribute.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">n_modes</span><span class="p">)</span>
+<span class="c1"># Output: 4</span>
+</pre></div>
+</div>
+<p>There is also a number of additional attributes. <code class="docutils literal notranslate"><span class="pre">U</span></code> will provide the effective unitary of the circuit, this is altered by any loss elements included in the system. <code class="docutils literal notranslate"><span class="pre">U_full</span></code> will then provide the full unitary including any of the invisible loss modes included for loss elements.</p>
+<p>We can then begin to add components to the circuit, the following are included as part of the PhotonicCircuit object and can be added with their corresponding methods.</p>
+<div class="table-wrapper colwidths-given docutils container" id="id2">
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">PhotonicCircuit components</span><a class="headerlink" href="#id2" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Method</p></th>
+<th class="head"><p>Options</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#beamsplitter"><span class="std std-ref">Beam Splitter</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bs</span></code></p></td>
+<td><p>Modes, Reflectivity, Loss, Convention</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#phaseshifter"><span class="std std-ref">Phase Shifter</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ps</span></code></p></td>
+<td><p>Mode, Phase shift, Loss</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#modeswaps"><span class="std std-ref">Mode Swaps</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mode_swaps</span></code></p></td>
+<td><p>Swaps, Element Loss</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#losselement"><span class="std std-ref">Loss Element</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">loss</span></code></p></td>
+<td><p>Mode, Loss</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#barriers"><span class="std std-ref">Barriers</span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">barrier</span></code></p></td>
+<td><p>Modes</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Below, a subsection is dedicated to each component, with more information about how each component can be used and their options.</p>
+<section id="beam-splitter">
+<span id="beamsplitter"></span><h3>Beam Splitter<a class="headerlink" href="#beam-splitter" title="Link to this heading">¶</a></h3>
+<p>A beam splitter is used to controllably couple two modes, with the exact nature of the coupling defined by the reflectivity of the splitter (also often referred to using an angle <span class="math notranslate nohighlight">\(\theta\)</span>).</p>
+<p>To include a beam splitter in a circuit the <code class="docutils literal notranslate"><span class="pre">bs</span></code> method is used, at minimum it requires the first mode that the beam splitter will be placed on to be specified. By default, if the second mode isn’t specified then this will be set to the first mode + 1. So the following function calls will be equivalent:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The reflectivity of the beam splitter can be adjusted by specifying the <code class="docutils literal notranslate"><span class="pre">reflectivity</span></code> option in the method. It should be provided as a decimal value, with the default value being 0.5. The beam splitter convention can also be adjusted if required, it defaults to ‘Rx’, with the available options being:</p>
+<div class="table-wrapper colwidths-given docutils container" id="id3">
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Beam splitter conventions</span><a class="headerlink" href="#id3" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Convention</p></th>
+<th class="head"><p>Unitary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p class="centered">
+<strong>Rx</strong></p></td>
+<td><div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+    \cos{\theta/2} &amp; i\sin{\theta/2} \\
+    i\sin{\theta/2} &amp; \cos{\theta/2} \\
+\end{bmatrix}\end{split}\]</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p class="centered">
+<strong>H</strong></p></td>
+<td><div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+    \cos{\theta/2} &amp; \sin{\theta/2} \\
+    \sin{\theta/2} &amp; -\cos{\theta/2} \\
+\end{bmatrix}\end{split}\]</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Where <span class="math notranslate nohighlight">\(\theta = 2\cos^{-1}(\sqrt{\text{reflectivity}})\)</span>. As an example, if we wanted to add a beam splitter across modes 1 &amp; 2, with reflectivity of 0.4 and using the ‘H’ convention, the function call would be:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">reflectivity</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">convention</span> <span class="o">=</span> <span class="s2">&quot;H&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When using the emulator to simulate a circuit, it is also possible to include loss for components with the <code class="docutils literal notranslate"><span class="pre">loss</span></code> option, this will be included as a separate loss element on each of the two modes that the beam splitter acts over. If we therefore wanted to extend the function call above to include a beam splitter loss of 30% then it would look like:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">reflectivity</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">convention</span> <span class="o">=</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="n">loss</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<blockquote>
+<div><p>All losses in Lightworks should be provided as a decimal loss value, meaning loss = 0 corresponds to a ideal non-lossy component and loss = 1 will block all photons on a mode. It is also possible to specify loss in terms of dB using the included <code class="docutils literal notranslate"><span class="pre">db_loss_to_decimal</span></code> function of <code class="docutils literal notranslate"><span class="pre">convert</span></code>, for example, to include a 3 dB loss the following would be valid.</p>
+</div></blockquote>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">reflectivity</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">convention</span> <span class="o">=</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="n">loss</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lw</span><span class="o">.</span><span class="n">convert</span><span class="o">.</span><span class="n">db_loss_to_decimal</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="phase-shifter">
+<span id="phaseshifter"></span><h3>Phase Shifter<a class="headerlink" href="#phase-shifter" title="Link to this heading">¶</a></h3>
+<p>A phase shifter acts to apply a phase to a single mode of the circuit. They are added to the circuit with the <code class="docutils literal notranslate"><span class="pre">ps</span></code> method, which requires the mode number it will act on and the phase shift that is to be applied. A phase shifter can also optionally introduce a loss on the mode if this is required. As an example of this, if we wanted to add a phase shift of 2 on mode 1 of the circuit, and include a 50% loss, then the method call should look like:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">ps</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">loss</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="mode-swaps">
+<span id="modeswaps"></span><h3>Mode Swaps<a class="headerlink" href="#mode-swaps" title="Link to this heading">¶</a></h3>
+<p>The mode swaps component can be used to quickly rearrange the mode configuration of a circuit, without worrying about having to determine the exact sequence of swaps that would be required. To specify the mode swaps to be implemented a dictionary should be provided to the <code class="docutils literal notranslate"><span class="pre">mode_swaps</span></code> method, where the keys of the dictionary describe the initial modes and the values describe the final mode positions. If we were aiming to swaps modes 0 &amp; 2 of a circuit, this might look like:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">mode_swaps</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">0</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>It is also possible to implement more complex configurations though. For example, in a 4 mode circuit the following reconfiguration could be implemented:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">mode_swaps</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>This would map 0 <span class="math notranslate nohighlight">\(\rightarrow\)</span> 2, 2 <span class="math notranslate nohighlight">\(\rightarrow\)</span> 3, 3 <span class="math notranslate nohighlight">\(\rightarrow\)</span> 1 and 1 <span class="math notranslate nohighlight">\(\rightarrow\)</span> 0.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The provided mode swap dictionary must be complete, meaning all modes used in the swap (not necessarily all circuit modes) have an initial and final destination. This can be checked easily by comparing the keys and values of the swaps dictionary and confirming they are equivalent. An error will be raised if a provided set of swaps is incomplete.</p>
+</div>
+</section>
+<section id="loss-element">
+<span id="losselement"></span><h3>Loss Element<a class="headerlink" href="#loss-element" title="Link to this heading">¶</a></h3>
+<p>A loss element is used to implement a dedicated source of loss to a mode of a photonic circuit. They are added through the <code class="docutils literal notranslate"><span class="pre">loss</span></code> method, which requires the mode to implement the loss on and the value of the loss as a decimal. It is important to note that adding loss elements to a circuit will introduce additional invisible modes to the circuit. This will increase runtime when simulating a circuit, so users should endeavour to minimize additional loss elements where possible.</p>
+<p>To add a loss component on mode 1 of a circuit, with a value of 10%, the method call should look like:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="barriers">
+<span id="id1"></span><h3>Barriers<a class="headerlink" href="#barriers" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">barrier</span></code> method only affects how circuits are displayed by the visualization functions, and does not alter the actual functionality of the circuit. It is useful as it allows for different aspects of a circuit to be spatially separated, enabling a user to see which components correspond to a particular functionality they are trying to implement.</p>
+<p>When adding a barrier, a list of the modes which it should be applied to is provided, alternatively if no arguments are provided to the function then it will be applied across all modes of the circuit.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Apply to all circuit modes</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+
+<span class="c1"># Apply to modes 0, 2 &amp; 4</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">barrier</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="visualization">
+<h2>Visualization<a class="headerlink" href="#visualization" title="Link to this heading">¶</a></h2>
+<p>Once a circuit has been created, the configuration can be viewed with the <code class="docutils literal notranslate"><span class="pre">display</span></code> method. To demonstrate this, we will create a new circuit which uses all of the components above.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">reflectivity</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">loss</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">ps</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">mode_swaps</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">display</span></code> method is then called on the circuit.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../_images/circuit_display_demo.svg" class="align-center" height="388" src="../_images/circuit_display_demo.svg" width="459" />
+<p>From the circuit above, there is a few things to note. The first is that the beam splitter across modes 2 and 3 is not inline with the other beam splitter, this is directly as a result of the <code class="docutils literal notranslate"><span class="pre">barrier</span></code> method used in the circuit, which creates a horizontal distinction between them. It may be useful to recreate this circuit and remove the barrier so the effect of this can be seen. The other thing to note is that the loss elements, both those included with the beam splitter and the dedicated <code class="docutils literal notranslate"><span class="pre">loss</span></code> call are not shown. This is because we need to use the display_loss option to choose to show this. Implementing this option yields:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">display_loss</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/circuit_display_demo_loss.svg" class="align-center" height="388" src="../_images/circuit_display_demo_loss.svg" width="644" />
+<p>For advanced users, rather than calling the <code class="docutils literal notranslate"><span class="pre">display</span></code> method of the PhotonicCircuit, it is instead possible to use the included <a class="reference internal" href="../sdk_reference/display.html#lightworks.display" title="lightworks.display"><code class="xref py py-class docutils literal notranslate"><span class="pre">display</span></code></a> object. Instead of displaying the circuit as soon as it is called, it will return the pyplot/drawing object, allowing this to be modified or saved to file directly.</p>
+</section>
+<section id="parameterization">
+<h2>Parameterization<a class="headerlink" href="#parameterization" title="Link to this heading">¶</a></h2>
+<p>Circuits in Lightworks support parameterization through a dedicated <a class="reference internal" href="../sdk_reference/parameters.html#lightworks.Parameter" title="lightworks.Parameter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a> object included within the module. This allows for different values in the circuit to be modified after circuit creation, which can simplify the process of adjusting circuits. This Parameter object has a range of functionalities, which are detailed in the <a class="reference internal" href="parameters.html"><span class="doc">Parameter &amp; ParameterDict</span></a> section. To parametrize a circuit, we will start by defining a parameter, which we assign an initial value to and can optionally include a label which will be used when displaying.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">parameter</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;reflectivity&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can then use this in a circuit, providing the parameter object in place of the normal value.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">reflectivity</span> <span class="o">=</span> <span class="n">parameter</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">reflectivity</span> <span class="o">=</span> <span class="n">parameter</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">reflectivity</span> <span class="o">=</span> <span class="n">parameter</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When then viewing this circuit with <code class="docutils literal notranslate"><span class="pre">display</span></code>, we will see that by default the parameter value is replaced by the provided label.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../_images/circuit_parameter_demo1.svg" class="align-center" height="310" src="../_images/circuit_parameter_demo1.svg" width="297" />
+<p>To instead view the circuit with the actual parameter values, we use <code class="docutils literal notranslate"><span class="pre">show_parameter_values</span> <span class="pre">=</span> <span class="pre">True</span></code> in the display method.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">show_parameter_values</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/circuit_parameter_demo2.svg" class="align-center" height="310" src="../_images/circuit_parameter_demo2.svg" width="297" />
+<p>It is then possible to update the parameter value using the <code class="docutils literal notranslate"><span class="pre">set</span></code> method of the parameter. If this is updated to 0.3 it can be seen how this is then altered in the circuit visualization.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">parameter</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">show_parameter_values</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/circuit_parameter_demo3.svg" class="align-center" height="310" src="../_images/circuit_parameter_demo3.svg" width="297" />
+<p>This is the core functionality of Parameters in the circuit. It is also possible to store Parameters in the custom <a class="reference internal" href="../sdk_reference/parameters.html#lightworks.ParameterDict" title="lightworks.ParameterDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParameterDict</span></code></a> object, allowing for easy management and modification of parameters without having to assign each created Parameter to a distinct variable. It is recommended that this is utilized for any more than a couple of parameters. This is discussed further in the <a class="reference internal" href="parameters.html"><span class="doc">Parameter &amp; ParameterDict</span></a> section.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only certain aspects of a circuit can be parameterized, this includes phase shifts, beam splitter reflectivities and loss values. The mode number that elements are placed on cannot be parameterized. Some caution should also be used, as if the value of the parameter is altered some it becomes invalid for the quantity it is assigned to, then this will raise a compilation error when the circuit is attempted to be used.</p>
+</div>
+</section>
+<section id="combining-circuits">
+<h2>Combining Circuits<a class="headerlink" href="#combining-circuits" title="Link to this heading">¶</a></h2>
+<p>Circuits also support addition, meaning it is possible to create sub-circuits with specific functionality and then combine them as required. There are two ways to do this.</p>
+<p>The first is through the use of the <code class="docutils literal notranslate"><span class="pre">+</span></code> operator. This is simpler, but only supports the addition of equally sized circuits. An example of this is shown below, in which a circuit with a number of beam splitters is created and another with a number of phase shifters, these are then combined.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit_bs</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">circuit_ps</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">circuit_ps</span><span class="o">.</span><span class="n">ps</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">circuit_ps</span><span class="o">.</span><span class="n">ps</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">circuit_ps</span><span class="o">.</span><span class="n">ps</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">new_circuit</span> <span class="o">=</span> <span class="n">circuit_bs</span> <span class="o">+</span> <span class="n">circuit_ps</span>
+<span class="n">new_circuit</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../_images/circuit_addition_demo1.svg" class="align-center" height="310" src="../_images/circuit_addition_demo1.svg" width="372" />
+<p>The other way to combine circuits is through the <code class="docutils literal notranslate"><span class="pre">add</span></code> method, which allows for a smaller circuit to be added to a larger circuit. With the <code class="docutils literal notranslate"><span class="pre">add</span></code> method, it is also possible to choose which mode of the larger circuit the smaller circuit starts on. For example, in the following we create a 5 and 3 mode circuit, comprised of beam splitters and phase shifters respectively, and choose for the circuit being added to start on mode 1 of the larger circuit.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit_bs</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">circuit_ps</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">circuit_ps</span><span class="o">.</span><span class="n">ps</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">circuit_ps</span><span class="o">.</span><span class="n">ps</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">circuit_ps</span><span class="o">.</span><span class="n">ps</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circuit_ps</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../_images/circuit_addition_demo2.svg" class="align-center" height="375" src="../_images/circuit_addition_demo2.svg" width="375" />
+<p>It can also be seen how unlike when using <code class="docutils literal notranslate"><span class="pre">+</span></code> the <code class="docutils literal notranslate"><span class="pre">add</span></code> method does not return a new circuit, and instead adds it to the existing created circuit.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The starting mode of the smaller circuit + the number of modes in the smaller circuit must be less than or equal to the number of modes in the larger circuit. For example, when adding a 4 mode circuit to a 6 mode circuit, then the 4 mode circuit could start on mode 0, 1 or 2.</p>
+</div>
+<p>When using <code class="docutils literal notranslate"><span class="pre">add</span></code>, it is also possible to choose to group all elements being added to the larger circuit into a single component. This has no functional effect on the circuit but can be useful when viewing the created circuit. A name can also be provided which is shown in the display. In this case we will choose to label the circuit as ‘phases’.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit_bs</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">circuit_ps</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">circuit_ps</span><span class="o">.</span><span class="n">ps</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">circuit_ps</span><span class="o">.</span><span class="n">ps</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">circuit_ps</span><span class="o">.</span><span class="n">ps</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circuit_ps</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">group</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;phases&quot;</span><span class="p">)</span>
+<span class="n">circuit_bs</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../_images/circuit_addition_demo3.svg" class="align-center" height="375" src="../_images/circuit_addition_demo3.svg" width="400" />
+</section>
+<section id="heralding-integration">
+<h2>Heralding Integration<a class="headerlink" href="#heralding-integration" title="Link to this heading">¶</a></h2>
+<p>In photonic quantum computing, ancillary photons/modes are often used to realize particular entangled states, particularly in qubit paradigms. The Lightworks PhotonicCircuit supports the addition of these ancillary photons with the <code class="docutils literal notranslate"><span class="pre">herald</span></code> method, enabling heralding to be completed on a circuit without having to factor these modes being factored into the inputs and outputs of a circuit. This is supported for all simulation objects in the emulator.</p>
+<p>As an example of this, in the following a herald is added on mode 2 of the circuit, requiring that 1 photon is input and output on this mode of the circuit. When the input and output mode are the same, only the input needs to be specified, but when they differ these both need to be specified. This is also the same for the number of photons. For example, <code class="docutils literal notranslate"><span class="pre">herald(2,</span> <span class="pre">1)</span></code>, <code class="docutils literal notranslate"><span class="pre">herald((2,</span> <span class="pre">2),</span> <span class="pre">1)</span></code>, <code class="docutils literal notranslate"><span class="pre">herald(2,</span> <span class="pre">(1,</span> <span class="pre">1))</span></code> and <code class="docutils literal notranslate"><span class="pre">herald((2,</span> <span class="pre">2),</span> <span class="pre">(1,</span> <span class="pre">1))</span></code> are equivalent.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">circuit</span><span class="o">.</span><span class="n">herald</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">circuit</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../_images/circuit_herald_demo.svg" class="align-center" height="310" src="../_images/circuit_herald_demo.svg" width="421" />
+<p>It is also possible to include heralds as part of smaller circuits and then add them to a larger circuit. This enables small functional building blocks to be constructed and combined to create a larger transformation. When a sub-circuit has heralds added to it, this mode is not connected to the existing mode of the larger circuit, this means that for the example above, the sub-circuit would effectively have 3 modes. The effect of this can be seen below, in which the circuit above is added to a larger circuit.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">main_circuit</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">main_circuit</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">main_circuit</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../_images/circuit_herald_demo2.svg" class="align-center" height="310" src="../_images/circuit_herald_demo2.svg" width="286" />
+<p>If a beam splitter is then added across modes 2 &amp; 3, this will then effectively ignore the mode with the heralded photon.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">main_circuit</span><span class="o">.</span><span class="n">bs</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="n">main_circuit</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="../_images/circuit_herald_demo3.svg" class="align-center" height="310" src="../_images/circuit_herald_demo3.svg" width="357" />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Despite the display showing 4 numbered modes, the circuit will now have 5 modes total. This will lead to an increase in job execution time, particularly if lots of heralded photons are used.</p>
+</div>
+</section>
+<section id="other-functionality">
+<h2>Other Functionality<a class="headerlink" href="#other-functionality" title="Link to this heading">¶</a></h2>
+<p>Also included within the circuit, is a number of additional methods which enable a circuit to be modified as required. In the following, the functionality of each is briefly discussed:</p>
+<section id="lightworks-photoniccircuit-get-all-params">
+<h3><a class="reference internal" href="../sdk_reference/photonic_circuit.html#lightworks.PhotonicCircuit.get_all_params" title="lightworks.PhotonicCircuit.get_all_params"><code class="xref py py-func docutils literal notranslate"><span class="pre">lightworks.PhotonicCircuit.get_all_params()</span></code></a><a class="headerlink" href="#lightworks-photoniccircuit-get-all-params" title="Link to this heading">¶</a></h3>
+<p>This method will collect and return a list of all parameters used as part of a circuit.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">get_all_params</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="lightworks-photoniccircuit-copy">
+<h3><a class="reference internal" href="../sdk_reference/photonic_circuit.html#lightworks.PhotonicCircuit.copy" title="lightworks.PhotonicCircuit.copy"><code class="xref py py-func docutils literal notranslate"><span class="pre">lightworks.PhotonicCircuit.copy()</span></code></a><a class="headerlink" href="#lightworks-photoniccircuit-copy" title="Link to this heading">¶</a></h3>
+<p>Used to create an identical copy of a particular circuit. The <code class="docutils literal notranslate"><span class="pre">freeze_parameters</span></code> option can be used to decided whether any variables should remain assigned to parameters, or if they should just be assigned to the parameter value.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">freeze_parameters</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you decide not to freeze the parameters of a circuit before copying then both the original and copy of the circuit will be affected by any parameter changes.</p>
+</div>
+</section>
+<section id="lightworks-photoniccircuit-unpack-groups">
+<h3><a class="reference internal" href="../sdk_reference/photonic_circuit.html#lightworks.PhotonicCircuit.unpack_groups" title="lightworks.PhotonicCircuit.unpack_groups"><code class="xref py py-func docutils literal notranslate"><span class="pre">lightworks.PhotonicCircuit.unpack_groups()</span></code></a><a class="headerlink" href="#lightworks-photoniccircuit-unpack-groups" title="Link to this heading">¶</a></h3>
+<p>Can be used to unpack any groups of components that have been added to a circuit into individual elements.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">unpack_groups</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="lightworks-photoniccircuit-compress-mode-swaps">
+<h3><a class="reference internal" href="../sdk_reference/photonic_circuit.html#lightworks.PhotonicCircuit.compress_mode_swaps" title="lightworks.PhotonicCircuit.compress_mode_swaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">lightworks.PhotonicCircuit.compress_mode_swaps()</span></code></a><a class="headerlink" href="#lightworks-photoniccircuit-compress-mode-swaps" title="Link to this heading">¶</a></h3>
+<p>When this method is called it will look at any adjacent mode swaps in a circuit and compress them into a single element. This can be useful for reducing the footprint of a circuit.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">compress_mode_swaps</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="lightworks-photoniccircuit-remove-non-adjacent-bs">
+<h3><a class="reference internal" href="../sdk_reference/photonic_circuit.html#lightworks.PhotonicCircuit.remove_non_adjacent_bs" title="lightworks.PhotonicCircuit.remove_non_adjacent_bs"><code class="xref py py-func docutils literal notranslate"><span class="pre">lightworks.PhotonicCircuit.remove_non_adjacent_bs()</span></code></a><a class="headerlink" href="#lightworks-photoniccircuit-remove-non-adjacent-bs" title="Link to this heading">¶</a></h3>
+<p>This method can be used to convert any beam splitters that act across non-adjacent modes into a beam splitter on adjacent modes and a set of mode swaps across the circuit. This is useful as in photonic integrated circuit realizations of an interferometer the direct interaction between non-adjacent modes is not possible.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span><span class="o">.</span><span class="n">remove_non_adjacent_bs</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="unitary.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Unitary</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">SDK</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Aegiq Ltd.
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/Aegiq/lightworks" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">PhotonicCircuit</a><ul>
+<li><a class="reference internal" href="#building-circuits">Building Circuits</a><ul>
+<li><a class="reference internal" href="#beam-splitter">Beam Splitter</a></li>
+<li><a class="reference internal" href="#phase-shifter">Phase Shifter</a></li>
+<li><a class="reference internal" href="#mode-swaps">Mode Swaps</a></li>
+<li><a class="reference internal" href="#loss-element">Loss Element</a></li>
+<li><a class="reference internal" href="#barriers">Barriers</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#visualization">Visualization</a></li>
+<li><a class="reference internal" href="#parameterization">Parameterization</a></li>
+<li><a class="reference internal" href="#combining-circuits">Combining Circuits</a></li>
+<li><a class="reference internal" href="#heralding-integration">Heralding Integration</a></li>
+<li><a class="reference internal" href="#other-functionality">Other Functionality</a><ul>
+<li><a class="reference internal" href="#lightworks-photoniccircuit-get-all-params"><code class="xref py py-func docutils literal notranslate"><span class="pre">lightworks.PhotonicCircuit.get_all_params()</span></code></a></li>
+<li><a class="reference internal" href="#lightworks-photoniccircuit-copy"><code class="xref py py-func docutils literal notranslate"><span class="pre">lightworks.PhotonicCircuit.copy()</span></code></a></li>
+<li><a class="reference internal" href="#lightworks-photoniccircuit-unpack-groups"><code class="xref py py-func docutils literal notranslate"><span class="pre">lightworks.PhotonicCircuit.unpack_groups()</span></code></a></li>
+<li><a class="reference internal" href="#lightworks-photoniccircuit-compress-mode-swaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">lightworks.PhotonicCircuit.compress_mode_swaps()</span></code></a></li>
+<li><a class="reference internal" href="#lightworks-photoniccircuit-remove-non-adjacent-bs"><code class="xref py py-func docutils literal notranslate"><span class="pre">lightworks.PhotonicCircuit.remove_non_adjacent_bs()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=57236720"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    </body>
+</html>
