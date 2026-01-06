@@ -14,7 +14,7 @@ for directory in ["lightworks", "docs", "tests"]:
             # this and break the loop
             for i, line in enumerate(lines):
                 if line.startswith("# Copyright"):
-                    if line[16:22] != " - 202":
+                    if line[16:21] != " - 20":
                         msg = (
                             "Copyright header may not be in the expected format"
                             f" for file {root + '/' + f_name}."
