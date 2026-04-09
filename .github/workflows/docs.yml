@@ -1,0 +1,78 @@
+# Builds docs on PRs to main; builds and deploys on push to main / schedule
+name: Docs
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+
+  schedule:
+    - cron: '0 0 2 1 *'
+
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ vars.MAIN_PY_VER }}
+          activate-environment: true
+
+      - name: Install dependencies
+        run: uv pip install -r requirements.txt
+
+      - name: Install pandoc
+        run: |
+          wget https://github.com/jgm/pandoc/releases/download/3.6.3/pandoc-3.6.3-1-amd64.deb
+          sudo dpkg -i pandoc-3.6.3-1-amd64.deb
+
+      - name: Build HTML
+        run: |
+          cd docs/
+          make html SPHINXOPTS="--fail-on-warning"
+
+      - name: Upload docs artifact
+        if: github.event_name == 'push' || github.event_name == 'schedule'
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-html
+          path: docs/build/html
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download docs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-html
+          path: docs/build/html
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ vars.MAIN_PY_VER }}
+          activate-environment: true
+
+      - name: Install ghp-import
+        run: uv pip install ghp-import
+
+      - name: Deploy
+        run: ghp-import -n -p -f docs/build/html
