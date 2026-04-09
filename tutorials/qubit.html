@@ -1,0 +1,798 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="SDK" href="../sdk/index.html"><link rel="prev" title="Error Simulation" href="error_simulation.html">
+        <link rel="prefetch" href="../_static/lightworks_logo.svg" as="image">
+
+    <!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Qubit Components - Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #3e368d;
+  --color-brand-content: #873bd4;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #9198cc;
+  --color-brand-content: #9198cc;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #9198cc;
+  --color-brand-content: #9198cc;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/lightworks_logo.svg" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Tutorials</a><input aria-label="Toggle navigation of Tutorials" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="circuit_building.html">Circuit Building</a></li>
+<li class="toctree-l2"><a class="reference internal" href="using_parameters.html">Parameters &amp; Optimisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="error_simulation.html">Error Simulation</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Qubit Components</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../sdk/index.html">SDK</a><input aria-label="Toggle navigation of SDK" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/photonic_circuit.html">PhotonicCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/unitary.html">Unitary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/parameters.html">Parameter &amp; ParameterDict</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/state.html">State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/tasks.html">Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/post_selection.html">Post-selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk/utilities.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../emulator/index.html">Emulator</a><input aria-label="Toggle navigation of Emulator" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/theory.html">Theory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/backend.html">Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/simulator.html">Simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/sampler.html">Sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/imperfect_sampling.html">Imperfect Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator/analyzer.html">Analyzer</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../qubit/index.html">Qubit</a><input aria-label="Toggle navigation of Qubit" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../qubit/gates.html">Qubit Gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qubit/conversion.html">Circuit Conversion</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../interferometers/index.html">Interferometers</a><input aria-label="Toggle navigation of Interferometers" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../interferometers/tutorial.html">Tutorial</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tomography/index.html">Tomography</a><input aria-label="Toggle navigation of Tomography" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tomography/state_tomography.html">State Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography/process_tomography.html">Process Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography/gate_fidelity.html">Average Gate Fidelity</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input aria-label="Toggle navigation of Examples" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../examples/single_photon_demo.html">Single-photon Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/multi_photon_sampling.html">Multi-photon Sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/bell_state_generator.html">Bell State Generator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/ralph_cnot.html">Ralph CNOT - All Simulators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/heralded_cnot.html">Heralded CNOT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/3_qubit_GHZ_generation.html">3 Qubit GHZ Generation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../sdk_reference/index.html">SDK Reference</a><input aria-label="Toggle navigation of SDK Reference" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/photonic_circuit.html">PhotonicCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/photonic_components.html">PhotonicComponents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/photonic_compiled_circuit.html">CompiledPhotonicCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/state.html">State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/display.html">Display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/parameters.html">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/unitary.html">Unitary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/tasks.html">Tasks</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../sdk_reference/results/index.html">Results</a><input aria-label="Toggle navigation of Results" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../sdk_reference/results/sampling_result.html">SamplingResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../sdk_reference/results/simulation_result.html">SimulationResult</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../sdk_reference/utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../emulator_reference/index.html">Emulator Reference</a><input aria-label="Toggle navigation of Emulator Reference" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../emulator_reference/backend.html">Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator_reference/source.html">Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../emulator_reference/detector.html">Detector</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../qubit_reference/index.html">Qubit Reference</a><input aria-label="Toggle navigation of Qubit Reference" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../qubit_reference/qubit_gates.html">Gates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qubit_reference/converters.html">Converters</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../interferometers_reference/index.html">Interferometers Reference</a><input aria-label="Toggle navigation of Interferometers Reference" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../interferometers_reference/reck.html">Reck</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../interferometers_reference/error_model.html">Error Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../interferometers_reference/distributions.html">Distributions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tomography_reference/index.html">Tomography Reference</a><input aria-label="Toggle navigation of Tomography Reference" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/state_tomography.html">State Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/process_tomography.html">Process Tomography</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/gate_fidelity.html">Gate Fidelity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/experiments.html">Experiments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/utils.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tomography_reference/projection.html">Projection</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/tutorials/qubit.ipynb.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="Qubit-Components">
+<h1>Qubit Components<a class="headerlink" href="#Qubit-Components" title="Link to this heading">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">lightworks</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">lw</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lightworks</span><span class="w"> </span><span class="kn">import</span> <span class="n">emulator</span>
+
+<span class="c1"># Define backend to use for all simulations here</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">emulator</span><span class="o">.</span><span class="n">Backend</span><span class="p">(</span><span class="s2">&quot;permanent&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Using-Qubit-Gates">
+<h2>Using Qubit Gates<a class="headerlink" href="#Using-Qubit-Gates" title="Link to this heading">¶</a></h2>
+<p>All qubit components are in a dedicated ‘qubit’ sub-module of Lightworks. To access these, either the existing Lightworks import or a dedicated import of the qubit module can be used. As an example, to create a hadamard gate, either of the following would be valid.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hadamard</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">qubit</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">lightworks</span><span class="w"> </span><span class="kn">import</span> <span class="n">qubit</span>  <span class="c1"># Could go at the top of the notebook</span>
+
+<span class="n">hadamard</span> <span class="o">=</span> <span class="n">qubit</span><span class="o">.</span><span class="n">H</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Within this notebook we will use the latter for simplicity.</p>
+<p>All qubit components are designed to act on dual-rail encoded qubits, where a photon in the upper mode is the <span class="math notranslate nohighlight">\(\ket{0}\)</span> state and the <span class="math notranslate nohighlight">\(\ket{1}\)</span> mode is the lower state. This means for single qubit gates they act across two modes, dual qubit gates act across 4 modes etc… . It is assumed that the modes that the gate is acting on are adjacent to each other, so mode swaps may be required if this is not the case.</p>
+<p>Below, a circuit is created to support a single qubit, with each mode labelled, and the Hadamard gate is applied. This is then simulated to check the expected outputs, and it can be seen how this varies depending on whether the <span class="math notranslate nohighlight">\(\ket{0}\)</span> or <span class="math notranslate nohighlight">\(\ket{1}\)</span> state is input into the system.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Dual rail circuit</span>
+
+<span class="n">circuit</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">hadamard</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># Add hadamard</span>
+
+<span class="n">circuit</span><span class="o">.</span><span class="n">display</span><span class="p">(</span><span class="n">mode_labels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;|0&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;|1&gt;&quot;</span><span class="p">])</span>
+<span class="c1">#                                           |0&gt;               |1&gt;</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">Simulator</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="p">[</span><span class="n">lw</span><span class="o">.</span><span class="n">State</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">lw</span><span class="o">.</span><span class="n">State</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])])</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
+
+<span class="n">results</span><span class="o">.</span><span class="n">display_as_dataframe</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_qubit_5_0.svg" src="../_images/tutorials_qubit_5_0.svg" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>|1,0&gt;</th>
+      <th>|0,1&gt;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>|1,0&gt;</th>
+      <td>0.707107+0.000000j</td>
+      <td>0.707107+0.000000j</td>
+    </tr>
+    <tr>
+      <th>|0,1&gt;</th>
+      <td>0.707107+0.000000j</td>
+      <td>-0.707107+0.000000j</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Single-Qubit-Gates">
+<h2>Single Qubit Gates<a class="headerlink" href="#Single-Qubit-Gates" title="Link to this heading">¶</a></h2>
+<p>As mentioned, single qubit gates act across a pair of modes which encode a dual-rail encoded qubit. When adding these gates, it is important they are not used to mix modes which encode two different qubits as this creates an invalid result.</p>
+<p>The gates currently included in Lightworks are H, X, Y, Z, T and S, below these are applied across 3 different qubits, labelled A, B &amp; C.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">circuit</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+
+<span class="c1"># Qubit A</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">qubit</span><span class="o">.</span><span class="n">H</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">qubit</span><span class="o">.</span><span class="n">X</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Qubit B</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">qubit</span><span class="o">.</span><span class="n">Y</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">qubit</span><span class="o">.</span><span class="n">Z</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Qubit C</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">qubit</span><span class="o">.</span><span class="n">S</span><span class="p">(),</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">circuit</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">qubit</span><span class="o">.</span><span class="n">T</span><span class="p">(),</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="n">circuit</span><span class="o">.</span><span class="n">display</span><span class="p">(</span>
+    <span class="n">mode_labels</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;A : |0&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;A : |1&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;B : |0&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;B : |1&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;C : |0&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;C : |1&gt;&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_qubit_7_0.svg" src="../_images/tutorials_qubit_7_0.svg" />
+</div>
+</div>
+</section>
+<section id="Two-Qubit-Gates">
+<h2>Two Qubit Gates<a class="headerlink" href="#Two-Qubit-Gates" title="Link to this heading">¶</a></h2>
+<p>With two qubit gates, it is often more complicated as they typically require some sort of post-selection or heralding. Lightworks aims to make this easier by including integration of the heralding modes/photons within the circuit, meaning these can automatically be applied to simulation inputs and routed around when adding new components to the circuit. Depending on the component, however, some additional post-selection may still be required, information on this can be found in the documentation
+or the component docstring.</p>
+<p>To get started, below we create a 2 qubit CNOT gate. It can be seen how the heralds are shown on the upper and lower parts of the component, but not included within the main circuit modes. This particular gate requires post-selection on measuring 1 photon across the control qubit modes (0 &amp; 1) and 1 photon across the target qubit modes (2 &amp; 3).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cnot</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">qubit</span><span class="o">.</span><span class="n">CNOT</span><span class="p">()</span>
+
+<span class="n">cnot</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_qubit_9_0.svg" src="../_images/tutorials_qubit_9_0.svg" />
+</div>
+</div>
+<p>This CNOT gate can then be added to a circuit. In the following example, we’ll aim to create the 3 qubit GHZ using a hadamard and 2 CNOTs. To start, we create the circuit, as it is a 3 qubit circuit it should have 6 modes. The H gate and CNOT are then added, it can be seen below how only the non-heralded modes of the CNOT are attached to the circuit modes.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">circ</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PhotonicCircuit</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">circ</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">lw</span><span class="o">.</span><span class="n">qubit</span><span class="o">.</span><span class="n">H</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">circ</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cnot</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="n">circ</span><span class="o">.</span><span class="n">display</span><span class="p">(</span>
+    <span class="n">mode_labels</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;A : |0&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;A : |1&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;B : |0&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;B : |1&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;C : |0&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;C : |1&gt;&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_qubit_11_0.svg" src="../_images/tutorials_qubit_11_0.svg" />
+</div>
+</div>
+<p>A second CNOT is then integrated into the system, again this is automatically reconfigured to include the heralding requirements without these needing to be accounted for.</p>
+<p>One question you may have is if the CNOT above requires post-selection on the output, then why are we able to cascade the CNOTs without performing post-selection between each one. This works because we only interact the A and B qubits once, meaning at the output if we measure 1 photon across A0 &amp; A1 then we can be sure that as long as the other photon is not lost and is not on the heralding modes then the gate worked correctly.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">circ</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cnot</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">circ</span><span class="o">.</span><span class="n">display</span><span class="p">(</span>
+    <span class="n">mode_labels</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;A : |0&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;A : |1&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;B : |0&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;B : |1&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;C : |0&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;C : |1&gt;&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_qubit_13_0.svg" src="../_images/tutorials_qubit_13_0.svg" />
+</div>
+</div>
+<p>Once the system has been configured, it can be simulated through creation of a new Sampler object. The <code class="docutils literal notranslate"><span class="pre">qubit_to_dual_rail</span></code> method from the <code class="docutils literal notranslate"><span class="pre">convert</span></code> module is used to automatically calculate the required dual-rail state.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">post_select</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">PostSelection</span><span class="p">()</span>
+<span class="n">post_select</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">post_select</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">post_select</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">sampler</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">Sampler</span><span class="p">(</span>
+    <span class="n">circ</span><span class="p">,</span>
+    <span class="n">lw</span><span class="o">.</span><span class="n">convert</span><span class="o">.</span><span class="n">qubit_to_dual_rail</span><span class="p">(</span><span class="s2">&quot;000&quot;</span><span class="p">),</span>
+    <span class="mi">10000</span><span class="p">,</span>
+    <span class="n">post_selection</span><span class="o">=</span><span class="n">post_select</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>A number of samples are then measured from the system, and we apply a post-selection function to require only 1 photon is measured across each pair of photons corresponding to a qubit.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sampler</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The results can then be viewed, as expected only the states <span class="math notranslate nohighlight">\(\ket{1,0,1,0,1,0}\)</span> and <span class="math notranslate nohighlight">\(\ket{0,1,0,1,0,1}\)</span> are measured, which correspond to the two expected measurements of the GHZ state, <span class="math notranslate nohighlight">\(\ket{0,0,0}\)</span> and <span class="math notranslate nohighlight">\(\ket{1,1,1}\)</span> respectively.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_qubit_19_0.png" src="../_images/tutorials_qubit_19_0.png" />
+</div>
+</div>
+<p>The qubit states can also be plotted directly by mapping the results.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">q_results</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">lw</span><span class="o">.</span><span class="n">convert</span><span class="o">.</span><span class="n">dual_rail_to_qubit</span><span class="p">)</span>
+
+<span class="n">q_results</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_qubit_21_0.png" src="../_images/tutorials_qubit_21_0.png" />
+</div>
+</div>
+</section>
+<section id="Three-Qubit-Gates">
+<h2>Three Qubit Gates<a class="headerlink" href="#Three-Qubit-Gates" title="Link to this heading">¶</a></h2>
+<p>The Toffoli (CCNOT) &amp; CCZ three qubit gates are also included within Lightworks. Similar to the two qubit gates above these require post-selection on measuring one photon across each of the qubit modes.</p>
+<p>In this tutorial we will look at the action of the CCNOT gate, which is created and displayed below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gate</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">qubit</span><span class="o">.</span><span class="n">CCNOT</span><span class="p">()</span>
+
+<span class="n">gate</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_qubit_23_0.svg" src="../_images/tutorials_qubit_23_0.svg" />
+</div>
+</div>
+<p>Each of the possible valid input and outputs can then be simulated to view the action of the gate. After completion of the simulation, the data is extracted into an array in the order defined in all_inputs.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define qubit inputs</span>
+<span class="n">all_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;000&quot;</span><span class="p">,</span> <span class="s2">&quot;001&quot;</span><span class="p">,</span> <span class="s2">&quot;100&quot;</span><span class="p">,</span> <span class="s2">&quot;101&quot;</span><span class="p">,</span> <span class="s2">&quot;010&quot;</span><span class="p">,</span> <span class="s2">&quot;011&quot;</span><span class="p">,</span> <span class="s2">&quot;110&quot;</span><span class="p">,</span> <span class="s2">&quot;111&quot;</span><span class="p">]</span>
+
+<span class="c1"># Convert to mode values</span>
+<span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">input_</span><span class="p">:</span> <span class="n">lw</span><span class="o">.</span><span class="n">State</span><span class="p">(</span><span class="n">lw</span><span class="o">.</span><span class="n">convert</span><span class="o">.</span><span class="n">qubit_to_dual_rail</span><span class="p">(</span><span class="n">input_</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">input_</span> <span class="ow">in</span> <span class="n">all_inputs</span>
+<span class="p">}</span>
+
+<span class="c1"># Simulate all combinations</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">lw</span><span class="o">.</span><span class="n">Simulator</span><span class="p">(</span><span class="n">gate</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="nb">list</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
+
+<span class="c1"># Extract all results int array</span>
+<span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">all_inputs</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_inputs</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">si</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_inputs</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">sj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_inputs</span><span class="p">):</span>
+        <span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">mapping</span><span class="p">[</span><span class="n">si</span><span class="p">],</span> <span class="n">mapping</span><span class="p">[</span><span class="n">sj</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<p>It can then be seen how a swap only takes place when both of the control qubits are in the 1 state.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">array</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_inputs</span><span class="p">)),</span> <span class="n">all_inputs</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_inputs</span><span class="p">)),</span> <span class="n">all_inputs</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Input&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Output&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_qubit_27_0.png" src="../_images/tutorials_qubit_27_0.png" />
+</div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../sdk/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">SDK</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="error_simulation.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Error Simulation</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Aegiq Ltd.
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/Aegiq/lightworks" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Qubit Components</a><ul>
+<li><a class="reference internal" href="#Using-Qubit-Gates">Using Qubit Gates</a></li>
+<li><a class="reference internal" href="#Single-Qubit-Gates">Single Qubit Gates</a></li>
+<li><a class="reference internal" href="#Two-Qubit-Gates">Two Qubit Gates</a></li>
+<li><a class="reference internal" href="#Three-Qubit-Gates">Three Qubit Gates</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=57236720"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    </body>
+</html>
