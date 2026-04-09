@@ -27,7 +27,9 @@ jobs:
           python-version: 3.13
         
       - name: Install dependencies
-        run: uv pip install -r requirements.txt --system
+        run: |
+          uv venv
+          uv pip install -r requirements.txt
 
       # Pandoc install required for sphinx docs
       - name: Install pandoc

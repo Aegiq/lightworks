@@ -45,7 +45,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv pip install -r requirements.txt
+        run: |
+          uv venv
+          uv pip install -r requirements.txt
 
       - name: Test with pytest
         if: ${{ ! (matrix.python-version == env.COV_PY_VER && matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request') }}
