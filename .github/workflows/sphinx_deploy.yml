@@ -32,7 +32,7 @@ jobs:
         run: |
           uv venv
           uv pip install -r requirements.txt
-          uv pip install ghp-import --system
+          uv pip install ghp-import
 
       # Pandoc install required for sphinx docs
       - name: Install pandoc
