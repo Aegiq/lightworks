@@ -239,12 +239,12 @@ class MLETomographyAlgorithm:
 
     def _cost(
         self, choi: NDArray[np.complex128], n_vec: NDArray[np.float64]
-    ) -> NDArray[np.complex128]:
+    ) -> NDArray[np.float64]:
         """
         Computes the variation between the current choi matrix and the
         calculated values.
         """
-        return -n_vec.T @ np.log(self._p_vec(choi))
+        return -np.real(n_vec.T @ np.log(self._p_vec(choi)))
 
     def _gradient(
         self, choi: NDArray[np.complex128], n_vec: NDArray[np.float64]
