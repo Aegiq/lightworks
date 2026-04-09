@@ -16,7 +16,7 @@ setup(
         "Source": "https://github.com/Aegiq/lightworks",
         "Documentation": "https://aegiq.github.io/lightworks/",
     },
-    license="Apache 2.0",
+    license="Apache-2.0",
     packages=find_packages(where=".", exclude=["tests"]),
     package_data={"lightworks": ["py.typed"]},
     python_requires=">=3.10",
@@ -38,7 +38,6 @@ setup(
         "qiskit": ["qiskit[visualization]>=1.1.0"],
     },
     classifiers=[
-        "License :: OSI Approved :: Apache Software License",
         "Natural Language :: English",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.10",
