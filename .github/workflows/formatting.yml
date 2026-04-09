@@ -22,7 +22,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: 3.13
+          python-version: ${{ vars.MAIN_PY_VER }}
 
       - name: Install dependencies
         run: |
