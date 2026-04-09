@@ -68,7 +68,7 @@ class TestSamplingResult:
         Confirms that result retrieval works correctly for single input case.
         """
         r = SamplingResult(self.test_dict, self.test_input)
-        assert r[State([0, 1, 0, 1])] == 0.4
+        assert r[State([0, 1, 0, 1])] == pytest.approx(0.4, abs=1e-9)
 
     def test_items(self):
         """Test return value from items method is correct."""
@@ -203,7 +203,7 @@ class TestSamplingResult:
         initial function call and that these are assigned to attributes.
         """
         r = SamplingResult(self.test_dict, self.test_input, test_attr=2.5)
-        assert r.test_attr == 2.5
+        assert r.test_attr == pytest.approx(2.5, abs=1e-9)
 
     def test_print_outputs(self):
         """
@@ -245,7 +245,7 @@ class TestSamplingResult:
         Checks that get item returns correct value for output.
         """
         r = SamplingResult(self.test_dict, self.test_input)
-        assert r[State([1, 0, 0, 1])] == 0.3
+        assert r[State([1, 0, 0, 1])] == pytest.approx(0.3, abs=1e-9)
 
     def test_get_item_invalid_state(self):
         """
@@ -321,7 +321,9 @@ class TestSimulationResult:
             inputs=self.test_single_inputs,
             outputs=self.test_single_outputs,
         )
-        assert r[self.test_single_inputs[0]][State([1, 0, 1, 0])] == 0.3
+        assert r[self.test_single_inputs[0]][
+            State([1, 0, 1, 0])
+        ] == pytest.approx(0.3, abs=1e-9)
 
     def test_multi_input_retrival(self):
         """
@@ -350,7 +352,9 @@ class TestSimulationResult:
             inputs=self.test_multi_inputs,
             outputs=self.test_multi_outputs,
         )
-        assert r[State([1, 1, 0, 0]), State([1, 0, 3, 0])] == 0.1
+        assert r[State([1, 1, 0, 0]), State([1, 0, 3, 0])] == pytest.approx(
+            0.1, abs=1e-9
+        )
 
     @pytest.mark.parametrize(
         ("conv_to_probability", "rtype"),
@@ -422,7 +426,7 @@ class TestSimulationResult:
             outputs=self.test_multi_outputs,
             performance=2.5,
         )
-        assert r.performance == 2.5
+        assert r.performance == pytest.approx(2.5, abs=1e-9)
 
     def test_single_print_outputs(self):
         """

@@ -74,9 +74,9 @@ class TestUtils:
         """
         unitary = random_permutation(4, seed=44)
         # Check one diagonal element and two off-diagonals
-        assert unitary[0, 0] == 0j
-        assert unitary[0, 1] == 1 + 0j
-        assert unitary[3, 0] == 0j
+        assert unitary[0, 0] == pytest.approx(0j, abs=1e-9)
+        assert unitary[0, 1] == pytest.approx(1 + 0j, abs=1e-9)
+        assert unitary[3, 0] == pytest.approx(0j, abs=1e-9)
 
     def test_check_unitary(self):
         """Confirm that the check unitary function behaves as expected."""
@@ -126,9 +126,9 @@ class TestUtils:
         unitary = random_unitary(6)
         new_unitary = add_mode_to_unitary(unitary, mode)
         # Check diagonal value on new mode
-        assert new_unitary[mode, mode] == 1.0
+        assert new_unitary[mode, mode] == pytest.approx(1.0, abs=1e-9)
         # Also confirm one off-diagonal value
-        assert new_unitary[mode, mode - 1] == 0.0
+        assert new_unitary[mode, mode - 1] == pytest.approx(0.0, abs=1e-9)
 
     @pytest.mark.parametrize("mode", [0, 3, 5, 6])
     def test_add_mode_to_unitary_diagonal(self, mode):
@@ -178,9 +178,11 @@ class TestUtils:
         )
         new_unitary = add_mode_to_unitary(unitary, mode)
         # Check diagonal value on new mode
-        assert new_unitary._unitary[mode, mode] == 1.0
+        assert new_unitary._unitary[mode, mode] == pytest.approx(1.0, abs=1e-9)
         # Also confirm one off-diagonal value
-        assert new_unitary._unitary[mode, mode - 1] == 0.0
+        assert new_unitary._unitary[mode, mode - 1] == pytest.approx(
+            0.0, abs=1e-9
+        )
 
     @pytest.mark.parametrize("mode", [0, 3, 5, 6])
     def test_add_mode_to_parameterized_unitary_diagonal(self, mode):
@@ -574,7 +576,7 @@ class TestPostSelection:
         large number of values.
         """
         ps = DefaultPostSelection()
-        assert all(ps.validate(self.test_state) is True for _i in range(1000))
+        assert all(ps.validate(self.test_state) is True for _ in range(1000))
 
     @pytest.mark.parametrize("value", ["not_function", 1, [1, 2, 3]])
     def test_ps_function_enforced(self, value):
@@ -595,7 +597,7 @@ class TestPostSelection:
         # Check against known state
         assert func(self.test_state) == ps.validate(self.test_state)
         # Then randomly check for 100 states
-        states = [[randint(0, 1) for _j in range(6)] for _i in range(100)]
+        states = [[randint(0, 1) for _ in range(6)] for _ in range(100)]
         assert all(func(s) == ps.validate(s) for s in states)
 
     def test_rule(self):

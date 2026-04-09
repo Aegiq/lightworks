@@ -86,7 +86,7 @@ class SLOSBackend(FockBackend):
         Performs calculation of full probability distribution given a unitary
         matrix and input state.
         """
-        p = [m for m, n in enumerate(input_state) for _i in range(n)]
+        p = [m for m, n in enumerate(input_state) for _ in range(n)]
         n_modes = unitary.shape[0]
         # Normalise initial input probability
         m = 1 / np.sqrt(vector_factorial(input_state.s))

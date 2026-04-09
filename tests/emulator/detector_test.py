@@ -121,12 +121,12 @@ class TestDetector:
         # Get original results
         first = []
         detector._set_random_seed(r_seed)
-        for _i in range(n_samples):
+        for _ in range(n_samples):
             first.append(detector._get_output(input_state))
         # Reset seed and sample again
         second = []
         detector._set_random_seed(r_seed)
-        for _i in range(n_samples):
+        for _ in range(n_samples):
             second.append(detector._get_output(input_state))
         # Check they are equivalent
         assert first == second
