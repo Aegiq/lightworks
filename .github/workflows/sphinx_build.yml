@@ -13,29 +13,23 @@ on:
 permissions:
   contents: read
 
-# Define build job
 jobs: 
 
   build: 
-    # Choose to run on ubuntu
     runs-on: ubuntu-latest
 
     steps:
-      # Checks-out repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Create Python environment
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
         with:
-           python-version: "3.13"
+          python-version: ${{ vars.MAIN_PY_VER }}
         
-      # Install all dependencies from requirements file and ghp-import
       - name: Install dependencies
-        run: | 
-          python -m pip install --upgrade pip
-          pip install uv
-          uv pip install -r requirements.txt --system
+        run: |
+          uv venv
+          uv pip install -r requirements.txt
 
       # Pandoc install required for sphinx docs
       - name: Install pandoc
@@ -46,5 +40,6 @@ jobs:
       # Run sphinx build from docs folder
       - name: Build HTML
         run: | 
+          source .venv/bin/activate
           cd docs/
           make html SPHINXOPTS="--fail-on-warning"

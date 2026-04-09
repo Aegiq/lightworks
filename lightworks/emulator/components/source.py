@@ -181,7 +181,7 @@ class Source:
         for mode, count in enumerate(state):
             if not count:
                 continue
-            for _i in range(count):
+            for _ in range(count):
                 # For a given photon in a mode work out all possible input
                 # combinations
                 sub_s = [
@@ -329,7 +329,7 @@ class Source:
             return {AnnotatedState([[]]): 1.0}
         mode_dist: list[tuple[list[int], float]] = []
         # Get distribution for each photon and combine with mode distribution
-        for _i in range(n_photons):
+        for _ in range(n_photons):
             calc_dist = self._single_photon_distribution()
             if not mode_dist:
                 mode_dist = calc_dist

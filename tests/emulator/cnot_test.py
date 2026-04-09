@@ -21,10 +21,8 @@ from lightworks.emulator import Backend, Detector, Source
 from lightworks.qubit import CNOT
 
 heralds = [
-    lambda s: (
-        s[0] == 0 and s[5] == 0 and s[1] + s[2] == 1 and s[3] + s[4] == 1
-    ),
-    lambda s: (s[0] + s[1] == 1 and s[2] + s[3] == 1),
+    lambda s: s[0] == 0 and s[5] == 0 and s[1] + s[2] == 1 and s[3] + s[4] == 1,
+    lambda s: s[0] + s[1] == 1 and s[2] + s[3] == 1,
 ]
 # Including heralds
 post_selection = PostSelection()

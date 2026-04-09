@@ -120,7 +120,7 @@ class Detector:
         # Account for efficiency
         if self.efficiency < 1:
             for mode, n in enumerate(in_state):
-                for _i in range(n):
+                for _ in range(n):
                     if random() > self.efficiency:
                         output[mode] -= 1
         # Then include dark counts

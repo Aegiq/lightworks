@@ -33,8 +33,8 @@ class TestErrorModel:
         """
         em = ErrorModel()
         # Repeat 100 times to confirm no randomness present
-        for _i in range(100):
-            assert em.get_bs_reflectivity() == 0.5
+        for _ in range(100):
+            assert em.get_bs_reflectivity() == pytest.approx(0.5, abs=1e-9)
 
     def test_default_loss(self):
         """
@@ -42,7 +42,7 @@ class TestErrorModel:
         """
         em = ErrorModel()
         # Repeat 100 times to confirm no randomness present
-        for _i in range(100):
+        for _ in range(100):
             assert em.get_loss() == 0
 
     @pytest.mark.parametrize("dist", [Gaussian(0.5, 0.1), TopHat(0.1, 0.9)])

@@ -426,7 +426,7 @@ def build_random_qiskit_circuit(n_qubits):
     if n_qubits >= 3:
         gates += ["ccx", "ccz"]
     circuit = QuantumCircuit(n_qubits)
-    for _i in range(randint(10, 20)):
+    for _ in range(randint(10, 20)):
         gate = choice(gates)
         # Create unique list of qubits for each gate
         qubits = sample(range(n_qubits), len(gate))

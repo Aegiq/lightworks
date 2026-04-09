@@ -81,7 +81,7 @@ class TestConstant:
         val = random()
         c = Constant(val)
         # Check 100 times to ensure it always works
-        for _i in range(100):
+        for _ in range(100):
             assert val == c.value()
 
     def test_params_in_string_and_repr(self):
@@ -104,7 +104,7 @@ class TestGaussian:
         the set value for large numbers.
         """
         dist = Gaussian(1, 0.2)
-        vals = [dist.value() for _i in range(100000)]
+        vals = [dist.value() for _ in range(100000)]
         # Check within 5% of expected mean
         assert np.mean(vals) == pytest.approx(1, 0.05)
 
@@ -122,7 +122,7 @@ class TestGaussian:
         bounds to exist within a narrow window of the Gaussian distribution.
         """
         dist = Gaussian(1, 0.3, min_value=1, max_value=1.5)
-        vals = [dist.value() for _i in range(100000)]
+        vals = [dist.value() for _ in range(100000)]
         # Check values are within the minimum and maximum range
         assert min(vals) >= 1
         assert max(vals) <= 1.5
@@ -173,7 +173,7 @@ class TestTopHat:
         range.
         """
         dist = TopHat(0.4, 0.6)
-        vals = [dist.value() for _i in range(100000)]
+        vals = [dist.value() for _ in range(100000)]
         # Check min and max value within set range
         assert min(vals) >= 0.4
         assert max(vals) <= 0.6

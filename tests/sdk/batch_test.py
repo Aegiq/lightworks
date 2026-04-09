@@ -41,7 +41,7 @@ class TestBatchTask:
         """
         Creates components required for testing
         """
-        self.circuits = [Unitary(random_unitary(8)) for _i in range(4)]
+        self.circuits = [Unitary(random_unitary(8)) for _ in range(4)]
         self.inputs = [
             State([1, 1, 0, 0, 1, 1, 0, 0]),
             State([1, 1, 0, 0, 0, 0, 1, 1]),
