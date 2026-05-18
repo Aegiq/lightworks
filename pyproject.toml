@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=80.0", "setuptools_scm>=9"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -60,7 +60,6 @@ dev = [
 ]
 
 [tool.setuptools.dynamic]
-version = { attr = "lightworks.__version.__version__" }
 readme = { file = "README.md", content-type = "text/markdown" }
 
 [tool.setuptools.packages.find]
@@ -68,6 +67,9 @@ exclude = ["tests*"]
 
 [tool.setuptools.package-data]
 lightworks = ["py.typed"]
+
+[tool.setuptools_scm]
+version_file = "lightworks/__version.py"
 
 ## pytest config
 [tool.pytest.ini_options]
