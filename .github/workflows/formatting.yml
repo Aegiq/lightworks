@@ -26,7 +26,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync
+          uv sync --all-extras
 
       - name: Check formatting with ruff
         run: uv run ruff check
