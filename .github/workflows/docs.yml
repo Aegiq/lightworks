@@ -29,6 +29,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ vars.MAIN_PY_VER }}
+          activate-environment: true
 
       - name: Install dependencies
         run: uv sync
