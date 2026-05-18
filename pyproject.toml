@@ -57,7 +57,6 @@ dev = [
     "ruff>=0.8.1",
     "mypy>=1.13.0",
     "ipykernel",
-    "lightworks[all]"
 ]
 
 [tool.setuptools.dynamic]
