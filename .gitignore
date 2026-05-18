@@ -1,3 +1,4 @@
+lightworks/__version.py
 uv.lock
 venv/
 .venv/
