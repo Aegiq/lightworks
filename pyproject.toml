@@ -40,7 +40,7 @@ Source = "https://github.com/Aegiq/lightworks"
 Documentation = "https://aegiq.github.io/lightworks/"
 
 [project.optional-dependencies]
-remote = ["lightworks-remote>=1.2.0"]
+remote = ["lightworks-remote>=1.2.2"]
 qiskit = ["qiskit[visualization]>=1.1.0"]
 all = ["lightworks[qiskit,remote]"]
 
