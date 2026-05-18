@@ -26,8 +26,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv venv
-          uv pip install -r requirements.txt
+          uv sync
 
       - name: Check formatting with ruff
         run: uv run ruff check
