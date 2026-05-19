@@ -1,5 +1,7 @@
-
+lightworks/__version.py
+uv.lock
 venv/
+.venv/
 __pycache__/
 .vscode/
 build/

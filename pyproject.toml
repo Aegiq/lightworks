@@ -1,12 +1,75 @@
 [build-system]
-requires = [
-    "setuptools",
-    "wheel"
-]
+requires = ["setuptools>=80.0", "setuptools_scm>=9"]
 build-backend = "setuptools.build_meta"
 
-[lightworks]
+[project]
+name = "lightworks"
+description = "Open-source Python SDK for photonic quantum computation."
+license = "Apache-2.0"
 requires-python = ">=3.10"
+dynamic = ["version", "readme"]
+authors = [
+  { name = "Aegiq Ltd." },
+]
+dependencies = [
+  "thewalrus==0.20.0",
+  "matplotlib>=3.7.1",
+  "pandas>=2.0.1",
+  "numpy>=1.24.3",
+  "multimethod>=1.11.2",
+  "drawsvg>=2.3.0",
+  "CairoSVG>=2.8.0",
+  "sympy>=1.12.0",
+  "pyarrow",
+  "ipython",
+]
+classifiers = [
+  "Natural Language :: English",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/Aegiq/lightworks"
+Source = "https://github.com/Aegiq/lightworks"
+Documentation = "https://aegiq.github.io/lightworks/"
+
+[project.optional-dependencies]
+remote = ["lightworks-remote>=1.2.3"]
+qiskit = ["qiskit[visualization]>=1.1.0"]
+all = ["lightworks[qiskit,remote]"]
+
+[dependency-groups]
+dev = [
+    "sphinx",
+    "furo",
+    "nbsphinx",
+    "sphinx-copybutton",
+    "sphinxcontrib-bibtex",
+    "pytest",
+    "pytest-rerunfailures",
+    "pytest-cov",
+    "ruff>=0.8.1",
+    "mypy>=1.13.0",
+    "ipykernel",
+]
+
+[tool.setuptools.dynamic]
+readme = { file = "README.md", content-type = "text/markdown" }
+
+[tool.setuptools.packages.find]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+lightworks = ["py.typed"]
+
+[tool.setuptools_scm]
+version_file = "lightworks/__version.py"
 
 ## pytest config
 [tool.pytest.ini_options]
@@ -53,6 +116,7 @@ ignore_missing_imports = true
 exclude = [
     "venv",
     "setup.py",
+    "lightworks/__version.py"
 ]
 line-length = 80
 indent-width = 4
