@@ -17,7 +17,7 @@ from math import factorial, prod
 
 import numpy as np
 from numpy.typing import NDArray
-from thewalrus import perm
+from perm_rs import permanent
 
 from lightworks.__settings import settings
 from lightworks.emulator.utils.state import fock_basis
@@ -30,7 +30,7 @@ from .fock_backend import FockBackend
 class PermanentBackend(FockBackend):
     """
     Calculate the permanent for a give unitary matrix and input state. In this
-    case, thewalrus module is used for all permanent calculations.
+    case, the perm-rs module is used for all permanent calculations.
     """
 
     @property
@@ -78,7 +78,7 @@ class PermanentBackend(FockBackend):
         factor_m = prod([factorial(i) for i in input_state])
         factor_n = prod([factorial(i) for i in output_state])
         # Calculate permanent for given input/output
-        return perm(partition(unitary, input_state, output_state)) / (
+        return permanent(partition(unitary, input_state, output_state)) / (
             np.sqrt(factor_m * factor_n)
         )
 
