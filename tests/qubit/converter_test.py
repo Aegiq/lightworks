@@ -16,12 +16,11 @@ import math
 from random import choice, randint, random, sample
 
 import pytest
-from qiskit import QuantumCircuit
-from qiskit.circuit.library import MCXGate
 
 from lightworks import Sampler, Simulator, State, qubit
 from lightworks.emulator import Backend
 from lightworks.qubit import qiskit_converter
+from lightworks.qubit.converter import QISKIT_INSTALLED
 from lightworks.qubit.converter.converter import (
     ROTATION_GATES_MAP,
     SINGLE_QUBIT_GATES_MAP,
@@ -34,9 +33,15 @@ from lightworks.qubit.converter.utils import (
 )
 from lightworks.sdk.circuit.photonic_components import Barrier, Group
 
+if QISKIT_INSTALLED:
+    from qiskit import QuantumCircuit
+    from qiskit.circuit.library import MCXGate
+
+
 BACKEND = Backend("permanent")
 
 
+@pytest.mark.skipif(not QISKIT_INSTALLED, reason="qiskit not installed")
 class TestQiskitConversion:
     """
     Unit tests to check correct functionality of qiskit conversion function.
