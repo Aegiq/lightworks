@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --all-extras
+          uv sync --extra qiskit
 
       - name: Test with pytest
         if: ${{ ! (matrix.python-version == vars.MAIN_PY_VER && matrix.os == 'ubuntu-latest' && github.event_name == 'pull_request') }}
