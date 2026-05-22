@@ -12,10 +12,11 @@ authors = [
   { name = "Aegiq Ltd." },
 ]
 dependencies = [
-  "thewalrus==0.20.0",
+  "perm-rs==0.1.3",
   "matplotlib>=3.7.1",
   "pandas>=2.0.1",
   "numpy>=1.24.3",
+  "scipy>=1.13.0",
   "multimethod>=1.11.2",
   "drawsvg>=2.3.0",
   "CairoSVG>=2.8.0",
@@ -108,7 +109,7 @@ disallow_untyped_decorators = true
 disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
-module = "thewalrus.*, drawsvg.*, scipy.*, scipy.*.stats.*"
+module = "drawsvg.*, scipy.*, scipy.*.stats.*"
 ignore_missing_imports = true
 
 ## ruff config
