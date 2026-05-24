@@ -109,7 +109,10 @@ class PermanentBackend(FockBackend):
                 and output.
 
         """
-        return abs(self.probability_amplitude(unitary, input_state, output_state)) ** 2
+        return (
+            abs(self.probability_amplitude(unitary, input_state, output_state))
+            ** 2
+        )
 
     def full_probability_distribution(
         self, circuit: CompiledPhotonicCircuit, input_state: State

@@ -36,7 +36,11 @@ class _Settings:
 
     @property
     def all(self) -> list[str]:
-        return ["unitary_precision", "sampler_probability_threshold", "multi_threading"]
+        return [
+            "unitary_precision",
+            "sampler_probability_threshold",
+            "multi_threading",
+        ]
 
     def __str__(self) -> str:
         output = ""
