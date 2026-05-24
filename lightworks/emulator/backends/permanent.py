@@ -17,7 +17,7 @@ from math import factorial, prod
 
 import numpy as np
 from numpy.typing import NDArray
-from perm_rs import permanent
+from perm_rs import permanent, permanent_single
 
 from lightworks.__settings import settings
 from lightworks.emulator.utils.state import fock_basis
@@ -78,7 +78,8 @@ class PermanentBackend(FockBackend):
         factor_m = prod([factorial(i) for i in input_state])
         factor_n = prod([factorial(i) for i in output_state])
         # Calculate permanent for given input/output
-        return permanent(partition(unitary, input_state, output_state)) / (
+        p_func = permanent if settings.multi_threading else permanent_single
+        return p_func(partition(unitary, input_state, output_state)) / (
             np.sqrt(factor_m * factor_n)
         )
 
@@ -108,10 +109,7 @@ class PermanentBackend(FockBackend):
                 and output.
 
         """
-        return (
-            abs(self.probability_amplitude(unitary, input_state, output_state))
-            ** 2
-        )
+        return abs(self.probability_amplitude(unitary, input_state, output_state)) ** 2
 
     def full_probability_distribution(
         self, circuit: CompiledPhotonicCircuit, input_state: State

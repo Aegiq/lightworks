@@ -29,13 +29,14 @@ class _Settings:
     __frozen: bool = False
     unitary_precision: float = 1e-10
     sampler_probability_threshold: float = 1e-9
+    multi_threading: bool = False
 
     def __init__(self) -> None:
         self.__frozen = True
 
     @property
     def all(self) -> list[str]:
-        return ["unitary_precision", "sampler_probability_threshold"]
+        return ["unitary_precision", "sampler_probability_threshold", "multi_threading"]
 
     def __str__(self) -> str:
         output = ""
