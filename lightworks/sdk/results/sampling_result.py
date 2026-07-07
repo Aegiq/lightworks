@@ -185,22 +185,11 @@ class SamplingResult(Result[State, int]):
         to_print = to_print[:-2]
         print(to_print)  # noqa: T201
 
-    def display_as_dataframe(self, threshold: float = 1e-12) -> pd.DataFrame:
+    def display_as_dataframe(self) -> pd.DataFrame:
         """
         Function to display the results of a given simulation in a dataframe
         format. Either the probability amplitudes of the state, or the actual
         probabilities can be displayed.
-
-        Args:
-
-            threshold (float, optional) : Threshold to control at which point
-                value are rounded to zero. If looking for very small amplitudes
-                this may need to be lowered.
-
-            conv_to_probability (bool, optional) : In the case that the result
-                is a probability amplitude, setting this to True will convert
-                it into a probability. If it is not a probability amplitude
-                then this setting will have no effect.
 
         Returns:
 
@@ -211,16 +200,6 @@ class SamplingResult(Result[State, int]):
         # Convert state vectors into strings
         in_strings = [str(self.input)]
         out_strings = [str(s) for s in self.outputs]
-        # Switch to probability if required
-        data = np.array(list(self.values()))
-        # Apply thresholding to values
-        for i in range(data.shape[0]):
-            val = data[i]
-            re = np.real(val) if abs(np.real(val)) > threshold else 0
-            im = np.imag(val) if abs(np.imag(val)) > threshold else 0
-            data[i] = re if abs(im) == 0 else re + 1j * im
-        # Convert array to floats when not non complex results used
-        data = data.astype(int)
         # Create dataframe
-        results = pd.DataFrame(data, index=out_strings, columns=in_strings)
+        results = pd.DataFrame(list(self.values()), index=out_strings, columns=in_strings)
         return results.transpose()
