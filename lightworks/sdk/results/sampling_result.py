@@ -18,7 +18,6 @@ from typing import Any
 
 import matplotlib.figure
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 from lightworks.sdk.state import State
@@ -201,5 +200,7 @@ class SamplingResult(Result[State, int]):
         in_strings = [str(self.input)]
         out_strings = [str(s) for s in self.outputs]
         # Create dataframe
-        results = pd.DataFrame(list(self.values()), index=out_strings, columns=in_strings)
+        results = pd.DataFrame(
+            list(self.values()), index=out_strings, columns=in_strings
+        )
         return results.transpose()
