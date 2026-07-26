@@ -21,7 +21,7 @@ from lightworks.sdk.tasks import Task, TaskData
 
 from .caching import CacheData, check_parameter_updates, get_calculation_values
 
-# ruff: noqa: D102
+# ruff: file-ignore[undocumented-public-method]
 
 
 class EmulatorBackend(ABC):

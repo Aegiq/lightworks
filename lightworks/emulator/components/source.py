@@ -273,7 +273,7 @@ class Source:
                 for i, m in enumerate(mode):
                     mode[i] = mapping[m]
                 list_state[j] = mode
-            state = AnnotatedState(list_state)  # noqa: PLW2901
+            state = AnnotatedState(list_state)  # ruff: ignore[redefined-loop-name]
             # Add new state to new distribution
             if state not in new_dist:
                 new_dist[state] = p

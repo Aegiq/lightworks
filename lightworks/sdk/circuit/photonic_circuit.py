@@ -127,7 +127,7 @@ class PhotonicCircuit:
         return np.allclose(u1, u2, rtol=0, atol=1e-8)
 
     @property
-    def U(self) -> NDArray[np.complex128]:  # noqa: N802
+    def U(self) -> NDArray[np.complex128]:  # ruff: ignore[invalid-function-name]
         """
         The effective unitary that the circuit implements across modes. This
         will include the effect of any loss within a circuit. It is calculated
@@ -136,7 +136,7 @@ class PhotonicCircuit:
         return self._build().U_full[: self.n_modes, : self.n_modes]
 
     @property
-    def U_full(self) -> NDArray[np.complex128]:  # noqa: N802
+    def U_full(self) -> NDArray[np.complex128]:  # ruff: ignore[invalid-function-name]
         """
         The full unitary for the created circuit, this will include the
         additional modes used for the simulation of loss, if this has been
@@ -150,7 +150,7 @@ class PhotonicCircuit:
         return self.__n_modes
 
     @n_modes.setter
-    def n_modes(self, value: Any) -> None:  # noqa: ARG002
+    def n_modes(self, value: Any) -> None:  # ruff: ignore[unused-method-argument]
         """
         Prevents modification of n_modes attribute after circuit creation.
         """
@@ -738,7 +738,7 @@ class PhotonicCircuit:
         for tm in to_modify:
             new_heralds = {}
             for m, n in getattr(self, "_PhotonicCircuit" + tm).items():
-                m += 1 if m >= mode else 0  # noqa: PLW2901
+                m += 1 if m >= mode else 0  # ruff: ignore[redefined-loop-name]
                 new_heralds[m] = n
             setattr(self, "_PhotonicCircuit" + tm, new_heralds)
         # Add internal mode storage
@@ -755,7 +755,7 @@ class PhotonicCircuit:
         # Loop over spec and either call function again or add the value to the
         # new spec
         for spec in circuit_spec:
-            spec = copy(spec)  # noqa: PLW2901
+            spec = copy(spec)  # ruff: ignore[redefined-loop-name]
             if isinstance(spec, Group):
                 spec.circuit_spec = self._freeze_params(spec.circuit_spec)
                 new_spec.append(spec)

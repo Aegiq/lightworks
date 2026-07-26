@@ -43,7 +43,7 @@ Simulators:
 
 from .backends import Backend
 from .components import Detector, Source
-from .utils.exceptions import *  # noqa: F403
+from .utils.exceptions import *  # ruff: ignore[undefined-local-with-import-star]
 
 __all__ = [
     "Backend",

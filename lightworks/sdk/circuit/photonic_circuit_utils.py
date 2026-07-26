@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# ruff: noqa: PLW2901
+# ruff: file-ignore[redefined-loop-name]
 
 """
 Contains a number of different utility functions for modifying circuits.
@@ -331,7 +331,7 @@ def combine_mode_swap_dicts(
 
 
 @multimethod
-def check_loss(loss: Any) -> None:  # noqa: ARG001
+def check_loss(loss: Any) -> None:  # ruff: ignore[unused-function-argument]
     """
     Performs validation that a provided loss value is valid.
     """

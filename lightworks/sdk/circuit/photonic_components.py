@@ -28,7 +28,7 @@ from .parameters import Parameter
 
 SERIALIZED_COMPONENT = tuple[str, dict[str, Any]]
 
-# ruff: noqa: D102
+# ruff: file-ignore[undocumented-public-method]
 
 
 @dataclass(slots=True)
@@ -262,7 +262,7 @@ class Group(Component):
     mode_2: int
     heralds: "HeraldData"
 
-    def get_unitary(self, n_modes: int) -> None:  # type: ignore[override] # noqa: ARG002
+    def get_unitary(self, n_modes: int) -> None:  # type: ignore[override] # ruff: ignore[unused-method-argument]
         return None
 
     def serialize(self) -> NoReturn:

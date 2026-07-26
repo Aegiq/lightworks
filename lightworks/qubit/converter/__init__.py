@@ -15,7 +15,7 @@
 QISKIT_INSTALLED = True
 
 try:
-    import qiskit  # noqa: F401
+    import qiskit  # ruff: ignore[unused-import]
 except ModuleNotFoundError as e:
     if "qiskit" in str(e):
         QISKIT_INSTALLED = False

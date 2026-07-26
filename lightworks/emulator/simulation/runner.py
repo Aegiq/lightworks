@@ -22,4 +22,4 @@ class RunnerABC(ABC):
     """
 
     @abstractmethod
-    def run(self) -> dict[Any, Any]: ...  # noqa: D102
+    def run(self) -> dict[Any, Any]: ...  # ruff: ignore[undocumented-public-method]

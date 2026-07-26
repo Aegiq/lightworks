@@ -134,7 +134,7 @@ def choi_from_unitary(
 
 
 @multimethod
-def _combine_all(value: Any, n: int) -> None:  # noqa: ARG001
+def _combine_all(value: Any, n: int) -> None:  # ruff: ignore[unused-function-argument]
     """
     Combines all elements of provided value with itself n number of times.
     """

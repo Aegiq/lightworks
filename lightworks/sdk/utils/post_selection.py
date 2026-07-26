@@ -171,7 +171,7 @@ class DefaultPostSelection(PostSelectionType):
     Provides a default post-selection function which always returns True.
     """
 
-    def validate(self, state: State | list[int]) -> bool:  # noqa: ARG002
+    def validate(self, state: State | list[int]) -> bool:  # ruff: ignore[unused-method-argument]
         """
         Will return True regardless of provided state.
         """

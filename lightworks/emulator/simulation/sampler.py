@@ -142,9 +142,9 @@ class SamplerRunner(RunnerABC):
             self.data.random_seed,
         )
 
-    def _sample_N_inputs(  # noqa: N802
+    def _sample_N_inputs(  # ruff: ignore[invalid-function-name]
         self,
-        N: int,  # noqa: N803
+        N: int,  # ruff: ignore[invalid-argument-name]
         post_select: PostSelectionType,
         min_detection: int = 0,
         seed: int | None = None,
@@ -237,9 +237,9 @@ class SamplerRunner(RunnerABC):
         counted = dict(Counter(filtered_samples))
         return SamplingResult(counted, self.data.input_state)
 
-    def _sample_N_outputs(  # noqa: N802
+    def _sample_N_outputs(  # ruff: ignore[invalid-function-name]
         self,
-        N: int,  # noqa: N803
+        N: int,  # ruff: ignore[invalid-argument-name]
         post_select: PostSelectionType,
         min_detection: int = 0,
         seed: int | None = None,
@@ -295,7 +295,7 @@ class SamplerRunner(RunnerABC):
         for s, p in pdist.items():
             # Apply threshold detection
             if not self.detector.photon_counting:
-                s = State([min(i, 1) for i in s])  # noqa: PLW2901
+                s = State([min(i, 1) for i in s])  # ruff: ignore[redefined-loop-name]
             # Check heralds
             for m, n in herald_items:
                 if s[m] != n:

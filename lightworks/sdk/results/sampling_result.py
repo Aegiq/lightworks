@@ -182,7 +182,7 @@ class SamplingResult(Result[State, int]):
         for ostate, p in self.items():
             to_print += str(ostate) + " : " + str(p) + ", "
         to_print = to_print[:-2]
-        print(to_print)  # noqa: T201
+        print(to_print)  # ruff: ignore[print]
 
     def display_as_dataframe(self) -> pd.DataFrame:
         """

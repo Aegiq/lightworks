@@ -50,7 +50,7 @@ import contextlib
 
 from . import emulator, interferometers, qubit, tomography
 from .__settings import settings
-from .__version import __version__  # noqa: F401
+from .__version import __version__  # ruff: ignore[unused-import]
 from .sdk.circuit import Parameter, ParameterDict, PhotonicCircuit, Unitary
 from .sdk.state import State
 from .sdk.tasks import Analyzer, Batch, Sampler, Simulator
@@ -61,12 +61,12 @@ from .sdk.utils import (
     random_permutation,
     random_unitary,
 )
-from .sdk.utils.exceptions import *  # noqa: F403
+from .sdk.utils.exceptions import *  # ruff: ignore[undefined-local-with-import-star]
 from .sdk.visualisation import display
 
 # If installed then also import the remote module
 with contextlib.suppress(ModuleNotFoundError):
-    import lightworks_remote as remote  # noqa: F401
+    import lightworks_remote as remote  # ruff: ignore[unused-import]
 
 __all__ = [
     "Analyzer",

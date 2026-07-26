@@ -43,7 +43,7 @@ def process_random_seed(seed: Any) -> int | None:
 
 
 def random_unitary(
-    N: int,  # noqa: N803
+    N: int,  # ruff: ignore[invalid-argument-name]
     seed: int | None = None,
 ) -> NDArray[np.complex128]:
     """
@@ -68,7 +68,7 @@ def random_unitary(
 
 
 def random_permutation(
-    N: int,  # noqa: N803
+    N: int,  # ruff: ignore[invalid-argument-name]
     seed: int | None = None,
 ) -> NDArray[np.complex128]:
     """

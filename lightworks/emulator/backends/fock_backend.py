@@ -37,7 +37,7 @@ from lightworks.sdk.tasks import Analyzer, Sampler, Simulator, Task
 
 from .abc_backend import EmulatorBackend
 
-# ruff: noqa: ARG002, D102
+# ruff: file-ignore[unused-method-argument, undocumented-public-method]
 
 
 class FockBackend(EmulatorBackend):
