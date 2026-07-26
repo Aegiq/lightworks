@@ -55,7 +55,7 @@ dev = [
     "pytest-rerunfailures",
     "pytest-cov",
     "ruff>=0.16.0",
-    "mypy>=1.13.0",
+    "mypy>=2.1.0",
     "ipykernel",
 ]
 
