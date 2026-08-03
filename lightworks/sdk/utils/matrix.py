@@ -23,7 +23,7 @@ from lightworks.__settings import settings
 
 
 def check_unitary(
-    U: NDArray[np.complex128],  # noqa: N803
+    U: NDArray[np.complex128],  # ruff: ignore[invalid-argument-name]
     precision: float | None = None,
 ) -> bool:
     """

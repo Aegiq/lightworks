@@ -420,7 +420,7 @@ class TestPostSelection:
         "post_select",
         [
             PostSelection(),
-            PostSelectionFunction(lambda s: True),  # noqa: ARG005
+            PostSelectionFunction(lambda s: True),  # ruff: ignore[unused-lambda-argument]
             DefaultPostSelection(),
         ],
     )
@@ -592,7 +592,7 @@ class TestPostSelection:
         Checks that a function assigned to PostSelectionFunction will always
         return the same value as the function itself.
         """
-        func = lambda s: s[1] + s[2] == 1 and s[3] == 0  # noqa: E731
+        func = lambda s: s[1] + s[2] == 1 and s[3] == 0  # ruff: ignore[lambda-assignment]
         ps = PostSelectionFunction(func)
         # Check against known state
         assert func(self.test_state) == ps.validate(self.test_state)
@@ -659,7 +659,7 @@ class TestSettings:
         error.
         """
         with pytest.raises(AttributeError):
-            settings.test_setting  # noqa: B018
+            settings.test_setting  # ruff: ignore[useless-expression]
 
     def test_setting_in_str_repr(self):
         """

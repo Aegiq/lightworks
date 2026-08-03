@@ -27,7 +27,7 @@ from lightworks.sdk.circuit import Parameter, Unitary
 from lightworks.sdk.utils.param_unitary import ParameterizedUnitary
 
 
-class I(Unitary):  # noqa: E742
+class I(Unitary):  # ruff: ignore[ambiguous-class-name]
     """
     Implements the identity gate across a pair of modes corresponding to a
     dual-rail encoded qubit.

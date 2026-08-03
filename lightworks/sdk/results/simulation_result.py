@@ -300,11 +300,11 @@ class SimulationResult(Result[State, dict[State, float | complex]]):
                 if self.result_type == "counts":
                     to_print += str(ostate) + " : " + str(p) + ", "
                 else:
-                    p = np.round(p, rounding)  # noqa: PLW2901
+                    p = np.round(p, rounding)  # ruff: ignore[redefined-loop-name]
                     if abs(p.real) > 0 or abs(p.imag) > 0:
                         to_print += str(p) + "*" + str(ostate) + " + "
             to_print = to_print[:-2]
-            print(to_print)  # noqa: T201
+            print(to_print)  # ruff: ignore[print]
 
     def display_as_dataframe(
         self, threshold: float = 1e-12, conv_to_probability: bool = False

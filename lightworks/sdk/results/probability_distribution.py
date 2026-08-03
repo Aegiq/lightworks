@@ -16,7 +16,7 @@ from lightworks.sdk.state import State
 from lightworks.sdk.utils.exceptions import ProbabilityDistributionError
 
 
-class ProbabilityDistribution(dict[State, float]):  # noqa: FURB189
+class ProbabilityDistribution(dict[State, float]):  # ruff: ignore[subclass-builtin]
     """
     Stores a created ProbabilityDistribution and prevents modification to
     values.

@@ -31,7 +31,7 @@ class TaskData:
 
 
 @dataclass(slots=True)
-class AnalyzerTask(TaskData):  # noqa: D101
+class AnalyzerTask(TaskData):  # ruff: ignore[undocumented-public-class]
     circuit: CompiledPhotonicCircuit
     inputs: list[State]
     expected: dict[State, State | list[State]] | None
@@ -39,7 +39,7 @@ class AnalyzerTask(TaskData):  # noqa: D101
 
 
 @dataclass(slots=True)
-class SamplerTask(TaskData):  # noqa: D101
+class SamplerTask(TaskData):  # ruff: ignore[undocumented-public-class]
     circuit: CompiledPhotonicCircuit
     input_state: State
     n_samples: int
@@ -52,7 +52,7 @@ class SamplerTask(TaskData):  # noqa: D101
 
 
 @dataclass(slots=True)
-class SimulatorTask(TaskData):  # noqa: D101
+class SimulatorTask(TaskData):  # ruff: ignore[undocumented-public-class]
     circuit: CompiledPhotonicCircuit
     inputs: list[State]
     outputs: list[State] | None

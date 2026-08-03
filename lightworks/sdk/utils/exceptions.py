@@ -69,7 +69,7 @@ class ParameterDictError(LightworksError):
     """
 
 
-class DecompositionUnsuccessful(LightworksError):  # noqa: N818
+class DecompositionUnsuccessful(LightworksError):  # ruff: ignore[error-suffix-on-exception-name]
     """
     For situations in which a unitary decomposition procedure is unsuccessful.
     """

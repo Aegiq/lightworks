@@ -188,7 +188,7 @@ class DrawCircuitMPL:
         )
 
     @multimethod
-    def _add(self, spec: Any) -> None:  # noqa: ARG002
+    def _add(self, spec: Any) -> None:  # ruff: ignore[unused-method-argument]
         """
         Catch all for any components which may not have been implemented.
         """

@@ -168,7 +168,7 @@ class TestStateTomography:
         """
         tomo = StateTomography(2, PhotonicCircuit(4))
         with pytest.raises(AttributeError):
-            tomo.rho  # noqa: B018
+            tomo.rho  # ruff: ignore[useless-expression]
 
     def test_fidleity_before_calc(self):
         """

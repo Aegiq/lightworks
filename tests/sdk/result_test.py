@@ -129,7 +129,7 @@ class TestSamplingResult:
         Checks custom mapping can be applied correctly to create a new result.
         """
 
-        def mapping(state: State) -> State:  # noqa: FURB118
+        def mapping(state: State) -> State:  # ruff: ignore[reimplemented-operator]
             return state[2:]
 
         r = SamplingResult(self.test_dict, self.test_input)
@@ -595,7 +595,7 @@ class TestSimulationResult:
         Checks custom mapping can be applied correctly to create a new result.
         """
 
-        def mapping(state: State) -> State:  # noqa: FURB118
+        def mapping(state: State) -> State:  # ruff: ignore[reimplemented-operator]
             return state[:2]
 
         r = SimulationResult(

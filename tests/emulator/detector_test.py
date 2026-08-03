@@ -26,7 +26,7 @@ class TestDetector:
     situations.
     """
 
-    def setup_method(self) -> None:  # noqa: D102
+    def setup_method(self) -> None:  # ruff: ignore[undocumented-public-method]
         self.lossy_detector = Detector(efficiency=0.1)  # Should be very lossy
         self.dc_detector = Detector(p_dark=0.1)  # High probability
         self.non_pnr_detector = Detector(photon_counting=False)

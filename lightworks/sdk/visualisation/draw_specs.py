@@ -25,7 +25,7 @@ from lightworks.sdk.utils.exceptions import DisplayError
 
 from .display_utils import MPLSettings, SVGSettings
 
-# ruff: noqa: D102
+# ruff: file-ignore[undocumented-public-method]
 
 
 @dataclass(slots=True, kw_only=True)

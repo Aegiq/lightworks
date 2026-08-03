@@ -54,8 +54,8 @@ dev = [
     "pytest",
     "pytest-rerunfailures",
     "pytest-cov",
-    "ruff>=0.8.1",
-    "mypy>=1.13.0",
+    "ruff>=0.16.0",
+    "mypy>=2.1.0",
     "ipykernel",
 ]
 
@@ -130,34 +130,36 @@ preview = true
 select = ["ALL"]
 fixable = ["ALL"]
 ignore = [
-    "ANN401",
-    "C901",
-    "COM812",
-    "D100",
-    "D104",
-    "D105",
-    "D107",
-    "D200",
-    "D205",
-    "D212",
-    "D412",
-    "D415",
-    "D421",
-    "DOC201",
-    "DOC402",
-    "DOC501",
-    "EM101",
+    # Modules/sub-modules
     "FBT",
     "PLR09",
-    "PT011",
-    "PLR1702",
-    "PLR2004",
-    "PLR6301",
-    "RUF067",
-    "S311",
-    "SLF001",
     "TD",
-    "TRY003",
+    # Specific rules
+    "any-type",
+    "complex-structure",
+    "missing-trailing-comma",
+    "undocumented-public-module",
+    "undocumented-public-package",
+    "undocumented-magic-method",
+    "undocumented-public-init",
+    "unnecessary-multiline-docstring",
+    "missing-blank-line-after-summary",
+    "multi-line-summary-first-line",
+    "blank-lines-between-header-and-content",
+    "missing-terminal-punctuation",
+    "property-docstring-starts-with-verb",
+    "docstring-missing-returns",
+    "docstring-missing-yields",
+    "docstring-missing-exception",
+    "raw-string-in-exception",
+    "pytest-raises-too-broad",
+    "too-many-nested-blocks",
+    "magic-value-comparison",
+    "no-self-use",
+    "non-empty-init-module",
+    "suspicious-non-cryptographic-random-usage",
+    "private-member-access",
+    "raise-vanilla-args",
 ]
 
 [tool.ruff.format]
@@ -167,11 +169,11 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["PERF", "ANN", "S101", "PLC2701", "SLF001", "DOC201"]
-"docs/*" = ["ANN", "B905", "CPY001", "D", "E731", "T201"]
-"docs/source/conf.py" = ["INP001"]
-"docs/source/tutorials/qubit.ipynb" = ["E402"]
-".github/workflows/*" = ["CPY001", "INP001", "PTH123"]
+"tests/*" = ["PERF", "ANN", "assert", "import-private-name", "private-member-access", "docstring-missing-returns"]
+"docs/*" = ["ANN", "zip-without-explicit-strict", "missing-copyright-notice", "D", "lambda-assignment", "print"]
+"docs/source/conf.py" = ["implicit-namespace-package"]
+"docs/source/tutorials/qubit.ipynb" = ["module-import-not-at-top-of-file"]
+".github/workflows/*" = ["missing-copyright-notice", "implicit-namespace-package", "builtin-open"]
 
 [tool.ruff.lint.flake8-pytest-style]
 parametrize-names-type = "tuple"

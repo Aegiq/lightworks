@@ -59,7 +59,7 @@ class CompiledPhotonicCircuit:
         return self.n_modes + self.loss_modes
 
     @property
-    def U_full(self) -> NDArray[np.complex128]:  # noqa: N802
+    def U_full(self) -> NDArray[np.complex128]:  # ruff: ignore[invalid-function-name]
         """Full unitary matrix."""
         return self._unitary
 

@@ -84,7 +84,7 @@ class CNOT(PhotonicCircuit):
         self.add(circ, 0, group=True, name=name)
 
 
-class CZ_Heralded(PhotonicCircuit):  # noqa: N801
+class CZ_Heralded(PhotonicCircuit):  # ruff: ignore[invalid-class-name]
     """
     Heralded version of the CZ gate which acts across two dual-rail encoded
     qubits, using two NS gates with ancillary photons to herald the success of
@@ -136,7 +136,7 @@ class CZ_Heralded(PhotonicCircuit):  # noqa: N801
         self.add(unitary, 0, group=True, name="CZ Heralded")
 
 
-class CNOT_Heralded(PhotonicCircuit):  # noqa: N801
+class CNOT_Heralded(PhotonicCircuit):  # ruff: ignore[invalid-class-name]
     """
     Heralded version of the CNOT gate which acts across two dual-rail encoded
     qubits, using two NS gates with ancillary photons to herald the success of
