@@ -57,16 +57,8 @@ jobs:
     - name: Update citation file
       run: uv run .github/workflows/update_citation.py "${{ github.event.release.tag_name }}"
 
-    # The repo is currently detached from HEAD, using a worktree to commit on main
-    - name: Switch to worktree
-      run: |
-        git worktree add ../main_worktree main
-        # Copy the updated file to the main worktree
-        cp CITATION.cff ../main_worktree/CITATION.cff
-
     - uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: Update CITATION.cff file
-        repository: ../main_worktree
         branch: main
         
