@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="436.09999999999997" height="245.0" viewBox="0 0 890.0 500">
+<defs>
+</defs>
+<rect x="0" y="0" width="890.0" height="500" fill="white" stroke="none" />
+<rect x="100.0" y="25" width="690.0" height="450" fill="none" stroke="black" />
+<rect x="92.0" y="124.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="249.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="374.5" width="8" height="1" fill="black" />
+<text x="80.0" y="127" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 127)">0</text>
+<text x="80.0" y="252" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 252)">1</text>
+<text x="80.0" y="377" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 377)">2</text>
+<rect x="149.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="200.0" y="225.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="225.0" y="312.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 225.0, 312.5)">BS</text>
+<text x="225.0" y="425" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 225.0, 425)">r = 0.5</text>
+<rect x="249.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="249.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="299.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="350.0" y="225.0" width="50" height="50" fill="#e8532b" stroke="black" rx="5" ry="5" />
+<text x="375.0" y="252" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 375.0, 252)">PS</text>
+<text x="375.0" y="300" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 375.0, 300)">φ = 0.6</text>
+<rect x="399.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="299.95" y="371.0" width="150.1" height="8" fill="black" />
+<rect x="449.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="449.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="500.0" y="225.0" width="50" height="175" fill="#3e368d" stroke="black" rx="5" ry="5" />
+<text x="525.0" y="312.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 525.0, 312.5)">BS</text>
+<text x="525.0" y="425" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 525.0, 425)">r = 0.5</text>
+<rect x="549.95" y="246.0" width="50.1" height="8" fill="black" />
+<rect x="549.95" y="371.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="121.0" width="450.1" height="8" fill="black" />
+<rect x="599.95" y="121.0" width="25.1" height="8" fill="black" />
+<rect x="599.95" y="246.0" width="25.1" height="8" fill="black" />
+<rect x="599.95" y="371.0" width="25.1" height="8" fill="black" />
+<path d="M628.7870930952726,121.0 L625.0,121.0 L625.0,129.0 L625.0,129.0 L711.2129069047274,254.0 L715.0,254.0 L715.0,246.0 L715.0,246.0 Z" fill="black" />
+<path d="M628.7870930952726,246.0 L625.0,246.0 L625.0,254.0 L625.0,254.0 L711.2129069047274,379.0 L715.0,379.0 L715.0,371.0 L715.0,371.0 Z" fill="black" />
+<path d="M625.0,371.0 L625.0,371.0 L625.0,379.0 L629.9009629848528,379.0 L715.0,129.0 L715.0,129.0 L715.0,121.0 L710.0990370151472,121.0 Z" fill="black" />
+<rect x="714.95" y="121.0" width="25.1" height="8" fill="black" />
+<rect x="714.95" y="246.0" width="25.1" height="8" fill="black" />
+<rect x="714.95" y="371.0" width="25.1" height="8" fill="black" />
+</svg>
