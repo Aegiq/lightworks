@@ -41,7 +41,7 @@ Documentation = "https://aegiq.github.io/lightworks/"
 
 [project.optional-dependencies]
 remote = ["lightworks-remote>=1.2.3"]
-fermionic = ["lightworks-fermionic>=1.2.3"]
+fermionic = ["lightworks-fermionic>=1.0.0"]
 qiskit = ["qiskit[visualization]>=1.1.0"]
 all = ["lightworks[qiskit,remote, fermionic]"]
 
