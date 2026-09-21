@@ -1,5 +1,5 @@
-import sys
 import datetime
+import sys
 
 # Try to get value from argument, otherwise fallback to built version
 if len(sys.argv) < 2:
@@ -7,8 +7,8 @@ if len(sys.argv) < 2:
     current_ver = str(ver)
 else:
     raw_ver = sys.argv[1]
-    current_ver = raw_ver.lstrip('v')
-    
+    current_ver = raw_ver.lstrip("v")
+
 current_date = datetime.datetime.now(tz=datetime.UTC)
 
 version_str = f"version: v{current_ver}\n"
