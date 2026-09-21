@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="350.3225806451613" height="362.0" viewBox="0 0 750.0 775">
+<defs>
+</defs>
+<rect x="0" y="0" width="750.0" height="775" fill="white" stroke="none" />
+<rect x="100.0" y="25" width="550.0" height="725" fill="none" stroke="black" />
+<rect x="92.0" y="124.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="199.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="324.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="449.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="574.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="649.5" width="8" height="1" fill="black" />
+<text x="80.0" y="127" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 127)">-</text>
+<text x="80.0" y="202" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 202)">0</text>
+<text x="80.0" y="327" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 327)">1</text>
+<text x="80.0" y="452" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 452)">2</text>
+<text x="80.0" y="577" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 577)">3</text>
+<text x="80.0" y="652" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 652)">-</text>
+<rect x="199.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="196.0" width="100.1" height="8" fill="black" />
+<rect x="149.95" y="321.0" width="100.1" height="8" fill="black" />
+<rect x="149.95" y="446.0" width="100.1" height="8" fill="black" />
+<rect x="149.95" y="571.0" width="100.1" height="8" fill="black" />
+<rect x="199.95" y="646.0" width="50.1" height="8" fill="black" />
+<g>
+<rect x="250.0" y="100.0" width="100" height="575" fill="#1a0f36" stroke="black" rx="5" ry="5" />
+<text x="300.0" y="387.5" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(270, 300.0, 387.5)">CNOT (0, 1)</text>
+</g>
+<rect x="349.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="196.0" width="100.1" height="8" fill="black" />
+<rect x="349.95" y="321.0" width="100.1" height="8" fill="black" />
+<rect x="349.95" y="446.0" width="100.1" height="8" fill="black" />
+<rect x="349.95" y="571.0" width="100.1" height="8" fill="black" />
+<rect x="349.95" y="646.0" width="50.1" height="8" fill="black" />
+<g>
+<circle cx="200.0" cy="125" r="25" fill="#3e368d" stroke="black" />
+<text x="200.0" y="127.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 200.0, 127.5)">0</text>
+</g>
+<g>
+<circle cx="200.0" cy="650" r="25" fill="#3e368d" stroke="black" />
+<text x="200.0" y="652.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 200.0, 652.5)">0</text>
+</g>
+<g>
+<circle cx="400.0" cy="125" r="25" fill="#3e368d" stroke="black" />
+<text x="400.0" y="127.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 400.0, 127.5)">0</text>
+</g>
+<g>
+<circle cx="400.0" cy="650" r="25" fill="#3e368d" stroke="black" />
+<text x="400.0" y="652.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 400.0, 652.5)">0</text>
+</g>
+<rect x="449.95" y="196.0" width="50.1" height="8" fill="black" />
+<g>
+<rect x="500.0" y="175.0" width="50" height="50" fill="grey" stroke="black" rx="5" ry="5" />
+<text x="525.0" y="202" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 525.0, 202)">L</text>
+<text x="525.0" y="250" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 525.0, 250)">loss = 0.9</text>
+</g>
+<rect x="549.95" y="196.0" width="50.1" height="8" fill="black" />
+<rect x="449.95" y="321.0" width="50.1" height="8" fill="black" />
+<g>
+<rect x="500.0" y="300.0" width="50" height="50" fill="grey" stroke="black" rx="5" ry="5" />
+<text x="525.0" y="327" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 525.0, 327)">L</text>
+<text x="525.0" y="375" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 525.0, 375)">loss = 0.9</text>
+</g>
+<rect x="549.95" y="321.0" width="50.1" height="8" fill="black" />
+<rect x="449.95" y="446.0" width="50.1" height="8" fill="black" />
+<g>
+<rect x="500.0" y="425.0" width="50" height="50" fill="grey" stroke="black" rx="5" ry="5" />
+<text x="525.0" y="452" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 525.0, 452)">L</text>
+<text x="525.0" y="500" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 525.0, 500)">loss = 0.9</text>
+</g>
+<rect x="549.95" y="446.0" width="50.1" height="8" fill="black" />
+<rect x="449.95" y="571.0" width="50.1" height="8" fill="black" />
+<g>
+<rect x="500.0" y="550.0" width="50" height="50" fill="grey" stroke="black" rx="5" ry="5" />
+<text x="525.0" y="577" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 525.0, 577)">L</text>
+<text x="525.0" y="625" font-size="18" fill="black" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 525.0, 625)">loss = 0.9</text>
+</g>
+<rect x="549.95" y="571.0" width="50.1" height="8" fill="black" />
+</svg>

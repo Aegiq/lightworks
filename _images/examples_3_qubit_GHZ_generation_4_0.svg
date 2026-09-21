@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="556.6511627906976" height="544.0" viewBox="0 0 1100.0 1075">
+<defs>
+</defs>
+<rect x="0" y="0" width="1100.0" height="1075" fill="white" stroke="none" />
+<rect x="100.0" y="25" width="900.0" height="1025" fill="none" stroke="black" />
+<rect x="92.0" y="124.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="199.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="324.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="399.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="474.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="599.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="674.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="749.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="874.5" width="8" height="1" fill="black" />
+<rect x="92.0" y="949.5" width="8" height="1" fill="black" />
+<text x="80.0" y="127" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 127)">-</text>
+<text x="80.0" y="202" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 202)">|1&gt;</text>
+<text x="80.0" y="327" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 327)">-</text>
+<text x="80.0" y="402" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 402)">-</text>
+<text x="80.0" y="477" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 477)">|1&gt;</text>
+<text x="80.0" y="602" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 602)">-</text>
+<text x="80.0" y="677" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 677)">-</text>
+<text x="80.0" y="752" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 752)">|1&gt;</text>
+<text x="80.0" y="877" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 877)">-</text>
+<text x="80.0" y="952" font-size="25" fill="black" text-anchor="end" dominant-baseline="middle" transform="rotate(0, 80.0, 952)">-</text>
+<rect x="149.95" y="196.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="321.0" width="50.1" height="8" fill="black" />
+<rect x="200.0" y="175.0" width="100" height="175" fill="#1a0f36" stroke="black" rx="5" ry="5" />
+<text x="250.0" y="262.5" font-size="35" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 250.0, 262.5)">H</text>
+<rect x="299.95" y="196.0" width="50.1" height="8" fill="black" />
+<rect x="299.95" y="321.0" width="50.1" height="8" fill="black" />
+<rect x="149.95" y="471.0" width="200.1" height="8" fill="black" />
+<rect x="149.95" y="596.0" width="200.1" height="8" fill="black" />
+<rect x="399.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="349.95" y="196.0" width="100.1" height="8" fill="black" />
+<rect x="349.95" y="321.0" width="100.1" height="8" fill="black" />
+<rect x="349.95" y="471.0" width="100.1" height="8" fill="black" />
+<rect x="349.95" y="596.0" width="100.1" height="8" fill="black" />
+<rect x="399.95" y="671.0" width="50.1" height="8" fill="black" />
+<rect x="450.0" y="100.0" width="100" height="600" fill="#1a0f36" stroke="black" rx="5" ry="5" />
+<text x="500.0" y="400.0" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(270, 500.0, 400.0)">CNOT 1</text>
+<rect x="549.95" y="121.0" width="50.1" height="8" fill="black" />
+<rect x="549.95" y="196.0" width="100.1" height="8" fill="black" />
+<rect x="549.95" y="321.0" width="100.1" height="8" fill="black" />
+<rect x="549.95" y="471.0" width="100.1" height="8" fill="black" />
+<rect x="549.95" y="596.0" width="100.1" height="8" fill="black" />
+<rect x="549.95" y="671.0" width="50.1" height="8" fill="black" />
+<circle cx="400.0" cy="125" r="25" fill="#3e368d" stroke="black" />
+<text x="400.0" y="127.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 400.0, 127.5)">0</text>
+<circle cx="400.0" cy="675" r="25" fill="#3e368d" stroke="black" />
+<text x="400.0" y="677.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 400.0, 677.5)">0</text>
+<circle cx="600.0" cy="125" r="25" fill="#3e368d" stroke="black" />
+<text x="600.0" y="127.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 600.0, 127.5)">0</text>
+<circle cx="600.0" cy="675" r="25" fill="#3e368d" stroke="black" />
+<text x="600.0" y="677.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 600.0, 677.5)">0</text>
+<rect x="149.95" y="746.0" width="500.1" height="8" fill="black" />
+<rect x="149.95" y="871.0" width="500.1" height="8" fill="black" />
+<rect x="699.95" y="396.0" width="50.1" height="8" fill="black" />
+<rect x="649.95" y="471.0" width="100.1" height="8" fill="black" />
+<rect x="649.95" y="596.0" width="100.1" height="8" fill="black" />
+<rect x="649.95" y="746.0" width="100.1" height="8" fill="black" />
+<rect x="649.95" y="871.0" width="100.1" height="8" fill="black" />
+<rect x="699.95" y="946.0" width="50.1" height="8" fill="black" />
+<rect x="750.0" y="375.0" width="100" height="600" fill="#1a0f36" stroke="black" rx="5" ry="5" />
+<text x="800.0" y="675.0" font-size="25" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(270, 800.0, 675.0)">CNOT 2</text>
+<rect x="849.95" y="396.0" width="50.1" height="8" fill="black" />
+<rect x="849.95" y="471.0" width="100.1" height="8" fill="black" />
+<rect x="849.95" y="596.0" width="100.1" height="8" fill="black" />
+<rect x="849.95" y="746.0" width="100.1" height="8" fill="black" />
+<rect x="849.95" y="871.0" width="100.1" height="8" fill="black" />
+<rect x="849.95" y="946.0" width="50.1" height="8" fill="black" />
+<circle cx="700.0" cy="400" r="25" fill="#3e368d" stroke="black" />
+<text x="700.0" y="402.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 700.0, 402.5)">0</text>
+<circle cx="700.0" cy="950" r="25" fill="#3e368d" stroke="black" />
+<text x="700.0" y="952.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 700.0, 952.5)">0</text>
+<circle cx="900.0" cy="400" r="25" fill="#3e368d" stroke="black" />
+<text x="900.0" y="402.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 900.0, 402.5)">0</text>
+<circle cx="900.0" cy="950" r="25" fill="#3e368d" stroke="black" />
+<text x="900.0" y="952.5" font-size="30" fill="white" text-anchor="middle" dominant-baseline="middle" transform="rotate(0, 900.0, 952.5)">0</text>
+<rect x="649.95" y="196.0" width="300.1" height="8" fill="black" />
+<rect x="649.95" y="321.0" width="300.1" height="8" fill="black" />
+</svg>
