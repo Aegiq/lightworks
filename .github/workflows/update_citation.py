@@ -4,6 +4,7 @@ import sys
 # Try to get value from argument, otherwise fallback to built version
 if len(sys.argv) < 2:
     from lightworks import __version__ as ver
+
     current_ver = str(ver)
 else:
     raw_ver = sys.argv[1]
