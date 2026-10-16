@@ -64,9 +64,11 @@ from .sdk.utils import (
 from .sdk.utils.exceptions import *  # ruff: ignore[undefined-local-with-import-star]
 from .sdk.visualisation import display
 
-# If installed then also import the remote module
+# If installed then also import any optional modules
 with contextlib.suppress(ModuleNotFoundError):
     import lightworks_remote as remote  # ruff: ignore[unused-import]
+with contextlib.suppress(ModuleNotFoundError):
+    import lightworks_fermionic as fermionic  # ruff: ignore[unused-import]
 
 __all__ = [
     "Analyzer",
