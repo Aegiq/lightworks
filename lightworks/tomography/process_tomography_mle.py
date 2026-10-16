@@ -174,8 +174,8 @@ class MLETomographyAlgorithm:
             # Optimise alpha weighting parameter
             alpha = 0.5
             new_cost = self._cost(choi + alpha * mod, n_vec)
-            thresh_value = gamma * np.trace(
-                mod @ np.conj(self._gradient(choi.T, n_vec))
+            thresh_value = gamma * np.real(
+                np.trace(mod @ np.conj(self._gradient(choi, n_vec)))
             )
             while new_cost > current_cost + alpha * thresh_value:
                 alpha *= 0.5
@@ -235,7 +235,7 @@ class MLETomographyAlgorithm:
         Calculates the expected measurement outcomes from the provided choi
         matrix.
         """
-        return (self._a_matrix @ _vec(choi.T)).clip(1e-8)
+        return (self._a_matrix @ _vec(choi)).clip(1e-8)
 
     def _cost(
         self, choi: NDArray[np.complex128], n_vec: NDArray[np.float64]

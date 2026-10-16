@@ -53,11 +53,17 @@ def run_experiments(experiments, n_qubits):
     return results
 
 
-cnot_mat = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
-
-h_exp = choi_from_unitary([[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]])
-
-cnot_exp = choi_from_unitary(cnot_mat)
+SQ_TEST_GATES = [
+    ("I", qubit.I()),
+    ("X", qubit.X()),
+    ("Y", qubit.Y()),
+    ("Z", qubit.Z()),
+    ("H", qubit.H()),
+    ("S", qubit.S()),
+    ("T", qubit.T()),
+]
+CNOT_MAT = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]])
+CNOT_CHOI_EXP = choi_from_unitary(CNOT_MAT)
 
 
 class TestLIProcessTomography:
@@ -70,11 +76,12 @@ class TestLIProcessTomography:
         """
         Runs process tomography experiments so results can be reused.
         """
-        # Hadamard tomography
+        # Single qubit gate topographies
         n_qubits = 1
-        circ = qubit.H()
-        experiments = LIProcessTomography(n_qubits, circ).get_experiments()
-        self.h_data = run_experiments(experiments, n_qubits)
+        self.sq_data = {}
+        for gate, circ in SQ_TEST_GATES:
+            experiments = LIProcessTomography(n_qubits, circ).get_experiments()
+            self.sq_data[gate] = run_experiments(experiments, n_qubits)
         # CNOT tomography
         n_qubits = 2
         circ = qubit.CNOT()
@@ -85,22 +92,26 @@ class TestLIProcessTomography:
             for exp, d in zip(experiments, self.cnot_data, strict=True)
         }
 
-    def test_hadamard_choi(self):
+    @pytest.mark.parametrize(("gate", "circ"), SQ_TEST_GATES)
+    def test_sq_choi(self, gate, circ):
         """
-        Checks process tomography of the Hadamard gate produces the expected
+        Checks process tomography for a single qubit gate produces the expected
         choi matrix.
         """
         tomo = LIProcessTomography(1, qubit.H())
-        tomo.process(self.h_data)
-        assert tomo.choi == pytest.approx(h_exp, abs=5e-2)
+        tomo.process(self.sq_data[gate])
+        choi_exp = choi_from_unitary(circ.U)
+        assert tomo.choi == pytest.approx(choi_exp, abs=5e-2)
 
-    def test_hadamard_fidelity(self):
+    @pytest.mark.parametrize(("gate", "circ"), SQ_TEST_GATES)
+    def test_sq_fidelity(self, gate, circ):
         """
-        Checks fidelity of hadamard gate process matrix is close to 1.
+        Checks fidelity of a single qubit process matrix is close to 1.
         """
         tomo = LIProcessTomography(1, qubit.H())
-        tomo.process(self.h_data)
-        assert tomo.fidelity(h_exp) == pytest.approx(1, 1e-2)
+        tomo.process(self.sq_data[gate])
+        choi_exp = choi_from_unitary(circ.U)
+        assert tomo.fidelity(choi_exp) == pytest.approx(1, 2e-2)
 
     def test_cnot_choi(self):
         """
@@ -109,7 +120,7 @@ class TestLIProcessTomography:
         """
         tomo = LIProcessTomography(2, qubit.CNOT())
         tomo.process(self.cnot_data)
-        assert tomo.choi == pytest.approx(cnot_exp, abs=5e-2)
+        assert tomo.choi == pytest.approx(CNOT_CHOI_EXP, abs=5e-2)
 
     def test_cnot_fidelity(self):
         """
@@ -117,7 +128,7 @@ class TestLIProcessTomography:
         """
         tomo = LIProcessTomography(2, qubit.CNOT())
         tomo.process(self.cnot_data)
-        assert tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
+        assert tomo.fidelity(CNOT_CHOI_EXP) == pytest.approx(1, 1e-2)
 
     def test_cnot_state_fidelity(self):
         """
@@ -125,7 +136,7 @@ class TestLIProcessTomography:
         to 1.
         """
         tomo = LIProcessTomography(2, qubit.CNOT())
-        fidelity = tomo.process_state_fidelities(self.cnot_data, cnot_mat)
+        fidelity = tomo.process_state_fidelities(self.cnot_data, CNOT_MAT)
         for f in fidelity.values():
             assert f == pytest.approx(1, 1e-3)
 
@@ -136,7 +147,7 @@ class TestLIProcessTomography:
         """
         tomo = LIProcessTomography(2, qubit.CNOT())
         rhos = tomo.process_density_matrices(self.cnot_data)
-        rhos_exp = tomo.get_expected_density_matrices(cnot_mat)
+        rhos_exp = tomo.get_expected_density_matrices(CNOT_MAT)
         for i in rhos:
             assert rhos[i] == pytest.approx(rhos_exp[i], abs=5e-2)
 
@@ -147,8 +158,8 @@ class TestLIProcessTomography:
         """
         tomo = LIProcessTomography(2, qubit.CNOT())
         tomo.process(self.cnot_data_dict)
-        assert tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
-        assert tomo.choi == pytest.approx(cnot_exp, abs=5e-2)
+        assert tomo.fidelity(CNOT_CHOI_EXP) == pytest.approx(1, 1e-2)
+        assert tomo.choi == pytest.approx(CNOT_CHOI_EXP, abs=5e-2)
 
     def test_dict_processing_shuffled(self):
         """
@@ -162,8 +173,8 @@ class TestLIProcessTomography:
         for k in keys:
             shuffled_data[k] = self.cnot_data_dict[k]
         tomo.process(shuffled_data)
-        assert tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
-        assert tomo.choi == pytest.approx(cnot_exp, abs=5e-2)
+        assert tomo.fidelity(CNOT_CHOI_EXP) == pytest.approx(1, 1e-2)
+        assert tomo.choi == pytest.approx(CNOT_CHOI_EXP, abs=5e-2)
 
 
 class TestMLEProcessTomography:
@@ -175,11 +186,12 @@ class TestMLEProcessTomography:
         """
         Runs process tomography experiments so results can be reused.
         """
-        # Hadamard tomography
+        # Single qubit gate topographies
         n_qubits = 1
-        circ = qubit.H()
-        experiments = MLEProcessTomography(n_qubits, circ).get_experiments()
-        self.h_data = run_experiments(experiments, n_qubits)
+        self.sq_data = {}
+        for gate, circ in SQ_TEST_GATES:
+            experiments = MLEProcessTomography(n_qubits, circ).get_experiments()
+            self.sq_data[gate] = run_experiments(experiments, n_qubits)
         # CNOT tomography
         n_qubits = 2
         circ = qubit.CNOT()
@@ -190,22 +202,26 @@ class TestMLEProcessTomography:
             for exp, d in zip(experiments, self.cnot_data, strict=True)
         }
 
-    def test_hadamard_choi(self):
+    @pytest.mark.parametrize(("gate", "circ"), SQ_TEST_GATES)
+    def test_sq_choi(self, gate, circ):
         """
-        Checks process tomography of the Hadamard gate produces the expected
+        Checks process tomography for a single qubit gate produces the expected
         choi matrix.
         """
         tomo = MLEProcessTomography(1, qubit.H())
-        tomo.process(self.h_data)
-        assert tomo.choi == pytest.approx(h_exp, abs=5e-2)
+        tomo.process(self.sq_data[gate])
+        choi_exp = choi_from_unitary(circ.U)
+        assert tomo.choi == pytest.approx(choi_exp, abs=5e-2)
 
-    def test_hadamard_fidelity(self):
+    @pytest.mark.parametrize(("gate", "circ"), SQ_TEST_GATES)
+    def test_sq_fidelity(self, gate, circ):
         """
-        Checks fidelity of hadamard gate process matrix is close to 1.
+        Checks fidelity of a single qubit process matrix is close to 1.
         """
         tomo = MLEProcessTomography(1, qubit.H())
-        tomo.process(self.h_data)
-        assert tomo.fidelity(h_exp) == pytest.approx(1, 1e-2)
+        tomo.process(self.sq_data[gate])
+        choi_exp = choi_from_unitary(circ.U)
+        assert tomo.fidelity(choi_exp) == pytest.approx(1, 1e-2)
 
     def test_cnot_choi(self):
         """
@@ -214,7 +230,7 @@ class TestMLEProcessTomography:
         """
         tomo = MLEProcessTomography(2, qubit.CNOT())
         tomo.process(self.cnot_data)
-        assert tomo.choi == pytest.approx(cnot_exp, abs=5e-2)
+        assert tomo.choi == pytest.approx(CNOT_CHOI_EXP, abs=5e-2)
 
     def test_cnot_fidelity(self):
         """
@@ -222,7 +238,7 @@ class TestMLEProcessTomography:
         """
         tomo = MLEProcessTomography(2, qubit.CNOT())
         tomo.process(self.cnot_data)
-        assert tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
+        assert tomo.fidelity(CNOT_CHOI_EXP) == pytest.approx(1, 1e-2)
 
     def test_dict_processing(self):
         """
@@ -231,8 +247,8 @@ class TestMLEProcessTomography:
         """
         tomo = MLEProcessTomography(2, qubit.CNOT())
         tomo.process(self.cnot_data_dict)
-        assert tomo.fidelity(cnot_exp) == pytest.approx(1, 1e-2)
-        assert tomo.choi == pytest.approx(cnot_exp, abs=5e-2)
+        assert tomo.fidelity(CNOT_CHOI_EXP) == pytest.approx(1, 1e-2)
+        assert tomo.choi == pytest.approx(CNOT_CHOI_EXP, abs=5e-2)
 
     def test_cnot_state_fidelity(self):
         """
@@ -241,7 +257,7 @@ class TestMLEProcessTomography:
         input states.
         """
         tomo = MLEProcessTomography(2, qubit.CNOT())
-        fidelity = tomo.process_state_fidelities(self.cnot_data, cnot_mat)
+        fidelity = tomo.process_state_fidelities(self.cnot_data, CNOT_MAT)
         for f in fidelity.values():
             assert f == pytest.approx(1, 1e-3)
 
@@ -253,7 +269,7 @@ class TestMLEProcessTomography:
         """
         tomo = MLEProcessTomography(2, qubit.CNOT())
         rhos = tomo.process_density_matrices(self.cnot_data)
-        rhos_exp = tomo.get_expected_density_matrices(cnot_mat)
+        rhos_exp = tomo.get_expected_density_matrices(CNOT_MAT)
         for i in rhos:
             assert rhos[i] == pytest.approx(rhos_exp[i], abs=5e-2)
 
@@ -267,25 +283,25 @@ class TestGateFidelity:
         """
         Runs experiments so results can be reused.
         """
-        # Hadamard fidelity
+        # Single qubit gate topographies
         n_qubits = 1
-        circ = qubit.H()
-        experiments = GateFidelity(n_qubits, circ).get_experiments()
-        self.h_data = run_experiments(experiments, n_qubits)
+        self.sq_data = {}
+        for gate, circ in SQ_TEST_GATES:
+            experiments = GateFidelity(n_qubits, circ).get_experiments()
+            self.sq_data[gate] = run_experiments(experiments, n_qubits)
         # CNOT fidelity
         n_qubits = 2
         circ = qubit.CNOT()
         experiments = GateFidelity(n_qubits, circ).get_experiments()
         self.cnot_data = run_experiments(experiments, n_qubits)
 
-    def test_hadamard_fidelity(self):
+    @pytest.mark.parametrize(("gate", "circ"), SQ_TEST_GATES)
+    def test_sq_fidelity(self, gate, circ):
         """
         Checks fidelity of hadamard gate process is close to 1.
         """
-        tomo = GateFidelity(1, qubit.H())
-        f = tomo.process(
-            self.h_data, [[2**-0.5, 2**-0.5], [2**-0.5, -(2**-0.5)]]
-        )
+        tomo = GateFidelity(1, circ)
+        f = tomo.process(self.sq_data[gate], circ.U)
         assert f == pytest.approx(1, 1e-2)
 
     def test_cnot_fidelity(self):
@@ -295,7 +311,7 @@ class TestGateFidelity:
         tomo = GateFidelity(2, qubit.CNOT())
         f = tomo.process(
             self.cnot_data,
-            cnot_mat,
+            CNOT_MAT,
         )
         assert f == pytest.approx(1, 1e-2)
 

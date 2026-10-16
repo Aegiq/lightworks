@@ -1,4 +1,4 @@
-import datetime
+import datetime as dt
 import sys
 
 # Try to get value from argument, otherwise fallback to built version
@@ -10,7 +10,7 @@ else:
     raw_ver = sys.argv[1]
     current_ver = raw_ver.lstrip("v")
 
-current_date = datetime.datetime.now(tz=datetime.UTC)
+current_date = dt.datetime.now(tz=dt.UTC)
 
 version_str = f"version: v{current_ver}\n"
 date_str = (
