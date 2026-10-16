@@ -1,7 +1,7 @@
-import datetime
+import datetime as dt
 import os
 
-current_year = f"{datetime.datetime.now(tz=datetime.UTC).year:04d}"
+current_year = f"{dt.datetime.now(tz=dt.UTC).year:04d}"
 
 for directory in ["lightworks", "docs", "tests"]:
     for root, _, files in os.walk(f"{directory}"):
