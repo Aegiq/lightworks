@@ -22,11 +22,11 @@ remote photonic hardware and with local simulation tools.
 
 Key objects:
 
-    Circuit : Provides a tool for building linear optic circuits across a
-        number of modes. Circuit also supports addition for combination of
-        sub-circuits and can be used with built-in Parameter objects to allow
-        for adjustment of the circuit configuration after creation. Circuit
-        also has a display method so the created circuit can be viewed.
+    PhotonicCircuit : Provides a tool for building linear optic circuits across
+        a number of modes. It also supports addition for combination of
+        sub-circuits and can be used with the built-in Parameter objects to
+        allow for adjustment of the circuit configuration after creation. A
+        display method is also included for viewing a created circuit.
 
     State : Represents the photonic fock states which are input and output from
         the system. State objects are hashable, and so can be used as keys in
@@ -64,9 +64,11 @@ from .sdk.utils import (
 from .sdk.utils.exceptions import *  # ruff: ignore[undefined-local-with-import-star]
 from .sdk.visualisation import display
 
-# If installed then also import the remote module
+# Import optional modules as available
 with contextlib.suppress(ModuleNotFoundError):
     import lightworks_remote as remote  # ruff: ignore[unused-import]
+with contextlib.suppress(ModuleNotFoundError):
+    import lightworks_fermionic as fermionic  # ruff: ignore[unused-import]
 
 __all__ = [
     "Analyzer",
