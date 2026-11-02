@@ -12,7 +12,7 @@ Included within Lightworks is also an emulator, allowing users to evaluate the o
 
 ## Usage
 
-Python versions 3.10-3.14 are supported.
+Python versions 3.11-3.15 are supported.
 
 Lightworks can be installed through pip using the command:
 
@@ -22,7 +22,7 @@ pip install lightworks
 
 ## Documentation
 
-Documentation of this package is hosted at: https://aegiq.github.io/lightworks/
+Documentation of this package can be found at: https://aegiq.github.io/lightworks/
 
 ## Contributing
 

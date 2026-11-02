@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "lightworks"
 description = "Open-source Python SDK for photonic quantum computation."
 license = "Apache-2.0"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dynamic = ["version", "readme"]
 authors = [
   { name = "Aegiq Ltd." },
@@ -26,11 +26,11 @@ dependencies = [
 classifiers = [
   "Natural Language :: English",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
   "Operating System :: OS Independent",
 ]
 
