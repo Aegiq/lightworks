@@ -104,6 +104,7 @@ class TestLIProcessTomography:
         assert tomo.choi == pytest.approx(choi_exp, abs=5e-2)
 
     @pytest.mark.parametrize(("gate", "circ"), SQ_TEST_GATES)
+    @pytest.mark.filterwarnings("ignore:.*Matrix is ill-conditioned.")
     def test_sq_fidelity(self, gate, circ):
         """
         Checks fidelity of a single qubit process matrix is close to 1.
