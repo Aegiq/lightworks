@@ -22,7 +22,7 @@ pip install lightworks
 
 ## Documentation
 
-Documentation of this package is hosted at: https://aegiq.github.io/lightworks/
+Documentation of this package can be found at: https://aegiq.github.io/lightworks/
 
 ## Contributing
 
