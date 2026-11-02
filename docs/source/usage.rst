@@ -4,7 +4,7 @@ Usage
 Requirements
 ------------
 
-Lightworks requires Python 3.10 - 3.14 If not already installed, it can be downloaded from `python.org <https://www.python.org/>`_.
+Lightworks requires Python 3.11 - 3.15 If not already installed, it can be downloaded from `python.org <https://www.python.org/>`_.
 
 .. _installation:
 
