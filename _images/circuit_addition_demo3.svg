@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="400.0"
+   height="375.0"
+   viewBox="0 0 800 750"
+   version="1.1"
+   id="svg39"
+   sodipodi:docname="circuit_addition_demo3.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview39"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="3.0373333"
+     inkscape:cx="200.01097"
+     inkscape:cy="187.5"
+     inkscape:window-width="3072"
+     inkscape:window-height="1622"
+     inkscape:window-x="2696"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg39" />
+  <defs
+     id="defs1" />
+  <rect
+     style="fill:#ffffff;stroke-width:8.43094;stroke-opacity:0.42"
+     id="rect40"
+     width="800"
+     height="750"
+     x="0"
+     y="0" />
+  <rect
+     x="100"
+     y="25"
+     width="600"
+     height="700"
+     fill="none"
+     stroke="black"
+     id="rect1" />
+  <rect
+     x="92"
+     y="124.5"
+     width="8"
+     height="1"
+     fill="black"
+     id="rect2" />
+  <rect
+     x="92"
+     y="249.5"
+     width="8"
+     height="1"
+     fill="black"
+     id="rect3" />
+  <rect
+     x="92"
+     y="374.5"
+     width="8"
+     height="1"
+     fill="black"
+     id="rect4" />
+  <rect
+     x="92"
+     y="499.5"
+     width="8"
+     height="1"
+     fill="black"
+     id="rect5" />
+  <rect
+     x="92"
+     y="624.5"
+     width="8"
+     height="1"
+     fill="black"
+     id="rect6" />
+  <text
+     x="80"
+     y="127"
+     font-size="25"
+     fill="black"
+     text-anchor="end"
+     dominant-baseline="middle"
+     transform="rotate(0, 80, 127)"
+     id="text6">0</text>
+  <text
+     x="80"
+     y="252"
+     font-size="25"
+     fill="black"
+     text-anchor="end"
+     dominant-baseline="middle"
+     transform="rotate(0, 80, 252)"
+     id="text7">1</text>
+  <text
+     x="80"
+     y="377"
+     font-size="25"
+     fill="black"
+     text-anchor="end"
+     dominant-baseline="middle"
+     transform="rotate(0, 80, 377)"
+     id="text8">2</text>
+  <text
+     x="80"
+     y="502"
+     font-size="25"
+     fill="black"
+     text-anchor="end"
+     dominant-baseline="middle"
+     transform="rotate(0, 80, 502)"
+     id="text9">3</text>
+  <text
+     x="80"
+     y="627"
+     font-size="25"
+     fill="black"
+     text-anchor="end"
+     dominant-baseline="middle"
+     transform="rotate(0, 80, 627)"
+     id="text10">4</text>
+  <rect
+     x="149.95"
+     y="121.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect10" />
+  <rect
+     x="149.95"
+     y="246.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect11" />
+  <rect
+     x="200"
+     y="100.0"
+     width="50"
+     height="175"
+     fill="#3e368d"
+     stroke="black"
+     rx="5"
+     ry="5"
+     id="rect12" />
+  <text
+     x="225.0"
+     y="187.5"
+     font-size="25"
+     fill="white"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 225.0, 187.5)"
+     id="text12">BS</text>
+  <text
+     x="225.0"
+     y="300"
+     font-size="18"
+     fill="black"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 225.0, 300)"
+     id="text13">r = 0.5</text>
+  <rect
+     x="249.95"
+     y="121.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect13" />
+  <rect
+     x="249.95"
+     y="246.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect14" />
+  <rect
+     x="149.95"
+     y="371.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect15" />
+  <rect
+     x="149.95"
+     y="496.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect16" />
+  <rect
+     x="200"
+     y="350.0"
+     width="50"
+     height="175"
+     fill="#3e368d"
+     stroke="black"
+     rx="5"
+     ry="5"
+     id="rect17" />
+  <text
+     x="225.0"
+     y="437.5"
+     font-size="25"
+     fill="white"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 225.0, 437.5)"
+     id="text17">BS</text>
+  <text
+     x="225.0"
+     y="550"
+     font-size="18"
+     fill="black"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 225.0, 550)"
+     id="text18">r = 0.5</text>
+  <rect
+     x="249.95"
+     y="371.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect18" />
+  <rect
+     x="249.95"
+     y="496.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect19" />
+  <rect
+     x="299.95"
+     y="246.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect20" />
+  <rect
+     x="299.95"
+     y="371.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect21" />
+  <rect
+     x="350"
+     y="225.0"
+     width="50"
+     height="175"
+     fill="#3e368d"
+     stroke="black"
+     rx="5"
+     ry="5"
+     id="rect22" />
+  <text
+     x="375.0"
+     y="312.5"
+     font-size="25"
+     fill="white"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 375.0, 312.5)"
+     id="text22">BS</text>
+  <text
+     x="375.0"
+     y="425"
+     font-size="18"
+     fill="black"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 375.0, 425)"
+     id="text23">r = 0.5</text>
+  <rect
+     x="399.95"
+     y="246.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect23" />
+  <rect
+     x="399.95"
+     y="371.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect24" />
+  <rect
+     x="149.95"
+     y="621.0"
+     width="150.1"
+     height="8"
+     fill="black"
+     id="rect25" />
+  <rect
+     x="299.95"
+     y="496.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect26" />
+  <rect
+     x="299.95"
+     y="621.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect27" />
+  <rect
+     x="350"
+     y="475.0"
+     width="50"
+     height="175"
+     fill="#3e368d"
+     stroke="black"
+     rx="5"
+     ry="5"
+     id="rect28" />
+  <text
+     x="375.0"
+     y="562.5"
+     font-size="25"
+     fill="white"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 375.0, 562.5)"
+     id="text28">BS</text>
+  <text
+     x="375.0"
+     y="675"
+     font-size="18"
+     fill="black"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(0, 375.0, 675)"
+     id="text29">r = 0.5</text>
+  <rect
+     x="399.95"
+     y="496.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect29" />
+  <rect
+     x="399.95"
+     y="621.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect30" />
+  <rect
+     x="449.95"
+     y="246.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect31" />
+  <rect
+     x="449.95"
+     y="371.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect32" />
+  <rect
+     x="449.95"
+     y="496.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect33" />
+  <rect
+     x="500"
+     y="225.0"
+     width="100"
+     height="300"
+     fill="#1a0f36"
+     stroke="black"
+     rx="5"
+     ry="5"
+     id="rect34" />
+  <text
+     x="550.0"
+     y="375.0"
+     font-size="25"
+     fill="white"
+     text-anchor="middle"
+     dominant-baseline="middle"
+     transform="rotate(270, 550.0, 375.0)"
+     id="text34">phases</text>
+  <rect
+     x="599.95"
+     y="246.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect35" />
+  <rect
+     x="599.95"
+     y="371.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect36" />
+  <rect
+     x="599.95"
+     y="496.0"
+     width="50.1"
+     height="8"
+     fill="black"
+     id="rect37" />
+  <rect
+     x="299.95"
+     y="121.0"
+     width="350.1"
+     height="8"
+     fill="black"
+     id="rect38" />
+  <rect
+     x="449.95"
+     y="621.0"
+     width="200.1"
+     height="8"
+     fill="black"
+     id="rect39" />
+</svg>
